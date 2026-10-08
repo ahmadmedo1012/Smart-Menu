@@ -84,7 +84,7 @@ export function SearchInput({
 				onChange={(e) => handleChange(e.target.value)}
 				aria-label={ariaLabel ?? placeholder}
 				aria-controls={liveId}
-				className="h-11 w-full rounded-md border border-border/30 bg-card/50 ps-11 pe-10 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:ring-offset-0"
+				className="h-11 w-full rounded-md border border-border/30 bg-card/50 ps-11 pe-10 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60 focus-visible:ring-offset-0"
 			/>
 			{hasValue && (
 				<button
@@ -92,7 +92,7 @@ export function SearchInput({
 					onClick={handleClear}
 					aria-label="مسح البحث"
 					title="مسح البحث"
-					className="absolute end-2 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+					className="absolute end-2 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
 				>
 					<AnimatedX size={16} className="text-current" />
 				</button>

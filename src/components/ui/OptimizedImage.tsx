@@ -89,7 +89,7 @@ const OptimizedImage = memo(function OptimizedImage({
           alt={alt}
           fill
           className={cn(
-            "object-cover transition-opacity duration-500",
+            "object-cover transition-opacity duration-slower",
             status === "loaded" ? "opacity-100" : "opacity-0",
             imageClassName,
           )}

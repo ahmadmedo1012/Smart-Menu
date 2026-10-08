@@ -237,7 +237,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                                 className={cn(
                                         'group flex h-9 w-full items-center gap-2 rounded-md border border-border/30 bg-card/40 px-3 text-sm text-muted-foreground/60 transition-[color,background-color,border-color,box-shadow]',
                                         'hover:border-orange/30 hover:text-muted-foreground hover:bg-card/60',
-                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/20',
+                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                         'rtl:flex-row-reverse',
                                         className
                                 )}
@@ -345,7 +345,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                                                                                                         onMouseEnter={() => setSelectedIdx(i)}
                                                                                                         className={cn(
                                                                                                                 'relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-start',
-                                                                                                                isSelected && 'text-orange',
+                                                                                                                isSelected && 'text-accent-foreground',
                                                                                                                 !isSelected && 'text-foreground/80 hover:bg-muted/50'
                                                                                                         )}
                                                                                                 >

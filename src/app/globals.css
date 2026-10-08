@@ -155,6 +155,37 @@
         --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
         --ease-smooth: cubic-bezier(0.16, 1, 0.2, 1);
 
+        /* ── r126 (P4-F1 M3): motion-ladder bridge — named duration utilities.
+           Tailwind's `--transition-duration-*` theme keys generate
+           duration-micro/fast/base/slow/slower/cinema, each consuming the
+           ladder token (so the reduced-motion token zeroing reaches them):
+           duration-200→fast(160) · 300→base(240) · 500→slower(520) ·
+           700/1000→cinema(720) — the r126 codemod renamed all 116 raw
+           utilities onto these names (audit B1). ── */
+        --transition-duration-micro: var(--t-micro);
+        --transition-duration-fast: var(--t-fast);
+        --transition-duration-base: var(--t-base);
+        --transition-duration-slow: var(--t-slow);
+        --transition-duration-slower: var(--t-slower);
+        --transition-duration-cinema: var(--t-cinema);
+
+        /* ── r126 (P4-F1 M5): elevation-ladder bridge — every default
+           shadow-* utility resolves onto --elev-1..5 (Madarek §1.9 grammar:
+           dark fill-led + inset top-light, light soft two-layer), which also
+           activates the prefers-contrast: more elevation→solid-ring collapse
+           for the 196 utilities that previously rendered default rgb(0,0,0,x)
+           shadows (audit H1). shadow-xs/sm ride elev-1 (card resting), md=2
+           (hover/dropdown), lg=3 (popover/toast), xl=4 (modal/sheet),
+           2xl=5 (lightbox). NOTE: `shadow-<size> shadow-<color>` tints become
+           no-ops on bridged sizes (Tailwind cannot recolor a var() shadow) —
+           the neutral elevation grammar is the intended Madarek look. ── */
+        --shadow-xs: var(--elev-1);
+        --shadow-sm: var(--elev-1);
+        --shadow-md: var(--elev-2);
+        --shadow-lg: var(--elev-3);
+        --shadow-xl: var(--elev-4);
+        --shadow-2xl: var(--elev-5);
+
         /* ── Glass tokens ── */
         --color-glass-bg: var(--glass-bg);
         --color-glass-border: var(--glass-border);
@@ -232,6 +263,16 @@
         --motion-stagger-cap: 6;
         --motion-direction: -1; /* [dir=rtl] default (app is RTL-first) */
         --press-scale: 0.97;    /* Madarek press ladder: buttons .97 · cards .99 */
+        /* ── r126 (P4-F1 M3): ambient loop ladder (Madarek §4.3) — infinite
+           decorative loops ONLY (never hover/press/entrance). The animate-*
+           classes below now consume these bands instead of raw 1.4-18s
+           literals (audit B4). ── */
+        --motion-duration-ambient-pulse: 1.6s;
+        --motion-duration-ambient: 2.4s;
+        --motion-duration-ambient-slow: 3.6s;
+        --motion-duration-ambient-drift: 6s;
+        --motion-duration-ambient-cinema: 9s;
+        --motion-duration-ambient-scene: 22s;
 
         /* ── Radius ladder — Madarek "Notion-soft" (§1.2) ── */
         --r-xs: 6px;  --r-sm: 8px;  --r-md: 10px; --r-lg: 12px;
@@ -295,7 +336,32 @@
         --accent-strong:    #C9962F;
         --accent-fg:        #05070F;
         --accent-ink:       #E9B44C;   /* 10.39:1 on night ground */
+        /* ── r126 (P4-F1 M2): focus interaction contract (Madarek §1.9) — the
+           ring color was already theme-scoped here + .light; the width/
+           offset/shorthand/halo twins complete the set and are now CONSUMED
+           by the global :focus-visible rule + the Input primitive halo
+           (audit D1: defined twice, consumed never). Ring clears 4.5:1 in
+           both themes (7.87:1 night / 10.29:1 cream). ── */
         --state-focus-ring-color: var(--accent-strong); /* 7.87:1 */
+        --state-focus-ring-width: 2px;
+        --state-focus-ring-offset: 2px;
+        --state-focus-ring: 0 0 0 var(--state-focus-ring-width) var(--state-focus-ring-color);
+        --state-input-focus-halo: 0 0 0 3px color-mix(in srgb, var(--accent-solid) 22%, transparent);
+
+        /* ── r126 (P4-F1 M10): z-order ladder (Madarek §1.11) — theme-
+           independent. Hotspots consume it via the Tailwind var shorthand
+           (z-(--z-toast), z-(--z-lightbox)); the legacy portal band
+           (dialog/sheet/select at z-40/50) maps to the modal rung and stays
+           on raw values until the select-portal coupling is reworked —
+           floats NEVER cover modals (r121 J-1 lesson). ── */
+        --z-base: 0;
+        --z-dropdown: 100;
+        --z-popover: 200;
+        --z-tooltip: 250;
+        --z-sheet: 300;
+        --z-modal: 400;
+        --z-toast: 500;
+        --z-lightbox: 600;
 
         /* ── Semantic status + text-safe inks (§1.6) ── */
         --success:      var(--c-mint-ink);
@@ -853,7 +919,7 @@ html.high-contrast :focus-visible {
    here — zero render sites, nothing sets [data-3d-tilt] either. */
 
 @utility animate-float-slow {
-        animation: float-slow 6s ease-in-out infinite;
+        animation: float-slow var(--motion-duration-ambient-drift, 6s) ease-in-out infinite;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -887,7 +953,8 @@ html.high-contrast :focus-visible {
                 font-size: var(--fs-body, 0.9375rem);
                 overflow-x: hidden;
                 overflow-x: clip;
-                transition: background-color 0.3s ease, color 0.3s ease;
+                /* r126 (P4-F1 M3): theme cross-fade rides the ladder (audit B6) */
+                transition: background-color var(--t-base, 240ms) var(--ease), color var(--t-base, 240ms) var(--ease);
                 font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1;
                 font-variant-numeric: lining-nums tabular-nums;
                 scrollbar-gutter: stable;
@@ -899,7 +966,7 @@ html.high-contrast :focus-visible {
         html {
                 overflow-x: hidden;
                 overflow-x: clip;
-                transition: background-color 0.3s ease, color 0.3s ease;
+                transition: background-color var(--t-base, 240ms) var(--ease), color var(--t-base, 240ms) var(--ease);
                 overscroll-behavior-y: none;
         }
 
@@ -1002,7 +1069,7 @@ html.high-contrast :focus-visible {
         a {
                 color: var(--foreground);
                 text-decoration: none;
-                transition: color 0.2s ease;
+                transition: color var(--t-fast, 160ms) var(--ease);
         }
         a:hover {
                 color: var(--orange);
@@ -1127,9 +1194,12 @@ html.high-contrast :focus-visible {
 }
 
 :focus-visible {
-        outline: 2px solid var(--ring);
-        outline-offset: 2px;
-        border-radius: var(--radius-sm);
+        /* r126 (P4-F1 M2/D5): consumes the --state-focus-ring-* contract
+           tokens (Madarek §1.9 universal ring) instead of raw literals, and
+           no longer mutates border-radius on every focused element — shape
+           comes from the element, not the focus state (audit D5). */
+        outline: var(--state-focus-ring-width, 2px) solid var(--state-focus-ring-color, var(--ring));
+        outline-offset: var(--state-focus-ring-offset, 2px);
 }
 :focus:not(:focus-visible) { outline: none; }
 
@@ -1174,7 +1244,7 @@ html.high-contrast :focus-visible {
         filter: blur(40px);
         pointer-events: none;
         z-index: 0;
-        animation: aurora-drift 18s ease-in-out infinite;
+        animation: aurora-drift var(--motion-duration-ambient-scene, 22s) ease-in-out infinite;
 }
 @keyframes aurora-drift {
         0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
@@ -1237,8 +1307,12 @@ html.high-contrast :focus-visible {
    Animation classes
    ══════════════════════════════════════════════════════════════ */
 
-.animate-scale-in { animation: scale-in 0.5s var(--ease-out-quart) both; }
-.animate-fade-in { animation: fade-in 0.5s var(--ease-out-quart) both; }
+/* r126 (P4-F1 M3, audit B2): keyframe animation durations ride the ladder —
+   0.35s→reveal(360ms) · 0.4s→page(320ms) · 0.5s/0.55s→slower(520ms) ·
+   0.6s→cinema(720ms). Reduced-motion keeps the 80ms affordances via the
+   token zeroing block at the end of this file. */
+.animate-scale-in { animation: scale-in var(--t-slower, 520ms) var(--ease-out-quart) both; }
+.animate-fade-in { animation: fade-in var(--t-slower, 520ms) var(--ease-out-quart) both; }
 
 /* r120 (U2-P1-2): above-fold visibility must never gate on the animation clock —
  * under main-thread load the fill-mode 'both' held hero CTAs at opacity:0 for
@@ -1246,32 +1320,40 @@ html.high-contrast :focus-visible {
  * elements are visible from the first paint (offset 18px) and settle up once
  * the thread frees. */
 @keyframes rise-in { from { transform: translateY(18px); } to { transform: translateY(0); } }
-.animate-rise-in { animation: rise-in 0.5s var(--ease-out-quart) both; }
-.animate-slide-up { animation: slide-up 0.6s var(--ease-out-quart) both; }
-.animate-page-enter { animation: fade-in 0.4s var(--ease-out-quart) both; }
-.animate-slide-down { animation: fade-in 0.5s var(--ease-out-quart) both; }
+.animate-rise-in { animation: rise-in var(--t-slower, 520ms) var(--ease-out-quart) both; }
+.animate-slide-up { animation: slide-up var(--t-cinema, 720ms) var(--ease-out-quart) both; }
+.animate-page-enter { animation: fade-in var(--motion-duration-page, 320ms) var(--ease-out-quart) both; }
+.animate-slide-down { animation: fade-in var(--t-slower, 520ms) var(--ease-out-quart) both; }
 /* r125 (11-b): المدة تستهلك الطبقة الدلالية لمدارك — ‎--motion-duration-reveal
  * (360ms، و80ms تحت الحركة المخفّضة) بدل الحرفي 0.5s (قانون §4.5: الكود الجديد
  * يستهلك الأسماء الدلالية). البطاقات المتدرّجة في المنيو تحافظ على نفس المنحنى. */
 .animate-reveal { animation: scale-in var(--motion-duration-reveal, 360ms) var(--ease-out-quart) both; }
 
-.animate-float { animation: float 3s var(--ease-smooth) infinite; }
-.animate-float-delayed { animation: float 3.5s var(--ease-smooth) infinite 1s; }
+/* r126 (P4-F1 M3, audit B4): ambient loops snap to the Madarek bands
+   (pulse 1.6s · ambient 2.4s · ambient-slow 3.6s · drift 6s · scene 22s). */
+.animate-float { animation: float var(--motion-duration-ambient, 2.4s) var(--ease-smooth) infinite; }
+.animate-float-delayed { animation: float var(--motion-duration-ambient-slow, 3.6s) var(--ease-smooth) infinite 1s; }
 
-.animate-breath { animation: breath 1.5s ease-in-out infinite; }
+.animate-breath { animation: breath var(--motion-duration-ambient-pulse, 1.6s) ease-in-out infinite; }
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
+/* r126 (P4-F1 M3, audit B3): the unlayered .delay-100..400 twins collided
+   with Tailwind's `delay-*` transition-delay namespace (unlayered beats
+   layered → elements inherited an unintended transition-delay) and the
+   values were off the 60ms stagger ladder — and .delay-150 (cart
+   DeliveryAddressField) was never even defined → no stagger at all.
+   Renamed to .stagger-1..4 consuming --motion-stagger-step (60ms × n). */
+.stagger-1 { animation-delay: calc(var(--motion-stagger-step, 60ms) * 1); }
+.stagger-2 { animation-delay: calc(var(--motion-stagger-step, 60ms) * 2); }
+.stagger-3 { animation-delay: calc(var(--motion-stagger-step, 60ms) * 3); }
+.stagger-4 { animation-delay: calc(var(--motion-stagger-step, 60ms) * 4); }
 
 
 .animate-hero-glow-pulse {
-        animation: hero-glow-pulse 4s var(--ease-smooth) infinite;
+        animation: hero-glow-pulse var(--motion-duration-ambient-slow, 3.6s) var(--ease-smooth) infinite;
 }
 
-.animate-orb-float { animation: orb-float 14s ease-in-out infinite; }
-.animate-orb-float-delayed { animation: orb-float 16s ease-in-out infinite 4s; }
+.animate-orb-float { animation: orb-float var(--motion-duration-ambient-scene, 22s) ease-in-out infinite; }
+.animate-orb-float-delayed { animation: orb-float var(--motion-duration-ambient-scene, 22s) ease-in-out infinite 4s; }
 
 
 .animate-confetti {
@@ -1279,20 +1361,20 @@ html.high-contrast :focus-visible {
 }
 
 .animate-pulse-dot {
-        animation: pulse-dot 1.4s ease-in-out infinite;
+        animation: pulse-dot var(--motion-duration-ambient-pulse, 1.6s) ease-in-out infinite;
 }
 
 /* r95 — أدوات حركة توأم SmartBot (لأقسام 95-B/95-C).
    حذر: ‎.animate-breath أعلاه هو نبض الشفافية القديم (1.5s) الذي تستخدمه ~19 هيكل تحميل —
    لا يعاد استهدافه. (r121-I-6: الأداة animate-breathe حُذفت — صفر استخدام.) */
 .animate-price-swap-in {
-        animation: price-swap-in 0.35s var(--ease-out-quart) both;
+        animation: price-swap-in var(--motion-duration-reveal, 360ms) var(--ease-out-quart) both;
 }
 /* r96-W4a: توأم SmartBot — سهم الأيقونة «يطير» فوق الحافة ثم يعود من أسفلها
    (نفس توقيت .ai-icon:hover .arrow-group لديهم: 1s ease-in-out infinite). */
 
 .animate-ticket-drop {
-        animation: ticket-drop 0.55s var(--ease-out-expo) both;
+        animation: ticket-drop var(--t-slower, 520ms) var(--ease-out-expo) both;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1396,6 +1478,14 @@ html.high-contrast :focus-visible {
                 --motion-duration-skeleton: 0ms;
                 --motion-duration-page: 80ms;
                 --motion-duration-reveal: 80ms;
+                /* r126 (P4-F1 M3): the whole ambient ladder dies under RM
+                   (Madarek motion.css semantic kills). */
+                --motion-duration-ambient-pulse: 0ms;
+                --motion-duration-ambient: 0ms;
+                --motion-duration-ambient-slow: 0ms;
+                --motion-duration-ambient-drift: 0ms;
+                --motion-duration-ambient-cinema: 0ms;
+                --motion-duration-ambient-scene: 0ms;
         }
         *, *::before, *::after {
                 animation-duration: 0.01ms !important;

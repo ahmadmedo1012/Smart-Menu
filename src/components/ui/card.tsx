@@ -29,15 +29,15 @@ function Card({
       tabIndex={interactive ? 0 : undefined}
       className={cn(
         "group/card relative flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground border border-border/40 shadow-sm [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
-        "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-[cubic-bezier(0.16,1,0.2,1)]",
+        "transition-[transform,box-shadow,border-color,background-color] duration-base ease-[cubic-bezier(0.16,1,0.2,1)]",
         // Elevated is opt-in for cards that represent a clear interactive surface.
-        "data-[elevation=elevated]:shadow-md data-[elevation=elevated]:hover:shadow-xl data-[elevation=elevated]:hover:shadow-orange/10 data-[elevation=elevated]:hover:-translate-y-1 data-[elevation=elevated]:hover:border-orange/35 data-[elevation=elevated]:focus-visible:ring-2 data-[elevation=elevated]:focus-visible:ring-orange/50 data-[elevation=elevated]:focus-visible:ring-offset-2",
+        "data-[elevation=elevated]:shadow-md data-[elevation=elevated]:hover:shadow-xl data-[elevation=elevated]:hover:shadow-orange/10 data-[elevation=elevated]:hover:-translate-y-1 data-[elevation=elevated]:hover:border-orange/35 data-[elevation=elevated]:focus-visible:ring-2 data-[elevation=elevated]:focus-visible:ring-ring/60 data-[elevation=elevated]:focus-visible:ring-offset-2",
         // Flat: no hover transform or shadow
-        "data-[elevation=flat]:hover:shadow-none data-[elevation=flat]:hover:translate-y-0 data-[elevation=flat]:focus-visible:ring-2 data-[elevation=flat]:focus-visible:ring-orange/50",
+        "data-[elevation=flat]:hover:shadow-none data-[elevation=flat]:hover:translate-y-0 data-[elevation=flat]:focus-visible:ring-2 data-[elevation=flat]:focus-visible:ring-ring/60",
         // Outlined: prominent border, no hover effects
-        "data-[elevation=outlined]:border-2 data-[elevation=outlined]:border-foreground/10 data-[elevation=outlined]:hover:shadow-none data-[elevation=outlined]:hover:translate-y-0 data-[elevation=outlined]:focus-visible:ring-2 data-[elevation=outlined]:focus-visible:ring-orange/50",
+        "data-[elevation=outlined]:border-2 data-[elevation=outlined]:border-foreground/10 data-[elevation=outlined]:hover:shadow-none data-[elevation=outlined]:hover:translate-y-0 data-[elevation=outlined]:focus-visible:ring-2 data-[elevation=outlined]:focus-visible:ring-ring/60",
         // Interactive: enhanced cursor and keyboard feedback
-        interactive && "cursor-pointer hover:bg-card/80 hover:border-orange/30 hover:shadow-lg active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50 focus-visible:ring-offset-2",
+        interactive && "cursor-pointer hover:bg-card/80 hover:border-orange/30 hover:shadow-lg active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2",
         variant === "glass" && "glass-card backdrop-blur-xl",
         variant === "gradient" && "bg-gradient-to-br from-orange/[0.06] via-card to-secondary/40",
         className
@@ -54,7 +54,7 @@ function Card({
       {spotlight && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+          className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-slower group-hover/card:opacity-100"
           style={{
             background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, color-mix(in srgb, var(--orange) 60%, transparent) 30deg, transparent 50deg)",
             mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
