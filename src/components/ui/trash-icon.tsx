@@ -4,7 +4,8 @@
 // the cart-toast bounce in premium-toast). Hover animations are self-contained.
 import { useCallback } from "react";
 import type { AnimatedIconProps } from "./types";
-import { m, useAnimate } from "motion/react";
+import { m } from "motion/react";
+import { useGuardedAnimate as useAnimate } from "./guarded-animate";
 
 /**
  * Resolve a CSS token (e.g. "--destructive") into a concrete color string that

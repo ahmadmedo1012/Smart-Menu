@@ -250,17 +250,14 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
   });
 
   /* ── 7. معالجة الطلبات: قبول (جديد → قيد التحضير) ── */
-  /* r135 (إصلاح CI): بطاقات الطلبات (role=link) صارت تُعرض للجوال فقط
-     منذ r133 (md:hidden) والشاشة المكتبية تحصل على جدول — والاختبار كُتب
-     أساسًا ضد البطاقات (أزرار الحالة داخلها). تثبيت viewport الجوال
-     لما تبقى من الرحلة يجعل البطاقات هي العرض الفعلي، والاختبارات
-     اللاحقة (الإحصاءات/QR) عناوين ومعرّفات لا تتأثر بالعرض.
-     الجوال هو جهاز المالك الأساسي في السوق الليبي أصلًا — هذا المسار
-     هو الأهم اختبارًا. */
-  test.use({ viewport: { width: 375, height: 720 } });
+  /* r135 (إصلاح CI — الجولة الثانية): بطاقات role=link صارت md:hidden
+     (عرض الجوال فقط) منذ r133 والشاشة المكتبية (سياق ownerPage المُنشأ
+     يدويًا 1280×800 في beforeAll — test.use لا يمسّه) تعرض الجدول.
+     الاختبار يستهدف الآن صفوف الجدول: نفس البنية (رقم الطلب + شارة
+     الحالة + أزرار التقدم/الإلغاء) داخل خلايا الصف. */
   test("قبول الطلب الأول: جديد → قيد التحضير", async () => {
     await ownerPage.goto("/owner/orders", { waitUntil: "domcontentloaded", timeout: 45000 });
-    const card = ownerPage.locator('[role="link"]').filter({ hasText: orderNoAccepted }).first();
+    const card = ownerPage.locator("tbody tr").filter({ hasText: orderNoAccepted }).first();
     await expect(card).toBeVisible({ timeout: 20000 });
     await expect(card.getByText("جديد", { exact: true })).toBeVisible();
 
@@ -275,7 +272,7 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
 
   /* ── 8. معالجة الطلبات: رفض (إلغاء الطلب الثاني) ── */
   test("رفض الطلب الثاني: إلغاء → ملغي", async () => {
-    const card = ownerPage.locator('[role="link"]').filter({ hasText: orderNoCancelled }).first();
+    const card = ownerPage.locator("tbody tr").filter({ hasText: orderNoCancelled }).first();
     await expect(card).toBeVisible({ timeout: 20000 });
     await expect(card.getByText("جديد", { exact: true })).toBeVisible();
 

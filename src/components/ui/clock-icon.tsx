@@ -4,7 +4,8 @@
 // the cart-toast bounce in premium-toast). Hover animations are self-contained.
 
 import type { AnimatedIconProps } from "./types";
-import { m, useAnimate } from "motion/react";
+import { m } from "motion/react";
+import { useGuardedAnimate as useAnimate } from "./guarded-animate";
 
 function ClockIcon({ size = 24, color = "currentColor", strokeWidth = 2, className = "" }: AnimatedIconProps) {
     const [scope, animate] = useAnimate();

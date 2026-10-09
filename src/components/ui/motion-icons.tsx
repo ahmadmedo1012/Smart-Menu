@@ -3,7 +3,8 @@
 // an edit leftover — a module needs exactly one.
 
 import { Plus, Check, Minus, Search, ArrowLeft, ArrowRight, Menu as MenuIcon, ChevronLeft, ChevronRight, ChevronDown, LogIn } from 'lucide-react';
-import { m, useAnimate } from 'motion/react';
+import { m } from 'motion/react';
+import { useGuardedAnimate as useAnimate } from "./guarded-animate";
 import { forwardRef, useImperativeHandle, type SVGProps } from 'react';
 
 /**

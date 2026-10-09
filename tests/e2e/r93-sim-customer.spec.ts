@@ -166,12 +166,23 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await expect(dialog.getByText("اختر على الأقل 1")).toBeVisible();
     await expect(dialog.locator('fieldset[aria-label="إضافات"]')).toBeVisible();
 
-    // بوابة r93-W1a/w3-f1: الإرسال قبل اختيار الحجم يُردّ برسالة عربية واضحة
-    // r120-U3 renamed the OrderDialog CTA to the honest «أضف إلى السلة» (was «أرسل الطلب عبر واتساب») — pin updated r121.
+    /* r135 (اختيارات مسبقة — نمط Starbucks): المجموعات الإلزامية تُملأ عند
+       الفتح بأرخص خيار متاح، فيصبح «أضف إلى السلة» نقرة واحدة. الحجم
+       «صغير» (+0) هو الأرخص في بذرة r93 — نثبّت التحديد المسبق (aria-pressed)
+       بدل افتراض الحوار فارغًا كما كان الاختبار قبل r135. */
+    await expect(
+      dialog.getByRole("button", { name: "صغير", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+
+    /* بوابة r93-W1a/w3-f1 ما زالت حية — لكن مسار الوصول إليها تغيّر: لا
+       يمكن الوصول إليها بالإرسال مباشرة (الافتراضي يشبع المجموعة)، بل
+       بإلغاء تحديد الخيار المسبق (النقر على الرقاقة المحددة يفكها — سلوك
+       toggleModifierOption). نثبت البوابة عبر هذا المسار. */
+    await dialog.getByRole("button", { name: "صغير", exact: true }).click();
     await dialog.getByRole("button", { name: "أضف إلى السلة" }).click();
     await expect(dialog.getByRole("alert").first()).toHaveText(/اختر على الأقل 1 من الحجم/);
 
-    // اختيار الحجم «وسط» (+1.5) وإضافة «شوفان» (+1)
+    // اختيار الحجم «وسط» (+1.5) وإضافة «شوفان» (+1) — الراديو يستبدل الصغير
     await dialog.locator('button:has-text("وسط")').first().click();
     await dialog.locator('button:has-text("شوفان")').first().click();
     // السعر الحي: الأساسي 12 + خيارات 2.5 = 14.5، والمجموع يعكسها فورًا

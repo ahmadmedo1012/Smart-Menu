@@ -2,7 +2,8 @@
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
 import { scaledStrokeWidth } from "./types";
-import { m, useAnimate } from "motion/react";
+import { m } from "motion/react";
+import { useGuardedAnimate as useAnimate } from "./guarded-animate";
 
 const ShoppingCartIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
