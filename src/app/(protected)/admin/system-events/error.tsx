@@ -14,7 +14,7 @@ export default function AdminSystemEventsError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في أحداث النظام"
-                        description="تعذر تحميل سجل الأحداث. حاول مرة أخرى."
+                        description="تعذّر تحميل سجل الأحداث. حاول مرة أخرى."
                         backHref="/admin"
                         backLabel="العودة للوحة الإدارة"
                 />

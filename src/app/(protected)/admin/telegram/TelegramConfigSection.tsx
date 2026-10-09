@@ -98,16 +98,16 @@ export function TelegramConfigSection({
           <div className="flex gap-2 pt-2">
             <Button onClick={onSave} disabled={saving} className="rounded-xl gap-1">
               <AnimatedSave className="size-4" aria-hidden="true" />
-              {saving ? "جارٍ الحفظ..." : "حفظ الإعدادات"}
+              {saving ? "جارٍ الحفظ…" : "حفظ الإعدادات"}
             </Button>
             <Button variant="outline" onClick={onTest}
               disabled={testing || !config.botToken.trim() || !config.chatId.trim()} className="rounded-xl gap-1">
               {testing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <AnimatedSend className="size-4" aria-hidden="true" />}
-              {testing ? "جارٍ..." : "اختبار الإرسال"}
+              {testing ? "جارٍ…" : "اختبار الإرسال"}
             </Button>
             <Button variant="outline" onClick={onDiagnose} disabled={diagnosing} className="rounded-xl gap-1">
               {diagnosing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Stethoscope className="size-4" aria-hidden="true" />}
-              {diagnosing ? "جارٍ..." : "تشخيص"}
+              {diagnosing ? "جارٍ…" : "تشخيص"}
             </Button>
           </div>
         </div>

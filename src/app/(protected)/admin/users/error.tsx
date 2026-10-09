@@ -14,7 +14,7 @@ export default function AdminUsersError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في المستخدمين"
-                        description="تعذر تحميل قائمة المستخدمين. حاول مرة أخرى."
+                        description="تعذّر تحميل قائمة المستخدمين. حاول مرة أخرى."
                         backHref="/admin"
                         backLabel="العودة للوحة التحكم"
                 />

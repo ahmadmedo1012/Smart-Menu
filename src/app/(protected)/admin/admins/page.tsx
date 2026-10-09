@@ -68,7 +68,7 @@ export default function AdminAdminsPage() {
       const json = await res.json()
       setAdmins(json.data ?? [])
     } catch {
-      setError("تعذر تحميل المسؤولين")
+      setError("تعذّر تحميل المسؤولين")
     } finally {
       setLoading(false)
     }
@@ -93,7 +93,7 @@ export default function AdminAdminsPage() {
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "تعذر إنشاء المسؤول")
+        throw new Error(data.error || "تعذّر إنشاء المسؤول")
       }
       premiumToast("success", "تم إنشاء المسؤول بنجاح")
       setInviteOpen(false)
@@ -101,7 +101,7 @@ export default function AdminAdminsPage() {
       setInvitePerms([])
       fetchAdmins()
     } catch (e) {
-      premiumToast("error", getErrorMessage(e, "تعذر إنشاء المسؤول"))
+      premiumToast("error", getErrorMessage(e, "تعذّر إنشاء المسؤول"))
     } finally {
       setInviting(false)
     }
@@ -126,7 +126,7 @@ export default function AdminAdminsPage() {
       setEditTarget(null)
       fetchAdmins()
     } catch {
-      premiumToast("error", "تعذر تحديث الصلاحيات")
+      premiumToast("error", "تعذّر تحديث الصلاحيات")
     } finally {
       setEditing(false)
     }
@@ -139,7 +139,7 @@ export default function AdminAdminsPage() {
       premiumToast("refresh", "تم إلغاء جميع الجلسات")
       fetchAdmins()
     } catch {
-      premiumToast("error", "تعذر إلغاء الجلسات")
+      premiumToast("error", "تعذّر إلغاء الجلسات")
     }
   }
 
@@ -149,12 +149,12 @@ export default function AdminAdminsPage() {
     try {
       const res = await csrfFetch(`/api/admin/admins/${deleteTarget.id}`, { method: "DELETE" })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error || "تعذر الحذف")
+      if (!res.ok) throw new Error(json.error || "تعذّر الحذف")
       premiumToast("trash", "تم حذف المسؤول")
       setDeleteTarget(null)
       fetchAdmins()
     } catch (e) {
-      premiumToast("error", getErrorMessage(e, "تعذر حذف المسؤول"))
+      premiumToast("error", getErrorMessage(e, "تعذّر حذف المسؤول"))
     } finally {
       setDeleting(false)
     }
@@ -164,7 +164,7 @@ export default function AdminAdminsPage() {
   if (loading) {
     return (
       <div className="space-y-4 animate-fade-in">
-        <LoadingAnnouncer loading message="جارٍ تحميل المسؤولين..." />
+        <LoadingAnnouncer loading message="جارٍ تحميل المسؤولين…" />
         {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
       </div>
     )
@@ -383,7 +383,7 @@ export default function AdminAdminsPage() {
             </div>
 
             <Button onClick={handleInvite} disabled={inviting} className="w-full gap-2 h-11 rounded-xl">
-              {inviting ? "جارٍ..." : <><UserPlus className="size-4" /> إضافة المسؤول</>}
+              {inviting ? "جارٍ…" : <><UserPlus className="size-4" /> إضافة المسؤول</>}
             </Button>
           </div>
         </SheetContent>
@@ -420,7 +420,7 @@ export default function AdminAdminsPage() {
           </div>
 
           <Button onClick={handleEdit} disabled={editing} className="w-full gap-2 h-11 rounded-xl mt-6">
-            {editing ? "جارٍ..." : "حفظ التغييرات"}
+            {editing ? "جارٍ…" : "حفظ التغييرات"}
           </Button>
         </SheetContent>
       </Sheet>
@@ -437,7 +437,7 @@ export default function AdminAdminsPage() {
           <div className="flex gap-2 mt-6">
             <Button variant="outline" onClick={() => setDeleteTarget(null)} className="flex-1 h-11">إلغاء</Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting} className="flex-1 h-11">
-              {deleting ? "جارٍ..." : "حذف"}
+              {deleting ? "جارٍ…" : "حذف"}
             </Button>
           </div>
         </SheetContent>

@@ -97,7 +97,7 @@ export function ShareAfterOrder({
                                 setStep('referral');
                                 premiumToast('gift', 'تم تفعيل برنامج الولاء!');
                         } else {
-                                premiumToast('error', json.error || 'تعذر تفعيل برنامج الولاء');
+                                premiumToast('error', json.error || 'تعذّر تفعيل برنامج الولاء');
                         }
                 } catch {
                         premiumToast('error', 'حدث خطأ في الاتصال');
@@ -117,7 +117,7 @@ export function ShareAfterOrder({
                         if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
                         copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
                 } catch {
-                        premiumToast('error', 'فشل نسخ الرابط');
+                        premiumToast('error', 'تعذّر نسخ الرابط');
                 }
         }, [referralUrl, referralCode]);
 
@@ -130,7 +130,7 @@ export function ShareAfterOrder({
 ادعوك لتجربة الطلب عبر الربط الذكي
 ${referralUrl}
 
-استمتع بخصم 10٪ عند استخدام رابط الإحالة الخاص بي! 😊`;
+استمتع بخصم 10% عند استخدام رابط الإحالة الخاص بي! 😊`;
                 // round97-X3: shared wa.me builder (encodes internally).
                 window.open(buildWhatsAppShareUrl(text), '_blank');
         }, [referralUrl, referralCode]);
@@ -139,7 +139,7 @@ ${referralUrl}
 
         const handleShareInstagram = useCallback(() => {
                 if (!referralCode) return;
-                const text = `ادعوك لتجربة الطلب عبر الربط الذكي واستمتع بخصم 10٪ 🎉\n${referralUrl}`;
+                const text = `ادعوك لتجربة الطلب عبر الربط الذكي واستمتع بخصم 10% 🎉\n${referralUrl}`;
                 navigator.clipboard.writeText(text);
                 premiumToast('copy', 'تم نسخ النص — شاركه الآن في قصتك على إنستغرام');
         }, [referralUrl, referralCode]);
@@ -198,7 +198,7 @@ ${referralUrl}
                                                                 <div className="mx-auto mb-3 size-14 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
                                                                         <Gift className="size-7 text-orange-foreground" />
                                                                 </div>
-                                                                <p className="text-base font-semibold mb-1">ادع صديق وكل منكما يحصل على خصم 10٪</p>
+                                                                <p className="text-base font-semibold mb-1">ادع صديق وكل منكما يحصل على خصم 10%</p>
                                                                 <p className="text-sm text-muted-foreground">
                                                                         أدخل رقم هاتفك لتفعيل برنامج الولاء والحصول على رابط الإحالة
                                                                 </p>
@@ -238,7 +238,7 @@ ${referralUrl}
                                                                 {loading ? (
                                                                         <span className="flex items-center gap-2">
                                                                                 <span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                                                                                جاري التفعيل...
+                                                                                جارٍ التفعيل…
                                                                         </span>
                                                                 ) : (
                                                                         <>

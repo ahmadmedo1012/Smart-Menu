@@ -62,7 +62,7 @@ export default function OwnerQRPage() {
                                         setUrl(`${window.location.origin}/menu/${r.slug}`);
                                 }
                         })
-                        .catch(() => premiumToast('error', 'فشل تحميل إعدادات المطعم'))
+                        .catch(() => premiumToast('error', 'تعذّر تحميل إعدادات المطعم'))
                         .finally(() => setLoaded(true));
         }, [activeId]);
 
@@ -87,7 +87,7 @@ export default function OwnerQRPage() {
                         link.remove();
                         premiumToast('save', 'تم تحميل رمز QR');
                 } catch {
-                        premiumToast('error', 'فشل تحميل رمز QR');
+                        premiumToast('error', 'تعذّر تحميل رمز QR');
                 }
         };
 

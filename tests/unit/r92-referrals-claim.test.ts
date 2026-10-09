@@ -307,7 +307,7 @@ describe('POST /api/referrals/claim — success write', () => {
 // ── Gate 6: failure envelope ────────────────────────────────────────────
 
 describe('POST /api/referrals/claim — failure envelope', () => {
-	it('non-P2002 create error → 500 «فشل تسجيل الإحالة» + the error is logged with its cause', async () => {
+	it('non-P2002 create error → 500 «تعذّر تسجيل الإحالة» + the error is logged with its cause', async () => {
 		mockReferralCreate.mockRejectedValue(new Error('connection lost'));
 
 		const res = await callClaim({ code: 'ABC123' }, { 'x-forwarded-for': '1.1.1.1' });
@@ -315,7 +315,7 @@ describe('POST /api/referrals/claim — failure envelope', () => {
 		expect(res.status).toBe(500);
 		const json = await res.json();
 		expect(json.success).toBe(false);
-		expect(json.error).toBe('فشل تسجيل الإحالة');
+		expect(json.error).toBe('تعذّر تسجيل الإحالة');
 		expect(mockLogError).toHaveBeenCalledWith(
 			'referral claim error',
 			expect.objectContaining({ error: expect.stringContaining('connection lost') }),
@@ -329,7 +329,7 @@ describe('POST /api/referrals/claim — failure envelope', () => {
 
 		expect(res.status).toBe(500);
 		const json = await res.json();
-		expect(json.error).toBe('فشل تسجيل الإحالة');
+		expect(json.error).toBe('تعذّر تسجيل الإحالة');
 	});
 });
 

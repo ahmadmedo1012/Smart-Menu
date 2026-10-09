@@ -22,7 +22,7 @@ interface NavLinkProps {
  *   · active = gold wash (bg-orange/12) + ink label + the dark-mode gold
  *     halo; inactive hover = surface-2 (bg-muted), not a gold tint.
  *   · the accent rail is 3px × 16px on the inline-START edge
- *     (-start-[3px], rounded-e-[2px]) — was a 2px × 24px bar on the
+ *     (-start-[3px], rounded-e-full — 3px rail, radius clamps to fully-rounded ends) — was a 2px × 24px bar on the
  *     inline-END edge (the wrong side in RTL chrome). The layoutId spring
  *     pop between items stays (framer pop is sanctioned).
  *   · icon bounce retired: no group-hover scale-110, no drop-shadow glow —
@@ -49,7 +49,7 @@ export function NavLink({ href, label, icon: Icon, onClick }: NavLinkProps) {
         <LayoutMotion>
           <m.span
             layoutId="activeNavIndicator"
-            className="absolute -start-[3px] top-[calc(50%-8px)] block h-4 w-[3px] rounded-e-[2px] bg-[var(--accent-solid)]"
+            className="absolute -start-[3px] top-[calc(50%-8px)] block h-4 w-[3px] rounded-e-full bg-[var(--accent-solid)]"
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
           />
         </LayoutMotion>

@@ -43,7 +43,7 @@ const MARQUEE_ITEMS = [
         "وجبات خفيفة",
         "برنامج ولاء ومكافآت",
         "داخل المكان · سفري · توصيل",
-        "بدون تسجيل للزبون",
+        "بدون تسجيل للعميل",
         "منيو يشرح نفسه",
 ];
 
@@ -227,7 +227,7 @@ export function HomePage({
                                                         <li aria-hidden="true" className="ln-hero-meta-dot" />
                                                         <li><Languages size={13} aria-hidden="true" /> واجهة عربية بالكامل</li>
                                                         <li aria-hidden="true" className="ln-hero-meta-dot" />
-                                                        <li><Smartphone size={13} aria-hidden="true" /> بدون تثبيت للزبون</li>
+                                                        <li><Smartphone size={13} aria-hidden="true" /> بدون تثبيت للعميل</li>
                                                 </RevealCssClass>
                                         </div>
 

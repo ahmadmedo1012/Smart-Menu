@@ -127,7 +127,7 @@ export default function OwnerDashboard() {
                                 setStats((prev) => (prev ? { ...prev, advancedStats: advData.data } : prev));
                         }
                 } catch {
-                        setError('تعذر تحميل البيانات');
+                        setError('تعذّر تحميل البيانات');
                 } finally {
                         setLoading(false);
                 }
@@ -157,7 +157,7 @@ export default function OwnerDashboard() {
                                 aria-label="جارٍ تحميل بيانات لوحة التحكم"
                                 className="space-y-8 animate-fade-in"
                         >
-                                <LoadingAnnouncer loading={true} message="جارٍ تحميل بيانات لوحة التحكم..." />
+                                <LoadingAnnouncer loading={true} message="جارٍ تحميل بيانات لوحة التحكم…" />
                                 <KpiGridSkeleton />
                                 <div className="grid gap-6 lg:grid-cols-3">
                                         <ListCardSkeleton />
@@ -205,7 +205,7 @@ export default function OwnerDashboard() {
                 return (
                         <ErrorState
                                 title={error}
-                                description="تعذر تحميل بيانات المطعم — تحقق من الاتصال ثم أعد المحاولة."
+                                description="تعذّر تحميل بيانات المطعم — تحقق من الاتصال ثم أعد المحاولة."
                                 onRetry={() => activeId && load(activeId)}
                         />
                 );

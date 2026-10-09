@@ -9,8 +9,14 @@ import { radius } from "@/theme/radius";
 
 /**
  * r126-M9: Card (0 usages), Badge (0 usages + a latent 1.2:1 contrast bug
- * on the muted variant) and Skeleton (0 usages) were deleted — screens
- * hand-roll their cards and loading is a full-screen Spinner today.
+ * on the muted variant) were deleted — screens hand-roll their cards.
+ * Skeleton was deleted with them, then RESURRECTED by r132-F2b as its own
+ * module (ui/Skeleton.tsx — the family shape-skeleton primitive) and is
+ * now the loading state on 7 screens (Menu, Pricing, SubscribePlan, owner
+ * dashboard/orders/detail/QR); this barrel keeps only the state family.
+ * Full-screen loading is a shape skeleton today, not a Spinner (r133-F3
+ * finished the sweep — the one surviving Spinner is the orders list's
+ * load-more pagination feedback).
  *
  * r131-F10: the state family converges on the canonical Madarek well —
  * 56px r-xl icon tile (grey family for empty, rose for error), title

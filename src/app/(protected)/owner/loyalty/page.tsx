@@ -216,7 +216,7 @@ function RedeemPanel({ restaurantId, onRedeemed }: { restaurantId: number | null
                         }
                 } catch {
                         setPhase('idle');
-                        setNotice({ kind: 'error', text: 'تعذر البحث — تحقق من الاتصال' });
+                        setNotice({ kind: 'error', text: 'تعذّر البحث — تحقق من الاتصال' });
                 }
         };
 
@@ -238,7 +238,7 @@ function RedeemPanel({ restaurantId, onRedeemed }: { restaurantId: number | null
                         onRedeemed();
                 } catch (e) {
                         setPhase('found');
-                        setNotice({ kind: 'error', text: e instanceof Error ? e.message : 'تعذر الاستبدال — حاول مجدداً' });
+                        setNotice({ kind: 'error', text: e instanceof Error ? e.message : 'تعذّر الاستبدال — حاول مجدداً' });
                 }
         };
 
@@ -345,7 +345,7 @@ export default function OwnerLoyaltyPage() {
                         if (json.success && json.data) setStats(json.data);
                         else throw new Error('invalid_response');
                 } catch {
-                        setError('فشل تحميل بيانات الولاء');
+                        setError('تعذّر تحميل بيانات الولاء');
                 } finally {
                         setLoading(false);
                 }
@@ -362,7 +362,7 @@ export default function OwnerLoyaltyPage() {
                         premiumToast('copy', 'تم نسخ رابط الإحالة');
                         setTimeout(() => setCopied(false), 2000);
                 } catch {
-                        premiumToast('error', 'تعذر نسخ الرابط');
+                        premiumToast('error', 'تعذّر نسخ الرابط');
                 }
         }, [ownerRefUrl]);
 
@@ -372,7 +372,7 @@ export default function OwnerLoyaltyPage() {
                 // cards) — was four bare animate-pulse blocks.
                 return (
                         <div className="space-y-8 animate-fade-in" aria-live="polite" aria-label="جارٍ تحميل بيانات الولاء">
-                                <LoadingAnnouncer loading message="جارٍ تحميل بيانات الولاء..." completedMessage="تم تحميل بيانات الولاء" />
+                                <LoadingAnnouncer loading message="جارٍ تحميل بيانات الولاء…" completedMessage="تم تحميل بيانات الولاء" />
                                 <KpiGridSkeleton />
                                 <div className="grid gap-6 lg:grid-cols-3">
                                         <ListCardSkeleton />
@@ -387,7 +387,7 @@ export default function OwnerLoyaltyPage() {
                 // r131-F5 (A1 P1-12): canonical error family (56px well + dot + retry).
                 return (
                         <ErrorState
-                                title="تعذر تحميل بيانات الولاء"
+                                title="تعذّر تحميل بيانات الولاء"
                                 error={error}
                                 onRetry={() => load()}
                         />

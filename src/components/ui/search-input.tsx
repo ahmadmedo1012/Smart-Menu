@@ -20,7 +20,7 @@ const DEFAULT_DEBOUNCE_MS = 275;
 export function SearchInput({
         value,
         onChange,
-        placeholder = 'ابحث...',
+        placeholder = 'ابحث…',
         className,
         'aria-label': ariaLabel,
         debounceMs,

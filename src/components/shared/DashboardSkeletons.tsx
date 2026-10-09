@@ -5,7 +5,7 @@
  * route shipped the full-page DefaultLoading spinner (big CLS jump, blank
  * 60vh viewport). These skeletons mirror the shapes of the four most-visited
  * dashboards (owner home, owner/admin orders, owner menu) reusing the
- * existing skeleton patterns (MenuSkeleton's rhythm, OwnerKpiGridSkeleton's
+ * existing skeleton patterns (MenuSkeleton's rhythm, the deleted OwnerKpiGridSkeleton's
  * KPI cards, OrderCardSkeleton's order rows — same .skeleton shimmer class,
  * which rides --motion-duration-skeleton and goes static under RM).
  */
@@ -100,7 +100,7 @@ export function ListCardSkeleton({ rows = 4 }: { rows?: number }) {
 /** Owner/admin dashboard home: KPI strip + 3-column breakdown + quick actions. */
 export function DashboardSkeleton() {
         return (
-                <SkeletonPage label="جارٍ تحميل لوحة التحكم...">
+                <SkeletonPage label="جارٍ تحميل لوحة التحكم…">
                         <HeaderSkeleton />
                         <KpiGridSkeleton />
                         <div className="grid gap-6 lg:grid-cols-3">
@@ -125,7 +125,7 @@ export function DashboardSkeleton() {
 /** Orders list page: header + search/chips + order card stack. */
 export function OrdersPageSkeleton() {
         return (
-                <SkeletonPage label="جارٍ تحميل الطلبات...">
+                <SkeletonPage label="جارٍ تحميل الطلبات…">
                         <HeaderSkeleton />
                         <FiltersSkeleton />
                         <OrderCardSkeleton count={5} />
@@ -137,7 +137,7 @@ export function OrdersPageSkeleton() {
 export function MenuManagerSkeleton() {
         const categories = [0, 1, 2];
         return (
-                <SkeletonPage label="جارٍ تحميل القائمة...">
+                <SkeletonPage label="جارٍ تحميل القائمة…">
                         <HeaderSkeleton />
                         <FiltersSkeleton />
                         <div className="space-y-3">
@@ -193,7 +193,7 @@ export function MenuManagerSkeleton() {
 export function ListPageSkeleton({
         rows = 5,
         rowHeight = 'h-20',
-        label = 'جارٍ تحميل القائمة...',
+        label = 'جارٍ تحميل القائمة…',
 }: {
         rows?: number;
         rowHeight?: string;
@@ -219,7 +219,7 @@ export function ListPageSkeleton({
 /** Table page: header + filters + surface table with 11px header row + zebra-ish rows. */
 export function TablePageSkeleton({
         rows = 6,
-        label = 'جارٍ تحميل البيانات...',
+        label = 'جارٍ تحميل البيانات…',
 }: {
         rows?: number;
         label?: string;
@@ -249,7 +249,7 @@ export function TablePageSkeleton({
 }
 
 /** Detail page (order detail): header + status card + info card grid + items card. */
-export function DetailPageSkeleton({ label = 'جارٍ تحميل التفاصيل...' }: { label?: string }) {
+export function DetailPageSkeleton({ label = 'جارٍ تحميل التفاصيل…' }: { label?: string }) {
         return (
                 <SkeletonPage label={label}>
                         <HeaderSkeleton />
@@ -293,7 +293,7 @@ export function DetailPageSkeleton({ label = 'جارٍ تحميل التفاصي
 /** Settings-style page: header + narrow stacked cards (settings, telegram, subscriptions). */
 export function SettingsPageSkeleton({
         cards = 3,
-        label = 'جارٍ تحميل الإعدادات...',
+        label = 'جارٍ تحميل الإعدادات…',
 }: {
         cards?: number;
         label?: string;
@@ -317,7 +317,7 @@ export function SettingsPageSkeleton({
 /** QR page: header + centered QR card (restaurant strip + square code + controls). */
 export function QrPageSkeleton() {
         return (
-                <SkeletonPage label="جارٍ تحميل رمز QR...">
+                <SkeletonPage label="جارٍ تحميل رمز QR…">
                         <HeaderSkeleton />
                         <div
                                 className="mx-auto max-w-xl overflow-hidden rounded-xl border border-border/60 bg-card"

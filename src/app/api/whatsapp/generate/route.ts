@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, notFound, handleError, error as apiError } from "@/lib/api-helpers";
-import { formatDate, formatPrice } from "@/lib/format";
+import { formatPrice, formatDateTripoli } from "@/lib/format";
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
@@ -122,24 +122,25 @@ export async function POST(request: NextRequest) {
     for (const oi of order.items) {
       const itemName = oi.item.nameAr || oi.item.name;
       const mods = parsedModifiers.get(oi.id) ?? [];
-      // round97-X3: prices render through the canonical formatPrice (raw
-      // template interpolation before) — integers are byte-identical
-      // ("10 د.ل"), non-half floats now round to the app-wide 1-decimal
-      // convention instead of emitting 12.25.
-      // r120 (4ba875a2): OrderItem.price now stores the EFFECTIVE unit price
-      // (base + modifier deltas) — render it AS-IS. r118-A3-P2-1's `+ deltaSum`
-      // double-counted deltas on every post-r120 modified row (line = base +
-      // 2×deltas while «المجموع» = base + deltas — the exact self-contradicting
-      // invoice r120 declared fixed). Pre-r120 base-only rows are backfilled by
+      // round97-X3: prices render through the canonical formatPrice. r133
+      // ruling R14 (A12 S11): the restaurant forward is a money DOCUMENT —
+      // explicit 2 decimals like the customer receipt (receipt.ts), so the
+      // same order no longer reads «7.50 د.ل» to the customer and «7.5 د.ل»
+      // to the restaurant. r120 (4ba875a2): OrderItem.price stores the
+      // EFFECTIVE unit price (base + modifier deltas) — render it AS-IS.
+      // r118-A3-P2-1's `+ deltaSum` double-counted deltas on every post-r120
+      // modified row (line = base + 2×deltas while «المجموع» = base + deltas
+      // — the exact self-contradicting invoice r120 declared fixed).
+      // Pre-r120 base-only rows are backfilled by
       // zz_round122_orderitem_effective_price_backfill; the «الإضافات» line
       // below stays informational (names + deltas), never arithmetic.
-      lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price))}`);
+      lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price), { decimals: 2 })}`);
       if (mods.length > 0) {
         const modText = mods
           .map((m) => {
             const label = m.nameAr || m.name;
             if (m.priceDelta === 0) return label;
-            return `${label} (${m.priceDelta > 0 ? "+" : ""}${formatPrice(m.priceDelta)})`;
+            return `${label} (${m.priceDelta > 0 ? "+" : ""}${formatPrice(m.priceDelta, { decimals: 2 })})`;
           })
           .join("، ");
         lines.push(`    الإضافات: ${modText}`);
@@ -147,9 +148,12 @@ export async function POST(request: NextRequest) {
       if (oi.notes) lines.push(`    ملاحظات: ${oi.notes}`);
     }
     lines.push("");
-    lines.push(`💰 المجموع: ${formatPrice(Number(order.total))}`);
-    if (Number(order.discount) > 0) lines.push(`🔖 الخصم: ${formatPrice(Number(order.discount))}`);
-    lines.push(`📅 ${formatDate(order.createdAt)}`);
+    lines.push(`💰 المجموع: ${formatPrice(Number(order.total), { decimals: 2 })}`);
+    if (Number(order.discount) > 0) lines.push(`🔖 الخصم: ${formatPrice(Number(order.discount), { decimals: 2 })}`);
+    // r133-A12 M2: formatDate reads the server's local clock — UTC on Vercel,
+    // 2-3h behind Libya. formatDateTripoli pins this one server-side site to
+    // Africa/Tripoli (every other formatDate consumer is client-side).
+    lines.push(`📅 ${formatDateTripoli(order.createdAt)}`);
 
     const message = lines.join("\n");
 

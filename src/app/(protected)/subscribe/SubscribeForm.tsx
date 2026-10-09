@@ -32,15 +32,24 @@ const PLAN_ICONS: Record<string, LucideIcon> = {
         Enterprise: Building2,
 };
 
-interface RestaurantInput {
+export interface RestaurantInput {
         name: string;
         slug: string;
         description: string;
         phone: string;
         whatsapp: string;
+        /* r133 (A13 S-02): stable draft id for the removable restaurant blocks —
+           never submitted (the API payload maps explicit fields only). */
+        _key?: string;
 }
 
-interface FormState {
+/* r133 (A13 S-02): key={index} on removable blocks remounted every surviving
+   block's DOM after a removal (state is controlled so no data loss, but focus
+   and transient input state jumped). Blocks now carry a draft id from birth. */
+let menuDraftSeq = 0;
+const nextMenuDraftKey = () => `menu-draft-${++menuDraftSeq}`;
+
+export interface FormState {
         restaurants: RestaurantInput[];
         username: string;
         password: string;
@@ -122,7 +131,7 @@ export function SubscribeForm({
 
         const addRestaurant = () => {
                 if (!canAddMenu) return;
-                onFormChange({ ...form, restaurants: [...menus, { ...EMPTY_RESTAURANT }] });
+                onFormChange({ ...form, restaurants: [...menus, { ...EMPTY_RESTAURANT, _key: nextMenuDraftKey() }] });
                 setSubmitted(false); // D3 fix: new empty menu shouldn't show red borders
                 setDupErrors({});
         };
@@ -213,7 +222,7 @@ export function SubscribeForm({
                 // was unresolvable (stale/renamed plan deep-link) — the user could never leave.
                 return (
                         <div className="animate-fade-in max-w-lg mx-auto py-10 text-center">
-                                <p className="text-muted-foreground mb-4">تعذر تحميل الخطة المحددة</p>
+                                <p className="text-muted-foreground mb-4">تعذّر تحميل الخطة المحددة</p>
                                 <div className="flex items-center justify-center gap-3">
                                         <Button type="button" variant="outline" onClick={onRetryPlans}>
                                                 إعادة المحاولة
@@ -297,7 +306,7 @@ export function SubscribeForm({
 
                                                         {/* Restaurant blocks */}
                                                         {menus.map((restaurant, index) => (
-                                                                <div key={index} className="rounded-2xl border border-border/50 bg-card p-4 space-y-4 relative">
+                                                                <div key={restaurant._key ?? `menu-${index}`} className="rounded-2xl border border-border/50 bg-card p-4 space-y-4 relative">
                                                                         <div className="flex items-center justify-between">
                                                                                 {/* r95: عنوان كتلة المنيو — accent-foreground (AA) */}
                                                                                 <h4 className="text-sm font-semibold text-accent-foreground">
@@ -584,7 +593,7 @@ export function SubscribeForm({
                                         <Button type="button" size="lg" className="h-14 flex-1" onClick={goNext} disabled={validating}>
                                                 {validating ? (
                                                         <span className="flex items-center gap-2">
-                                                                <Loader2 className="size-4 animate-spin" /> جارٍ التحقق...
+                                                                <Loader2 className="size-4 animate-spin" /> جارٍ التحقق…
                                                         </span>
                                                 ) : (
                                                         <>
@@ -597,7 +606,7 @@ export function SubscribeForm({
                                         <Button size="lg" className="h-14 flex-1" type="submit" disabled={submitting}>
                                                 {submitting ? (
                                                         <span className="flex items-center gap-2">
-                                                                <Loader2 className="size-4 animate-spin" /> جارٍ إنشاء الحساب...
+                                                                <Loader2 className="size-4 animate-spin" /> جارٍ إنشاء الحساب…
                                                         </span>
                                                 ) : (
                                                         <>

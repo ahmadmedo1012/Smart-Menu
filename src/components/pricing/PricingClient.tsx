@@ -222,7 +222,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                         setPlans(data.data ?? []);
                         setError(null);
                 } catch {
-                        setError('فشل تحميل الخطط');
+                        setError('تعذّر تحميل الخطط');
                 } finally {
                         setLoading(false);
                 }
@@ -264,7 +264,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                 <div className="max-w-7xl mx-auto px-4">
                                         {loading ? (
                                                 <>
-                                                        <LoadingAnnouncer loading={loading} message="جارٍ تحميل الباقات..." />
+                                                        <LoadingAnnouncer loading={loading} message="جارٍ تحميل الباقات…" />
                                                         <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
                                                         {[...Array(4)].map((_, i) => (
                                                                 /* r95: هياكل التحميل بنفس هندسة بطاقة SmartBot الجديدة */

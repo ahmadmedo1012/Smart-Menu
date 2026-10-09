@@ -10,7 +10,7 @@ export default function PrivacyLoading() {
                         aria-busy="true"
                         className="min-h-dvh"
                 >
-                        <span className="sr-only">جارٍ تحميل صفحة سياسة الخصوصية...</span>
+                        <span className="sr-only">جارٍ تحميل صفحة سياسة الخصوصية…</span>
 
                         <div className="max-w-2xl mx-auto px-4 py-12">
                                 <div className="h-8 w-64 rounded-md skeleton mb-8 animate-rise-in" aria-hidden="true" />

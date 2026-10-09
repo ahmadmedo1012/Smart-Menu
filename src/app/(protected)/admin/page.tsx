@@ -80,11 +80,11 @@ export default function AdminDashboard() {
                 try {
                         setError(null);
                         const res = await fetch('/api/admin/stats');
-                        if (!res.ok) throw new Error('تعذر تحميل البيانات');
+                        if (!res.ok) throw new Error('تعذّر تحميل البيانات');
                         const json = await res.json();
                         setStats(json.data);
                 } catch {
-                        setError('تعذر تحميل البيانات');
+                        setError('تعذّر تحميل البيانات');
                 } finally {
                         setLoading(false);
                 }
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
         useEffect(() => {
                 // r121: a denied viewer never fetches — previously the stats poll
                 // fired (and 403'd) before the access check rendered AccessDenied,
-                // showing the misleading «فشل تحميل البيانات» to a zero-permission
+                // showing the misleading «تعذّر تحميل البيانات» to a zero-permission
                 // sub_admin whose real state is «غير مصرح».
                 if (access === 'denied') return;
                 load();
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
                                 aria-label="جارٍ التحميل"
                                 className="max-w-6xl mx-auto space-y-8 animate-fade-in"
                         >
-                                <LoadingAnnouncer loading message="جارٍ تحميل لوحة التحكم..." />
+                                <LoadingAnnouncer loading message="جارٍ تحميل لوحة التحكم…" />
                                 <div className="flex items-center justify-between">
                                         <div className="space-y-2">
                                                 <div className="h-8 w-48 skeleton rounded-lg" />
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
                                                         <p className="text-xs text-accent-foreground">طلبات اليوم</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.ordersToday.count)}</p>
-                                                        <p className="text-2xs text-muted-foreground mt-0.5">
+                                                        <p className="text-2xs text-muted-foreground mt-0.5 tabular-nums">
                                                                 {formatPrice(stats.ordersToday.revenue, { suffix: ' د.ل إيراد' })}
                                                         </p>
                                                 </div>

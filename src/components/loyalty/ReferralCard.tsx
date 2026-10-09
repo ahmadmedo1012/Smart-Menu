@@ -56,7 +56,7 @@ export function ReferralCard({
                         if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
                         copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
                 } catch {
-                        premiumToast('error', 'فشل نسخ الرابط');
+                        premiumToast('error', 'تعذّر نسخ الرابط');
                 }
         }, [referralUrl]);
 

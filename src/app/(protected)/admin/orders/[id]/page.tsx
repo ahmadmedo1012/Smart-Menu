@@ -54,7 +54,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                         premiumToast('success', 'تم تغيير الحالة', getOrderStatusMeta(status).label);
                 } catch (e) {
                         // round89-E6: csrfJson throws the server's Arabic message — surface it
-                        premiumToast('error', getErrorMessage(e, 'تعذر تحديث الحالة'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تحديث الحالة'));
                 } finally {
                         setUpdating(false);
                 }
@@ -72,7 +72,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
         if (loading)
                 // r131-F4b (F5 completion, A11 SM-2): shape-matched detail skeleton
                 // — was hand-rolled animate-breath blocks.
-                return <DetailPageSkeleton label="جارٍ تحميل تفاصيل الطلب..." />;
+                return <DetailPageSkeleton label="جارٍ تحميل تفاصيل الطلب…" />;
 
         if (!order)
                 return (

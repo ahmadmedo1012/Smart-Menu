@@ -60,12 +60,12 @@ export default function AdminRestaurantsPage() {
       if (planFilter !== "all") params.set("planFilter", planFilter);
 
       const [restRes, plansRes] = await Promise.all([fetch(`/api/restaurants?${params.toString()}`), fetch("/api/plans")]);
-      if (!restRes.ok) throw new Error("تعذر تحميل البيانات");
+      if (!restRes.ok) throw new Error("تعذّر تحميل البيانات");
       const restJson = await restRes.json(); const plansJson = await plansRes.json();
       setRestaurants(restJson.data?.restaurants ?? restJson.data ?? []);
       setTotal(restJson.data?.total ?? restJson.meta?.total ?? 0);
       setPlans(plansJson.data ?? []);
-    } catch (e) { setError(getErrorMessage(e, "تعذر تحميل البيانات")) }
+    } catch (e) { setError(getErrorMessage(e, "تعذّر تحميل البيانات")) }
     finally { setLoading(false) }
   }, [page, search, planFilter]);
 
@@ -83,7 +83,7 @@ export default function AdminRestaurantsPage() {
     try {
       await csrfJson(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
       premiumToast("trash", "تم حذف المطعم"); setDeleteTarget(null); fetchData();
-    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذّر الحذف")) }
   };
 
   const toggleSelect = (id: number) => {
@@ -103,7 +103,7 @@ export default function AdminRestaurantsPage() {
       })
       premiumToast("save", show ? "تم تفعيل الظهور في الرئيسية" : "تم إخفاء المطعم من الرئيسية")
       fetchData()
-    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر التحديث")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذّر التحديث")) }
   }
 
   const bulkDelete = async () => {
@@ -113,14 +113,14 @@ export default function AdminRestaurantsPage() {
     try {
       await Promise.all([...selectedIds].map(id => csrfJson(`/api/restaurants/${id}`, { method: "DELETE" })));
       premiumToast("trash", `تم حذف ${toArabicNumber(count)} مطعم`); setSelectedIds(new Set()); fetchData();
-    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف الجماعي")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذّر الحذف الجماعي")) }
     finally { setBulkConfirmOpen(false); }
   };
 
   // ---------- Loading ----------
   if (loading && restaurants.length === 0) return (
     <div className="space-y-3 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
-      <LoadingAnnouncer loading message="جارٍ تحميل المطاعم..." />
+      <LoadingAnnouncer loading message="جارٍ تحميل المطاعم…" />
       {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   );
@@ -130,7 +130,7 @@ export default function AdminRestaurantsPage() {
   // ONE canonical ErrorState family (56px danger tile / 18-600 / retry CTA).
   if (error && restaurants.length === 0) return (
     <ErrorState
-      title="تعذر تحميل المطاعم"
+      title="تعذّر تحميل المطاعم"
       error={error}
       onRetry={fetchData}
     />
@@ -153,7 +153,7 @@ export default function AdminRestaurantsPage() {
 
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <SearchInput value={searchInput} onChange={setSearchInput} placeholder="ابحث باسم أو رابط أو هاتف..." aria-label="ابحث عن مطعم" />
+        <SearchInput value={searchInput} onChange={setSearchInput} placeholder="ابحث باسم أو رابط أو هاتف…" aria-label="ابحث عن مطعم" />
         <Select value={planFilter} onValueChange={(v) => setPlanFilter(v ?? "all")}>
           <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر الخطة">
             <SelectValue placeholder="كل الخطط" />

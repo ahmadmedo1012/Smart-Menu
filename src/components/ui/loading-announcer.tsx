@@ -6,7 +6,7 @@
  *
  * Usage:
  * ```tsx
- * <LoadingAnnouncer loading={isLoading} message="جاري تحميل البيانات..." />
+ * <LoadingAnnouncer loading={isLoading} message="جارٍ تحميل البيانات…" />
  * ```
  */
 

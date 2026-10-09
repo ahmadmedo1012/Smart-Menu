@@ -135,9 +135,8 @@ export function OrdersTable({
                                                                         <TableHead className={TH}>الأصناف</TableHead>
                                                                         <TableHead className={TH}>الإجمالي</TableHead>
                                                                         <TableHead className={TH}>الوقت</TableHead>
-                                                                        <TableHead className={cn(TH, 'text-end w-0')}>
-                                                                                <span className="sr-only">إجراءات</span>
-                                                                        </TableHead>
+                                                                        {/* r133 (A11 S10): aria-label names the empty actions header directly. */}
+                                                                        <TableHead className={cn(TH, 'text-end w-0')} aria-label="إجراءات" />
                                                                 </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
@@ -289,7 +288,7 @@ export function OrdersTable({
                                 title="إلغاء الطلب"
                                 description={
                                         cancelTarget
-                                                ? `سيتم إلغاء الطلب «${cancelTarget.orderNo}» نهائياً وإشعار الزبون بأن الطلب لن يُحضّر.`
+                                                ? `سيتم إلغاء الطلب «${cancelTarget.orderNo}» نهائياً وإشعار العميل بأن الطلب لن يُحضّر.`
                                                 : ''
                                 }
                                 confirmLabel="إلغاء الطلب"

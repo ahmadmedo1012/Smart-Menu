@@ -33,7 +33,7 @@ export function RestaurantsSection({
           عالم <em>المطاعم</em>
         </RevealCssClass>
         <RevealCssClass as="p" className="ln-chapter-lede" delay={2}>
-          تصفّح منيو مطاعم تستخدم المنصة وشاهد كيف تبدو التجربة من جهة الزبون.
+          تصفّح منيو مطاعم تستخدم المنصة وشاهد كيف تبدو التجربة من جهة العميل.
         </RevealCssClass>
       </div>
 

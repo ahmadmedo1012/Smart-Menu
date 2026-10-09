@@ -17,7 +17,7 @@ describe('getErrorMessage', () => {
     });
 
     it('Error with an EMPTY message falls back (no blank toast)', () => {
-      expect(getErrorMessage(new Error(''))).toBe('فشل تحميل البيانات');
+      expect(getErrorMessage(new Error(''))).toBe('تعذّر تحميل البيانات');
     });
 
     it('subclasses (TypeError, RangeError) behave like Error', () => {
@@ -31,8 +31,8 @@ describe('getErrorMessage', () => {
     });
 
     it('blank/whitespace-only string falls back', () => {
-      expect(getErrorMessage('')).toBe('فشل تحميل البيانات');
-      expect(getErrorMessage('   ')).toBe('فشل تحميل البيانات');
+      expect(getErrorMessage('')).toBe('تعذّر تحميل البيانات');
+      expect(getErrorMessage('   ')).toBe('تعذّر تحميل البيانات');
     });
 
     it('string is returned VERBATIM (not trimmed)', () => {
@@ -42,18 +42,18 @@ describe('getErrorMessage', () => {
 
   describe('non-Error throwables', () => {
     it('plain object with a message property does NOT leak it (only Error instances qualify)', () => {
-      expect(getErrorMessage({ message: 'raw server internals' })).toBe('فشل تحميل البيانات');
+      expect(getErrorMessage({ message: 'raw server internals' })).toBe('تعذّر تحميل البيانات');
     });
 
     it('Response-like object { ok:false, status:500 } falls back', () => {
-      expect(getErrorMessage({ ok: false, status: 500 })).toBe('فشل تحميل البيانات');
+      expect(getErrorMessage({ ok: false, status: 500 })).toBe('تعذّر تحميل البيانات');
     });
 
     it('null / undefined / numbers / empty objects fall back', () => {
-      expect(getErrorMessage(null)).toBe('فشل تحميل البيانات');
-      expect(getErrorMessage(undefined)).toBe('فشل تحميل البيانات');
-      expect(getErrorMessage(42)).toBe('فشل تحميل البيانات');
-      expect(getErrorMessage({})).toBe('فشل تحميل البيانات');
+      expect(getErrorMessage(null)).toBe('تعذّر تحميل البيانات');
+      expect(getErrorMessage(undefined)).toBe('تعذّر تحميل البيانات');
+      expect(getErrorMessage(42)).toBe('تعذّر تحميل البيانات');
+      expect(getErrorMessage({})).toBe('تعذّر تحميل البيانات');
     });
   });
 

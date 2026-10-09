@@ -109,9 +109,9 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                         const data = await res.json();
 
                         if (!res.ok) {
-                                setFormError(data.message || 'فشل تسجيل الدخول');
+                                setFormError(data.message || 'تعذّر تسجيل الدخول');
                                 usernameRef.current?.focus();
-                                premiumToast('error', data.message || 'فشل تسجيل الدخول');
+                                premiumToast('error', data.message || 'تعذّر تسجيل الدخول');
                                 return;
                         }
 
@@ -175,7 +175,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                 {/* canonical .auth-card::before — the short copper hairline */}
                                 <span
                                         aria-hidden="true"
-                                        className="absolute inset-x-[30%] top-0 h-0.5 rounded-b-[2px] bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]"
+                                        className="absolute inset-x-[30%] top-0 h-0.5 rounded-b-full bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]"
                                 />
                                 {/* Logo area */}
                                 <CardHeader className="px-[clamp(2rem,4vw,3rem)] pb-2 pt-[clamp(2rem,4vw,3rem)] text-center">
@@ -312,7 +312,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                         {loading ? (
                                                                 <span className="flex items-center gap-2">
                                                                         <LogIn className="size-4 animate-pulse" />
-                                                                        جارٍ تسجيل الدخول...
+                                                                        جارٍ تسجيل الدخول…
                                                                 </span>
                                                         ) : (
                                                                 <span className="flex items-center gap-2">

@@ -257,7 +257,9 @@ describe('r121 K-1/K-2 — one main landmark per page, no live-main', () => {
 
         it('the (protected) group main keeps the landmark but no longer owns the skip id', () => {
                 const layout = src('src/app/(protected)/layout.tsx');
-                expect(layout).toContain('<main>');
+                // r133 (A11 S2): tabIndex=-1 added (Safari/Firefox skip-target
+                // contract) — still no id= (targets live in the sub-layouts).
+                expect(layout).toContain('<main tabIndex={-1}');
                 expect(layout).not.toContain('main id=');
         });
 
@@ -392,7 +394,7 @@ describe('r121 P-5 — plan-days helpers behind the expiry banner', () => {
                 // r131 غيّرت الفعل «فشل» إلى «تعذر» (مسح الفعل على مستوى العائلة) —
                 // الدبوس لحق بالعائلة r132؛ العقد نفسه (getErrorMessage يمرر سبب
                 // الخادم) بلا تغيير.
-                expect(menu).toContain("getErrorMessage(e, 'تعذر الحفظ')");
+                expect(menu).toContain("getErrorMessage(e, 'تعذّر الحفظ')");
         });
 });
 

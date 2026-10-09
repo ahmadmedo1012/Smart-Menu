@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
  * handlers, so the component stays Server-Component-safe.
  */
 const buttonVariants = cva(
-        "group/btn relative inline-flex shrink-0 items-center justify-center rounded-md border border-transparent font-sans text-sm font-semibold whitespace-nowrap cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-[var(--t-fast,160ms)] ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))] outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] active:duration-[var(--t-micro,80ms)] disabled:pointer-events-none disabled:opacity-55 disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 isolate [&>*]:relative",
+        "group/btn relative inline-flex shrink-0 items-center justify-center rounded-md border border-transparent font-sans text-sm font-semibold whitespace-nowrap cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-[var(--t-fast,160ms)] ease-[var(--ease-out,cubic-bezier(0.16,1,0.3,1))] outline-none select-none focus-visible:border-ring active:scale-[0.97] active:duration-[var(--t-micro,80ms)] disabled:pointer-events-none disabled:opacity-55 disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 isolate [&>*]:relative",
         {
                 variants: {
                         variant: {
@@ -25,7 +25,7 @@ const buttonVariants = cva(
                                            elevation, −2px hover lift, and the ONE sheen sweep
                                            (bg-position band, 300% wide, 160% → −60%, 700ms
                                            decelerate). */
-                                        'bg-orange text-orange-foreground hover:bg-orange/95 border-0 overflow-hidden shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] transition-[box-shadow,transform,background-color,color] duration-[var(--t-base,240ms)] ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-[linear-gradient(105deg,transparent_45%,color-mix(in_oklab,var(--neutral-50)_30%,transparent)_51%,transparent_55%)] before:bg-[length:300%_100%] before:bg-no-repeat before:bg-[position:160%_0] before:transition-[background-position] before:duration-[var(--motion-duration-stat,700ms)] before:ease-[var(--ease-out,cubic-bezier(0.16,1,0.3,1))] hover:before:bg-[position:-60%_0]',
+                                        'bg-orange text-orange-foreground hover:bg-orange/95 border-0 overflow-hidden shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] transition-[box-shadow,transform,background-color,color] duration-[var(--t-base,240ms)] ease-[var(--ease-out,cubic-bezier(0.16,1,0.3,1))] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-[linear-gradient(105deg,transparent_45%,color-mix(in_oklab,var(--neutral-50)_30%,transparent)_51%,transparent_55%)] before:bg-[length:300%_100%] before:bg-no-repeat before:bg-[position:160%_0] before:transition-[background-position] before:duration-[var(--motion-duration-stat,700ms)] before:ease-[var(--ease-out,cubic-bezier(0.16,1,0.3,1))] hover:before:bg-[position:-60%_0]',
                                 flame:
                                         /* round94 (D/A8): هضبة saffron في منتصف التدرج (تقرير D: «يتدرّج من
                                            saffron مركز النص نحو ember عند الأطراف») — النص espresso الممركز
@@ -35,8 +35,11 @@ const buttonVariants = cva(
                                            القياسية (unified-smart-parity --btn-primary-bg؛ نفس محاذاة
                                            text-gradient-orange/qr-corner في r8-a). المنحدر وسلسلة التباين
                                            (espresso على saffron) كما هي. r130 (W2-3): الظلّ الملوّن
-                                           retired → رفع −2px + الظلّ الحيادي الممتاز. */
-                                        'bg-[linear-gradient(145deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso hover:brightness-110 border-0 shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] dark:hover:brightness-110',
+                                           retired → رفع −2px + الظلّ الحيادي الممتاز.
+                                           r133 (A10): hover:brightness-110 حُذف — المرجع (madarek) لا
+                                           يستعمل مرشّح السطوع إطلاقًا؛ الرفع + الظلّ الحيادي هما لغة
+                                           التحويم القانونية. */
+                                        'bg-[linear-gradient(145deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso border-0 shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)]',
                                 outline:
                                         'border-border/70 bg-transparent text-foreground hover:bg-foreground/5 hover:border-orange/40 hover:shadow-sm dark:hover:bg-foreground/10 dark:hover:border-orange/35',
                                 ghost:
@@ -47,7 +50,7 @@ const buttonVariants = cva(
                                            premium hover register as the other solid variants; the
                                            old /10 soft wash read as a disabled ghost next to the
                                            family's solid danger buttons. */
-                                        'bg-destructive text-destructive-foreground border-0 shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] hover:bg-destructive/95 focus-visible:border-destructive/40 focus-visible:ring-destructive/30',
+                                        'bg-destructive text-destructive-foreground border-0 shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] hover:bg-destructive/95 focus-visible:border-destructive/40',
                         },
                         size: {
                                 sm: 'h-8 gap-1.5 rounded-sm px-3 text-xs',
@@ -90,9 +93,14 @@ function Button({
                         {...props}
                 >
                         {loading && (
-                                <Loader2 className="animate-spin size-4" aria-hidden="true">
-                                        <title>جاري التحميل</title>
-                                </Loader2>
+                                <>
+                                        <Loader2 className="animate-spin size-4" aria-hidden="true" />
+                                        {/* r133 (A10 Must-1): busy buttons were SR-silent — the spinner is
+                                           aria-hidden and the label children unmount while loading, so a
+                                           screen reader heard nothing during the money-path submits. The
+                                           global aria-busy flag now has spoken text (SO spelling). */}
+                                        <span className="sr-only">جارٍ التحميل…</span>
+                                </>
                         )}
                         {!loading && children}
                 </ButtonPrimitive>

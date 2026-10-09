@@ -44,6 +44,6 @@ export async function POST() {
     // the old apiError(e.message, 500) leaked it to the client (dx-4 #5)
     const raw = e instanceof Error ? e.message : String(e);
     logError("seed", { error: raw });
-    return apiError("تعذر تنفيذ البذور — حدث خطأ داخلي", 500);
+    return apiError("تعذّر تنفيذ البذور — حدث خطأ داخلي", 500);
   }
 }

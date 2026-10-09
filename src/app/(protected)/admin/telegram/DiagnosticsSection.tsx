@@ -65,13 +65,13 @@ export function DiagnosticsSection({
 				body: JSON.stringify({ telegramId: Number(newApproverId), label: newApproverLabel.trim() }),
 			});
 			const json = await res.json();
-			if (!json.success) throw new Error(json.error || 'فشل الإضافة');
+			if (!json.success) throw new Error(json.error || 'تعذّر الإضافة');
 			onApproversChange([json.data, ...approvers]);
 			setNewApproverId('');
 			setNewApproverLabel('');
 			premiumToast('success', 'تمت إضافة الموافق');
 		} catch (e) {
-			premiumToast('error', getErrorMessage(e, 'فشل إضافة الموافق'));
+			premiumToast('error', getErrorMessage(e, 'تعذّر إضافة الموافق'));
 		} finally {
 			setAddingApprover(false);
 		}
@@ -81,11 +81,11 @@ export function DiagnosticsSection({
 		try {
 			const res = await csrfFetch(`/api/admin/telegram/approvers/${id}`, { method: 'DELETE' });
 			const json = await res.json();
-			if (!json.success) throw new Error(json.error || 'فشل الحذف');
+			if (!json.success) throw new Error(json.error || 'تعذّر الحذف');
 			onApproversChange(approvers.filter((x) => x.id !== id));
 			premiumToast('success', 'تم حذف الموافق');
 		} catch (e) {
-			premiumToast('error', getErrorMessage(e, 'فشل حذف الموافق'));
+			premiumToast('error', getErrorMessage(e, 'تعذّر حذف الموافق'));
 		}
 	};
 

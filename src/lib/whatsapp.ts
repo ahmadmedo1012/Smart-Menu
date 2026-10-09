@@ -11,10 +11,15 @@
  *    r107/r108). This platform's restaurants are Libyan: strip the trunk 0
  *    and prepend 218 (0912345678 → 218912345678).
  *  - validate length 8-15
+ *  - r133-A12 M1: Eastern Arabic digits (٠٩١٢…) fold to Western FIRST —
+ *    `\d` is ASCII-only, so the strip below used to delete them to "" →
+ *    null → the owner's saved number silently killed every wa.me link
+ *    (same failure class as the r109 trunk-0 bug; SO phone.ts is the twin).
  */
 export function normalizeWaNumber(input: string | null | undefined): string | null {
         if (!input) return null;
-        let digits = input.replace(/[^\d]/g, "");
+        const western = input.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+        let digits = western.replace(/[^\d]/g, "");
         if (digits.startsWith("00")) digits = digits.slice(2);
         if (digits.startsWith("0")) {
                 // plausible Libyan local formats are 9-11 digits (09XXXXXXXX mobile,

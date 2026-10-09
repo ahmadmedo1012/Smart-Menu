@@ -4,6 +4,9 @@ import QRCode from 'qrcode';
 import { prisma } from '@/lib/db';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
+// r133 (A3 S5): print QR rides the single SITE_ORIGIN seam (lib/seo.ts) — was a
+// private NEXT_PUBLIC_APP_URL read while seo.ts read NEXT_PUBLIC_DOMAIN.
+import { SITE_ORIGIN } from '@/lib/seo';
 import { PrintButton } from './print-button';
 import type { Metadata } from 'next';
 
@@ -72,7 +75,7 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
 
         /* r120 (U12-P2-3): منتج «منيو QR» بلا كود QR على الورقة المطبوعة — الكود
          * يعيد العميل من الورقة إلى المنيو الرقمي والطلب المباشر على واتساب. */
-        const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://menu.smart-link.ly'}/menu/${slug}`;
+        const menuUrl = `${SITE_ORIGIN}/menu/${slug}`;
         const qrDataUrl = await QRCode.toDataURL(menuUrl, {
                 width: 224,
                 margin: 1,

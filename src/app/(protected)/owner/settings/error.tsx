@@ -14,7 +14,7 @@ export default function OwnerSettingsError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في الإعدادات"
-                        description="تعذر تحميل الصفحة. قد يكون هناك خلل مؤقت."
+                        description="تعذّر تحميل الصفحة. قد يكون هناك خلل مؤقت."
                         backHref="/owner"
                         backLabel="العودة للوحة التحكم"
                 />

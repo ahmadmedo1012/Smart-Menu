@@ -107,7 +107,7 @@ export function useItemSave({
 						body: JSON.stringify(body),
 					});
 			if (!res.ok) {
-				let errMsg = 'فشل الحفظ';
+				let errMsg = 'تعذّر الحفظ';
 				try {
 					const e = await res.json();
 					errMsg = e?.error || errMsg;
@@ -124,7 +124,7 @@ export function useItemSave({
 			onOpenChange(false);
 			onSaved();
 		} catch (e) {
-			premiumToast('error', e instanceof Error ? e.message : 'فشل الحفظ');
+			premiumToast('error', e instanceof Error ? e.message : 'تعذّر الحفظ');
 		} finally {
 			setSaving(false);
 		}

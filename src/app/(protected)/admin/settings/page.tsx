@@ -89,7 +89,7 @@ export default function AdminSettingsPage() {
           setProfilePhone(profileData.data.phone ?? "")
         }
       })
-      .catch(() => premiumToast("error", "تعذر تحميل البيانات"))
+      .catch(() => premiumToast("error", "تعذّر تحميل البيانات"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -120,7 +120,7 @@ export default function AdminSettingsPage() {
       const r = await fetch("/api/restaurants")
       const d = await r.json()
       setRestaurants(d.data?.restaurants ?? d.data ?? [])
-    } catch { premiumToast("error", "تعذر الحفظ") }
+    } catch { premiumToast("error", "تعذّر الحفظ") }
     finally { setSaving(false) }
   }
 
@@ -147,7 +147,7 @@ export default function AdminSettingsPage() {
       })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || "تعذر الحفظ")
+        throw new Error(err.error || "تعذّر الحفظ")
       }
       premiumToast("save", "تم حفظ الملف الشخصي")
       setCurrentPassword(""); setNewPassword("")
@@ -155,7 +155,7 @@ export default function AdminSettingsPage() {
       const pj = await p.json()
       if (pj.data) { setProfile(pj.data); setProfileName(pj.data.name); setProfileEmail(pj.data.email ?? ""); setProfilePhone(pj.data.phone ?? "") }
     } catch (e) {
-      premiumToast("error", getErrorMessage(e, "تعذر حفظ الملف الشخصي"))
+      premiumToast("error", getErrorMessage(e, "تعذّر حفظ الملف الشخصي"))
     } finally { setProfileSaving(false) }
   }
 
@@ -163,7 +163,7 @@ export default function AdminSettingsPage() {
 
   if (loading)
     // r131-F5 (A11 SM-2): settings-shaped skeleton stack (was bare breath rows).
-    return <SettingsPageSkeleton cards={3} label="جارٍ تحميل الإعدادات..." />
+    return <SettingsPageSkeleton cards={3} label="جارٍ تحميل الإعدادات…" />
 
   return (
     <div className="space-y-8 animate-fade-in max-w-3xl">
@@ -290,7 +290,7 @@ export default function AdminSettingsPage() {
               <div className="flex justify-end pt-2">
                 <Button onClick={saveRestaurant} disabled={saving} className="gap-1">
                   <AnimatedSave className="size-4" aria-hidden="true" />
-                  {saving ? "جارٍ..." : "حفظ"}
+                  {saving ? "جارٍ…" : "حفظ"}
                 </Button>
               </div>
             </div>
@@ -367,7 +367,7 @@ export default function AdminSettingsPage() {
             <div className="flex justify-end pt-2">
               <Button onClick={saveProfile} disabled={profileSaving} className="gap-1">
                 <AnimatedSave className="size-4" aria-hidden="true" />
-                {profileSaving ? "جارٍ..." : "حفظ"}
+                {profileSaving ? "جارٍ…" : "حفظ"}
               </Button>
             </div>
           </div>

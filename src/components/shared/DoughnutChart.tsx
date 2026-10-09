@@ -96,7 +96,7 @@ export function DoughnutChart({
                                                                 fill={s.color}
                                                                 tabIndex={0}
                                                                 role="listitem"
-                                                                aria-label={`${s.label}: ${toArabicNumber(s.value)} (${toArabicNumber(s.pct)}٪)`}
+                                                                aria-label={`${s.label}: ${toArabicNumber(s.value)} (${toArabicNumber(s.pct)}%)`}
                                                                 className="cursor-pointer outline-none focus-visible:stroke-foreground focus-visible:stroke-2"
                                                                 initial={{ opacity: reduceMotion ? 1 : 0 }}
                                                                 animate={{ opacity: 1 }}
@@ -148,7 +148,7 @@ export function DoughnutChart({
                                                                         <span className="truncate font-medium">{d.label}</span>
                                                                 </span>
                                                                 <span className="shrink-0 tabular-nums text-muted-foreground">
-                                                                        {toArabicNumber(d.value)} · {toArabicNumber(pct)}٪
+                                                                        {toArabicNumber(d.value)} · {toArabicNumber(pct)}%
                                                                 </span>
                                                         </button>
                                                 </li>

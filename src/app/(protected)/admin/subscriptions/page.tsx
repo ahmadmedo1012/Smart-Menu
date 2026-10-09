@@ -101,7 +101,7 @@ export default function AdminSubscriptionsPage() {
                         setPayments(json.data?.data ?? []);
                         setTotal(json.data?.total ?? 0);
                 } catch {
-                        setError('تعذر تحميل الاشتراكات');
+                        setError('تعذّر تحميل الاشتراكات');
                 } finally {
                         setLoading(false);
                 }
@@ -127,7 +127,7 @@ export default function AdminSubscriptionsPage() {
                         });
                         if (!res.ok) {
                                 const err = await res.json().catch(() => ({}));
-                                throw new Error(err?.error || 'تعذر تحديث الحالة');
+                                throw new Error(err?.error || 'تعذّر تحديث الحالة');
                         }
                         setActionTarget(null);
                         await fetchPayments();
@@ -137,7 +137,7 @@ export default function AdminSubscriptionsPage() {
                                 actionType === 'verified' ? 'تم تفعيل الخطة للمطعم' : undefined
                         );
                 } catch (e) {
-                        const msg = e instanceof Error ? e.message : 'تعذر تحديث الحالة';
+                        const msg = e instanceof Error ? e.message : 'تعذّر تحديث الحالة';
                         // Show the error but still close dialog — user can retry
                         premiumToast('error', msg);
                         setActionTarget(null);
@@ -152,7 +152,7 @@ export default function AdminSubscriptionsPage() {
         if (loading && payments.length === 0) {
                 return (
                         <div className="space-y-3 animate-fade-in">
-                                <LoadingAnnouncer loading message="جارٍ تحميل الاشتراكات..." />
+                                <LoadingAnnouncer loading message="جارٍ تحميل الاشتراكات…" />
                                 {[1, 2, 3].map((i) => (
                                         <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />
                                 ))}
@@ -424,7 +424,7 @@ export default function AdminSubscriptionsPage() {
                                                         {actionLoading ? (
                                                                 <span className="flex items-center gap-2">
                                                                         <AnimatedRefreshCw className="size-4 animate-spin" />
-                                                                        جارٍ التحديث...
+                                                                        جارٍ التحديث…
                                                                 </span>
                                                         ) : actionType === 'verified' ? (
                                                                 'تأكيد'

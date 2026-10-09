@@ -100,10 +100,10 @@ export async function POST(request: NextRequest) {
 				});
 				const json = (await res.json()) as { ok?: boolean; description?: string };
 				if (!json.ok) {
-					return error(`تم الحفظ لكن فشل تسجيل الويب هوك: ${json.description ?? 'unknown'}`, 400);
+					return error(`تم الحفظ لكن تعذّر تسجيل الويب هوك: ${json.description ?? 'unknown'}`, 400);
 				}
 			} catch {
-				return error('تم الحفظ لكن فشل الاتصال بـ Telegram', 500);
+				return error('تم الحفظ لكن تعذّر الاتصال بـ Telegram', 500);
 			}
 		}
 

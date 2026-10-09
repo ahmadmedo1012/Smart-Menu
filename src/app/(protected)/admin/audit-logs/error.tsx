@@ -14,7 +14,7 @@ export default function AdminAuditLogsError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في سجل التدقيق"
-                        description="تعذر تحميل سجل التدقيق. حاول مرة أخرى."
+                        description="تعذّر تحميل سجل التدقيق. حاول مرة أخرى."
                         backHref="/admin"
                         backLabel="العودة للوحة التحكم"
                 />

@@ -82,7 +82,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                 });
                         } catch (error) {
                                 if (error instanceof DOMException && error.name === 'AbortError') return;
-                                premiumToast('error', 'فشل تحميل الإعدادات');
+                                premiumToast('error', 'تعذّر تحميل الإعدادات');
                         } finally {
                                 setLoading(false);
                         }
@@ -107,7 +107,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                         premiumToast('save', 'تم حفظ إعدادات الولاء');
                         onSaved?.();
                 } catch {
-                        premiumToast('error', 'فشل حفظ الإعدادات');
+                        premiumToast('error', 'تعذّر حفظ الإعدادات');
                 } finally {
                         setSaving(false);
                 }
@@ -116,7 +116,7 @@ export function LoyaltySettings({ onSaved }: Props) {
         if (loading) {
                 return (
                         <Card className="animate-pulse">
-                                <LoadingAnnouncer loading message="جاري تحميل إعدادات الولاء..." completedMessage="تم تحميل الإعدادات" />
+                                <LoadingAnnouncer loading message="جارٍ تحميل إعدادات الولاء…" completedMessage="تم تحميل الإعدادات" />
                                 <CardContent className="h-64" />
                         </Card>
                 );
@@ -133,7 +133,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                         </div>
                                         <Button onClick={save} disabled={saving} size="sm" className="gap-1.5">
                                                 <AnimatedSave className="size-4" />
-                                                {saving ? 'جاري الحفظ...' : 'حفظ'}
+                                                {saving ? 'جارٍ الحفظ…' : 'حفظ'}
                                         </Button>
                                 </div>
                         </CardHeader>
@@ -180,7 +180,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                         <p className="text-xs text-muted-foreground mt-1">عدد النقاط لكل دينار يُنفق</p>
                                                 </div>
                                                 <div>
-                                                        <Label htmlFor={`${lId}-ref-discount`}>خصم الإحالة ٪</Label>
+                                                        <Label htmlFor={`${lId}-ref-discount`}>خصم الإحالة %</Label>
                                                         <Input id={`${lId}-ref-discount`} 
                                                                 type="number"
                                                                 min="0"
@@ -194,7 +194,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                         </p>
                                                 </div>
                                                 <div>
-                                                        <Label htmlFor={`${lId}-ref-reward`}>مكافأة المُحيل ٪</Label>
+                                                        <Label htmlFor={`${lId}-ref-reward`}>مكافأة المُحيل %</Label>
                                                         <Input id={`${lId}-ref-reward`} 
                                                                 type="number"
                                                                 min="0"

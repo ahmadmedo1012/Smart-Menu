@@ -4,5 +4,5 @@ import { TablePageSkeleton } from "@/components/shared/DashboardSkeletons"
 // skeletons"): users-page-shaped fallback (header + filters + canonical
 // 11px-header table) — was the 60vh DefaultLoading spinner.
 export default function AdminUsersLoading() {
-        return <TablePageSkeleton rows={6} label="جارٍ تحميل المستخدمين..." />
+        return <TablePageSkeleton rows={6} label="جارٍ تحميل المستخدمين…" />
 }

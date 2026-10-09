@@ -24,6 +24,6 @@ export async function performLogout(opts: { toast?: 'owner' | 'none' } = { toast
 			window.location.replace('/login');
 		}
 	} catch {
-		if (opts.toast === 'owner') premiumToast('error', 'فشل تسجيل الخروج');
+		if (opts.toast === 'owner') premiumToast('error', 'تعذّر تسجيل الخروج');
 	}
 }

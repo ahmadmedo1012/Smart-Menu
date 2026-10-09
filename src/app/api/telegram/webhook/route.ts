@@ -154,7 +154,7 @@ async function handleCallbackQuery(
 
         // r116: التوست أولًا — قبل أي استدعاء تليجرام بطيء. كان answerCallbackQuery
         // آخر استدعاء بعد المعاملة وتعديلين، فأي بطء/فشل شبكي يتجاوز نافذة
-        // تيليجرام (~10ث) يترك المشرف بلا رد فيضغط ثانيةً ويصطدم بـ«تمت معالجة
+        // تليجرام (~10ث) يترك المشرف بلا رد فيضغط ثانيةً ويصطدم بـ«تمت معالجة
         // هذا الطلب مسبقاً» رغم نجاح أول ضغطة. الاستدعاءات نفسها لم تعد ترمي
         // استثناءات شبكة (تحصين apiCall — r116) فلا مسار يتخطى التوست.
         await answerCallbackQuery(botToken, cq.id, toastText, showAlert);
@@ -236,7 +236,7 @@ export async function POST(request: NextRequest) {
                 if (update.callback_query) {
                         // round92-wave3-1: await داخل try — أي استثناء من معالج الأزرار
                         // يلتقطه catch العام أسفل الدالة (logError + 200 «OK») بدل أن
-                        // يتسرب كوعد مرفوض غير معالج فيصير 500 أمام تيليجرام (إعادة
+                        // يتسرب كوعد مرفوض غير معالج فيصير 500 أمام تليجرام (إعادة
                         // محاولة بلا نهاية). نفس نمط حماية مسار الرسائل أعلاه.
                         return await handleCallbackQuery(update.callback_query);
                 }
@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
                         const chatIdNum = update.message?.chat?.id;
                         if (chatIdNum && startBotToken) {
                                 const msg = `مرحباً! 👋\n\nمعرف التليجرام الخاص بك:\n\`${chatIdNum}\`\n\nإذا كنت بحاجة لإضافة هذا المعرف كموافٍ على الاشتراكات، يرجى التواصل مع مدير النظام.\n\nلربط حسابك بالمنصة (/start verify_الرمز_الخاص_بك).`;
-                                // r117-F2: كان fetch خامًا بلا مهلة — تعليق تيليجرام كان
+                                // r117-F2: كان fetch خامًا بلا مهلة — تعليق تليجرام كان
                                 // يعلّق الويبهوك حتى مهلة الدالة؛ الآن عبر sendPlainMessage
                                 // المحصّنة (مهلة 10ث + لا رمي أبدًا).
                                 await sendPlainMessage(startBotToken, chatIdNum, msg, { parseMode: 'Markdown' });

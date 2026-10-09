@@ -27,6 +27,6 @@ export async function POST(request: NextRequest) {
     return res;
   } catch (e) {
     logError("Logout error:", { error: e instanceof Error ? e.message : String(e) });
-    return error("فشل تسجيل الخروج", 500);
+    return error("تعذّر تسجيل الخروج", 500);
   }
 }

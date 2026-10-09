@@ -71,7 +71,7 @@ export function useOrderDetail(id: string) {
                                 if (!cancelled) setOrder(d.data ?? d);
                         })
                         .catch(() => {
-                                if (!cancelled) setError('فشل تحميل الطلب');
+                                if (!cancelled) setError('تعذّر تحميل الطلب');
                         })
                         .finally(() => {
                                 if (!cancelled) setLoading(false);
@@ -109,7 +109,7 @@ export async function updateOrderStatus(
         if (typeof legacy.id === 'number' && typeof legacy.orderNo === 'string') {
                 return legacy as OrderDetailData;
         }
-        throw new Error('فشل تحديث حالة الطلب');
+        throw new Error('تعذّر تحديث حالة الطلب');
 }
 
 /**

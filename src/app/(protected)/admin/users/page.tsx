@@ -71,11 +71,11 @@ export default function AdminUsersPage() {
       const res = await fetch(`/api/users?${params.toString()}`)
       const json = await res.json().catch(() => null)
       // round87-C3: surface the server's Arabic error (was: empty throw -> generic message)
-      if (!res.ok || !json?.success) throw new Error(json?.error ?? `فشل الطلب (${res.status})`)
+      if (!res.ok || !json?.success) throw new Error(json?.error ?? `تعذّر الطلب (${res.status})`)
       // Array.isArray guard: error bodies are objects, not lists.
       setUsers(Array.isArray(json.data?.users) ? json.data.users : []);
       setTotal(json.data?.total ?? json.meta?.total ?? 0)
-    } catch (e) { setError(getErrorMessage(e, "تعذر تحميل المستخدمين")) }
+    } catch (e) { setError(getErrorMessage(e, "تعذّر تحميل المستخدمين")) }
     finally { setLoading(false) }
   }, [page, search, roleFilter])
 
@@ -98,7 +98,7 @@ export default function AdminUsersPage() {
       await csrfJson(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
       premiumToast("success", "تم حذف المستخدم")
       setDeleteTarget(null); fetchUsers()
-    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذّر الحذف")) }
   }
 
   const resetPassword = async () => {
@@ -113,19 +113,19 @@ export default function AdminUsersPage() {
       })
       premiumToast("refresh", "تم إعادة تعيين كلمة المرور")
       setResetTarget(null); setNewPassword("")
-    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر إعادة التعيين")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذّر إعادة التعيين")) }
   }
 
   // ---------- Loading ----------
   if (loading && users.length === 0) {
     // r131-F5 (A11 SM-2): table-shaped skeleton (was three animate-breath rows).
-    return <TablePageSkeleton rows={6} label="جارٍ تحميل المستخدمين..." />
+    return <TablePageSkeleton rows={6} label="جارٍ تحميل المستخدمين…" />
   }
 
   // ---------- Error ----------
   if (error && users.length === 0) {
     // r131-F5 (A1 P1-12): canonical error family.
-    return <ErrorState title="تعذر تحميل المستخدمين" error={error} onRetry={fetchUsers} />
+    return <ErrorState title="تعذّر تحميل المستخدمين" error={error} onRetry={fetchUsers} />
   }
 
   // ---------- Access denied ----------
@@ -164,7 +164,7 @@ export default function AdminUsersPage() {
         <SearchInput
           value={searchInput}
           onChange={setSearchInput}
-          placeholder="ابحث باسم المستخدم أو المطعم..."
+          placeholder="ابحث باسم المستخدم أو المطعم…"
           aria-label="ابحث عن مستخدم"
         />
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "all")}>
@@ -217,7 +217,7 @@ export default function AdminUsersPage() {
                   const isAdmin = user.role === "admin" || user.role === "super_admin"
                   return (
                     <TableRow key={user.id} className="group relative border-b border-border/40 transition-colors duration-fast hover:bg-muted">
-                      <TableCell className="relative px-4 py-3 align-middle text-sm font-semibold after:absolute after:inset-y-3 after:start-0 after:w-[3px] after:rounded-e-[2px] after:origin-bottom after:scale-y-0 after:bg-[var(--accent-solid)] after:transition-transform after:duration-base group-hover:after:scale-y-100">
+                      <TableCell className="relative px-4 py-3 align-middle text-sm font-semibold after:absolute after:inset-y-3 after:start-0 after:w-[3px] after:rounded-e-full after:origin-bottom after:scale-y-0 after:bg-[var(--accent-solid)] after:transition-transform after:duration-base group-hover:after:scale-y-100">
                         <span className="block">{user.name}</span>
                         <span className="block text-xs font-normal text-muted-foreground" dir="ltr">@{user.username}</span>
                       </TableCell>

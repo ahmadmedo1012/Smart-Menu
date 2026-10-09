@@ -5,7 +5,7 @@ import { LayoutDashboard, Store, ClipboardList, CreditCard, Settings } from "luc
 import { AdminDashboardScreen, AdminRestaurantsScreen, AdminUsersScreen, AdminAdminsScreen,
   AdminOrdersScreen, AdminOrderDetailScreen, AdminSubscriptionsScreen, AdminSystemEventsScreen,
   AdminAuditLogsScreen, AdminTelegramScreen, AdminSettingsScreen } from "@/screens/admin/AdminScreens";
-import { STACK_SCREEN_OPTIONS, TAB_SCREEN_OPTIONS } from "./navTheme";
+import { STACK_SCREEN_OPTIONS, useTabScreenOptions } from "./navTheme";
 
 export type AdminStackParamList = {
   AdminTabs: undefined;
@@ -22,8 +22,11 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<AdminStackParamList>();
 
 function AdminTabs() {
+  // r133-F3 (A4 S2): insets-aware tab chrome (labels must clear the home
+  // indicator on notched devices) — shared factory with the owner tab bar.
+  const tabOptions = useTabScreenOptions();
   return (
-    <Tab.Navigator screenOptions={TAB_SCREEN_OPTIONS}>
+    <Tab.Navigator screenOptions={tabOptions}>
       <Tab.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: "الرئيسية", tabBarIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} /> }} />
       <Tab.Screen name="AdminRestaurants" component={AdminRestaurantsScreen} options={{ title: "المطاعم", tabBarIcon: ({ color, size }) => <Store color={color} size={size} /> }} />
       <Tab.Screen name="AdminOrders" component={AdminOrdersScreen} options={{ title: "الطلبات", tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} /> }} />
@@ -42,7 +45,7 @@ export function AdminStack() {
       <Stack.Screen name="AdminOrderDetail" component={AdminOrderDetailScreen} options={{ title: "تفاصيل الطلب" }} />
       <Stack.Screen name="AdminSystemEvents" component={AdminSystemEventsScreen} options={{ title: "أحداث النظام" }} />
       <Stack.Screen name="AdminAuditLogs" component={AdminAuditLogsScreen} options={{ title: "سجل التدقيق" }} />
-      <Stack.Screen name="AdminTelegram" component={AdminTelegramScreen} options={{ title: "تيليجرام" }} />
+      <Stack.Screen name="AdminTelegram" component={AdminTelegramScreen} options={{ title: "تليجرام" }} />
       <Stack.Screen name="AdminSettings" component={AdminSettingsScreen} options={{ title: "إعدادات النظام" }} />
     </Stack.Navigator>
   );

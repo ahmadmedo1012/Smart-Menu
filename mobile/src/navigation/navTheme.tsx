@@ -11,6 +11,7 @@
 import { DarkTheme, type Theme } from "@react-navigation/native";
 import type { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import type { BottomTabNavigationOptions, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/motion/PressableScale";
 import { PLEX_SEMIBOLD } from "@/theme/typography";
@@ -46,31 +47,47 @@ export const STACK_SCREEN_OPTIONS: NativeStackNavigationOptions = {
  * bottom-nav thumb press rides the STRONGER 0.93@80ms register — the one
  * rung PressableScale's ladder reserves for bottom-nav thumbs. Both tab bars
  * (AdminStack + OwnerStack) ride react-navigation's native feedback with no
- * custom register before this; the shared TAB_SCREEN_OPTIONS below wires
- * them both at once. Native props (role=tab, selected state, label) pass
- * straight through PressableScale.
+ * custom register before this; the shared tab chrome below (r133-F3: the
+ * useTabScreenOptions factory) wires them both at once. Native props
+ * (role=tab, selected state, label) pass straight through PressableScale.
  */
 function TabBarButton(props: BottomTabBarButtonProps) {
   return <PressableScale scaleTo={0.93} {...props} />;
 }
 
-/** Bottom-tab chrome — surface-1 bar, gold active tint, SemiBold labels. */
-export const TAB_SCREEN_OPTIONS: BottomTabNavigationOptions = {
-  headerShown: true,
-  headerStyle: { backgroundColor: colors.night },
-  headerTintColor: colors.sand,
-  headerTitleStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 17 },
-  headerShadowVisible: false,
-  tabBarStyle: {
-    backgroundColor: colors.surface,
-    borderTopColor: colors.hairline,
-    height: 64,
-    paddingBottom: 8,
-    paddingTop: 4,
-  },
-  tabBarActiveTintColor: colors.gold,
-  tabBarInactiveTintColor: colors.muted,
-  // r126-M1: same fix as headers — tab labels are native chrome.
-  tabBarLabelStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 11 },
-  tabBarButton: TabBarButton,
-};
+/**
+ * Bottom-tab chrome — surface-1 bar, gold active tint, SemiBold labels.
+ *
+ * r133-F3 (A4 S2): an INSETS-AWARE factory, not a static object. The old
+ * static `{ height: 64, paddingBottom: 8 }` sat LAST in react-navigation's
+ * tabBarStyle array (BottomTabBar.js: `[...defaults, { height, paddingBottom:
+ * insets.bottom }, tabBarStyle]` — later entries win), so our paddingBottom: 8
+ * REPLACED the library's insets.bottom and the 11px labels rendered 8px from
+ * the physical screen bottom — squarely inside the home-indicator/gesture
+ * zone on every notched device. Now both keys carry the inset: the content
+ * zone stays the shipped 52px (64 − 8 breathing − 4 top) on every device and
+ * the inset lands BELOW it. Non-notched devices (insets.bottom = 0) render
+ * byte-identical to the previous bar.
+ */
+export function useTabScreenOptions(): BottomTabNavigationOptions {
+  const insets = useSafeAreaInsets();
+  return {
+    headerShown: true,
+    headerStyle: { backgroundColor: colors.night },
+    headerTintColor: colors.sand,
+    headerTitleStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 17 },
+    headerShadowVisible: false,
+    tabBarStyle: {
+      backgroundColor: colors.surface,
+      borderTopColor: colors.hairline,
+      height: 64 + insets.bottom,
+      paddingBottom: 8 + insets.bottom,
+      paddingTop: 4,
+    },
+    tabBarActiveTintColor: colors.gold,
+    tabBarInactiveTintColor: colors.muted,
+    // r126-M1: same fix as headers — tab labels are native chrome.
+    tabBarLabelStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 11 },
+    tabBarButton: TabBarButton,
+  };
+}

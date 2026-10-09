@@ -114,7 +114,7 @@ export function LoyaltyWidget({
                                 if (cj.success && cj.data) {
                                         setData(cj.data);
                                         premiumToast('gift', 'تم إنشاء بطاقة ولاء جديدة!');
-                                } else premiumToast('error', 'تعذر إنشاء بطاقة الولاء');
+                                } else premiumToast('error', 'تعذّر إنشاء بطاقة الولاء');
                         }
                 } catch {
                         premiumToast('error', 'حدث خطأ في الاتصال');

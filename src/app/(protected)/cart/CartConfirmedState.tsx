@@ -13,7 +13,7 @@ export function CartConfirmedState() {
                         </div>
                         <h2 className="text-2xl font-bold mb-2">تم تأكيد الطلب!</h2>
                         <p className="text-muted-foreground flex items-center gap-2">
-                                جارٍ تحويلك إلى صفحة التأكيد...
+                                جارٍ تحويلك إلى صفحة التأكيد…
                                 <Loader2 className="size-4 animate-spin" />
                         </p>
                 </div>

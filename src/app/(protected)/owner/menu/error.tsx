@@ -14,7 +14,7 @@ export default function OwnerMenuError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في إدارة المنيو"
-                        description="تعذر تحميل صفحة إدارة المنيو. حاول مرة أخرى."
+                        description="تعذّر تحميل صفحة إدارة المنيو. حاول مرة أخرى."
                         backHref="/owner"
                         backLabel="العودة للوحة التحكم"
                 />

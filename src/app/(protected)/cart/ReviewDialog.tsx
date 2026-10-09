@@ -158,7 +158,7 @@ export function ReviewDialog({
                                         <Button className="flex-1 gap-2" onClick={onCheckout} disabled={isSubmitting}>
                                                 {isSubmitting ? (
                                                         <>
-                                                                <Loader2 className="size-4 animate-spin" /> جارٍ...
+                                                                <Loader2 className="size-4 animate-spin" /> جارٍ…
                                                         </>
                                                 ) : (
                                                         <>

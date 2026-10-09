@@ -245,7 +245,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                         >
                                 {/* Icon anchored right (RTL) via order */}
                                 <MotionSearch className="size-4 shrink-0 order-1" aria-hidden="true" />
-                                <span className="flex-1 text-start truncate order-2">بحث سريع...</span>
+                                <span className="flex-1 text-start truncate order-2">بحث سريع…</span>
                                 {/* KBD anchored left — r131-F4 (A7 P1-4): full muted-foreground
                                     (the /60 wash sat at 3.0:1/2.4:1, below AA for real label text) */}
                                 <kbd className="order-3 hidden shrink-0 items-center gap-0.5 rounded border border-border/40 bg-muted/50 px-1.5 py-0.5 text-3xs font-medium text-muted-foreground sm:flex">
@@ -286,7 +286,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                                                                 <input
                                                                         ref={inputRef}
                                                                         type="text"
-                                                                        placeholder="ابحث عن صفحة..."
+                                                                        placeholder="ابحث عن صفحة…"
                                                                         value={query}
                                                                         onChange={(e) => setQuery(e.target.value)}
                                                                         onKeyDown={onKeyDown}

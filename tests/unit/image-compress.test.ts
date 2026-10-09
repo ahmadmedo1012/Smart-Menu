@@ -168,9 +168,9 @@ describe('compressImage — output encoding', () => {
 });
 
 describe('compressImage — failure branches', () => {
-        it('image decode error → rejects with the Arabic «فشل قراءة الصورة»', async () => {
+        it('image decode error → rejects with the Arabic «تعذّر قراءة الصورة»', async () => {
                 loadMode = 'error';
-                await expect(compress(100, 100)).rejects.toThrow('فشل قراءة الصورة');
+                await expect(compress(100, 100)).rejects.toThrow('تعذّر قراءة الصورة');
         });
 
         it('toBlob returning null → rejects with the encode failure message', async () => {

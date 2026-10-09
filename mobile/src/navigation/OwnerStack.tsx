@@ -5,7 +5,7 @@ import { Home, ClipboardList, UtensilsCrossed, Award, Settings } from "lucide-re
 import { OwnerDashboardScreen, OwnerOrdersScreen, OwnerOrderDetailScreen,
   OwnerMenuScreen, OwnerLoyaltyScreen, OwnerRestaurantsScreen, OwnerQrScreen,
   OwnerReviewsScreen, OwnerSettingsScreen } from "@/screens/owner/OwnerScreens";
-import { STACK_SCREEN_OPTIONS, TAB_SCREEN_OPTIONS } from "./navTheme";
+import { STACK_SCREEN_OPTIONS, useTabScreenOptions } from "./navTheme";
 
 export type OwnerStackParamList = {
   OwnerTabs: undefined;
@@ -20,8 +20,11 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<OwnerStackParamList>();
 
 function OwnerTabs() {
+  // r133-F3 (A4 S2): insets-aware tab chrome (labels must clear the home
+  // indicator on notched devices) — shared factory with the admin tab bar.
+  const tabOptions = useTabScreenOptions();
   return (
-    <Tab.Navigator screenOptions={TAB_SCREEN_OPTIONS}>
+    <Tab.Navigator screenOptions={tabOptions}>
       <Tab.Screen name="OwnerDashboard" component={OwnerDashboardScreen} options={{ title: "الرئيسية", tabBarIcon: ({ color, size }) => <Home color={color} size={size} /> }} />
       <Tab.Screen name="OwnerOrders" component={OwnerOrdersScreen} options={{ title: "الطلبات", tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} /> }} />
       <Tab.Screen name="OwnerMenu" component={OwnerMenuScreen} options={{ title: "المنيو", tabBarIcon: ({ color, size }) => <UtensilsCrossed color={color} size={size} /> }} />

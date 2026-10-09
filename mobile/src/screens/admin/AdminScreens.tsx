@@ -31,7 +31,7 @@ export function AdminDashboardScreen() {
           {user?.role === "super_admin" ? <AdminAction icon={<Users size={20} color={colors.sand} />} label="المدراء" onPress={() => navigation.navigate("AdminAdmins")} /> : null}
           <AdminAction icon={<Bell size={20} color={colors.sand} />} label="أحداث النظام" onPress={() => navigation.navigate("AdminSystemEvents")} />
           {user?.role === "super_admin" ? <AdminAction icon={<FileText size={20} color={colors.sand} />} label="سجل التدقيق" onPress={() => navigation.navigate("AdminAuditLogs")} /> : null}
-          <AdminAction icon={<Send size={20} color={colors.sand} />} label="تيليجرام" onPress={() => navigation.navigate("AdminTelegram")} />
+          <AdminAction icon={<Send size={20} color={colors.sand} />} label="تليجرام" onPress={() => navigation.navigate("AdminTelegram")} />
           <AdminAction icon={<Settings size={20} color={colors.sand} />} label="الإعدادات" onPress={() => navigation.navigate("AdminSettings")} />
         </View>
         {/* r131-F10 (fix 1 completion): PressableScale — was a silent raw Pressable. */}
@@ -121,7 +121,7 @@ export function AdminAuditLogsScreen() {
 export function AdminTelegramScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="تكامل تيليجرام" icon={<Send size={24} color={colors.gold} />} />
+      <ComingSoon title="تكامل تليجرام" icon={<Send size={24} color={colors.gold} />} />
     </SafeAreaView>
   );
 }

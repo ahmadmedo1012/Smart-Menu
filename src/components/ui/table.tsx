@@ -69,6 +69,9 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       data-slot="table-head"
+      /* r133 (A11 S10): scope="col" default — the stock template lost it,
+      leaving every SM table header unassociated for screen readers. */
+      scope="col"
       className={cn(
         /* r130 (W2-3, P2-9): the canonical .table th rung (Madarek
            components.css:842-848) — 11px (--fs-xxs) semibold muted;

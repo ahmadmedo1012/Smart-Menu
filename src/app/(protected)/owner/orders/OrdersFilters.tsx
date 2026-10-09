@@ -106,7 +106,7 @@ export function OrdersFilters({
                         <SearchInput
                                 value={search}
                                 onChange={onSearchChange}
-                                placeholder="ابحث برقم الطلب أو اسم العميل..."
+                                placeholder="ابحث برقم الطلب أو اسم العميل…"
                         />
                         <DateFilterField
                                 id="orders-date-from"

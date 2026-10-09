@@ -16,7 +16,7 @@
 const NETWORK_ERROR_ARABIC =
         'تعذّر الاتصال بالشبكة — تحقّق من اتصالك بالإنترنت وحاول مرة أخرى';
 
-export function getErrorMessage(e: unknown, fallback = 'فشل تحميل البيانات'): string {
+export function getErrorMessage(e: unknown, fallback = 'تعذّر تحميل البيانات'): string {
         if (e instanceof Error && e.message) {
                 const msg = e.message.trim();
                 if (

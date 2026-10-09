@@ -6,7 +6,8 @@ import { Check, Sparkles } from "lucide-react-native";
 import Animated from "react-native-reanimated";
 
 import { api } from "@/services/api/client";
-import { Spinner, EmptyState, ErrorState } from "@/components/ui";
+import { EmptyState, ErrorState } from "@/components/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
 import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { useEnterFade } from "@/components/motion/useEnterFade";
@@ -37,9 +38,25 @@ export function PricingScreen() {
   const loading = isPending;
 
   if (loading) {
+    /* r133-F3 (A4 §3, the F2b handoff): the pricing page's first paint is a
+       SHAPE skeleton (r131 fleet ruling "loading = shape skeletons") — the
+       loaded plan-card geometry: r-16 surface hairline card + name line +
+       the 24px price metric + period line + the 56px CTA well. Was a
+       centered spinner. */
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
+        <View style={{ padding: 16 }}>
+          <Skeleton width={"45%"} height={24} />
+          <Skeleton width={"70%"} height={13} />
+          {[0, 1].map((i) => (
+            <View key={i} style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginTop: 16, borderWidth: 1, borderColor: colors.hairline }}>
+              <Skeleton width={"50%"} height={18} />
+              <Skeleton width={80} height={24} />
+              <Skeleton width={"40%"} height={11} />
+              <Skeleton width={"100%"} height={56} borderRadius={10} />
+            </View>
+          ))}
+        </View>
       </SafeAreaView>
     );
   }

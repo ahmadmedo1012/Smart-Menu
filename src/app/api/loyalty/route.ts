@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
                         while (await prisma.loyaltyCard.findUnique({ where: { referralCode } })) {
                                 referralCode = generateReferralCode();
                                 attempts++;
-                                if (attempts > 10) return error('تعذر توليد كود إحالة فريد', 500);
+                                if (attempts > 10) return error('تعذّر توليد كود إحالة فريد', 500);
                         }
 
                         card = await prisma.loyaltyCard.create({

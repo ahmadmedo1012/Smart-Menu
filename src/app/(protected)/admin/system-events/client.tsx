@@ -69,7 +69,7 @@ export function SystemEventsClient() {
                 csrfFetch('/api/admin/system-events')
                         .then((r) => r.json())
                         .then((d) => setEvents(d.events ?? d.data?.data ?? d.data ?? []))
-                        .catch(() => setError('تعذر تحميل أحداث النظام'))
+                        .catch(() => setError('تعذّر تحميل أحداث النظام'))
                         .finally(() => setLoading(false));
         }, []);
 
@@ -96,11 +96,11 @@ export function SystemEventsClient() {
 
         if (loading)
                 // r131-F5 (A11 SM-2): event-shaped rows skeleton (was a bare spinner).
-                return <ListPageSkeleton rows={5} rowHeight="h-16" label="جارٍ تحميل أحداث النظام..." />;
+                return <ListPageSkeleton rows={5} rowHeight="h-16" label="جارٍ تحميل أحداث النظام…" />;
         if (error)
                 // r131-F5 (A1 P1-12): canonical error family (was an inline bordered
                 // alert with a text-link retry).
-                return <ErrorState title="تعذر تحميل أحداث النظام" error={error} onRetry={load} />;
+                return <ErrorState title="تعذّر تحميل أحداث النظام" error={error} onRetry={load} />;
 
         return (
                 <div className="space-y-4">

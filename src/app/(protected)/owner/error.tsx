@@ -14,7 +14,7 @@ export default function OwnerError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في لوحة التحكم"
-                        description="تعذر تحميل هذه الصفحة. يرجى المحاولة مرة أخرى."
+                        description="تعذّر تحميل هذه الصفحة. يرجى المحاولة مرة أخرى."
                         backHref="/owner"
                         backLabel="العودة للوحة التحكم"
                 />

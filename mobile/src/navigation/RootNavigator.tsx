@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NavigationContainer, type InitialState } from "@react-navigation/native";
 import { NavigationIndependentTree } from "@react-navigation/core";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Linking from "expo-linking";
 import { X } from "lucide-react-native";
@@ -155,14 +155,12 @@ export function RootNavigator() {
   const status = useAuth((s) => s.status);
   const user = useAuth((s) => s.user);
 
-  if (status === "loading" || status === "idle") {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.night }}>
-        <ActivityIndicator size="large" color={colors.gold} />
-      </View>
-    );
-  }
-
+  // r133-F3 (A4 M1): the centered-ActivityIndicator "boot" branch that used
+  // to live here was dead code — App.tsx's own gate already returns null for
+  // the whole idle/loading window, and after the M1 fix "loading" exists
+  // ONLY between cold-boot start and its terminal answer (login and warm
+  // refreshes never set it), so this component can never observe it. Deleted
+  // so the state machine has one gate, not two divergent ones.
   if (status === "unauthenticated" || !user) {
     // r103-N7: this branch's NavigationContainer consumes the launch URL via
     // its own linking — flag it so a later login swap never replays it.

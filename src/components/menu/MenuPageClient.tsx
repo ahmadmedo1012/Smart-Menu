@@ -47,7 +47,7 @@ export function foundItemsPhrase(count: number): string {
 /* r97-W6 (منسّق الجولة): قراءة معلمات URL عبر window.location.search + popstate
  * بدل useSearchParams. القراءة القديمة كانت في جذر MenuPageClient فتُضطرّ
  * Next إلى إسقاط الشجرة كلها إلى الـfallback أثناء التوليد الثابت (ISR) — فكان
- * الـHTML الخام يحمل «جاري تحميل المنيو...» بدل البطاقات والأسعار والصور.
+ * الـHTML الخام يحمل «جاري تحميل المنيو…» بدل البطاقات والأسعار والصور.
  * النسخة الأولى من الإصلاح (حدّ Suspense ضيق حول hook معلّق) كشفت سباق
  * إعادة تعليق أثناء الماء في React 19 على Next 16.3 (شجرة قديمة مخفية
  * + جديدة مرئية — strict-mode violation في team8) — وهو نفس السباق الذي
@@ -477,7 +477,9 @@ export function MenuPageClient({
                                                                         href={`https://wa.me/${emptyMenuWhatsapp}`}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
-                                                                        className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm bg-orange text-orange-foreground hover:brightness-110 transition-[filter,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                        /* r133 (A10): brightness hover + stacked ring retired — the orange Button hover
+   spelling (bg-orange/95) and the ONE global :focus-visible outline. */
+className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm bg-orange text-orange-foreground hover:bg-orange/95 transition-[background-color]"
                                                                 >
                                                                         <MessageCircle className="size-4" aria-hidden="true" />
                                                                         تواصل معنا عبر واتساب
@@ -490,7 +492,7 @@ export function MenuPageClient({
                                                                         }}
                                                                         /* r125 (11-b): min-h-11 — زر المال في حالة الفراغ كان
                                                                            py-2 (36px) تحت حدّ ٤٤px للّمس على الجوال. */
-                                                                        className="text-sm min-h-11 px-4 py-2 rounded-sm bg-orange text-orange-foreground hover:brightness-110 transition-[filter,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                        className="text-sm min-h-11 px-4 py-2 rounded-sm bg-orange text-orange-foreground hover:bg-orange/95 transition-[background-color]"
                                                                 >
                                                                         عرض الكل
                                                                 </button>

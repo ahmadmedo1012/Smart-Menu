@@ -31,7 +31,10 @@ const buttonVariants = cva(
       size: {
         // r126-M6: fixed heights clipped labels at system fontScale ≥1.3 —
         // minHeight lets the button grow with the (capped) label font.
-        sm: "min-h-9 px-3 py-2", default: "min-h-11 px-5 py-3", lg: "min-h-14 px-8 py-3",
+        // r133-F3 (A4 N4): the dead `sm` variant (min-h-9 = 36px, 8px under
+        // the 44px touch floor every other control enforces) is deleted —
+        // zero call sites since r126-M9's dead-variant sweep missed it.
+        default: "min-h-11 px-5 py-3", lg: "min-h-14 px-8 py-3",
         icon: "min-h-11 min-w-11",
       },
     },
@@ -47,7 +50,7 @@ const buttonTextVariants = cva("font-semibold text-center font-sans", {
       primary: "text-on-accent",
       outline: "text-foreground",
     },
-    size: { sm: "text-sm", default: "text-base", lg: "text-lg", icon: "text-base" },
+    size: { default: "text-base", lg: "text-lg", icon: "text-base" },
   },
   defaultVariants: { variant: "primary", size: "default" },
 });

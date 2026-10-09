@@ -11,7 +11,7 @@ export default function PricingLoading() {
                         aria-busy="true"
                         className="min-h-dvh"
                 >
-                        <span className="sr-only">جارٍ تحميل الباقات...</span>
+                        <span className="sr-only">جارٍ تحميل الباقات…</span>
 
                         <div className="max-w-7xl mx-auto px-4 py-10">
                                 {/* رأس القسم */}

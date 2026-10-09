@@ -14,7 +14,7 @@ export default function AdminSubscriptionsError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في الاشتراكات"
-                        description="تعذر تحميل الاشتراكات. حاول مرة أخرى."
+                        description="تعذّر تحميل الاشتراكات. حاول مرة أخرى."
                         backHref="/admin"
                         backLabel="العودة للوحة التحكم"
                 />

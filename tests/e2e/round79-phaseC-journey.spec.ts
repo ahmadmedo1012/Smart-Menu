@@ -390,7 +390,7 @@ for (const cell of MATRIX) {
       await dlg.getByPlaceholder(/الاسم كما يظهر/).first().fill(`مرحلة C ${cell.w}`);
       await dlg.getByPlaceholder(/رقم الحساب/).first().fill("123456789");
     } else {
-      await dlg.getByPlaceholder("09XXXXXXXXX").first().fill("0912345678");
+      await dlg.getByPlaceholder("09XXXXXXXX").first().fill("0912345678");
     }
     await settle(page, 400);
     await step(page, cell, "06-payment-filled");

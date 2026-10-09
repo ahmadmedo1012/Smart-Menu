@@ -74,7 +74,8 @@ export function LoginScreen() {
             {errors.password ? <Text style={{ color: colors.rose, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 4 }}>{errors.password}</Text> : null}
           </View>
 
-          <Button title={submitting ? "جارٍ الدخول..." : "تسجيل الدخول"} loading={submitting} onPress={onSubmit} className="w-full" />
+          {/* r133-F3 (A9/R6): «…» single-char ellipsis (was ASCII "..."). */}
+          <Button title={submitting ? "جارٍ الدخول…" : "تسجيل الدخول"} loading={submitting} onPress={onSubmit} className="w-full" />
 
           {/* r131-F10 (A2 P1-4 + fix 5): the support link rides PressableScale
               (0.97@80ms — was a silent raw Pressable) with a 44px+ effective

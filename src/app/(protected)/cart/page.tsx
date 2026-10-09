@@ -184,7 +184,7 @@ export default function CartPage() {
                 // doomed 422 that names no field.
                 // r121 (H-2): كان هذا الفحص داخل الـ try بعد إغلاق قفل الإرسال
                 // (submittingRef/isSubmitting) فيعود دون تحريره — يبقى زر
-                // الحوار معطلاً بـ «جاري...» نهائياً حتى إعادة تحميل الصفحة.
+                // الحوار معطلاً بـ «جاري…» نهائياً حتى إعادة تحميل الصفحة.
                 // نُقل الفحص قبل القفل كسابقة PaymentDialog (r120): فشل التحقق
                 // يجب أن يترك الزر صالحاً لإعادة المحاولة بعد اختصار النص.
                 const composedNotes = [notes, pickupType === 'delivery' ? `العنوان: ${deliveryAddress}` : '']
@@ -290,7 +290,7 @@ export default function CartPage() {
                 } catch (e) {
                         // round90-F4 (M1): the thrown Error already carries the mapped
                         // server message; network failures fall back to the general copy.
-                        premiumToast('error', getErrorMessage(e, 'فشل تقديم الطلب. يرجى المحاولة مرة أخرى'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر إرسال الطلب. يرجى المحاولة مرة أخرى'));
                         setIsSubmitting(false);
                         submittingRef.current = false;
                         return;
@@ -471,7 +471,7 @@ export default function CartPage() {
 
                                 {/* Undo banner — appears after removing an item (outside items.map so it
                                     stays visible once the item is gone) */}
-                                {lastRemoved && items.length >= 0 && (
+                                {lastRemoved && (
                                         <CartUndoBanner item={lastRemoved} onUndo={undoRemove} />
                                 )}
 

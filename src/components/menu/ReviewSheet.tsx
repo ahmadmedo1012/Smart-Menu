@@ -72,7 +72,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                         })
                         .catch(() => {
                                 setFetchError(true);
-                                premiumToast('error', 'فشل تحميل التقييمات', 'تأكد من اتصالك بالإنترنت وحاول مرة أخرى');
+                                premiumToast('error', 'تعذّر تحميل التقييمات', 'تأكد من اتصالك بالإنترنت وحاول مرة أخرى');
                         })
                         .finally(() => setLoading(false));
 
@@ -157,7 +157,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                 body: JSON.stringify({ rating: formRating, comment: formComment, customerName: formName }),
                         });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'فشل إرسال التقييم');
+                        if (!json.success) throw new Error(json.error || 'تعذّر إرسال التقييم');
 
                         // Optimistic: prepend review & update stats
                         setReviews((prev) => [json.data, ...prev]);
@@ -172,7 +172,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                         setFormName('');
                         premiumToast('star', 'شكراً لتقييمك!', 'تم إضافة تقييمك بنجاح');
                 } catch (e) {
-                        setSubmitError(e instanceof Error ? e.message : 'فشل إرسال التقييم');
+                        setSubmitError(e instanceof Error ? e.message : 'تعذّر إرسال التقييم');
                 } finally {
                         setSubmitting(false);
                 }
@@ -359,7 +359,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 <div className="text-center py-10" role="alert" aria-live="assertive">
                                                                         <AnimatedMessageCircle className="size-10 text-destructive/50 mx-auto mb-3" />
                                                                         <p className="text-sm text-destructive mb-3">
-                                                                                فشل تحميل التقييمات. تحقق من اتصالك بالإنترنت.
+                                                                                تعذّر تحميل التقييمات. تحقق من اتصالك بالإنترنت.
                                                                         </p>
                                                                         {/* r95: رابط إعادة المحاولة — accent-foreground الأسطع (AA) */}
                                                                         <button

@@ -210,19 +210,20 @@ describe('POST /api/whatsapp/generate — r121-C2: سطر معدَّل يطبع 
                 ],
         };
 
-        it('السطر يطبع 23 د.ل (لا 28) وسطر الإضافات معلوماتي والمجموع يطابق مجموع الأسطر', async () => {
+        it('السطر يطبع 23.00 د.ل (لا 28) وسطر الإضافات معلوماتي والمجموع يطابق مجموع الأسطر', async () => {
                 mockOrderFindUnique.mockResolvedValue(MOD_ORDER);
                 const res = await generateRoute.POST(postRequest({ orderId: 77 }));
                 expect(res.status).toBe(200);
                 const json = await res.json();
 
-                // the stored effective price renders exactly once
-                expect(json.data.message).toContain('2x لاتيه - 23 د.ل');
+                // the stored effective price renders exactly once (r133 R14:
+                // the restaurant forward is a money document → explicit 2dp)
+                expect(json.data.message).toContain('2x لاتيه - 23.00 د.ل');
                 expect(json.data.message).not.toContain('28 د.ل');
                 // deltas stay informational (name + delta), never arithmetic
-                expect(json.data.message).toContain('شوكولاتة إضافية (+5 د.ل)');
+                expect(json.data.message).toContain('شوكولاتة إضافية (+5.00 د.ل)');
                 // money-truth invariant: lines × qty == stored total
-                expect(json.data.message).toContain('المجموع: 46 د.ل');
+                expect(json.data.message).toContain('المجموع: 46.00 د.ل');
                 expect(23 * 2).toBe(46);
         });
 
@@ -234,8 +235,8 @@ describe('POST /api/whatsapp/generate — r121-C2: سطر معدَّل يطبع 
                 const res = await generateRoute.POST(postRequest({ orderId: 77 }));
                 expect(res.status).toBe(200);
                 const json = await res.json();
-                expect(json.data.message).toContain('2x لاتيه - 10 د.ل');
-                expect(json.data.message).toContain('المجموع: 25 د.ل');
+                expect(json.data.message).toContain('2x لاتيه - 10.00 د.ل');
+                expect(json.data.message).toContain('المجموع: 25.00 د.ل');
         });
 });
 
@@ -259,9 +260,9 @@ describe('POST /api/whatsapp/generate — التوليد الناجح', () => {
                 // جسم الإيصال: اسم المطعم، رقم الطلب، سطر الصنف مع الاسم العربي والملاحظات، المجموع
                 expect(json.data.message).toContain('مقهى الواحة');
                 expect(json.data.message).toContain('ORD-77');
-                expect(json.data.message).toContain('2x لاتيه - 10 د.ل');
+                expect(json.data.message).toContain('2x لاتيه - 10.00 د.ل');
                 expect(json.data.message).toContain('ملاحظات: بدون سكر');
-                expect(json.data.message).toContain('المجموع: 25 د.ل');
+                expect(json.data.message).toContain('المجموع: 25.00 د.ل');
                 // الرابط يرمّز الرسالة كاملة
                 expect(json.data.whatsappUrl).toBe(
                         `https://wa.me/218910000000?text=${encodeURIComponent(json.data.message)}`,

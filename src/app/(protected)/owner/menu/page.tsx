@@ -1,16 +1,10 @@
 'use client';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-        Dialog,
-        DialogContent,
-        DialogHeader,
-        DialogTitle,
-        DialogDescription,
-} from '@/components/ui/dialog';
 import { SearchInput } from '@/components/ui/search-input';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { BackButton } from '@/components/shared/BackButton';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { csrfJson } from '@/lib/csrf-client';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -45,6 +39,12 @@ export default function OwnerMenuPage() {
         const [usageKey, setUsageKey] = useState(0);
         const [error, setError] = useState<string | null>(null);
         const fetchCatsRef = useRef<() => Promise<void>>(undefined);
+        /* r133 (A3 S2): bounded auto-retry — the old unbounded 3s loop re-fired
+           the error toast and flipped skeleton↔ErrorState forever during an
+           outage. Max 3 attempts with linear backoff (3s/6s/9s), then a
+           dead-end ErrorState whose retry button is the manual path. */
+        const RETRY_MAX = 3;
+        const retryCountRef = useRef(0);
 
         const fetchCats = useCallback(async () => {
                 if (!restaurantId) return;
@@ -56,12 +56,19 @@ export default function OwnerMenuPage() {
                         const j = await r.json();
                         const cats = j.events ?? j.data ?? j;
                         setCategories(Array.isArray(cats) ? cats : []);
+                        retryCountRef.current = 0; // success ends the cycle
                 } catch {
-                        setError('تعذر تحميل التصنيفات');
-                        premiumToast('error', 'تعذر تحميل التصنيفات');
-                        /* ponytail: auto-retry once after 3s */ setTimeout(() => {
-                                if (restaurantId && fetchCatsRef.current) fetchCatsRef.current();
-                        }, 3000);
+                        setError('تعذّر تحميل التصنيفات');
+                        const attempt = retryCountRef.current + 1;
+                        retryCountRef.current = attempt;
+                        if (attempt <= RETRY_MAX) {
+                                setTimeout(() => {
+                                        if (restaurantId && fetchCatsRef.current) fetchCatsRef.current();
+                                }, 3000 * attempt);
+                        } else {
+                                // terminal: one toast for the whole cycle (was one per 3s)
+                                premiumToast('error', 'تعذّر تحميل التصنيفات');
+                        }
                 } finally {
                         setLoading(false);
                 }
@@ -79,7 +86,10 @@ export default function OwnerMenuPage() {
         }, [activeId]);
 
         useEffect(() => {
-                if (restaurantId) fetchCats();
+                if (restaurantId) {
+                        retryCountRef.current = 0; // fresh cycle per restaurant
+                        fetchCats();
+                }
         }, [restaurantId, fetchCats]);
 
         const fetchItems = useCallback(async (catId: number) => {
@@ -92,7 +102,7 @@ export default function OwnerMenuPage() {
                                 )
                         );
                 } catch {
-                        premiumToast('error', 'تعذر تحميل الأصناف');
+                        premiumToast('error', 'تعذّر تحميل الأصناف');
                 }
         }, []);
 
@@ -132,9 +142,9 @@ export default function OwnerMenuPage() {
                 } catch (e) {
                         /* r121-P-5 (M-ErrSurface): csrfJson يرمي رسالة الخادم العربية
                            (مثل 403 «اشتراكك منتهي. جدّد اشتراكك للمتابعة.» وسقف الباقة)
-                           — كان المصدر يبتلعها خلف «فشل الحفظ» العامة، على نفس الصفحة
+                           — كان المصدر يبتلعها خلف «تعذّر الحفظ» العامة، على نفس الصفحة
                            التي يعرض فيها use-item-save الرسالة الصريحة. */
-                        premiumToast('error', getErrorMessage(e, 'تعذر الحفظ'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر الحفظ'));
                 }
         };
 
@@ -151,7 +161,7 @@ export default function OwnerMenuPage() {
                         else if (expandedCat) fetchItems(expandedCat);
                         setUsageKey((k) => k + 1);
                 } catch {
-                        premiumToast('error', 'تعذر الحذف');
+                        premiumToast('error', 'تعذّر الحذف');
                 }
         };
 
@@ -168,7 +178,7 @@ export default function OwnerMenuPage() {
                         premiumToast('save', ns === 'available' ? 'متوفر' : 'غير متوفر');
                         if (expandedCat) fetchItems(expandedCat);
                 } catch {
-                        premiumToast('error', 'تعذر التحديث');
+                        premiumToast('error', 'تعذّر التحديث');
                 } finally {
                         setPendingToggleId(null);
                 }
@@ -217,11 +227,15 @@ export default function OwnerMenuPage() {
 
         if (error)
                 // r131-F5 (A1 P1-12): canonical error family (56px well + dot + retry).
+                // r133 (A3 S2): the manual retry button resets the bounded cycle.
                 return (
                         <ErrorState
                                 title={error}
-                                description="تعذر تحميل التصنيفات — تحقق من الاتصال ثم أعد المحاولة."
-                                onRetry={() => fetchCats()}
+                                description="تعذّر تحميل التصنيفات — تحقق من الاتصال ثم أعد المحاولة."
+                                onRetry={() => {
+                                        retryCountRef.current = 0;
+                                        fetchCats();
+                                }}
                         />
                 );
 
@@ -252,7 +266,7 @@ export default function OwnerMenuPage() {
                         />
 
                         <div className="relative">
-                                <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="ابحث في القائمة..." />
+                                <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="ابحث في القائمة…" />
                         </div>
 
                         {restaurantId > 0 && <PlanUsageBadge key={usageKey} restaurantId={restaurantId} />}
@@ -293,26 +307,22 @@ export default function OwnerMenuPage() {
                                 }}
                         />
 
-                        {/* Delete Confirmation */}
-                        <Dialog open={deleteTarget !== null} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-                                <DialogContent>
-                                        <DialogHeader>
-                                                <DialogTitle>تأكيد الحذف</DialogTitle>
-                                                <DialogDescription>
-                                                        هل أنت متأكد من حذف &ldquo;{deleteTarget?.name}&rdquo;؟ هذا الإجراء لا يمكن التراجع
-                                                        عنه.
-                                                </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="flex justify-end gap-2">
-                                                <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-                                                        إلغاء
-                                                </Button>
-                                                <Button variant="destructive" onClick={delTarget}>
-                                                        حذف
-                                                </Button>
-                                        </div>
-                                </DialogContent>
-                        </Dialog>
+                        {/* r133 (A3 S3): hand-rolled delete Dialog → the shared ConfirmDialog
+                            (the same grammar as owner/restaurants + OrdersTable + orders/[id] —
+                            one confirmation pattern per app tier, per the r131 fleet canon). */}
+                        <ConfirmDialog
+                                open={deleteTarget !== null}
+                                onOpenChange={(o) => !o && setDeleteTarget(null)}
+                                title="تأكيد الحذف"
+                                description={
+                                        deleteTarget
+                                                ? `هل أنت متأكد من حذف «${deleteTarget.name}»؟ هذا الإجراء لا يمكن التراجع عنه.`
+                                                : ''
+                                }
+                                confirmLabel="حذف"
+                                onConfirm={() => delTarget()}
+                                destructive
+                        />
                 </div>
         );
 }

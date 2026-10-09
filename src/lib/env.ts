@@ -56,7 +56,9 @@ export function validateEnv() {
                         const details = parsed.error.issues
                                 .map((i) => `${i.path.join('.')}: ${i.message}`)
                                 .join(' | ');
-                        throw new Error(`فشل التحقق من متغيرات البيئة — ${details}`);
+                        // r133-G2 (A9 V1/R3): the banned verb is retired even on
+                        // this operator-facing boot error (the last SM string).
+                        throw new Error(`تعذّر التحقق من متغيرات البيئة — ${details}`);
                 }
                 logWarn('Using partial defaults in development');
                 return envSchema.partial().parse(process.env);

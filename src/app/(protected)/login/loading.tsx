@@ -11,7 +11,7 @@ export default function LoginLoading() {
                         aria-busy="true"
                         className="relative flex min-h-dvh items-center justify-center px-4 py-20 sm:px-6"
                 >
-                        <span className="sr-only">جارٍ تحميل صفحة تسجيل الدخول...</span>
+                        <span className="sr-only">جارٍ تحميل صفحة تسجيل الدخول…</span>
 
                         {/* بطاقة الدخول — 440px */}
                         <div className="relative z-10 w-full max-w-[27.5rem] rounded-2xl border border-border/50 bg-card p-0 animate-rise-in" aria-hidden="true">

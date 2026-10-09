@@ -137,7 +137,7 @@ export function RestaurantFormDialog({
 					body: JSON.stringify(body),
 				});
 				const json = await res.json();
-				if (!res.ok) throw new Error(json.error ?? 'فشل تحديث المطعم');
+				if (!res.ok) throw new Error(json.error ?? 'تعذّر تحديث المطعم');
 				premiumToast('save', 'تم تحديث المطعم');
 			} else {
 				const res = await csrfFetch('/api/restaurants', {
@@ -150,13 +150,13 @@ export function RestaurantFormDialog({
 					}),
 				});
 				const json = await res.json();
-				if (!res.ok) throw new Error(json.error ?? 'فشل إنشاء المطعم');
+				if (!res.ok) throw new Error(json.error ?? 'تعذّر إنشاء المطعم');
 				premiumToast('save', 'تمت إضافة المطعم');
 			}
 			onOpenChange(false);
 			onSaved();
 		} catch {
-			premiumToast('error', 'فشل الحفظ');
+			premiumToast('error', 'تعذّر الحفظ');
 		} finally {
 			setSaving(false);
 		}
@@ -321,7 +321,7 @@ export function RestaurantFormDialog({
 						إلغاء
 					</Button>
 					<Button variant="orange" onClick={save} disabled={saving}>
-						{saving ? 'جارٍ...' : editing ? 'تحديث' : 'إضافة'}
+						{saving ? 'جارٍ…' : editing ? 'تحديث' : 'إضافة'}
 					</Button>
 				</div>
 			</DialogContent>

@@ -14,7 +14,7 @@ export default function AdminRestaurantsError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في المطاعم"
-                        description="تعذر تحميل قائمة المطاعم. حاول مرة أخرى."
+                        description="تعذّر تحميل قائمة المطاعم. حاول مرة أخرى."
                         backHref="/admin"
                         backLabel="العودة للوحة التحكم"
                 />

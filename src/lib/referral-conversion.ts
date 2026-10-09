@@ -210,8 +210,8 @@ export async function convertReferralForCompletedOrder(order: OrderLike): Promis
                         await prisma.systemEvent.create({
                                 data: {
                                         eventType: 'referral.converted',
-                                        title: 'فشل تحويل إحالة',
-                                        message: `تعذر تحويل إحالة للطلب ${order.orderNo} — ${String(e).slice(0, 200)}`,
+                                        title: 'تعذّر تحويل إحالة',
+                                        message: `تعذّر تحويل إحالة للطلب ${order.orderNo} — ${String(e).slice(0, 200)}`,
                                         severity: 'warning',
                                         metadata: { orderId: order.id, orderNo: order.orderNo },
                                 },

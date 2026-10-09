@@ -287,9 +287,9 @@ export function OrderDialog({
                                         </div>
                                         <h3 className="text-xl font-bold mb-1">تمت الإضافة إلى السلة!</h3>
                                         {/* r120 (U5-F-3): الكذبة القديمة «تم إرسال الطلب! جاري تحويلك
-                                            إلى واتساب...» كانت توحي بإتمام الطلب بينما الحقيقة إضافة
+                                            إلى واتساب…» كانت توحي بإتمام الطلب بينما الحقيقة إضافة
                                             للسلة → مراجعة → إرسال. الصدق يمنع مغادرة العميل مبكرًا. */}
-                                        <p className="text-sm text-muted-foreground">جارٍ فتح السلة لمراجعة الطلب وإرساله عبر واتساب...</p>
+                                        <p className="text-sm text-muted-foreground">جارٍ فتح السلة لمراجعة الطلب وإرساله عبر واتساب…</p>
                                 </div>
                         ) : (
                                 <div className={cn('p-4 sm:p-5 space-y-3 sm:space-y-4', !item.image && 'pt-8')}>
@@ -525,7 +525,7 @@ export function OrderDialog({
                                                                 tabIndex={orderType === type ? 0 : -1}
                                                                 onClick={() => setOrderType(type)}
                                                                 className={cn(
-                                                                        'flex-1 min-h-11 inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                        'flex-1 min-h-11 inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[color,background-color]',
                                                                         orderType === type
                                                                                 ? 'bg-orange text-orange-foreground shadow-md'
                                                                                 : 'text-muted-foreground hover:text-foreground'
@@ -566,7 +566,7 @@ export function OrderDialog({
                                                 name="notes"
                                                 value={notes}
                                                 onChange={(e) => setNotes(e.target.value)}
-                                                placeholder="ملاحظات إضافية للطلب..."
+                                                placeholder="ملاحظات إضافية للطلب…"
                                                 rows={2}
                                                 maxLength={500}
                                                 aria-label="ملاحظات إضافية"
@@ -606,7 +606,7 @@ export function OrderDialog({
                                                         {submitting ? (
                                                                 <span className="flex items-center gap-2">
                                                                         <span className="size-4 rounded-full border-2 border-whatsapp-ink/40 border-t-whatsapp-ink animate-spin" />
-                                                                        جارٍ...
+                                                                        جارٍ…
                                                                 </span>
                                                         ) : (
                                                                 <>

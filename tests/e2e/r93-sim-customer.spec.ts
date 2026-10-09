@@ -286,7 +286,7 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
   /* ── 8. لوحة الولاء بعد الطلب: الهاتف → رابط الإحالة ── */
   test("لوحة الولاء بعد الطلب: بوابة المطعم المفقودة (🚨 r93-S1-A)", async () => {
     // تفتح تلقائيًا بعد ~1.2 ثانية من وصول رقم الطلب
-    const share = page.getByText("ادع صديق وكل منكما يحصل على خصم 10٪");
+    const share = page.getByText("ادع صديق وكل منكما يحصل على خصم 10%");
     await expect(share).toBeVisible({ timeout: 15000 });
     await page.screenshot({ path: `${SHOTS}/sim-customer-10-loyalty-dialog.png` });
 

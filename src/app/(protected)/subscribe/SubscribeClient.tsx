@@ -12,7 +12,7 @@ import { premiumToast } from '@/lib/premium-toast';
 import { fetchJson } from '@/lib/fetch-json';
 import { Header } from '@/components/layout/Header';
 import { PlanSelector } from './PlanSelector';
-import { SubscribeForm } from './SubscribeForm';
+import { SubscribeForm, type FormState } from './SubscribeForm';
 import { StepIndicator, type WizardStep } from './StepIndicator';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import dynamic from 'next/dynamic';
@@ -27,7 +27,7 @@ const UpgradePlanSummary = dynamic(
 
 // F-D/round91: ?plan= deep-links can carry a plan NAME (?plan=PREMIUM) —
 // Number("PREMIUM") is NaN, so the id/position lookups miss and the wizard
-// dead-ended on «تعذر تحميل الخطة المحددة». Resolution order: exact id →
+// dead-ended on «تعذّر تحميل الخطة المحددة». Resolution order: exact id →
 // 1-based position in sortOrder (ids may shift in DB) → case-insensitive
 // plan name (DB names: Free/Basic/Premium/Pro/Business). Unknown values
 // still fall through to the existing retry error path.
@@ -78,9 +78,11 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
         const [upgradeMode, setUpgradeMode] = useState(false);
 
         const [authLoaded, setAuthLoaded] = useState(false);
-        const [form, setForm] = useState({
+        const [form, setForm] = useState<FormState>({
+                                /* r133 (A13 S-02): typed as FormState — restaurant blocks carry
+                                   optional stable draft ids (never submitted). */
                 restaurants: [
-                        { name: '', slug: '', description: '', phone: '', whatsapp: '' },
+                        { name: '', slug: '', description: '', phone: '', whatsapp: '', _key: 'menu-draft-0' },
                 ],
                 username: '',
                 password: '',
@@ -103,7 +105,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                         if (found) setSelectedPlan(found.id);
                                 }
                         } catch {
-                                premiumToast('error', 'فشل تحميل الخطط');
+                                premiumToast('error', 'تعذّر تحميل الخطط');
                                 // auto-retry once after 1s — cold-start /api/plans may return non-JSON 200
                                 if (!retried) {
                                         retried = true;
@@ -133,7 +135,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                         if (found) setSelectedPlan(found.id);
                                 }
                         })
-                        .catch(() => premiumToast('error', 'فشل تحميل الخطط'))
+                        .catch(() => premiumToast('error', 'تعذّر تحميل الخطط'))
                         .finally(() => setLoading(false));
         }, [preselectedPlan]);
 
@@ -181,7 +183,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                         }
                                         if (data.eventType === 'subscription_approved') {
                                                 setPaymentOpen(false);
-                                                premiumToast('success', 'تم تفعيل حسابك بنجاح! جارِ نقلك إلى لوحة التحكم...');
+                                                premiumToast('success', 'تم تفعيل حسابك بنجاح! جارِ نقلك إلى لوحة التحكم…');
                                                 setTimeout(() => window.location.replace('/owner'), 500);
                                                 return;
                                         }
@@ -278,7 +280,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                                 }),
                                         });
                                         const regJson = await regRes.json();
-                                        if (!regRes.ok) throw new Error(regJson.error ?? 'فشل إنشاء الحساب');
+                                        if (!regRes.ok) throw new Error(regJson.error ?? 'تعذّر إنشاء الحساب');
                                 }
                                 setPaymentOpen(true);
                                 setSseOpen(true);
@@ -338,7 +340,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                 }),
                         });
                         const json = await res.json();
-                        if (!res.ok) throw new Error(json.error ?? 'فشل إنشاء الحساب');
+                        if (!res.ok) throw new Error(json.error ?? 'تعذّر إنشاء الحساب');
                         if (currentPlan && Number(currentPlan.price) === 0) {
                                 setSseOpen(true);
                                 const loginRes = await csrfFetch('/api/auth/login', {
@@ -347,7 +349,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                         body: JSON.stringify({ username: form.username.trim(), password: form.password.trim() }),
                                 });
                                 if (loginRes.ok) {
-                                        premiumToast('success', 'تم إنشاء حسابك! جارِ نقلك إلى لوحة التحكم...');
+                                        premiumToast('success', 'تم إنشاء حسابك! جارِ نقلك إلى لوحة التحكم…');
                                         router.push('/owner');
                                         router.refresh();
                                         return;
@@ -371,7 +373,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                         <div className="min-h-screen bg-background">
                                 <Header />
                                 <div className="max-w-4xl mx-auto px-4 py-12" role="status" aria-live="polite">
-                                        <LoadingAnnouncer loading={loading} message="جارٍ تحميل صفحة الاشتراك..." />
+                                        <LoadingAnnouncer loading={loading} message="جارٍ تحميل صفحة الاشتراك…" />
                                         <div className="text-center mb-10" aria-hidden="true">
                                                 <div className="h-3.5 w-24 mx-auto rounded-md skeleton mb-4" />
                                                 <div className="h-8 w-64 mx-auto rounded-md skeleton" />
@@ -432,7 +434,7 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                 {/* Step 1: Plan selector (with visible error state when plans never loaded) */}
                                 {step === 'plan' && plans.length === 0 ? (
                                         <div className="flex flex-col items-center gap-4 py-16 text-center animate-fade-in">
-                                                <p className="text-muted-foreground">تعذر تحميل الباقات. يرجى المحاولة مرة أخرى.</p>
+                                                <p className="text-muted-foreground">تعذّر تحميل الباقات. يرجى المحاولة مرة أخرى.</p>
                                                 <Button variant="outline" onClick={handleRetryPlans}>
                                                         إعادة المحاولة
                                                 </Button>
@@ -481,10 +483,10 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                     branches matched — currentPlan undefined, authLoaded true,
                                     upgradeMode true) → an owner on a stale marketing link hit a
                                     blank step. Mirror the r120 SubscribeForm escape (SubscribeForm.tsx
-                                    «تعذر تحميل الخطة المحددة») so the dead end is escapable. */}
+                                    «تعذّر تحميل الخطة المحددة») so the dead end is escapable. */}
                                 {step !== 'plan' && authLoaded && upgradeMode && !currentPlan && (
                                         <div className="animate-fade-in max-w-lg mx-auto py-10 text-center">
-                                                <p className="text-muted-foreground mb-4">تعذر تحميل الخطة المحددة</p>
+                                                <p className="text-muted-foreground mb-4">تعذّر تحميل الخطة المحددة</p>
                                                 <Button type="button" variant="flame" onClick={() => setStep('plan')}>
                                                         تصفح جميع الباقات
                                                 </Button>

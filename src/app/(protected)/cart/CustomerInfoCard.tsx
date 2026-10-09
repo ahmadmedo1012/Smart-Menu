@@ -26,7 +26,7 @@ export function CustomerInfoCard({ notes, phone, onNotesChange, onPhoneChange }:
                                                 id="cart-notes"
                                                 type="text"
                                                 dir="auto"
-                                                placeholder="مثال: بدون بصل، الطلب مستعجل..."
+                                                placeholder="مثال: بدون بصل، الطلب مستعجل…"
                                                 maxLength={120}
                                                 value={notes}
                                                 onChange={(e) => onNotesChange(e.target.value)}

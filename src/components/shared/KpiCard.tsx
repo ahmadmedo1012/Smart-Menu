@@ -115,7 +115,9 @@ export const KpiCard = memo(function KpiCard({
                                         <p className="text-3xl font-bold tracking-normal tabular-nums">
                                                 {animated ? <AnimatedCounter value={value} /> : <>{toArabicNumber(value)}{suffix}</>}
                                         </p>
-                                        {subtitle && <p className="text-2xs text-muted-foreground">{subtitle}</p>}
+                                        {/* r133 (A12 §tnum): subtitles are money metrics on the KPI grid
+                                            (OwnerKpiGrid revenue) — tnum like the sibling value line */}
+                                        {subtitle && <p className="text-2xs text-muted-foreground tabular-nums">{subtitle}</p>}
                                         {(sparklineData !== undefined || trend !== undefined) && (
                                                 <div className="flex items-center gap-2">
                                                         {sparklineData && sparklineData.length > 1 && <MiniSparkline data={sparklineData} />}

@@ -113,8 +113,10 @@ const MenuItemCard = memo(function MenuItemCard({
                            نوابض hover/tap التوأمة أدناه. */
                         whileHover={{ y: -3, transition: HOVER_SPRING }}
                         whileTap={{ scale: 0.99, transition: HOVER_SPRING }}
+                        /* r133 (A10): the stacked focus-visible ring+offset retired — the ONE
+                           unlayered :focus-visible outline (globals.css) is the single indicator. */
                         className={cn(
-                                'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-slower focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2',
+                                'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-slower',
                                 /* r95: توهج SmartBot §5.1 — accent-foreground بدل orange على الحدود/الظل */
                                 'hover:border-accent-foreground/30 hover:shadow-lg hover:shadow-accent-foreground/10',
                                 isFeatured && 'md:col-span-2'
@@ -350,7 +352,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                                 onDecrementCart?.(item);
                                                                         }}
                                                                         aria-label={`إنقاص كمية ${displayName}`}
-                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-[color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
+                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:bg-orange-foreground/10 transition-[color,background-color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
                                                                 >
                                                                         <MotionMinus className="size-4" />
                                                                 </button>
@@ -365,7 +367,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                                 needsConfig ? onOrder(item) : onAddToCart(item);
                                                                         }}
                                                                         aria-label={`زيادة كمية ${displayName}`}
-                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-[color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
+                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:bg-orange-foreground/10 transition-[color,background-color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
                                                                 >
                                                                         <MotionPlus className="size-4" />
                                                                 </button>

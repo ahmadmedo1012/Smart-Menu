@@ -146,6 +146,20 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                         {/* Mobile drawer */}
                         <AnimatePresence>
                                 {mobileOpen && (
+                                        <>
+                                        {/* r133 (A3 N12): outside-click dismissal — the drawer had
+                                            Escape + focus trap but tapping the page behind kept it
+                                            open. Invisible scrim (DOM-before the drawer so the drawer
+                                            paints above at equal z); aria-hidden — the drawer owns the
+                                            a11y tree via aria-modal. */}
+                                        <m.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                onPointerDown={() => setMobileOpen(false)}
+                                                className="fixed inset-0 z-40 md:hidden"
+                                                aria-hidden="true"
+                                        />
                                         <m.div
                                                 ref={drawerRef}
                                                 id="mobile-global-drawer"
@@ -168,6 +182,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                         </Link>
                                                 ))}
                                         </m.div>
+                                        </>
                                 )}
                         </AnimatePresence>
 

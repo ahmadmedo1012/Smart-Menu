@@ -113,7 +113,7 @@ export function PaymentDialog({
                         premiumToast('copy', 'تم النسخ');
                         return true;
                 } catch {
-                        premiumToast('error', 'فشل النسخ');
+                        premiumToast('error', 'تعذّر النسخ');
                         return false;
                 }
         };
@@ -166,7 +166,7 @@ export function PaymentDialog({
                                 }),
                         });
                         const json = await res.json();
-                        if (!res.ok) throw new Error(json.error ?? 'فشل إرسال طلب الدفع');
+                        if (!res.ok) throw new Error(json.error ?? 'تعذّر إرسال طلب الدفع');
                         setPaymentId(json.data.id);
                         setStep('waiting');
                 } catch (e) {
@@ -327,7 +327,7 @@ export function PaymentDialog({
                                                                                         id="payment-phone"
                                                                                         value={phone}
                                                                                         onChange={(e) => setPhone(e.target.value)}
-                                                                                        placeholder="09XXXXXXXXX"
+                                                                                        placeholder="09XXXXXXXX"
                                                                                         inputMode="numeric"
                                                                                         maxLength={10}
                                                                                         className="h-11 rounded-xl mt-1.5 text-left font-mono"
@@ -436,7 +436,7 @@ export function PaymentDialog({
                                                         )}
 
                                                         {/* r131 (A11 states + A2 P2-15): خاصية loading في زر Button
-                                                            (دوّار + aria-busy + قفل) بدل نص «جاري...» بلا تغذية بصرية،
+                                                            (دوّار + aria-busy + قفل) بدل نص «جاري…» بلا تغذية بصرية،
                                                             وتجاوز rounded-xl أُزيل — الوراثة r-md (10px). */}
                                                         <Button
                                                                 className="w-full h-12 text-base font-semibold"

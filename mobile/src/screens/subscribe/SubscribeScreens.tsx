@@ -7,7 +7,8 @@ import { Check } from "lucide-react-native";
 
 import { api } from "@/services/api/client";
 import { Button } from "@/components/ui/Button";
-import { Spinner, ErrorState, EmptyState } from "@/components/ui";
+import { ErrorState, EmptyState } from "@/components/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { Text } from "@/components/ui/Text";
 import { toast } from "@/app/providers";
 import { formatPrice } from "@/lib/format";
@@ -50,9 +51,23 @@ export function SubscribePlanScreen() {
   const loading = isPending;
 
   if (loading) {
+    /* r133-F3 (A4 §3, the F2b handoff): the plan picker's first paint is a
+       SHAPE skeleton (r131 fleet ruling "loading = shape skeletons") —
+       heading + plan-card rows (name line + the 24px price metric + period
+       line on surface r-12 hairline cards = the loaded card geometry). Was
+       a centered spinner: 6 of the app's 8 loading states were spinners. */
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
+        <View style={{ padding: 16 }}>
+          <Skeleton width={"50%"} height={20} />
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginTop: 12, marginBottom: 4, borderWidth: 1, borderColor: colors.hairline }}>
+              <Skeleton width={"45%"} height={16} />
+              <Skeleton width={72} height={24} />
+              <Skeleton width={"40%"} height={11} />
+            </View>
+          ))}
+        </View>
       </SafeAreaView>
     );
   }
@@ -107,8 +122,10 @@ export function SubscribePlanScreen() {
       </ScrollView>
       </Animated.View>
       {/* r126 (A6 P2-11): inset-aware sticky CTA (was bottom:16 — overlapped
-          the Android gesture bar / iOS home indicator). */}
-      <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16 }}>
+          the Android gesture bar / iOS home indicator).
+          r133-F3 (A4 N2): logical start/end replaces the inert physical
+          left/right pair — the r131 sweep's standard spelling. */}
+      <View style={{ position: "absolute", bottom: 16 + insets.bottom, start: 16, end: 16 }}>
         <Button title="التالي" onPress={() => selectedId && navigation.navigate("SubscribeMenu", { planId: selectedId })} disabled={!selectedId} size="lg" className="w-full" />
         {/* r126-M2: escape hatch — logout (rose) + refresh status (muted).
             r131-F10 (A2 P1-4 + fix 6): both links ride PressableScale — the
@@ -171,11 +188,12 @@ export function SubscribeMenuScreen() {
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>بيانات مطعمك</Text>
         <LabelAndInput label="اسم المطعم" value={name} onChange={setName} placeholder="مطعم البرج" />
         <LabelAndInput label="الرابط (slug)" value={slug} onChange={(v) => setSlug(v.toLowerCase().replace(/[^a-z0-9-]/g, ""))} placeholder="al-borg" />
-        <LabelAndInput label="رقم الهاتف" value={phone} onChange={setPhone} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
-        <LabelAndInput label="واتساب" value={whatsapp} onChange={setWhatsapp} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
+        <LabelAndInput label="رقم الهاتف" value={phone} onChange={setPhone} placeholder="09XXXXXXXX" keyboardType="phone-pad" />
+        <LabelAndInput label="واتساب" value={whatsapp} onChange={setWhatsapp} placeholder="09XXXXXXXX" keyboardType="phone-pad" />
       </ScrollView>
-      <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16 }}>
-        <Button title={submitting ? "جارٍ التحقق..." : "التالي"} onPress={onNext} loading={submitting} size="lg" className="w-full" />
+      {/* r133-F3 (A4 N2): logical start/end — the r131 sweep's standard spelling. */}
+      <View style={{ position: "absolute", bottom: 16 + insets.bottom, start: 16, end: 16 }}>
+        <Button title={submitting ? "جارٍ التحقق…" : "التالي"} onPress={onNext} loading={submitting} size="lg" className="w-full" />
       </View>
     </SafeAreaView>
   );
@@ -252,7 +270,7 @@ export function SubscribePaymentScreen() {
           </View>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, textAlign: "center" }}>تم إرسال طلب الدفع</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
-            سيتم تأكيد اشتراكك خلال دقائق عبر تيليجرام. عند الموافقة تُفتح لوحة التحكم تلقائيًا عند إعادة فتح التطبيق.
+            سيتم تأكيد اشتراكك خلال دقائق عبر تليجرام. عند الموافقة تُفتح لوحة التحكم تلقائيًا عند إعادة فتح التطبيق.
           </Text>
           {/* r131-F10 (A2 P1-4 + fix 6): PressableScale — the hand-rolled
               `pressed ? 0.9` register joins the 0.97@80ms ladder. */}
@@ -283,7 +301,7 @@ export function SubscribePaymentScreen() {
             </PressableScale>
           ))}
         </View>
-        <LabelAndInput label="رقم المرسل" value={phone} error={fieldErrors.phone} onChange={(v) => { setPhone(v); if (fieldErrors.phone) setFieldErrors((e) => ({ ...e, phone: false })); }} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
+        <LabelAndInput label="رقم المرسل" value={phone} error={fieldErrors.phone} onChange={(v) => { setPhone(v); if (fieldErrors.phone) setFieldErrors((e) => ({ ...e, phone: false })); }} placeholder="09XXXXXXXX" keyboardType="phone-pad" />
         <LabelAndInput label="المبلغ" value={amount} error={fieldErrors.amount} onChange={(v) => { setAmount(v); if (fieldErrors.amount) setFieldErrors((e) => ({ ...e, amount: false })); }} placeholder="50" keyboardType="numeric" />
         {/* r126-M3: the old copy promised receipt upload «من شاشة الإعدادات
             لاحقًا» — that feature does not exist (the expo-image-picker
@@ -291,12 +309,13 @@ export function SubscribePaymentScreen() {
             transfer, then send the receipt to support; Telegram confirms. */}
         <View style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginTop: 16, borderWidth: 1, borderColor: colors.hairline }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted, lineHeight: 18 }}>
-            بعد إتمام التحويل، أرسل صورة الإيصال للدعم عبر واتساب. سيتم تأكيد اشتراكك خلال دقائق عبر تيليجرام.
+            بعد إتمام التحويل، أرسل صورة الإيصال للدعم عبر واتساب. سيتم تأكيد اشتراكك خلال دقائق عبر تليجرام.
           </Text>
         </View>
       </ScrollView>
-      <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16 }}>
-        <Button title={submitting ? "جارٍ الإرسال..." : "إرسال طلب الدفع"} onPress={onPay} loading={submitting} size="lg" className="w-full" />
+      {/* r133-F3 (A4 N2): logical start/end — the r131 sweep's standard spelling. */}
+      <View style={{ position: "absolute", bottom: 16 + insets.bottom, start: 16, end: 16 }}>
+        <Button title={submitting ? "جارٍ الإرسال…" : "إرسال طلب الدفع"} onPress={onPay} loading={submitting} size="lg" className="w-full" />
       </View>
     </SafeAreaView>
   );

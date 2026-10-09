@@ -24,7 +24,7 @@ export function useImageUpload(onUploaded: (url: string) => void): {
 
 	const uploadFile = async (file: File) => {
 		setUploading(true);
-		premiumToast('info', 'جاري رفع ومعالجة الصورة...');
+		premiumToast('info', 'جارٍ رفع ومعالجة الصورة…');
 		try {
 			const compressed = await compressImage(file);
 			const fd = new FormData();
@@ -33,13 +33,13 @@ export function useImageUpload(onUploaded: (url: string) => void): {
 			const d = await r.json();
 			if (!r.ok) {
 				const detail = d?.details?.length ? ` — ${d.details.join('; ')}` : '';
-				premiumToast('error', `${d?.error || 'فشل رفع الصورة'}${detail}`);
+				premiumToast('error', `${d?.error || 'تعذّر رفع الصورة'}${detail}`);
 				return;
 			}
 			if (d.data?.url) onUploaded(d.data.url);
-			else premiumToast('error', 'فشل رفع الصورة');
+			else premiumToast('error', 'تعذّر رفع الصورة');
 		} catch (e) {
-			premiumToast('error', e instanceof Error ? e.message : 'فشل رفع الصورة');
+			premiumToast('error', e instanceof Error ? e.message : 'تعذّر رفع الصورة');
 		} finally {
 			setUploading(false);
 		}

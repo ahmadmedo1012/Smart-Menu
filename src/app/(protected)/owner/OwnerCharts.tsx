@@ -134,14 +134,14 @@ export function AnalyticsTab({
                                         `/api/stats/advanced?restaurantId=${restaurantId}&range=${nextRange}`
                                 );
                                 if (!res.ok) {
-                                        setError('تعذر تحميل التحليلات');
+                                        setError('تعذّر تحميل التحليلات');
                                         return;
                                 }
                                 const json = await res.json();
                                 if (json.success && json.data) setData(json.data);
-                                else setError('تعذر تحميل التحليلات');
+                                else setError('تعذّر تحميل التحليلات');
                         } catch {
-                                setError('تعذر تحميل التحليلات');
+                                setError('تعذّر تحميل التحليلات');
                         } finally {
                                 setLoading(false);
                         }

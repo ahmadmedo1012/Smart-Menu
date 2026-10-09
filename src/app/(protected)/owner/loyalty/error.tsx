@@ -14,7 +14,7 @@ export default function OwnerLoyaltyError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في الولاء"
-                        description="تعذر تحميل صفحة الولاء. حاول مرة أخرى."
+                        description="تعذّر تحميل صفحة الولاء. حاول مرة أخرى."
                         backHref="/owner"
                         backLabel="العودة للوحة التحكم"
                 />

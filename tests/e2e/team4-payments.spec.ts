@@ -200,8 +200,8 @@ test("madar: full flow shows 'بانتظار موافقة الإدارة' withou
   expect(await madar.count()).toBeGreaterThan(0);
   await madar.first().click();
 
-  // Fill the wallet phone field (09XXXXXXXXX) — required to enable submit for madar
-  const phoneField = dlg.getByPlaceholder("09XXXXXXXXX").first();
+  // Fill the wallet phone field (09XXXXXXXX) — required to enable submit for madar
+  const phoneField = dlg.getByPlaceholder("09XXXXXXXX").first();
   // round87-D7: fixed 500ms sleep → condition wait for the wallet form mount
   await phoneField.waitFor({ state: "visible", timeout: 10000 }).catch(() => {});
   if (await phoneField.count()) await phoneField.fill("0910000015");

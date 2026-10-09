@@ -1,31 +1,13 @@
 "use client"
 
-import { ShoppingCart, TrendingUp, Clock, ClipboardList, AlertCircle } from "lucide-react"
+import { ShoppingCart, TrendingUp, Clock, ClipboardList } from "lucide-react"
 import { formatPrice, toArabicNumber } from "@/lib/format"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ErrorState } from "@/components/shared/ErrorState"
 import { KpiCard } from "@/components/shared/KpiCard"
 
-/* ---------- Loading skeleton (matches KpiCard shape exactly) ---------- */
-
-export function OwnerKpiGridSkeleton() {
-  return (
-    <div className="grid grid-cols-2 gap-5 min-[1101px]:grid-cols-4" aria-hidden="true">
-      {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="min-h-[132px] rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 space-y-2.5">
-              <Skeleton className="h-3 w-20" />
-              <Skeleton className="h-9 w-24" />
-              <Skeleton className="h-2.5 w-16" />
-            </div>
-            <Skeleton className="size-11 rounded-lg" />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
+/* r133 (A3 N6): the in-file OwnerKpiGridSkeleton + the isLoading/error/
+   onRetry props were dead — the sole caller (owner/page.tsx) passes `stats`
+   only and owns loading (KpiGridSkeleton from shared/DashboardSkeletons)
+   and error states itself. Deleted (deletion beats addition). */
 
 interface StatsData {
   totalOrders: number; todayOrders: number; todayRevenue?: number; totalItems: number
@@ -36,30 +18,9 @@ interface StatsData {
 
 interface OwnerKpiGridProps {
   stats: StatsData | null
-  /** True while the dashboard fetch is in flight — shows card-shaped skeletons. */
-  isLoading?: boolean
-  /** Load-failure message; with no stats, renders an inline retry state. */
-  error?: string | null
-  onRetry?: () => void
 }
 
-export function OwnerKpiGrid({ stats, isLoading = false, error = null, onRetry }: OwnerKpiGridProps) {
-  if (isLoading && !stats) return <OwnerKpiGridSkeleton />
-
-  if (error && !stats) {
-    return (
-      <div className="rounded-xl border border-border/30 bg-card/50 shadow-sm">
-        <ErrorState
-          icon={AlertCircle}
-          title={error}
-          description="تعذر تحميل مؤشرات لوحة التحكم. تحقق من الاتصال ثم أعد المحاولة."
-          onRetry={onRetry}
-          className="py-8"
-        />
-      </div>
-    )
-  }
-
+export function OwnerKpiGrid({ stats }: OwnerKpiGridProps) {
   const pendingOrders = stats ? (stats.statusBreakdown["new"] ?? 0) + (stats.statusBreakdown["preparing"] ?? 0) : 0
 
   return (

@@ -142,7 +142,7 @@ export default function AdminMenuPage() {
       })
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, status: ns } : i))
       premiumToast(ns === "available" ? "success" : "error", ns === "available" ? "متوفر" : "غير متوفر")
-    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر التحديث")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذّر التحديث")) }
   }
 
   const deleteItem = async () => {
@@ -152,12 +152,12 @@ export default function AdminMenuPage() {
       premiumToast("success", "تم حذف الصنف")
       setDeleteTarget(null)
       fetchData()
-    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذّر الحذف")) }
   }
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in">
-      <LoadingAnnouncer loading message="جارٍ تحميل المنيو..." />
+      <LoadingAnnouncer loading message="جارٍ تحميل المنيو…" />
       {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   )
@@ -182,7 +182,7 @@ export default function AdminMenuPage() {
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
-        <SearchInput value={search} onChange={setSearch} placeholder="ابحث عن صنف أو مطعم..." className="flex-1 min-w-[200px]" />
+        <SearchInput value={search} onChange={setSearch} placeholder="ابحث عن صنف أو مطعم…" className="flex-1 min-w-[200px]" />
         <select
           value={restaurantFilter}
           onChange={e => setRestaurantFilter(e.target.value)}

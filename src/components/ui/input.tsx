@@ -36,7 +36,10 @@ function Input({
 }) {
         const stateStyles: Record<InputState, string> = {
                 default:
-                        "border-input focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]",
+                        /* r133 (A10 fleet gap): hover border — the madarek `.input:hover
+                           { border-color: var(--border-strong) }` grammar (components.css:721);
+                           inputs were inert until focus. */
+                        "border-input hover:border-(--border-strong) focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]",
                 error:
                         "border-destructive focus-visible:border-destructive focus-visible:shadow-[var(--state-input-error-halo)]",
                 success:

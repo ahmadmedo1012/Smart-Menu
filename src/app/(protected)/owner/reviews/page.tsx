@@ -68,8 +68,8 @@ export default function OwnerReviewsPage() {
         // not the star-filtered first page) via the paginated() extras field
         if (json.stats) setStats(json.stats);
       }
-      else setError("تعذر تحميل التقييمات — حاول مجدداً");
-    } catch { logError("Failed to load reviews"); setError("تعذر تحميل التقييمات — تحقق من الاتصال وحاول مجدداً"); } finally { setLoading(false); }
+      else setError("تعذّر تحميل التقييمات — حاول مجدداً");
+    } catch { logError("Failed to load reviews"); setError("تعذّر تحميل التقييمات — تحقق من الاتصال وحاول مجدداً"); } finally { setLoading(false); }
   }, [filterStar, activeId]);
 
   useEffect(() => { load(); }, [load]);
@@ -86,7 +86,7 @@ export default function OwnerReviewsPage() {
       setDeleteTarget(null);
       load();
     } catch (e) {
-      premiumToast('error', getErrorMessage(e, 'تعذر حذف التقييم'));
+      premiumToast('error', getErrorMessage(e, 'تعذّر حذف التقييم'));
     } finally {
       setDeleting(false);
     }
@@ -170,11 +170,11 @@ export default function OwnerReviewsPage() {
       {loading ? (
         /* r131-F5 (A11 SM-2): review-shaped rows on the .skeleton shimmer
                 (was five bare animate-pulse blocks). */
-        <ListPageSkeleton rows={5} rowHeight="h-24" label="جارٍ تحميل التقييمات..." />
+        <ListPageSkeleton rows={5} rowHeight="h-24" label="جارٍ تحميل التقييمات…" />
       ) : error ? (
         /* r131-F5 (A1 P1-12): canonical error family with a working retry. */
         <ErrorState
-          title="تعذر تحميل التقييمات"
+          title="تعذّر تحميل التقييمات"
           error={error}
           onRetry={load}
         />

@@ -49,7 +49,7 @@ export function usePaymentStatusPoll(opts: {
                                 failuresRef.current++;
                                 if (failuresRef.current >= 3 && !warnedRef.current) {
                                         warnedRef.current = true;
-                                        premiumToast('error', 'تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
+                                        premiumToast('error', 'تعذّر الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
                                 }
                         }
                 },

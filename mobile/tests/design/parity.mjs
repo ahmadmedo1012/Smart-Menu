@@ -50,10 +50,14 @@
  *   landing grammar 6 · scope-rule negatives 3
  *   r131-F10 11 · raw-Pressable/pressed-register bans · 24px price metric ×2
  *   · 56px grey state tile · field-focus grammar ×3 · copy rulings ×2
- *   r132-F2b 21 · whatsapp trunk-0 · skeleton canon · toast recipe · 44px
+ *   r132-F2b 22 · whatsapp trunk-0 · skeleton canon · toast recipe · 44px
  *   input · FAB inset · wizard CTA padding ×3 · payment gate · plans-empty
  *   · EmptyState family ×2 · 0.93 tab press · elevation ladder · A10 twins
  *   (formatPrice smart-trim · receipt decimals/labels · network-error map)
+ *   r133-F3 22 · auth boot-vs-action gate · modifier smart-trim · tab-bar
+ *   insets · money-list memo · logical sticky sides · dead-sm ban ·
+ *   OwnerQr React Query · shape skeletons ×6 · price ladder + chip tnum ·
+ *   microcopy (عميل · تليجرام · «…» · 09XXXXXXXX · رمز QR)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
@@ -95,6 +99,15 @@ const formatSrc = read('src/lib/format.ts');
 const getErrorMessageSrc = read('src/lib/get-error-message.ts');
 const skeletonSrc = read('src/components/ui/Skeleton.tsx');
 const elevationSrc = read('src/theme/elevation.ts');
+// r133-F3 section sources — same RAW doctrine (what ships is what gets
+// pinned); comment-stripped where a ban sweep would trip on documentation.
+const authStoreSrc = read('src/store/auth.ts');
+const menuTypesSrc = read('src/lib/menu-types.ts');
+const buttonSrc = read('src/components/ui/Button.tsx');
+const publicStackSrc = read('src/navigation/PublicStack.tsx');
+const rootNavigatorSrc = read('src/navigation/RootNavigator.tsx');
+const adminStackSrc = read('src/navigation/AdminStack.tsx');
+const ownerStackSrc = read('src/navigation/OwnerStack.tsx');
 const appJson = JSON.parse(read('app.json'));
 const pkg = JSON.parse(read('package.json'));
 
@@ -930,6 +943,176 @@ check(
 check(
   getErrorMessageSrc.includes('/^network request failed$/i') && getErrorMessageSrc.includes('NETWORK_ERROR_ARABIC'),
   'getErrorMessage maps RN fetch engine strings to friendly Arabic — raw English «Network request failed» never surfaces in the Arabic UI',
+);
+
+// ── §r133-F3 · round-133 mobile pins (auth boot-vs-action gate · modifier
+// smart-trim · tab-bar insets · money-list memo · logical sticky sides ·
+// dead-sm ban · OwnerQr React Query · shape skeletons ×6 · price ladder +
+// chip tnum · microcopy R1/R6/R7/R10 + رمز QR) ───────────────────────────
+// Same doctrine as §r132-F2b: text scans over the RAW sources read at the
+// top (comment-stripped where a ban would trip on documentation), and the
+// fleet sweeps ride codeOnly. What ships in the repo is what gets pinned.
+
+const authStripped = stripComments(authStoreSrc);
+const bootstrapBody = authStripped.slice(authStripped.indexOf('bootstrap: async'), authStripped.indexOf('login: async'));
+const loginBody = authStripped.slice(authStripped.indexOf('login: async'), authStripped.indexOf('logout: async'));
+
+// 1. A4 M1 (the round's MUST): login/bootstrap must never blank the app.
+//    App.tsx returns null while status === "loading" — the login POST reused
+//    that BOOT value, unmounting the whole tree (typed credentials wiped on
+//    remount, the button's loading state unreachable, the failure toast
+//    fired into an unmounted Toast ref = a silent no-op).
+check(
+  !loginBody.includes('status: "loading"'),
+  'login() must NOT set the global boot status "loading" — App.tsx null-gates on it (the M1 fix: the whole app unmounted for the login POST duration, wiping credentials and dropping the failure toast)',
+);
+check(
+  bootstrapBody.includes('useAuth.getState().status === "idle"')
+    && bootstrapBody.includes('coldBoot ? { status: "loading", error: null } : { error: null }'),
+  'bootstrap() flips to "loading" on COLD BOOT only — warm refreshes (SubscribePlan «تحديث حالة الاشتراك») keep the booted status so the app never blanks mid-session',
+);
+check(
+  !stripComments(rootNavigatorSrc).includes('ActivityIndicator'),
+  'RootNavigator carries no boot-spinner branch (dead code deleted with M1 — App.tsx is the one and only boot gate; "loading" is cold-boot-only now)',
+);
+
+// 2. A4 S1 (the fourth stale money twin): modifier summaries ride the web
+//    r121-H-1 smart trim — 12.75 stayed «12.8» in the cart + WhatsApp
+//    receipt while the detail chip said «12.75».
+check(
+  !stripComments(menuTypesSrc).includes('decimals: 1')
+    && (menuTypesSrc.match(/formatPrice\(opt\.priceDelta\)/g) ?? []).length === 2,
+  'buildModifierSummary rides formatPrice smart-trim on both branches (the web r121-H-1 twin) — no decimals: 1 money twin left in menu-types',
+);
+
+// 3. A4 S2: tab-bar safe-area. react-navigation merges [...defaults,
+//    { paddingBottom: insets.bottom }, tabBarStyle] — later entries win, so
+//    a static paddingBottom: 8 REPLACED the library inset and the 11px
+//    labels rendered inside the home-indicator zone on notched devices.
+check(
+  navThemeSrc.includes('useTabScreenOptions') && navThemeSrc.includes('useSafeAreaInsets()')
+    && navThemeSrc.includes('height: 64 + insets.bottom') && navThemeSrc.includes('paddingBottom: 8 + insets.bottom')
+    && !/paddingBottom:\s*8\s*[,}]/.test(stripComments(navThemeSrc)),
+  'the bottom-tab chrome is an insets-aware factory (height 64 + insets.bottom, paddingBottom 8 + insets.bottom) — a static paddingBottom: 8 may never override the library inset again',
+);
+check(
+  adminStackSrc.includes('useTabScreenOptions()') && ownerStackSrc.includes('useTabScreenOptions()'),
+  'both tab bars (admin + owner) consume the insets-aware tab chrome factory',
+);
+
+// 4. A4 S3: the money list stops re-rendering every visible card per
+//    keystroke / cart tick — memoized filter + memoized card + stable
+//    callbacks (FlashList re-renders all rows when renderItem's identity
+//    changes).
+check(
+  menuScreenSrc.includes('const filteredItems = useMemo(')
+    && menuScreenSrc.includes('const MenuItemCard = memo(function MenuItemCard')
+    && menuScreenSrc.includes('const renderMenuItem = useCallback('),
+  'MenuScreen memoizes the money list: filteredItems rides useMemo, MenuItemCard rides React.memo with a stable (item) => void onPress, renderItem rides useCallback — no full-list re-render per keystroke/cart tick',
+);
+
+// 5. A4 S4: ONE PublicStackParamList — the canonical list in types.ts (the
+//    stale local twin had Login redirect? no screen reads + required-vs-
+//    optional orderId drift).
+check(
+  publicStackSrc.includes('from "./types"') && !publicStackSrc.includes('export type PublicStackParamList'),
+  'PublicStack consumes the canonical PublicStackParamList from ./types — the stale local twin is gone (one SSOT for navigator + linking + root union)',
+);
+
+// 6. A4 N2: the four sticky-CTA wrappers ride logical start/end — no inert
+//    physical left/right pairs (symmetric = functionally inert in forced
+//    RTL, but logical is the r131 sweep's standard spelling).
+check(
+  !codeOnly.some(({ s }) => /left:\s*16,\s*right:\s*16/.test(s))
+    && (menuScreenSrc.match(/start: 16, end: 16/g) ?? []).length === 1
+    && (subscribeScreensSrc.match(/start: 16, end: 16/g) ?? []).length === 3,
+  'all four sticky-CTA wrappers ride start: 16, end: 16 (logical sides) — no inert left/right physical pairs',
+);
+
+// 7. A4 N4: the dead 36px Button sm variant is deleted and may not return
+//    (8px under the 44px touch floor; zero consumers at deletion time).
+check(
+  !stripComments(buttonSrc).includes('min-h-9') && !buttonSrc.includes('sm: "text-sm"')
+    && !codeOnly.some(({ s }) => /size="sm"/.test(s)),
+  'Button has no 36px sm variant and no consumer passes size="sm" (the 44px touch floor holds on every button)',
+);
+
+// 8. A4 N5: OwnerQr rides the family data convention (React Query) — the
+//    app's last hand-rolled useState/useEffect fetch.
+check(
+  ownerScreensSrc.includes('queryKey: ["owner-restaurants"]')
+    && !ownerScreensSrc.includes('setRestaurants'),
+  'OwnerQr fetches via useQuery(["owner-restaurants"]) like every other data screen — focus-refetch + cache + retry for free, no hand-rolled fetch twins',
+);
+
+// 9. A4 §3 (the F2b handoff): loading = shape skeletons on every data
+//    screen — the six remaining full-screen spinners are retired. The ONE
+//    surviving <Spinner> is the orders list's load-more pagination feedback
+//    (inline pagination feedback is correct by design).
+check(
+  pricingScreenSrc.includes('<Skeleton') && !pricingScreenSrc.includes('<Spinner'),
+  'PricingScreen loading = the plan-card shape skeleton (r-16 surface card + 24px price line + period line + 56px CTA well)',
+);
+check(
+  subscribeScreensSrc.includes('<Skeleton') && !subscribeScreensSrc.includes('<Spinner'),
+  'SubscribePlan loading = the plan-card shape skeleton (heading + name/24px-price/period rows) — the wizard spinner is gone',
+);
+check(
+  (ownerScreensSrc.match(/<Spinner/g) ?? []).length === 1
+    && (ownerScreensSrc.match(/<Skeleton/g) ?? []).length >= 4,
+  'owner dashboard/orders/detail/QR loading = shape skeletons (KPI grid · order-card rows · detail card + item rows · QR block) — the single surviving Spinner is the load-more pagination footer',
+);
+
+// 10. A4 N3: the price-size ladder is frozen — 14px menu card / 12px cart
+//     line / 16px totals / 24px plans ×2 (pinned since r131-F10) — and the
+//     modifier chip's price suffix rides tnum/lnum like every other price
+//     surface (the two tnum gaps; the add-CTA Button title cannot carry
+//     fontVariant through Button's Text — documented exception).
+check(
+  menuScreenSrc.includes('fontSize: 14, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT')
+    && menuScreenSrc.includes('fontSize: 12, color: colors.gold, marginTop: 4, fontVariant: METRIC_FONT_VARIANT')
+    && menuScreenSrc.includes('fontSize: 16, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT'),
+  'the menu price ladder is pinned: 14px card / 12px cart line / 16px totals (24px plans pinned since r131) — role-appropriate sizes, one register',
+);
+check(
+  menuScreenSrc.includes('fontSize: 12, fontWeight: "600", color: selected ? colors.void : colors.sand, fontVariant: METRIC_FONT_VARIANT'),
+  'the modifier chip price suffix rides tabular lining numerals (tnum/lnum) — the last proportional-digit money string is gone',
+);
+
+// 11. A9/R1 عميل — no زبون left in user-facing mobile strings (landing
+//     journey, order rows, customer card).
+check(
+  !codeOnly.some(({ s }) => s.includes('زبون')),
+  'customer noun is عميل everywhere (R1) — no زبون in code strings',
+);
+// 12. A9/R7 تليجرام — the SMm تيليجرام spelling split is closed.
+check(
+  !codeOnly.some(({ s }) => s.includes('تيليجرام'))
+    && codeOnly.some(({ s }) => s.includes('تليجرام')),
+  'Telegram is تليجرام everywhere (R7) — matches the SM-web/SB family spelling',
+);
+// 13. A9/R6 «…» — no ASCII "..." inside string literals (proper
+//     string-literal extraction: quote … matching quote on one line with
+//     escapes honored — never trips on array/object spreads between strings).
+check(
+  !codeOnly.some(({ s }) => [...s.matchAll(/(['"`])((?:\\.|(?!\\)[^\\\n])*?)\1/g)].some((m) => m[2].includes('...'))),
+  'ellipsis is the single char «…» in string literals (R6) — no ASCII "..." left (search/notes placeholders + the three جارٍ button titles)',
+);
+check(
+  codeOnly.some(({ s }) => s.includes('…')),
+  'the «…» ellipsis character is actually present (the R6 pin is not vacuous)',
+);
+// 14. A9/R10 phone mask — 09XXXXXXXX, never the lowercase split.
+check(
+  !codeOnly.some(({ s }) => s.includes('09xxxxxxxx'))
+    && (subscribeScreensSrc.match(/09XXXXXXXX/g) ?? []).length === 3,
+  'phone-mask placeholder is 09XXXXXXXX everywhere (R10) — the lowercase 09xxxxxxxx split is closed',
+);
+// 15. A9 rec #9 رمز QR — the landing's «QR كود» marketing spelling joins
+//     the 12 canonical mobile sites.
+check(
+  !codeOnly.some(({ s }) => s.includes('QR كود')) && codeOnly.some(({ s }) => s.includes('رمز QR')),
+  'QR is «رمز QR» everywhere on mobile (A9 rec #9) — no «QR كود» split left',
 );
 
 // ── report ───────────────────────────────────────────────────────────────────

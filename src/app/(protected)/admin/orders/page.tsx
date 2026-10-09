@@ -75,7 +75,7 @@ export default function AdminOrdersPage() {
       // round87-B1: paginated() puts totals under meta (flat `data.total` was
       // always undefined → totalCount silently fell back to the page length)
       setTotalCount(data.meta?.total ?? data.total ?? newOrders.length)
-    } catch { premiumToast("error", "تعذر تحميل الطلبات") }
+    } catch { premiumToast("error", "تعذّر تحميل الطلبات") }
     finally { setLoading(false) }
   }, [filter, dateFrom, dateTo])
 
@@ -125,7 +125,7 @@ export default function AdminOrdersPage() {
     } catch {
       // one toast per failed batch (the old serial loop toasted per page);
       // the list stays as-is — the next structural change re-triggers this.
-      premiumToast("error", "تعذر تحميل الطلبات")
+      premiumToast("error", "تعذّر تحميل الطلبات")
     }
   }, [filter, dateFrom, dateTo])
 
@@ -176,7 +176,7 @@ export default function AdminOrdersPage() {
       fetchOrders(1)
     } catch (e) {
       if (prev !== undefined) setOrders(prevList => prevList.map(o => (o.id === id ? { ...o, status: prev } : o)))
-      premiumToast("error", getErrorMessage(e, "تعذر التحديث"))
+      premiumToast("error", getErrorMessage(e, "تعذّر التحديث"))
     }
   }
 
@@ -206,7 +206,7 @@ export default function AdminOrdersPage() {
 
   if (loading && orders.length === 0) return (
     <div className="space-y-4 animate-fade-in">
-      <LoadingAnnouncer loading message="جارٍ تحميل الطلبات..." />
+      <LoadingAnnouncer loading message="جارٍ تحميل الطلبات…" />
       {[1,2,3].map(i => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   )
@@ -289,7 +289,7 @@ export default function AdminOrdersPage() {
 
       {/* Search + filter + dates */}
       <div className="flex gap-2 flex-wrap">
-        <SearchInput value={search} onChange={setSearch} placeholder="ابحث برقم الطلب أو العميل أو المطعم..." className="flex-1 min-w-[200px]" />
+        <SearchInput value={search} onChange={setSearch} placeholder="ابحث برقم الطلب أو العميل أو المطعم…" className="flex-1 min-w-[200px]" />
         <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value) }}
           className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-ring"
           title="من تاريخ" aria-label="من تاريخ" />

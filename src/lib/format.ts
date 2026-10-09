@@ -16,11 +16,15 @@ function toArabicNumber(n: number | string): string {
  * Normalizes Arabic text for search/filter matching:
  * - strips tashkeel (diacritics) and tatweel
  * - folds alef variants (أإآ→ا), alef maqsura (ى→ي), ta marbuta (ة→ه)
+ * - folds Eastern Arabic digits (٠-٩→0-9) — r133-A12 S12: an Arabic-keyboard
+ *   customer typing «٠٩١٢…» got zero hits on digit-bearing names because the
+ *   ASCII digits in the data never matched (SO arabic.ts:56 is the twin)
  * - lowercases Latin
  */
 export function normalizeArabic(s: string): string {
   return s
     .replace(/[\u064B-\u0652\u0640]/g, '')
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))
     .replace(/[أإآ]/g, 'ا')
     .replace(/ى/g, 'ي')
     .replace(/ة/g, 'ه')
@@ -61,6 +65,41 @@ function formatDateShort(date: Date): string {
 }
 
 /**
+ * r133-A12 M2: formatDate reads the LOCAL clock (getHours) — correct for its
+ * client-side consumers (the visitor's device is in Libya), but wrong on the
+ * server: on Vercel (TZ=UTC) it printed the order timestamp 2-3h BEHIND Libya
+ * in the restaurant's WhatsApp forward. This variant pins the SAME
+ * «d month yyyy HH:MM» shape to Africa/Tripoli regardless of server TZ
+ * (ruling R8: ISO stays in the backend, display times are Tripoli).
+ */
+function formatDateTripoli(date: Date, opts?: { timeSeparator?: string }): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Africa/Tripoli',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  const h = String(part('hour')).padStart(2, '0');
+  const min = String(part('minute')).padStart(2, '0');
+  return `${part('day')} ${ARABIC_MONTHS[part('month') - 1]} ${part('year')}${opts?.timeSeparator ?? ' '}${h}:${min}`;
+}
+
+/**
+ * ar-LY dot grouping on integer strings ≥ 1,000 ("12500000" → "12.500.000") —
+ * r133 (R14/A12 R6): hand-rolled, not Intl, so the output is byte-identical on
+ * server and client regardless of ICU build (hydration-safe family policy; the
+ * SO money.ts:41 twin — SB formatNumber and madarek formatNum are the
+ * references). Money whole-parts only — decimal separator stays an ASCII dot.
+ */
+function groupDots(intStr: string): string {
+  return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/**
  * Single canonical price formatter (round-77 code-quality agent).
  * Unifies 3 competing patterns (toFixed(1) site displays vs toFixed(2)
  * receipt vs plain price) — always Western digit + space + "د.ل".
@@ -72,12 +111,16 @@ export function formatPrice(n: number | string | null | undefined, opts?: { deci
   // (12 → "12" لا "12.0")، والكسور الحقيقية تبقى (12.75 → "12.75" بدل تدويرها
   // إلى "12.8")، بحد أقصى منزلتان. أما decimals الصريح فيبقى حاكمًا — المستندات
   // (الفواتير/نص المشاركة) تثبّت دقتها باختبارات، ومواقع العرض صارت تتخلى عنه.
+  // r133 (R14/A12 S2): the whole part groups ar-LY dots ≥ 1,000 — revenue KPIs
+  // rendered «12500 د.ل» ungrouped while SB/madarek show «12.500».
   if (opts?.decimals != null) {
-    return `${toArabicNumber(num.toFixed(opts.decimals))}${suffix}`;
+    const [w, f] = num.toFixed(opts.decimals).split('.');
+    return `${toArabicNumber(f !== undefined ? `${groupDots(w)}.${f}` : groupDots(w))}${suffix}`;
   }
   const fixed = num.toFixed(2);
   const trimmed = fixed.includes('.') ? fixed.replace(/\.?0+$/, '') : fixed;
-  return `${toArabicNumber(trimmed)}${suffix}`;
+  const [w2, f2] = trimmed.split('.');
+  return `${toArabicNumber(f2 !== undefined ? `${groupDots(w2)}.${f2}` : groupDots(w2))}${suffix}`;
 }
 
-export { toArabicNumber, formatDate, formatDateShort };
+export { toArabicNumber, formatDate, formatDateShort, formatDateTripoli };

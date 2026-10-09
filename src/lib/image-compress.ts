@@ -18,7 +18,7 @@ export function compressImage(file: File, maxDim = 1200, quality = 0.7): Promise
 				quality
 			);
 		};
-		img.onerror = () => reject(new Error('فشل قراءة الصورة'));
+		img.onerror = () => reject(new Error('تعذّر قراءة الصورة'));
 		img.src = URL.createObjectURL(file);
 	});
 }

@@ -55,7 +55,7 @@ export const metadata: Metadata = {
                 url: '/',
                 siteName: 'الربط الذكي',
                 images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'الربط الذكي — منيو رقمي ذكي للمطاعم والمقاهي' }],
-                locale: 'ar_LY',
+                locale: 'ar_AR',
                 type: 'website',
         },
         twitter: {
@@ -115,12 +115,14 @@ export default async function RootLayout({
         return (
                 <>
                         <link rel="manifest" href="/manifest.json" />
-                        <link rel="icon" type="image/png" href="/favicon.png" />
+                        {/* r133 (A3 N5): dual favicon surface consolidated — the App-Router
+                          convention file (src/app/favicon.ico) is the ONE declared icon; the explicit
+                          /favicon.png link rendered a second competing surface. */}
                         <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
                         <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
                         {/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
                         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-                        {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
+                        {/* ponytail: theme-color unified to the brand night/cream pair — via lib/brand.ts constant (amber was retired r126) */}
                         <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR_LIGHT} />
                         <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
                         <meta name="mobile-web-app-capable" content="yes" />
@@ -171,7 +173,10 @@ export default async function RootLayout({
                                                  * id="main-content" on its real first content element (past the
                                                  * nav): the owner/admin shells, order-confirmed's content root,
                                                  * and the login/subscribe/cart layout wrappers. */}
-                                                <main>
+                                                <main tabIndex={-1} className="focus:outline-none">
+                                                        {/* r133 (A11 S2): tabIndex=-1 — the group main mirrors the
+                                                         * public layout's landmark; every #main-content skip target
+                                                         * in the sub-layouts already carries it (r121-K-3 family). */}
                                                         <ScrollToTop />
                                                         {/* round88-E4: connectivity banner (offline warning + auto-hide
                                                                 on reconnect) — same strip as the public tree. */}

@@ -11,7 +11,7 @@ export default function TermsLoading() {
                         aria-busy="true"
                         className="min-h-dvh"
                 >
-                        <span className="sr-only">جارٍ تحميل صفحة الشروط...</span>
+                        <span className="sr-only">جارٍ تحميل صفحة الشروط…</span>
 
                         <div className="max-w-2xl mx-auto px-4 py-12">
                                 <div className="h-8 w-56 rounded-md skeleton mb-8 animate-rise-in" aria-hidden="true" />

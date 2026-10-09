@@ -14,7 +14,7 @@ export default function PrivacyError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في تحميل الصفحة"
-                        description="تعذر تحميل سياسة الخصوصية. قد يكون هناك خلل مؤقت."
+                        description="تعذّر تحميل سياسة الخصوصية. قد يكون هناك خلل مؤقت."
                         backHref="/"
                         backLabel="العودة للرئيسية"
                 />

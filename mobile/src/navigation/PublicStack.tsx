@@ -6,16 +6,14 @@ import { PricingScreen } from "@/screens/public/PricingScreen";
 import { OrderConfirmedScreen } from "@/screens/public/OrderConfirmedScreen";
 import { TermsScreen, PrivacyScreen } from "@/screens/public/StaticScreens";
 import { STACK_SCREEN_OPTIONS } from "./navTheme";
-
-export type PublicStackParamList = {
-  Landing: undefined;
-  Menu: { slug: string; ref?: string };
-  Pricing: undefined;
-  Login: { redirect?: string };
-  OrderConfirmed: { orderId: string };
-  Terms: undefined;
-  Privacy: undefined;
-};
+// r133-F3 (A4 S4): the LOCAL PublicStackParamList is deleted — the canonical
+// list in ./types (which feeds RootStackParamList + linking) is the single
+// source. The stale local copy had already drifted (Login carried a redirect?
+// param no screen ever read; OrderConfirmed required orderId while MenuScreen
+// navigates with waUrl) — the "two SSOTs" trap. Runtime params are untyped
+// pass-through, so nothing breaks; the navigator now type-checks against the
+// same list the deep-link config uses.
+import type { PublicStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<PublicStackParamList>();
 

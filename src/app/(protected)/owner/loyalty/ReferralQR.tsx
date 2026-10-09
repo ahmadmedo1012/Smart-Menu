@@ -18,7 +18,7 @@ export function ReferralQR({ url }: { url: string }) {
 		return () => { cancelled = true; };
 	}, [url]);
 
-	if (error) return <p className="text-sm text-destructive">تعذر إنشاء الرمز — أعد المحاولة</p>;
+	if (error) return <p className="text-sm text-destructive">تعذّر إنشاء الرمز — أعد المحاولة</p>;
 
 	if (!qrDataUrl) return <div className="size-[180px] animate-pulse rounded-xl bg-muted" />;
 

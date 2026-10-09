@@ -21,11 +21,11 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
                         try {
                                 const [restData, statsData] = await Promise.all([
                                         fetch(`/api/restaurants/${restaurantId}`).then((r) => {
-                                                if (!r.ok) throw new Error('فشل في تحميل بيانات المطعم');
+                                                if (!r.ok) throw new Error('تعذّر تحميل بيانات المطعم');
                                                 return r.json();
                                         }),
                                         fetch(`/api/stats?restaurantId=${restaurantId}`).then((r) => {
-                                                if (!r.ok) throw new Error('فشل في تحميل الإحصائيات');
+                                                if (!r.ok) throw new Error('تعذّر تحميل الإحصائيات');
                                                 return r.json();
                                         }),
                                 ]);
@@ -43,7 +43,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
                                 setError(null);
                         } catch {
                                 if (!cancelled) {
-                                        setError('تعذر تحميل بيانات الاستخدام');
+                                        setError('تعذّر تحميل بيانات الاستخدام');
                                 }
                         } finally {
                                 if (!cancelled) setLoading(false);

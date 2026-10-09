@@ -100,7 +100,7 @@ describe('POST /api/seed — envelope + no internal leak (round89-A4)', () => {
                 expect(res.status).toBe(500);
                 const json = await res.json();
                 expect(json.success).toBe(false);
-                expect(json.error).toBe('تعذر تنفيذ البذور — حدث خطأ داخلي');
+                expect(json.error).toBe('تعذّر تنفيذ البذور — حدث خطأ داخلي');
                 // the leaked message class (old behavior: apiError(e.message, 500))
                 const body = JSON.stringify(json);
                 expect(body).not.toContain('Prisma internal');

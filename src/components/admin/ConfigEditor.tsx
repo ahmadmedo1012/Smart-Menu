@@ -75,7 +75,7 @@ export function ConfigEditor() {
                         if (json.success) setConfigs(json.data);
                 } catch (error) {
                         if (error instanceof DOMException && error.name === 'AbortError') return;
-                        premiumToast('error', 'فشل تحميل الإعدادات');
+                        premiumToast('error', 'تعذّر تحميل الإعدادات');
                 } finally {
                         setLoading(false);
                 }
@@ -100,7 +100,7 @@ export function ConfigEditor() {
                         premiumToast('save', 'تم الحفظ');
                         loadConfig();
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل الحفظ'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر الحفظ'));
                 }
         };
 
@@ -113,7 +113,7 @@ export function ConfigEditor() {
                         setDeleteTarget(null);
                         loadConfig();
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل الحذف'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر الحذف'));
                 }
         };
 

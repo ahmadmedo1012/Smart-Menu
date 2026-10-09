@@ -55,7 +55,9 @@ export const metadata: Metadata = {
                 url: '/',
                 siteName: 'الربط الذكي',
                 images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'الربط الذكي — منيو رقمي ذكي للمطاعم والمقاهي' }],
-                locale: 'ar_LY',
+                // r133 (A12 S13, ruling R11): ar_AR is the only Arabic locale
+                // Facebook's scraper recognizes — ar_LY was silently dropped.
+                locale: 'ar_AR',
                 type: 'website',
         },
         twitter: {
@@ -106,12 +108,14 @@ export default async function RootLayout({
         return (
                 <>
                         <link rel="manifest" href="/manifest.json" />
-                        <link rel="icon" type="image/png" href="/favicon.png" />
+                        {/* r133 (A3 N5): dual favicon surface consolidated — the App-Router
+                          convention file (src/app/favicon.ico) is the ONE declared icon; the explicit
+                          /favicon.png link rendered a second competing surface. */}
                         <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
                         <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
                         {/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
                         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-                        {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
+                        {/* ponytail: theme-color unified to the brand night/cream pair — via lib/brand.ts constant (amber was retired r126) */}
                         <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR_LIGHT} />
                         <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
                         <meta name="mobile-web-app-capable" content="yes" />
@@ -186,7 +190,7 @@ export default async function RootLayout({
                                                 {/* a11y(round84): fixed floating controls (scroll-to-top + WhatsApp)
                                                  * must live INSIDE a landmark (axe region rule). position:fixed is
                                                  * unaffected by DOM order — MotionProvider applies no transform. */}
-                                                <main id="main-content">
+                                                <main id="main-content" tabIndex={-1} className="focus:outline-none">
                                                         <ScrollToTop />
                                                         {/* round88-E4: connectivity banner (offline warning + auto-hide
                                                                 on reconnect) — full-width fixed strip at the overlay band. */}

@@ -23,27 +23,39 @@ export function MenuSkeleton() {
                         aria-busy="true"
                         className="relative min-h-dvh overflow-x-clip"
                 >
-                        <span className="sr-only">جارٍ تحميل المنيو...</span>
+                        <span className="sr-only">جارٍ تحميل المنيو…</span>
 
                         {/* رأس لاصق مؤقت — يمنع قفزة التخطيط عند ظهور StickyMenuHeader */}
                         <div className="fixed inset-x-0 top-0 z-30 h-14" aria-hidden="true" />
 
-                        <div className="max-w-4xl xl:max-w-6xl mx-auto px-4 relative z-10 pt-16">
-                                {/* رأس المطعم — نطاق ترحيب */}
-                                <div className="mb-6 animate-rise-in" aria-hidden="true">
-                                        <div className="flex items-center gap-3 mb-4">
-                                                <div className="size-12 rounded-xl skeleton" />
-                                                <div className="flex-1 space-y-2">
-                                                        <div className="h-5 w-40 rounded-md skeleton" />
-                                                        <div className="h-3.5 w-56 rounded-md skeleton" />
-                                                </div>
+                        {/* r133 (A3 S6): البطل المضغوط السابق (‎~150px‎ مسافة يسارية) لم يكن
+                            يحاكي بطل MenuHero الحقيقي ‎(‎min-h-[80vh]‎ مركزي: شعار ‎size-28‎ + عنوان
+                            ضخم + وصف + فاصل + صف أزرار)‎ — فكانت أول زيارة بمسح QR تقفز صفحة
+                            كاملة عند استبدال الهيكل. الكتلة الأولى الآن تعكس هندسة البطل
+                            الحقيقية (نفس ‎min-h‎/التوسيط/البنية) فالاستبدال مرئيًا محايد. */}
+                        <header className="relative min-h-[80vh] md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background animate-rise-in" aria-hidden="true">
+                                <div className="relative z-10 max-w-4xl mx-auto px-4 pt-24 pb-12 md:pt-28 md:pb-16 text-center">
+                                        {/* الشعار الزجاجي — نفس ‎size-28 md:size-32‎ للحاوية الحقيقية */}
+                                        <div className="mx-auto mb-6 size-28 md:size-32 rounded-2xl skeleton" />
+                                        {/* العنوان الضخم (‎text-4xl→7xl‎) + الوصف */}
+                                        <div className="h-10 md:h-14 w-72 max-w-full mx-auto rounded-lg skeleton" />
+                                        <div className="h-4 w-56 max-w-full mx-auto mt-3 rounded-md skeleton" />
+                                        {/* الفاصل الزخرفي — نفس ‎mt-5 mb-5‎ */}
+                                        <div className="mx-auto mt-5 mb-5 flex items-center justify-center gap-3">
+                                                <div className="w-12 h-px bg-border/60" />
+                                                <div className="size-1.5 rounded-full bg-border" />
+                                                <div className="w-12 h-px bg-border/60" />
                                         </div>
-                                        <div className="flex gap-2">
-                                                <div className="h-10 w-32 rounded-full skeleton" />
-                                                <div className="h-10 w-28 rounded-full skeleton" />
+                                        {/* صف الأزرار الزجاجي المركزي — أقراص ‎min-h-11‎ */}
+                                        <div className="flex flex-wrap items-center justify-center gap-2.5">
+                                                <div className="h-11 w-36 rounded-full skeleton" />
+                                                <div className="h-11 w-28 rounded-full skeleton" />
+                                                <div className="h-11 w-32 rounded-full skeleton" />
                                         </div>
                                 </div>
+                        </header>
 
+                        <div className="max-w-4xl xl:max-w-6xl mx-auto px-4 relative z-10 pt-6">
                                 {/* شريط الأدوات: بحث + ترتيب (نفس h-12 وradius-lg) */}
                                 <div className="flex gap-2 items-start mb-4 animate-rise-in" style={{ animationDelay: '60ms' }} aria-hidden="true">
                                         <div className="flex-1 h-12 rounded-lg skeleton" />

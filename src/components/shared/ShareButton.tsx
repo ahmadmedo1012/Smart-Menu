@@ -13,7 +13,7 @@ export function ShareButton({ url, title }: { url: string; title: string }) {
           await navigator.clipboard.writeText(url);
           premiumToast("success", "تم نسخ الرابط");
         } catch {
-          premiumToast("error", "فشل النسخ");
+          premiumToast("error", "تعذّر النسخ");
         }
       }
     } else {
@@ -21,7 +21,7 @@ export function ShareButton({ url, title }: { url: string; title: string }) {
         await navigator.clipboard.writeText(url);
         premiumToast("success", "تم نسخ الرابط");
       } catch {
-        premiumToast("error", "فشل النسخ");
+        premiumToast("error", "تعذّر النسخ");
       }
     }
   };

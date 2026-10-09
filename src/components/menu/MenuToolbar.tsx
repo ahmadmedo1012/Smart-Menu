@@ -192,7 +192,7 @@ export function MenuToolbar({
                                                            ours. suppressHydrationWarning stops React 19 from flagging
                                                            the server/client style mismatch (round80 §7.1 debt). */
                                                         suppressHydrationWarning
-                                                        placeholder="ابحث في القائمة..."
+                                                        placeholder="ابحث في القائمة…"
                                                         /* r120 (U8-F-4): الحقل كان بلا اسم متاح — القارئ يقرأ
                                                            placeholder فقط. r120 (U8-F-3): placeholder بم
                                                            muted/50 كان 2.14:1 فقط. */

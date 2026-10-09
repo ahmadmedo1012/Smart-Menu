@@ -14,7 +14,7 @@ export default function AdminQrError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في رمز QR"
-                        description="تعذر تحميل الصفحة. حاول مرة أخرى."
+                        description="تعذّر تحميل الصفحة. حاول مرة أخرى."
                         backHref="/admin"
                         backLabel="العودة للوحة التحكم"
                 />

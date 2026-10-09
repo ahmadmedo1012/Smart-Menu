@@ -364,14 +364,15 @@ const THEME_RADIUS_BRIDGE: Record<string, string> = {
 const THEME_FONTS: Record<string, string> = {
   // r129 token-matrix fix: the canonical Madarek stacks verbatim
   // (tokens.css:47-50). --font-sans/-arabic are the full canonical chain
-  // (Tajawal + system-ui + -apple-system + Segoe UI + Roboto tail);
+  // (system-ui + -apple-system + Segoe UI + Roboto tail; the never-registered
+  // "Tajawal" ghost fallback was deleted r133 — it could never load);
   // --font-display is the canonical display stack, with --font-heading
   // as its bridge twin; --font-mono is the canonical mono stack (the
   // mixed-script Sans-Arabic mono fallback lives only in the landing
   // layer's --ln-mono, byte-equal to Madarek landing.css:54).
-  '--font-sans': '"IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  '--font-sans': '"IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   '--font-mono': '"IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace',
-  '--font-arabic': '"IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  '--font-arabic': '"IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   '--font-display': '"IBM Plex Sans Arabic", system-ui, sans-serif',
   '--font-heading': '"IBM Plex Sans Arabic", system-ui, sans-serif',
 };
@@ -969,8 +970,11 @@ describe('r129 parity — P0: ONE main landmark + WhatsApp brand stragglers', ()
     expect(homePageRaw, 'HomePage must not re-declare id="main-content"').not.toContain(
       'id="main-content"'
     );
-    // the layout's main is the ONE landmark (exactly one declaration)
-    expect((publicLayoutRaw.match(/<main id="main-content">/g) ?? []).length).toBe(1);
+    // the layout's main is the ONE landmark (exactly one declaration).
+    // r133 (A11 S2): it carries tabIndex={-1} — Safari/Firefox leave keyboard
+    // focus on the skip link after activation without it.
+    expect((publicLayoutRaw.match(/<main id="main-content"/g) ?? []).length).toBe(1);
+    expect(publicLayoutRaw).toContain('<main id="main-content" tabIndex={-1}');
   });
 
   it('WhatsApp/Instagram share texts brand «الربط الذكي» — the retired «المنيو الذكي» is absent from BOTH share components', () => {
@@ -1789,7 +1793,9 @@ describe('r131-F4 parity — SM product primitives join the family', () => {
     expect(navCc).not.toContain('min-h-11');
     expect(navCc).not.toContain('rounded-xl px-3');
     expect(navCc).toContain('-start-[3px]');
-    expect(navCc).toContain('h-4 w-[3px] rounded-e-[2px]');
+    // r133 (D3 lint:idioms): the 2px literal → rounded-e-full — a 3px rail
+    // clamps to fully-rounded ends either way (identical render, ladder-clean).
+    expect(navCc).toContain('h-4 w-[3px] rounded-e-full');
     expect(navCc).not.toContain('end-0 top-1/2 h-6 w-0.5');
     expect(navCc).not.toContain('scale-110');
     expect(navCc).not.toContain('drop-shadow');
@@ -1848,5 +1854,219 @@ describe('r131-F4 parity — SM product primitives join the family', () => {
     expect(shimmerRule).toMatch(/shimmer var\(--motion-duration-skeleton, 1\.2s\) linear infinite/);
     expect(skeletonRule).not.toContain('ease-in-out');
     expect(shimmerRule).not.toContain('ease-in-out');
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// r133 (F2+G2) — "The Finest Details" web wave: money/A11y/microcopy pins
+// (A3 S1-S6 · A10 · A11 · A12 · A9 · A13 · A14-D3 rulings R1-R16)
+// ════════════════════════════════════════════════════════════════════════════
+describe('r133 parity — finest details: money seam, focus grammar, microcopy sweeps', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  const whatsappCc = cc('src/lib/whatsapp.ts');
+  const formatCc = cc('src/lib/format.ts');
+  const seoCc = cc('src/lib/seo.ts');
+  const cartCc = cc('src/store/cart.ts');
+  const buttonCc2 = cc('src/components/ui/button.tsx');
+  const inputCc2 = cc('src/components/ui/input.tsx');
+  const switchCc2 = cc('src/components/ui/switch.tsx');
+  const tableCc2 = cc('src/components/ui/table.tsx');
+  const ordersTableCc = cc('src/app/(protected)/owner/orders/OrdersTable.tsx');
+  const globalsCc = noCc(raw('src/app/globals.css')).replace(/@media[^{]+\{/g, '{');
+  const ownerMenuCc = cc('src/app/(protected)/owner/menu/page.tsx');
+  const menuSkeletonCc = cc('src/components/menu/MenuSkeleton.tsx');
+  const protectedLayoutCc2 = cc('src/app/(protected)/layout.tsx');
+  const publicLayoutCc2 = cc('src/app/(public)/layout.tsx');
+  const stickyHeaderCc = cc('src/components/menu/StickyMenuHeader.tsx');
+  const ownerRestaurantsCc = cc('src/app/(protected)/owner/restaurants/page.tsx');
+  const menuSlugCc = cc('src/app/(public)/menu/[slug]/page.tsx');
+  const paymentDialogCc = cc('src/components/shared/PaymentDialog.tsx');
+  const navLinkCc2 = cc('src/components/shared/NavLink.tsx');
+
+  it('A12-M1: normalizeWaNumber folds Eastern digits BEFORE the \\d strip (dead wa.me links)', () => {
+    expect(whatsappCc).toContain('const western = input.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));');
+    expect(whatsappCc).toContain('let digits = western.replace(/[^\\d]/g, "");');
+    // order matters: the fold MUST precede the ASCII strip
+    expect(whatsappCc.indexOf('const western')).toBeLessThan(whatsappCc.indexOf('let digits'));
+  });
+
+  it('A12-M2 + R14: formatDateTripoli pins Africa/Tripoli server-side; formatPrice groups ar-LY dots ≥1000', () => {
+    expect(formatCc).toContain("timeZone: 'Africa/Tripoli'");
+    expect(formatCc).toContain("hourCycle: 'h23'");
+    // S12: search normalizer folds Eastern digits too
+    expect(formatCc).toContain('.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))');
+    // R6/R14 grouping — hand-rolled, hydration-safe (SO money.ts twin)
+    expect(formatCc).toContain('function groupDots(intStr: string): string {');
+    expect(formatCc).toContain('intStr.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ".")');
+  });
+
+  it('A12-S11/R14: the restaurant WhatsApp forward is a money document — explicit 2 decimals', () => {
+    const waRoute = cc('src/app/api/whatsapp/generate/route.ts');
+    expect(waRoute).toContain("formatPrice(Number(oi.price), { decimals: 2 })");
+    expect(waRoute).toContain("formatPrice(m.priceDelta, { decimals: 2 })");
+    expect(waRoute).toContain("formatPrice(Number(order.total), { decimals: 2 })");
+    expect(waRoute).toContain('formatDateTripoli(order.createdAt)');
+    expect(waRoute).not.toContain('formatDate(order.createdAt)');
+  });
+
+  it('A3-S5: ONE origin seam — NEXT_PUBLIC_APP_URL wins, DOMAIN stays the alias; print-QR + copy-link ride it', () => {
+    expect(seoCc).toContain('process.env.NEXT_PUBLIC_APP_URL ||');
+    expect(seoCc).toContain('process.env.NEXT_PUBLIC_DOMAIN ||');
+    expect(seoCc).toContain("'https://menu.smart-link.ly'");
+    const printCc = cc('src/app/(public)/menu/[slug]/print/page.tsx');
+    expect(printCc).toContain('`${SITE_ORIGIN}/menu/${slug}`');
+    expect(printCc).not.toContain('NEXT_PUBLIC_APP_URL ??');
+    expect(ownerRestaurantsCc).toContain('`${SITE_ORIGIN}/menu/${slug}`');
+    expect(ownerRestaurantsCc).not.toContain('https://menu.smart-link.ly/menu/');
+  });
+
+  it('A12-N7: JSON-LD price is a STRING, never a number primitive', () => {
+    expect(menuSlugCc).toContain('price: String(i.price)');
+    expect(menuSlugCc).not.toContain('price: Number(i.price)');
+  });
+
+  it('A3-S1: updateQuantity(qty≤0) mirrors removeItem — the undo banner covers the minus path', () => {
+    expect(cartCc).toContain('const removed = s.items.find((i) => i.id === id);');
+    expect(cartCc).toContain('...(removed ? { lastRemoved: removed } : {})');
+  });
+
+  it('A3-S2/S3: bounded auto-retry (max 3, linear backoff) + the shared ConfirmDialog', () => {
+    expect(ownerMenuCc).toContain('const RETRY_MAX = 3;');
+    expect(ownerMenuCc).toContain('3000 * attempt');
+    expect(ownerMenuCc).toContain('retryCountRef.current = 0; // success ends the cycle');
+    expect(ownerMenuCc).toContain("import { ConfirmDialog } from '@/components/shared/ConfirmDialog';");
+    expect(ownerMenuCc).toContain('confirmLabel="حذف"');
+    expect(ownerMenuCc).not.toContain('<DialogContent>');
+  });
+
+  it('A3-S6: MenuSkeleton hero block mirrors the real MenuHero geometry (QR first paint)', () => {
+    expect(menuSkeletonCc).toContain('min-h-[80vh] md:min-h-[70vh]');
+    expect(menuSkeletonCc).toContain('size-28 md:size-32');
+    expect(menuSkeletonCc).toContain('text-center');
+  });
+
+  it('A10 Must-1: busy Button announces «جارٍ التحميل…» to screen readers', () => {
+    expect(buttonCc2).toContain('جارٍ التحميل…');
+    expect(buttonCc2).toContain('aria-hidden="true"');
+  });
+
+  it('A10: ONE focus indicator — the 7 audited split-brain sites ride the global outline', () => {
+    // primitives: the ring utilities are gone file-wide (aria-invalid:ring is an
+    // error-state indicator, not focus — allowed to stay)
+    expect(buttonCc2).not.toContain('focus-visible:ring-2');
+    expect(buttonCc2).not.toContain('focus-visible:ring-offset-2');
+    expect(switchCc2).not.toContain('focus-visible:ring-2');
+    // card root: the ring + offset retired (offset was this file's only site)
+    const menuItemCc = cc('src/components/menu/MenuItemCard.tsx');
+    expect(menuItemCc).not.toContain('focus-visible:ring-offset-2');
+    // empty-menu money CTAs: brightness + ring retired together
+    const menuPageCc = cc('src/components/menu/MenuPageClient.tsx');
+    expect(menuPageCc).toContain('hover:bg-orange/95 transition-[background-color]');
+    // segmented pickup radio: transition list only (no ring utilities)
+    const orderDialogCc = cc('src/components/menu/OrderDialog.tsx');
+    expect(orderDialogCc).toContain("justify-center rounded-lg text-sm font-medium transition-[color,background-color]'");
+    // new-orders bar dismiss: hover grammar only
+    const newOrdersBarCc = cc('src/components/orders/NewOrdersBar.tsx');
+    expect(newOrdersBarCc).toContain('hover:bg-muted hover:text-foreground"');
+  });
+
+  it('A10: no brightness-filter hovers (flame + the 4 money-path CTAs)', () => {
+    expect(buttonCc2).not.toContain('hover:brightness-110');
+    expect(cc('src/components/menu/MenuItemCard.tsx')).not.toContain('hover:brightness-110');
+    expect(cc('src/components/menu/MenuPageClient.tsx')).not.toContain('hover:brightness-110');
+  });
+
+  it('A10: input/select/textarea hover borders + autofill/caret theming + default-easing bridge', () => {
+    expect(inputCc2).toContain('hover:border-(--border-strong)');
+    expect(cc('src/components/ui/select.tsx')).toContain('hover:border-(--border-strong)');
+    expect(cc('src/components/ui/textarea.tsx')).toContain('hover:border-(--border-strong)');
+    expect(globalsCc).toContain('--default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);');
+    expect(globalsCc).toContain('caret-color: var(--accent-ink);');
+    expect(globalsCc).toContain('input:-webkit-autofill,');
+    expect(globalsCc).toContain('input:autofill,');
+  });
+
+  it('A11-S10: TableHead carries scope="col"; the empty actions header is named', () => {
+    expect(tableCc2).toContain('scope="col"');
+    expect(ordersTableCc).toContain('aria-label="إجراءات"');
+  });
+
+  it('A11-S2: both layout mains are programmatically focusable skip targets', () => {
+    expect(publicLayoutCc2).toContain('<main id="main-content" tabIndex={-1}');
+    expect(protectedLayoutCc2).toContain('<main tabIndex={-1}');
+  });
+
+  it('A12-S8/R10: phone mask is exactly 10 glyphs (09XXXXXXXX), never 11', () => {
+    expect(paymentDialogCc).toContain('placeholder="09XXXXXXXX"');
+    expect(paymentDialogCc).not.toContain('09XXXXXXXXX');
+    expect(cc('src/app/(protected)/cart/CustomerInfoCard.tsx')).not.toContain('09XXXXXXXXX');
+    expect(cc('src/app/(protected)/owner/settings/page.tsx')).not.toContain('09XXXXXXXXX');
+  });
+
+  it('A11/R11: og:locale is ar_AR on all six surfaces', () => {
+    expect(publicLayoutCc2).toContain("locale: 'ar_AR'");
+    expect(protectedLayoutCc2).toContain("locale: 'ar_AR'");
+    expect(menuSlugCc).toContain("locale: 'ar_AR'");
+    expect(cc('src/app/(public)/pricing/layout.tsx')).toContain("locale: 'ar_AR'");
+    expect(cc('src/app/(public)/privacy/page.tsx')).toContain("locale: 'ar_AR'");
+    expect(cc('src/app/(public)/terms/page.tsx')).toContain("locale: 'ar_AR'");
+  });
+
+  it('A3-N5: dual favicon consolidated — no explicit /favicon.png link', () => {
+    expect(publicLayoutCc2).not.toContain('href="/favicon.png"');
+    expect(protectedLayoutCc2).not.toContain('href="/favicon.png"');
+  });
+
+  it('A3-N12: mobile drawer closes on outside-click (invisible scrim)', () => {
+    expect(stickyHeaderCc).toContain('onPointerDown={() => setMobileOpen(false)}');
+    expect(stickyHeaderCc).toContain('aria-hidden="true"');
+  });
+
+  it('A3-N8: external open rides rel="noopener noreferrer" (no bare window.open _blank)', () => {
+    expect(ownerRestaurantsCc).toContain('rel="noopener noreferrer"');
+    expect(ownerRestaurantsCc).not.toContain("window.open(`/menu/");
+  });
+
+  it('A14-D3: no 2-3px radius literals (lint:idioms idiom-4) on the four retired sites', () => {
+    expect(navLinkCc2).toContain('rounded-e-full');
+    expect(navLinkCc2).not.toContain('rounded-e-[2px]');
+    expect(cc('src/app/(protected)/admin/users/page.tsx')).not.toContain('rounded-e-[2px]');
+    expect(cc('src/app/(protected)/login/LoginForm.tsx')).not.toContain('rounded-b-[2px]');
+    expect(cc('src/components/ui/dialog.tsx')).not.toContain('rounded-b-[3px]');
+  });
+
+  it('A9/R1-R7: microcopy sweeps hold repo-wide (comment-stripped)', () => {
+    // R3: shadda + فشل ban (user-facing; code comments stripped)
+    expect(formatCc).not.toContain('فشل');
+    expect(cc('src/lib/get-error-message.ts')).not.toContain('فشل');
+    expect(cc('src/lib/env.ts')).not.toContain('فشل');
+    // R7: تليجرام spelling; R5: ASCII percent; R1: عميل (user-facing)
+    const searchInputCc2 = cc('src/components/ui/search-input.tsx');
+    expect(searchInputCc2).toContain('placeholder = \'ابحث…\'');
+    expect(cc('src/components/landing/HomePage.tsx')).not.toContain('زبون');
+    expect(cc('src/components/landing/RolesSection.tsx')).not.toContain('الزبون');
+    expect(cc('src/app/(protected)/admin/restaurants/RestaurantTable.tsx')).toContain('لا توجد مطاعم مسجلة');
+    // R6: «…» single-char ellipsis on the two stragglers F2 missed (G2 closed)
+    expect(cc('src/app/(protected)/admin/audit-logs/page.tsx')).toContain('وعناوين IP…');
+    expect(cc('src/components/shared/DashboardSkeletons.tsx')).toContain('جارٍ تحميل رمز QR…');
+    // docblock usage example (a comment) — read RAW, not comment-stripped
+    const laRaw = raw('src/components/ui/loading-announcer.tsx');
+    expect(laRaw).toContain('جارٍ تحميل البيانات…');
+    expect(laRaw).not.toContain('جاري تحميل');
+  });
+
+  it('A13-S-02: SubscribeForm restaurant blocks carry stable draft keys', () => {
+    const formCc = cc('src/app/(protected)/subscribe/SubscribeForm.tsx');
+    expect(formCc).toContain('key={restaurant._key ?? `menu-${index}`}');
+    expect(formCc).toContain('nextMenuDraftKey()');
+  });
+
+  it('A3-N1: the r119 dead intermediate is collapsed (constLoadingMore)', () => {
+    const ordersCc = cc('src/app/(protected)/owner/orders/page.tsx');
+    expect(ordersCc).not.toContain('const constLoadingMore');
+    expect(ordersCc).toContain('const [loadingMore, setLoadingMore] = useState(false);');
   });
 });

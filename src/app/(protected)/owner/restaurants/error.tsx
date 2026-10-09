@@ -14,7 +14,7 @@ export default function OwnerRestaurantsError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في إدارة المطاعم"
-                        description="تعذر تحميل صفحة المطاعم. حاول مرة أخرى."
+                        description="تعذّر تحميل صفحة المطاعم. حاول مرة أخرى."
                         backHref="/owner"
                         backLabel="العودة للوحة التحكم"
                 />

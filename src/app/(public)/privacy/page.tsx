@@ -24,7 +24,7 @@ export const metadata: Metadata = {
                 url: "/privacy",
                 siteName: "الربط الذكي",
                 images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "الربط الذكي — منيو رقمي ذكي للمطاعم والمقاهي" }],
-                locale: "ar_LY",
+                locale: 'ar_AR',
                 type: "website",
         },
 }

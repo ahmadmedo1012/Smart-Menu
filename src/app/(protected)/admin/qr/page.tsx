@@ -56,7 +56,7 @@ export default function AdminQRPage() {
                         })
                         .catch(() => {
                                 setLoadState('error');
-                                premiumToast('error', 'تعذر تحميل المطاعم');
+                                premiumToast('error', 'تعذّر تحميل المطاعم');
                         });
         }, []);
 
@@ -84,7 +84,7 @@ export default function AdminQRPage() {
                         link.click();
                         link.remove();
                 } catch {
-                        premiumToast('error', 'تعذر تحميل رمز QR — حاول مجدداً');
+                        premiumToast('error', 'تعذّر تحميل رمز QR — حاول مجدداً');
                 }
         };
 
@@ -115,7 +115,7 @@ export default function AdminQRPage() {
                                         <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
                                                 <AnimatedQrCode className="size-7 text-orange/40" />
                                         </div>
-                                        <h2 className="text-lg font-semibold mb-1">تعذر تحميل المطاعم</h2>
+                                        <h2 className="text-lg font-semibold mb-1">تعذّر تحميل المطاعم</h2>
                                         <p className="text-sm text-muted-foreground max-w-xs mb-4">
                                                 حدث خطأ في الاتصال. تحقق من الشبكة وحاول مجدداً.
                                         </p>
@@ -137,7 +137,7 @@ export default function AdminQRPage() {
                                                                 })
                                                                 .catch(() => {
                                                                         setLoadState('error');
-                                                                        premiumToast('error', 'تعذر تحميل المطاعم');
+                                                                        premiumToast('error', 'تعذّر تحميل المطاعم');
                                                                 });
                                                 }}
                                         >

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { View, ScrollView, RefreshControl, TextInput, Alert, BackHandler } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -92,7 +92,11 @@ export function MenuScreen() {
   });
 
   const restaurant = data?.restaurant ?? null;
-  const items = data?.items ?? [];
+  // NOTE: no `const items = data?.items ?? []` here — the `?? []` mints a new
+  // array identity every render, which would defeat the filteredItems useMemo
+  // below (react-hooks/exhaustive-deps caught exactly that). The filter reads
+  // data?.items directly and depends on `data` (React Query keeps the result
+  // object identity-stable between renders).
   const categories = useMemo(
     () => (data?.categories ?? []).filter((c) => c.isActive).sort((a, b) => a.sortOrder - b.sortOrder),
     [data],
@@ -130,7 +134,12 @@ export function MenuScreen() {
 
   const onRefresh = useCallback(() => { void refetch(); }, [refetch]);
 
-  const filteredItems = items.filter((it) => {
+  // r133-F3 (A4 S3): the filter now rides useMemo — it was a plain .filter()
+  // recomputed on EVERY render, so each search keystroke (and each cart tick —
+  // the screen subscribes to cartItems) rebuilt the array and re-rendered every
+  // visible card. Deps are [data, activeCategory, search] (data is the query
+  // result — identity-stable between renders).
+  const filteredItems = useMemo(() => (data?.items ?? []).filter((it) => {
     if (activeCategory && it.categoryId !== activeCategory) return false;
     if (search.trim()) {
       // r118-B3 (A6 P3-2): web-parity matcher (round88-E1) — the mobile
@@ -146,7 +155,18 @@ export function MenuScreen() {
       );
     }
     return true;
-  });
+  }), [data, activeCategory, search]);
+
+  // r133-F3 (A4 S3): stable open-callback + memoized card + memoized
+  // renderItem — FlashList re-renders all visible rows when renderItem's
+  // identity changes, and the old inline `() => setDetailItem(item)` lambda
+  // guaranteed a new identity per render. The card takes the item itself so
+  // one stable callback covers every row.
+  const openItem = useCallback((item: MenuItem) => setDetailItem(item), []);
+  const renderMenuItem = useCallback(
+    ({ item }: { item: MenuItem }) => <MenuItemCard item={item} onPress={openItem} />,
+    [openItem],
+  );
 
   if (loading) {
     /* r132-F2b (A4 S1, r131 fleet ruling "skeleton 1200 linear + RM kill"):
@@ -239,7 +259,7 @@ export function MenuScreen() {
             the prefix glyph warms with it. */}
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.surface, borderRadius: 8, paddingHorizontal: 12, minHeight: 44, ...fieldFocusBorderStyle(searchFocused) }}>
           <Search size={16} color={searchFocused ? colors.gold : colors.muted} />
-          <TextInput placeholder="ابحث عن صنف..." placeholderTextColor={colors.muted} value={search} onChangeText={setSearch} onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)} style={{ flex: 1, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, paddingVertical: 10 }} />
+          <TextInput placeholder="ابحث عن صنف…" placeholderTextColor={colors.muted} value={search} onChangeText={setSearch} onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)} style={{ flex: 1, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, paddingVertical: 10 }} />
         </View>
       </View>
 
@@ -272,20 +292,17 @@ export function MenuScreen() {
           data={filteredItems}
           keyExtractor={(item) => String(item.id)}
           estimatedItemSize={120}
-          renderItem={({ item }) => (
-            <MenuItemCard
-              item={item}
-              onPress={() => setDetailItem(item)}
-            />
-          )}
+          renderItem={renderMenuItem}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.gold} />}
           contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
           ListEmptyComponent={<EmptyState title="لا توجد أصناف" description="جرّب فئة أخرى أو ابحث بكلمة مختلفة" icon={<ShoppingBag size={24} color={pastelFamilies.grey.deep} />} />}
         />
       </Animated.View>
 
+      {/* r133-F3 (A4 N2): logical start/end replaces the inert physical
+          left/right pair — the r131 sweep's standard spelling. */}
       {cartCount > 0 && !cartOpen && !detailItem ? (
-        <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16, zIndex: 50 }}>
+        <View style={{ position: "absolute", bottom: 16 + insets.bottom, start: 16, end: 16, zIndex: 50 }}>
           {/* r126-M4 (canonical press feedback), r130 W2-4: the register is
               scale 0.97 + opacity, 80/160ms (--press-scale, tokens.css:163;
               was 0.98) — was opacity-only 0.9. Inset-aware bottom (A6 P2-10):
@@ -317,7 +334,10 @@ export function MenuScreen() {
   );
 }
 
-const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }) => {
+const MenuItemCard = memo(function MenuItemCard({ item, onPress }: { item: MenuItem; onPress: (item: MenuItem) => void }) {
+  // r133-F3 (A4 S3): memo — with a stable onPress (openItem) the card stops
+  // re-rendering on every keystroke/cart tick; only its own item identity
+  // change (or availability) re-renders it.
   const price = item.discountedPrice ?? item.price;
   const groups = visibleModifierGroups(item.modifierGroups);
   return (
@@ -325,7 +345,7 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
     // the price metric rides tabular lining numerals ('tnum'/'lnum').
     <PressableScale
       scaleTo={0.99}
-      onPress={onPress}
+      onPress={() => onPress(item)}
       disabled={!item.isAvailable}
       accessibilityLabel={`تفاصيل ${item.nameAr || item.name}`}
       style={{
@@ -362,7 +382,7 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
       </View>
     </PressableScale>
   );
-};
+});
 
 /**
  * r102-M4: item detail + modifier configuration — the missing half of customer
@@ -516,7 +536,10 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
                       borderWidth: 1, borderColor: selected ? colors.gold : disabled ? colors.hairline : colors.hairline,
                       opacity: disabled ? 0.4 : 1,
                     }}>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: selected ? colors.void : colors.sand }} maxFontSizeMultiplier={1.4}>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: selected ? colors.void : colors.sand, fontVariant: METRIC_FONT_VARIANT }} maxFontSizeMultiplier={1.4}>
+                      {/* r133-F3 (A4 N3): the chip's price suffix joins every other
+                          price surface on tabular lining numerals (tnum/lnum) — the
+                          one money string that still rode proportional digits. */}
                       {o.nameAr || o.name}{o.priceDelta > 0 ? ` (+${formatPrice(o.priceDelta)})` : o.priceDelta < 0 ? ` (${formatPrice(o.priceDelta)})` : ""}
                     </Text>
                   </PressableScale>
@@ -528,7 +551,7 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
       })}
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand, marginBottom: 8 }}>ملاحظات على الصنف (اختياري)</Text>
       <TextInput
-        placeholder="مثال: بدون بصل..."
+        placeholder="مثال: بدون بصل…"
         placeholderTextColor={colors.muted}
         value={notes}
         onChangeText={setNotes}
@@ -729,7 +752,7 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted }}>المجموع</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(subtotal)}</Text>
             </View>
-            <Button title={submitting ? "جارٍ الإرسال..." : "إرسال الطلب عبر واتساب"} onPress={onCheckout} loading={submitting} size="lg" className="w-full" />
+            <Button title={submitting ? "جارٍ الإرسال…" : "إرسال الطلب عبر واتساب"} onPress={onCheckout} loading={submitting} size="lg" className="w-full" />
           </View>
         ) : null
       }

@@ -14,7 +14,7 @@ export default function AdminOrderDetailError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في الطلب"
-                        description="تعذر تحميل تفاصيل الطلب. حاول مرة أخرى."
+                        description="تعذّر تحميل تفاصيل الطلب. حاول مرة أخرى."
                         backHref="/admin/orders"
                         backLabel="العودة للطلبات"
                 />

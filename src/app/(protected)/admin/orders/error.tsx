@@ -14,7 +14,7 @@ export default function AdminOrdersError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في الطلبات"
-                        description="تعذر تحميل الطلبات. حاول مرة أخرى."
+                        description="تعذّر تحميل الطلبات. حاول مرة أخرى."
                         backHref="/admin"
                         backLabel="العودة للوحة التحكم"
                 />

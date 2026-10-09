@@ -114,7 +114,7 @@ export function NewOrdersBar({
                         premiumToast('save', `تم قبول ${acceptedOrdersPhrase(newOrderIds.length)}`);
                         onOrdersRefresh();
                 } catch {
-                        premiumToast('error', 'فشل قبول بعض الطلبات');
+                        premiumToast('error', 'تعذّر قبول بعض الطلبات');
                 } finally {
                         setAccepting(false);
                 }
@@ -186,7 +186,7 @@ export function NewOrdersBar({
                                                 type="button"
                                                 onClick={() => setDismissed(true)}
                                                 aria-label="إخفاء شريط الطلبات الجديدة"
-                                                className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                         >
                                                 <X className="size-4" aria-hidden="true" />
                                         </button>

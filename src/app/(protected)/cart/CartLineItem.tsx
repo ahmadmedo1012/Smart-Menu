@@ -94,7 +94,7 @@ export function CartLineItem({
                            بدل ring-4/60؛ كان h-9/36px + 13px. */}
                         <input
                                 type="text"
-                                placeholder="ملاحظات للصنف..."
+                                placeholder="ملاحظات للصنف…"
                                 aria-label={`ملاحظات للصنف ${item.name}`}
                                 value={item.notes}
                                 maxLength={500}

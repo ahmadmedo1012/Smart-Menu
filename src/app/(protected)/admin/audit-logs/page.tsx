@@ -107,13 +107,13 @@ export default function AdminAuditLogsPage() {
                                 if (search) params.set('search', search);
 
                                 const res = await fetch(`/api/admin/audit-logs?${params.toString()}`);
-                                if (!res.ok) throw new Error('تعذر تحميل سجل التدقيق');
+                                if (!res.ok) throw new Error('تعذّر تحميل سجل التدقيق');
                                 const json = await res.json();
                                 const data = json.data?.data ?? json.data ?? [];
                                 setLogs((prev) => (append ? [...prev, ...data] : data));
                                 setTotal(json.data?.total ?? json.meta?.total ?? 0);
                         } catch {
-                                setError('تعذر تحميل سجل التدقيق');
+                                setError('تعذّر تحميل سجل التدقيق');
                         } finally {
                                 setLoading(false);
                                 setLoadingMore(false);
@@ -159,7 +159,7 @@ export default function AdminAuditLogsPage() {
                 // r131-F5 (A1 P1-12): canonical error family.
                 return (
                         <ErrorState
-                                title="تعذر تحميل سجل التدقيق"
+                                title="تعذّر تحميل سجل التدقيق"
                                 error={error}
                                 onRetry={() => fetchLogs(1, false)}
                         />
@@ -186,7 +186,7 @@ export default function AdminAuditLogsPage() {
                                                 type="text"
                                                 value={searchInput}
                                                 onChange={(e) => setSearchInput(e.target.value)}
-                                                placeholder="بحث في الإجراءات والأنواع وعناوين IP..."
+                                                placeholder="بحث في الإجراءات والأنواع وعناوين IP…"
                                                 className="w-full h-11 pe-4 ps-11 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                                 aria-label="بحث"
                                         />

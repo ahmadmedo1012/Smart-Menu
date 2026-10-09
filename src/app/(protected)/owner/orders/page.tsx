@@ -34,9 +34,9 @@ export default function OwnerOrdersPage() {
         const [orders, setOrders] = useState<Order[]>([]);
         const [totalOrders, setTotalOrders] = useState(0);
         const [loading, setLoading] = useState(true);
-        const constLoadingMore = useState(false);
-        void constLoadingMore;
-        const [loadingMore, setLoadingMore] = constLoadingMore;
+        /* r133 (A3 N1): collapsed the r119 dead intermediate
+           (const constLoadingMore + void + destructure) to one line. */
+        const [loadingMore, setLoadingMore] = useState(false);
         const [filter, setFilter] = useState('');
         const [search, setSearch] = useState('');
         const [page, setPage] = useState(1);
@@ -86,7 +86,7 @@ export default function OwnerOrdersPage() {
                                 }
                                 const json = await res.json().catch(() => null);
                                 // round87-C3: surface the server's Arabic error (was: empty throw -> generic toast)
-                                if (!res.ok || !json?.success) throw new Error(json?.error ?? `فشل الطلب (${res.status})`);
+                                if (!res.ok || !json?.success) throw new Error(json?.error ?? `تعذّر الطلب (${res.status})`);
                                 const newOrders: Order[] = Array.isArray(json.data) ? json.data : [];
                                 if (json?.meta?.total !== undefined) setTotalOrders(json.meta.total);
                                 if (append) {
@@ -101,14 +101,14 @@ export default function OwnerOrdersPage() {
                                 }
                                 setPage(pageNum);
                         } catch (e) {
-                                setError(getErrorMessage(e, 'تعذر تحميل الطلبات'));
-                                premiumToast('error', getErrorMessage(e, 'تعذر تحميل الطلبات'));
+                                setError(getErrorMessage(e, 'تعذّر تحميل الطلبات'));
+                                premiumToast('error', getErrorMessage(e, 'تعذّر تحميل الطلبات'));
                         } finally {
                                 if (pageNum === 1) setLoading(false);
                                 else setLoadingMore(false);
                         }
                 },
-                [dateFrom, dateTo, activeId, setLoadingMore]
+                [dateFrom, dateTo, activeId]
         );
 
         // r131-F5 (A1 P1-1): numbered pagination replaces the append/load-more
@@ -161,7 +161,7 @@ export default function OwnerOrdersPage() {
                 } catch (e) {
                         // Rollback to the exact previous state
                         setStatusEverywhere(prevStatus);
-                        premiumToast('error', getErrorMessage(e, 'تعذر تحديث الحالة — أُعيدت الحالة السابقة'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تحديث الحالة — أُعيدت الحالة السابقة'));
                 } finally {
                         setPendingStatus((prev) => {
                                 if (!(orderId in prev)) return prev;
@@ -242,7 +242,7 @@ export default function OwnerOrdersPage() {
                         URL.revokeObjectURL(link.href);
                         premiumToast('save', 'تم تصدير الطلبات المعروضة');
                 } catch {
-                        premiumToast('error', 'تعذر التصدير');
+                        premiumToast('error', 'تعذّر التصدير');
                 } finally {
                         setExporting(false);
                 }
@@ -280,7 +280,7 @@ export default function OwnerOrdersPage() {
                 // r131-F5 (A1 P1-12): canonical error family (surface + dot + retry).
                 return (
                         <ErrorState
-                                title="تعذر تحميل الطلبات"
+                                title="تعذّر تحميل الطلبات"
                                 error={error}
                                 onRetry={() => fetchOrders(filter, 1, false)}
                         />

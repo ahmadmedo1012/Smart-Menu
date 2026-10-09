@@ -35,7 +35,7 @@ export async function notifyEvent(
   // user-controlled name like "[click here](https://evil.com)" previously
   // rendered as a clickable phishing link inside the admins' ops channel.
   // round90-المنسق (اكتشاف F5b-A): أُضيفت القوسان ( ) لمجموعة التشفير —
-  // بدونهما يبقى نص الرابط ظاهرًا وعملاء تيليجرام تُشير الروابط العارية
+  // بدونهما يبقى نص الرابط ظاهرًا وعملاء تليجرام تُشير الروابط العارية
   // تلقائيًا، فتكتمل الحماية المكسورة جزئيًا.
   const esc = (s: unknown) => String(s).replace(/([_*\[\]`\\()])/g, "\\$1");
   const lines = [`*${esc(eventType)}*`];

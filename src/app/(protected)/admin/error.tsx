@@ -14,7 +14,7 @@ export default function AdminError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في لوحة التحكم"
-                        description="تعذر تحميل هذه الصفحة. قد يكون هناك خلل مؤقت في الاتصال."
+                        description="تعذّر تحميل هذه الصفحة. قد يكون هناك خلل مؤقت في الاتصال."
                         backHref="/admin"
                         backLabel="العودة للوحة التحكم"
                 />

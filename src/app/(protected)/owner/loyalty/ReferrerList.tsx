@@ -58,7 +58,7 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
   return (
     <div>
       <div className="flex items-center gap-2 px-5 pb-3 border-b border-border/20">
-        <SearchInput value={search} onChange={setSearch} placeholder="ابحث بالاسم أو الهاتف..." />
+        <SearchInput value={search} onChange={setSearch} placeholder="ابحث بالاسم أو الهاتف…" />
         <div className="flex gap-1">
           {["all", "pending", "converted", "expired"].map((s) => (
             <button key={s} type="button" onClick={() => setStatusFilter(s)}

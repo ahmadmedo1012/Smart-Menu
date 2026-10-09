@@ -32,7 +32,7 @@ export function PickupTypeSelector({
                         {/* Pickup type selector */}
                         <LoadingAnnouncer
                                 loading={isFetching}
-                                message="جارٍ تحميل خيارات الطلب..."
+                                message="جارٍ تحميل خيارات الطلب…"
                                 completedMessage="تم تحميل خيارات الطلب"
                         />
                         {error && (
@@ -41,7 +41,7 @@ export function PickupTypeSelector({
                                         onClick={onRetry}
                                         className="mb-4 w-full rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
                                 >
-                                        تعذر تحميل خيارات الطلب — انقر لإعادة المحاولة
+                                        تعذّر تحميل خيارات الطلب — انقر لإعادة المحاولة
                                 </button>
                         )}
                         <div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up stagger-1">

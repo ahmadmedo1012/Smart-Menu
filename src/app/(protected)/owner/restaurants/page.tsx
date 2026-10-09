@@ -1,4 +1,5 @@
 'use client';
+import { SITE_ORIGIN } from '@/lib/seo';
 import { getErrorMessage } from '@/lib/get-error-message';
 
 import { useEffect, useState, useCallback , useId } from 'react';
@@ -46,7 +47,7 @@ export default function OwnerRestaurantsPage() {
                         // Array.isArray guard: 401 error bodies are objects, not lists.
                         setRestaurants(Array.isArray(json.data) ? json.data : []);
                 } catch {
-                        premiumToast('error', 'تعذر تحميل المنيوهات');
+                        premiumToast('error', 'تعذّر تحميل المنيوهات');
                 } finally {
                         setLoading(false);
                 }
@@ -73,7 +74,7 @@ export default function OwnerRestaurantsPage() {
                                 }),
                         });
                         const json = await res.json();
-                        if (!res.ok) throw new Error(json.error ?? 'فشل إضافة المنيو');
+                        if (!res.ok) throw new Error(json.error ?? 'تعذّر إضافة المنيو');
                         premiumToast('success', 'تم إضافة المنيو بنجاح');
                         setShowAdd(false);
                         setNewMenu({ name: '', slug: '', description: '' });
@@ -93,7 +94,7 @@ export default function OwnerRestaurantsPage() {
                                 body: JSON.stringify({ isPrimary: true }),
                         });
                         const json = await res.json();
-                        if (!res.ok) throw new Error(json.error ?? 'فشل');
+                        if (!res.ok) throw new Error(json.error ?? 'تعذّر تعيين المنيو الأساسي');
                         premiumToast('success', 'تم تعيين المنيو كأساسي');
                         localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(id));
                         load();
@@ -106,7 +107,7 @@ export default function OwnerRestaurantsPage() {
                 try {
                         const res = await csrfFetch(`/api/owner/restaurants/${r.id}`, { method: 'DELETE' });
                         const json = await res.json();
-                        if (!res.ok) throw new Error(json.error ?? 'تعذر الحذف');
+                        if (!res.ok) throw new Error(json.error ?? 'تعذّر الحذف');
                         premiumToast('success', 'تم حذف المنيو');
                         if (Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY)) === r.id) {
                                 localStorage.removeItem(ACTIVE_RESTAURANT_KEY);
@@ -119,14 +120,16 @@ export default function OwnerRestaurantsPage() {
         };
 
         const copyLink = (slug: string) => {
-                navigator.clipboard.writeText(`https://menu.smart-link.ly/menu/${slug}`);
+                // r133 (A3 S5): was a hardcoded prod host — copy links now ride the
+                // single SITE_ORIGIN seam (lib/seo.ts), same as canonicals/QR/print.
+                navigator.clipboard.writeText(`${SITE_ORIGIN}/menu/${slug}`);
                 premiumToast('copy', 'تم نسخ رابط المنيو');
         };
 
         if (loading)
                 // r131-F5 (A11 SM-2): shape-matched list skeleton — the bare
                 // spinner-only load is banned on dashboard routes.
-                return <ListPageSkeleton rows={4} label="جارٍ تحميل المنيوهات..." />;
+                return <ListPageSkeleton rows={4} label="جارٍ تحميل المنيوهات…" />;
 
         return (
                 <div className="space-y-8">
@@ -257,7 +260,15 @@ export default function OwnerRestaurantsPage() {
                                                                 <Button variant="outline" size="sm" onClick={() => copyLink(r.slug)}>
                                                                         <AnimatedCopy className="size-3.5" /> نسخ الرابط
                                                                 </Button>
-                                                                <Button variant="outline" size="sm" onClick={() => window.open(`/menu/${r.slug}`, '_blank')}>
+                                                                {/* r133 (A3 N8): window.open('_blank') without noopener → the shared
+                                                                           Link grammar used one row up on the dashboard (rel=noopener noreferrer). */}
+                                                                <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        render={
+                                                                                <a href={`/menu/${r.slug}`} target="_blank" rel="noopener noreferrer" />
+                                                                        }
+                                                                >
                                                                         <AnimatedExternalLink className="size-3.5" /> فتح
                                                                 </Button>
                                                                 {!r.isPrimary && (

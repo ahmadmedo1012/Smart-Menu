@@ -28,6 +28,10 @@ import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 // for the client maxLength shadow — the form previously had no caps at all, so
 // a paste failed only at the server with a generic message after upload work.
 import { RESTAURANT_FIELD_LIMITS } from '@/lib/validation';
+// r133 (A3 S4): live whatsapp validity preview — an invalid stored number
+// silently kills the public WhatsApp CTA (MenuHero drops the pill), so the
+// owner's only symptom was the ordering channel quietly disappearing.
+import { normalizeWaNumber } from '@/lib/whatsapp';
 // r121-O-1: canonical pickup labels for the supported-types checklist
 import { getPickupTypeMeta } from '@/lib/order-status';
 
@@ -101,7 +105,7 @@ export default function OwnerSettingsPage() {
                                 }
                                 setPlans(plansData.data ?? []);
                         })
-                        .catch(() => premiumToast('error', 'تعذر تحميل الإعدادات'))
+                        .catch(() => premiumToast('error', 'تعذّر تحميل الإعدادات'))
                         .finally(() => setLoading(false));
         }, [activeId]);
 
@@ -113,12 +117,12 @@ export default function OwnerSettingsPage() {
                         const res = await csrfFetch('/api/upload', { method: 'POST', body: formData });
                         if (!res.ok) {
                                 const body = await res.json().catch(() => null);
-                                throw new Error(body?.error ?? `تعذر رفع الصورة (${res.status})`);
+                                throw new Error(body?.error ?? `تعذّر رفع الصورة (${res.status})`);
                         }
                         const data = await res.json();
                         return data.data?.url ?? data.url;
                 } catch (e) {
-                        premiumToast('error', e instanceof Error ? e.message : 'تعذر رفع الصورة');
+                        premiumToast('error', e instanceof Error ? e.message : 'تعذّر رفع الصورة');
                         return null;
                 } finally {
                         setUploading((prev) => ({ ...prev, [type]: false }));
@@ -185,7 +189,7 @@ export default function OwnerSettingsPage() {
                         });
                         if (!res.ok) {
                                 const err = await res.json();
-                                throw new Error(err.error ?? 'تعذر الحفظ');
+                                throw new Error(err.error ?? 'تعذّر الحفظ');
                         }
                         // Old-logo cleanup now happens server-side inside PUT /api/settings
                         // (after the DB write succeeds, tenant-bound) — no client-side delete call
@@ -195,7 +199,7 @@ export default function OwnerSettingsPage() {
                         const r = settingsData.data?.restaurant;
                         if (r) setRestaurant(r);
                 } catch (e) {
-                        premiumToast('error', e instanceof Error ? e.message : 'تعذر الحفظ');
+                        premiumToast('error', e instanceof Error ? e.message : 'تعذّر الحفظ');
                 } finally {
                         setSaving(false);
                 }
@@ -205,7 +209,7 @@ export default function OwnerSettingsPage() {
         if (loading)
                 // r131-F5 (A11 SM-2): settings-shaped skeleton stack (the .skeleton
                 // shimmer + RM kill — was two bare blocks).
-                return <SettingsPageSkeleton cards={3} label="جارٍ تحميل الإعدادات..." />;
+                return <SettingsPageSkeleton cards={3} label="جارٍ تحميل الإعدادات…" />;
 
         return (
                 <div className="max-w-2xl space-y-8 animate-page-enter">
@@ -299,7 +303,7 @@ export default function OwnerSettingsPage() {
                                                         ) : (
                                                                 <AnimatedUpload className="size-3" />
                                                         )}
-                                                        {uploading.logo ? 'جارٍ الرفع...' : 'اختيار صورة'}
+                                                        {uploading.logo ? 'جارٍ الرفع…' : 'اختيار صورة'}
                                                 </Button>
                                         </div>
                                 </div>
@@ -436,7 +440,7 @@ export default function OwnerSettingsPage() {
                                         <h2 className="text-sm font-bold">بيانات المطعم</h2>
                                         <Button onClick={save} disabled={saving} className="gap-1.5 text-xs h-8">
                                                 <AnimatedSave className="size-3.5" />
-                                                {saving ? 'جارٍ الحفظ...' : 'حفظ'}
+                                                {saving ? 'جارٍ الحفظ…' : 'حفظ'}
                                         </Button>
                                 </div>
                                 <div className="space-y-3.5">
@@ -481,6 +485,7 @@ export default function OwnerSettingsPage() {
                                                                 id="restaurant-phone"
                                                                 maxLength={RESTAURANT_FIELD_LIMITS.phone}
                                                                 dir="ltr"
+                                                                placeholder="09XXXXXXXX"
                                                                 value={form.phone}
                                                                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                                                                 className="mt-1 text-sm text-start"
@@ -492,10 +497,29 @@ export default function OwnerSettingsPage() {
                                                                 id="restaurant-whatsapp"
                                                                 maxLength={RESTAURANT_FIELD_LIMITS.whatsapp}
                                                                 dir="ltr"
+                                                                placeholder="09XXXXXXXX"
+                                                                aria-invalid={(form.whatsapp.trim() !== '' && !normalizeWaNumber(form.whatsapp)) || undefined}
+                                                                aria-describedby="restaurant-whatsapp-hint"
                                                                 value={form.whatsapp}
                                                                 onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
                                                                 className="mt-1 text-sm text-start"
                                                         />
+                                                        {/* r133 (A3 S4): the public menu drops the WhatsApp pill entirely
+                                                            when normalizeWaNumber fails — surface that contract here so the
+                                                            owner sees the channel appear/disappear as they type. */}
+                                                        <p
+                                                                id="restaurant-whatsapp-hint"
+                                                                className={cn(
+                                                                        'text-2xs mt-1',
+                                                                        form.whatsapp.trim() !== '' && !normalizeWaNumber(form.whatsapp)
+                                                                                ? 'text-destructive'
+                                                                                : 'text-muted-foreground'
+                                                                )}
+                                                        >
+                                                                {form.whatsapp.trim() !== '' && !normalizeWaNumber(form.whatsapp)
+                                                                        ? 'رقم غير صالح — لن يظهر زر الطلب عبر واتساب في صفحة المنيو'
+                                                                        : 'يظهر كزر «اطلب عبر واتساب» في صفحة المنيو (مثال: 09XXXXXXXX أو +218XXXXXXXXXX)'}
+                                                        </p>
                                                 </div>
                                         </div>
                                         <div>

@@ -14,7 +14,7 @@ export default function TermsError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في تحميل الصفحة"
-                        description="تعذر تحميل شروط الاستخدام. قد يكون هناك خلل مؤقت."
+                        description="تعذّر تحميل شروط الاستخدام. قد يكون هناك خلل مؤقت."
                         backHref="/"
                         backLabel="العودة للرئيسية"
                 />

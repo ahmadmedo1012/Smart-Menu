@@ -14,7 +14,7 @@ export default function OwnerOrdersError({
                         error={error}
                         reset={reset}
                         title="حدث خطأ في الطلبات"
-                        description="تعذر تحميل الطلبات. حاول مرة أخرى."
+                        description="تعذّر تحميل الطلبات. حاول مرة أخرى."
                         backHref="/owner"
                         backLabel="العودة للوحة التحكم"
                 />

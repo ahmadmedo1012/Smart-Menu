@@ -74,7 +74,7 @@ function DialogContent({
         dir="rtl"
         className={cn(
           "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto overscroll-contain -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-border bg-popover p-6 text-sm text-popover-foreground shadow-[var(--shadow-modal)] outline-none sm:max-w-[560px]",
-          "before:pointer-events-none before:absolute before:top-0 before:inset-x-[30%] before:z-[1] before:h-[3px] before:rounded-b-[3px] before:bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]",
+          "before:pointer-events-none before:absolute before:top-0 before:inset-x-[30%] before:z-[1] before:h-[3px] before:rounded-b-full before:bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]",
           "transition-[opacity,scale,translate,filter] duration-base ease-[cubic-bezier(0.16,1,0.3,1)] data-starting-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:translate-y-2",
           "data-ending-style:opacity-0 data-ending-style:scale-[0.98] data-ending-style:translate-y-2",
           className

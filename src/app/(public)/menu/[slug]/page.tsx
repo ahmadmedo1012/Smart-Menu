@@ -76,7 +76,7 @@ export async function generateMetadata({
                                         ...(restaurant.logo ? { width: 512, height: 512 } : { width: 1200, height: 630 }),
                                 },
                         ],
-                        locale: 'ar_LY',
+                        locale: 'ar_AR',
                         type: 'website',
                 },
                 twitter: {
@@ -313,7 +313,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                         description: i.description,
                                         offers: {
                                                 '@type': 'Offer',
-                                                price: Number(i.price),
+                                                // r133 (A12 N7): schema.org price is a STRING —
+                                                // a number primitive is silently dropped by validators.
+                                                price: String(i.price),
                                                 priceCurrency: 'LYD',
                                         },
                                 })),

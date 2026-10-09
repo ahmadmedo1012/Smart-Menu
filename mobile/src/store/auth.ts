@@ -18,7 +18,14 @@ interface AuthState {
 export const useAuth = create<AuthState>((set) => ({
   user: null, token: null, status: "idle", error: null,
   bootstrap: async () => {
-    set({ status: "loading", error: null });
+    // r133-F3 (A4 M1): "loading" is the COLD-BOOT gate only — App.tsx returns
+    // null (splash still up) while it is set. Reusing it for in-session
+    // refreshes unmounted the WHOLE app for the full round-trip: the live
+    // caller is SubscribePlan's «تحديث حالة الاشتراك», whose owner watched a
+    // bare night window until the /me request settled. A warm refresh now
+    // keeps the booted status and only transitions on a terminal answer.
+    const coldBoot = useAuth.getState().status === "idle";
+    set(coldBoot ? { status: "loading", error: null } : { error: null });
     const token = await getStoredToken();
     if (!token) { set({ status: "unauthenticated", user: null, token: null }); return; }
     try {
@@ -56,11 +63,23 @@ export const useAuth = create<AuthState>((set) => ({
         return;
       }
       const msg = e instanceof ApiError ? e.message : "تعذّر الاتصال بالخادم";
-      set({ status: "unauthenticated", user: null, error: msg });
+      // r133-F3 (A4 M1): the public-stack landing is the COLD-BOOT contract.
+      // A warm refresh on a flaky network must NOT evict a signed-in user to
+      // the public stack — the session stays live and the screen stays put
+      // (same philosophy as the r103-N1 token rule above).
+      if (coldBoot) set({ status: "unauthenticated", user: null, error: msg });
+      else set({ error: msg });
     }
   },
   login: async (username, password) => {
-    set({ status: "loading", error: null });
+    // r133-F3 (A4 M1): the login POST NEVER flips the global status. The old
+    // `status: "loading"` here was the BOOT value — App.tsx unmounted the
+    // entire tree the instant «تسجيل الدخول» was tapped: typed credentials
+    // were wiped on remount, the button's loading state never painted, and
+    // the failure toast fired into an unmounted <Toast> (a silent no-op).
+    // LoginScreen owns the in-button `submitting` state; this store only
+    // transitions on the terminal answer (authenticated / unauthenticated).
+    set({ error: null });
     try {
       const { user, sessionToken } = await loginRequest(username, password);
       await setStoredToken(sessionToken);

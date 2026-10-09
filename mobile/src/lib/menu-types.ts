@@ -124,9 +124,15 @@ export function buildModifierSummary(
                         if (opt.priceDelta === 0) {
                                 parts.push(name);
                         } else if (opt.priceDelta > 0) {
-                                parts.push(`${name} (+${formatPrice(opt.priceDelta, { decimals: 1 })})`);
+                                /* r133-F3 (A4 S1, porting web r121-H-1): decimals:1 was
+                                   rounding modifier prices in the cart summary + the
+                                   customer's WhatsApp receipt (12.75 → «12.8») while
+                                   the detail chip showed «12.75» — the fourth stale
+                                   money twin. The smart trim is the spec everywhere
+                                   (12 → 12، 12.75 → 12.75، never a bare «.0»). */
+                                parts.push(`${name} (+${formatPrice(opt.priceDelta)})`);
                         } else {
-                                parts.push(`${name} (${formatPrice(opt.priceDelta, { decimals: 1 })})`);
+                                parts.push(`${name} (${formatPrice(opt.priceDelta)})`);
                         }
                 }
         }

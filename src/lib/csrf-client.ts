@@ -57,7 +57,7 @@ export async function csrfJson<T = unknown>(
   if (!res.ok) {
     const message =
       (body && typeof body.error === "string" && body.error) ||
-      `فشل الطلب (${res.status})`;
+      `تعذّر الطلب (${res.status})`;
     throw new Error(message);
   }
   return body as T;

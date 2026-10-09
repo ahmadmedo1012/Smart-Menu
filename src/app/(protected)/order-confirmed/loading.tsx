@@ -11,7 +11,7 @@ export default function OrderConfirmedLoading() {
                         aria-busy="true"
                         className="min-h-dvh flex flex-col items-center justify-center gap-6 px-4 text-center"
                 >
-                        <span className="sr-only">جارٍ تحميل صفحة تأكيد الطلب...</span>
+                        <span className="sr-only">جارٍ تحميل صفحة تأكيد الطلب…</span>
 
                         {/* بئر النجاح — 56px (عيار بلاطات الحالة الموحّد) */}
                         <div className="size-14 rounded-xl skeleton animate-rise-in" aria-hidden="true" />

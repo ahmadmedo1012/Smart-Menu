@@ -22,16 +22,18 @@
 @theme inline {
         /* ── Font system — Madarek parity (r129 token-matrix fix): IBM Plex
            Sans Arabic is THE family. --font-sans/-arabic carry the canonical
-           stack verbatim (Tajawal + system-ui + -apple-system + Segoe UI +
+           stack verbatim (system-ui + -apple-system + Segoe UI +
            Roboto tail); --font-display/-heading carry the canonical display
            stack (Plex + system-ui); --font-mono is the canonical mono stack
            (Plex Mono + ui-monospace + SFMono — the mixed-script Sans-Arabic
            mono fallback survives only in the landing layer's --ln-mono,
            byte-equal to Madarek's own landing.css:54). The legacy
            --font-cairo shim in /fonts/fonts.css stays as the safety net. */
-        --font-sans: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        /* r133 (A3 N4): the never-registered "Tajawal" fallback name was deleted
+           (it could never load — no @font-face ever declared it). */
+        --font-sans: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
-        --font-arabic: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --font-arabic: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         /* r93-W2a (U1) + r129: --font-display (canonical name) and the
            --font-heading bridge — Madarek tokens.css:47-49 verbatim. */
         --font-display: "IBM Plex Sans Arabic", system-ui, sans-serif;
@@ -181,6 +183,15 @@
         --ease-out-quart: cubic-bezier(0.16, 1, 0.3, 1);
         --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 
+        /* ── r133 (A10 fleet-systemic): default-transition bridge (SO
+           globals pattern, r126). Every `transition-*` utility without an
+           explicit easing class used to ride the browser default
+           `ease(0.25, 0.1, 0.25, 1)` — off the canonical settle curve.
+           One bridge: bare utilities now settle at (0.16, 1, 0.3, 1) on
+           the t-fast rung, matching explicit ease-[var(--ease-out)] sites. ── */
+        --default-transition-duration: 160ms;
+        --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
         /* ── r126 (P4-F1 M3): motion-ladder bridge — named duration utilities.
            Tailwind's `--transition-duration-*` theme keys generate
            duration-micro/fast/base/slow/slower/cinema, each consuming the
@@ -235,7 +246,7 @@
         /* ── Fonts — r129 token-matrix fix: the canonical Madarek stacks
            (tokens.css:47-50), with the --font-cairo shim (fonts.css) kept
            as the safety net for any legacy var(--font-cairo) consumer. */
-        --font-arabic: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --font-arabic: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --font-sans: var(--font-arabic);
         --font-display: "IBM Plex Sans Arabic", system-ui, sans-serif;
         /* r93-W2a (U1) — same value as --font-display (the bridge name). */
@@ -1347,6 +1358,45 @@ html.high-contrast :focus-visible {
         outline-offset: var(--state-focus-ring-offset, 2px);
 }
 :focus:not(:focus-visible) { outline: none; }
+
+/* ══════════════════════════════════════════════════════════════
+   Browser surfaces — caret + autofill theming
+   (r133, A10 fleet Must-2: ported from madarek base.css:104-125)
+   ══════════════════════════════════════════════════════════════ */
+
+/* Typed-text caret follows the theme accent — the UA default (blue/black)
+   flashed off-palette on every focus. */
+input,
+textarea,
+[contenteditable]:not([contenteditable="false"]) {
+        caret-color: var(--accent-ink);
+}
+
+/* Chromium/Safari autofill: the UA repaints its pale-yellow/blue fill on
+   hover+focus, so all three states are covered. The inset box-shadow is the
+   only reliable cover (the UA paints background-color under it);
+   -webkit-text-fill-color pins the typed text to the theme ink.
+   SM token mapping: --card = the surface inputs sit on, --foreground = ink. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px var(--card) inset;
+        -webkit-text-fill-color: var(--foreground);
+        caret-color: var(--accent-ink);
+        transition: background-color 9999s ease-out;
+}
+
+/* Firefox equivalent (its UA lock on :autofill backgrounds lifted long
+   ago — a plain background-color override sticks). */
+input:autofill,
+textarea:autofill {
+        background-color: var(--card);
+        color: var(--foreground);
+        caret-color: var(--accent-ink);
+}
 
 /* ══════════════════════════════════════════════════════════════
    Glass utilities (plain CSS)

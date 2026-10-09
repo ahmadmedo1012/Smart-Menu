@@ -52,7 +52,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                         premiumToast('success', `تم تغيير الحالة إلى ${getOrderStatusMeta(status).label}`);
                 } catch (e) {
                         // round89-E6: csrfJson throws the server's Arabic message — surface it
-                        premiumToast('error', getErrorMessage(e, 'تعذر تحديث الحالة'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تحديث الحالة'));
                 } finally {
                         setUpdating(false);
                 }
@@ -70,12 +70,12 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
         if (loading)
                 // r131-F5 (A11 SM-2): shape-matched detail skeleton (header + status
                 // card + info grid + items) — was hand-rolled animate-pulse blocks.
-                return <DetailPageSkeleton label="جارٍ تحميل تفاصيل الطلب..." />;
+                return <DetailPageSkeleton label="جارٍ تحميل تفاصيل الطلب…" />;
 
         if (error)
                 return (
                         <ErrorState
-                                title="تعذر تحميل الطلب"
+                                title="تعذّر تحميل الطلب"
                                 error={error}
                                 onRetry={() => window.location.reload()}
                                 actions={

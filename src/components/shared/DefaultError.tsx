@@ -14,7 +14,7 @@ export function DefaultError({
   error,
   reset,
   title = "حدث خطأ",
-  description = "تعذر تحميل الصفحة. حاول مرة أخرى.",
+  description = "تعذّر تحميل الصفحة. حاول مرة أخرى.",
   backHref = "/",
   backLabel = "العودة للرئيسية",
 }: {

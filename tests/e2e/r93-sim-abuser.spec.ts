@@ -191,7 +191,7 @@ test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميز
       await page.getByPlaceholder("كلمة المرور").fill("Wrong#Pass99");
       await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
       // رسالة الفشل الموحدة (توست) — انتظار شرطي على النص نفسه
-      await expect(page.getByText(/غير صحيحة|فشل تسجيل الدخول/).first()).toBeVisible({
+      await expect(page.getByText(/غير صحيحة|تعذّر تسجيل الدخول/).first()).toBeVisible({
         timeout: 12000,
       });
       return (await page.locator("body").innerText()).slice(0, 1500);
@@ -200,8 +200,8 @@ test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميز
     const wrongPass = await tryLogin("admin");
     // الواجهة تعرض الرسالة العامة الموحدة «فشل تسجيل الدخول» للحالتين —
     // لا تمييز يكشف وجود المستخدم من عدمه (المسار يفعل مثلها 401 موحدًا)
-    expect(notFound).toContain("فشل تسجيل الدخول");
-    expect(wrongPass).toContain("فشل تسجيل الدخول");
+    expect(notFound).toContain("تعذّر تسجيل الدخول");
+    expect(wrongPass).toContain("تعذّر تسجيل الدخول");
     const leak = /غير موجود|لا يوجد مستخدم|user not found/i;
     expect(notFound.match(leak), "رسالة تكشف عدم وجود المستخدم").toBeNull();
   });

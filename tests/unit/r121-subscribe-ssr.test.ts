@@ -155,7 +155,7 @@ describe('r121 H-5 — upgrade-mode dead-?plan escape (X3-V1 ride-along)', () =>
                 // the branch condition: past step 1, auth resolved, upgrade mode, no plan
                 expect(s).toContain("step !== 'plan' && authLoaded && upgradeMode && !currentPlan");
                 // the r120 SubscribeForm escape copy, mirrored
-                expect(s).toContain('تعذر تحميل الخطة المحددة');
+                expect(s).toContain('تعذّر تحميل الخطة المحددة');
                 expect(s).toContain('تصفح جميع الباقات');
         });
 });

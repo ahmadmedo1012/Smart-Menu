@@ -37,7 +37,7 @@ export default function GlobalError({
               <AlertTriangle className="size-12 text-destructive" />
             </div>
             <h1 className="text-3xl font-bold mb-4">حدث خطأ غير متوقع</h1>
-            <p className="text-lg text-muted-foreground max-w-md mb-8">تعذر تحميل التطبيق. يرجى تحديث الصفحة.</p>
+            <p className="text-lg text-muted-foreground max-w-md mb-8">تعذّر تحميل التطبيق. يرجى تحديث الصفحة.</p>
             <button
               onClick={() => reset()}
               className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-foreground text-background text-base font-medium hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"

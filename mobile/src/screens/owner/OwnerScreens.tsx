@@ -8,6 +8,7 @@ import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Shar
 
 import { api } from "@/services/api/client";
 import { Spinner, EmptyState, ErrorState, ComingSoon } from "@/components/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "@/store/auth";
 import { PressableScale } from "@/components/motion/PressableScale";
 import { useEnterFade } from "@/components/motion/useEnterFade";
@@ -45,9 +46,44 @@ export function OwnerDashboardScreen() {
   const loadError = error ? getErrorMessage(error, "تعذّر تحميل الإحصائيات") : null;
 
   if (isPending) {
+    /* r133-F3 (A4 §3, the F2b handoff): the dashboard's first paint is a
+       SHAPE skeleton (r131 fleet ruling "loading = shape skeletons") — the
+       KPI-grid geometry: greeting line, the 2 half + 1 full Kpi tiles
+       (surface r-12 hairline cards: icon well + 18px value + 11px label),
+       a section title, then recent-order rows (the item-card recipe with
+       the price/status lane). Was a centered spinner. */
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
+        <View style={{ padding: 16 }}>
+          <Skeleton width={"55%"} height={22} />
+          <View style={{ flexDirection: "row", gap: 8, marginTop: 16, marginBottom: 8 }}>
+            {[0, 1].map((i) => (
+              <View key={i} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: colors.hairline }}>
+                <Skeleton width={18} height={18} borderRadius={6} />
+                <Skeleton width={"60%"} height={18} />
+                <Skeleton width={"40%"} height={11} />
+              </View>
+            ))}
+          </View>
+          <View style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.hairline }}>
+            <Skeleton width={18} height={18} borderRadius={6} />
+            <Skeleton width={"40%"} height={18} />
+            <Skeleton width={"30%"} height={11} />
+          </View>
+          <Skeleton width={"35%"} height={16} />
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: colors.surface, borderRadius: 8, padding: 12, marginTop: 8, borderWidth: 1, borderColor: colors.hairline }}>
+              <View style={{ gap: 6 }}>
+                <Skeleton width={96} height={13} />
+                <Skeleton width={64} height={11} />
+              </View>
+              <View style={{ alignItems: "flex-end", gap: 6 }}>
+                <Skeleton width={56} height={13} />
+                <Skeleton width={40} height={10} />
+              </View>
+            </View>
+          ))}
+        </View>
       </SafeAreaView>
     );
   }
@@ -282,9 +318,28 @@ export function OwnerOrdersScreen() {
   }, [loadingMore, hasMore, orders.length, loadMore]);
 
   if (isPending) {
+    /* r133-F3 (A4 §3, the F2b handoff): the orders list's first paint is a
+       SHAPE skeleton — order-card rows in the loaded geometry (orderNo line
+       + status-badge lane, customer line, time + the 14px price lane on
+       surface r-12 hairline cards). The load-more footer Spinner survives
+       by design: inline pagination feedback is not a loading state. */
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
+        <View style={{ padding: 16 }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <View key={i} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <Skeleton width={88} height={13} />
+                <Skeleton width={52} height={11} />
+              </View>
+              <Skeleton width={"65%"} height={12} />
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+                <Skeleton width={64} height={11} />
+                <Skeleton width={56} height={14} />
+              </View>
+            </View>
+          ))}
+        </View>
       </SafeAreaView>
     );
   }
@@ -303,12 +358,12 @@ export function OwnerOrdersScreen() {
         keyExtractor={(o) => String(o.id)}
         renderItem={({ item: o }) => (
           // r130 W2-4: order CARD → --state-card-pressed-scale 0.99.
-          <PressableScale scaleTo={0.99} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "زبون"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
+          <PressableScale scaleTo={0.99} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "عميل"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{o.orderNo}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.gold, fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
             </View>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>{o.customerName || "عميل"} • {o.customerPhone || "—"}</Text>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted }}>{formatRelativeTimeAr(o.createdAt)}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(o.total)}</Text>
@@ -351,9 +406,29 @@ export function OwnerOrderDetailScreen() {
   }
 
   if (isPending) {
+    /* r133-F3 (A4 §3, the F2b handoff): the order detail's first paint is a
+       SHAPE skeleton — orderNo line + the customer info card (4 text lines)
+       + 3 item rows (name + price lane) + the totals row, the loaded
+       layout's geometry. */
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
+        <View style={{ padding: 16 }}>
+          <Skeleton width={"45%"} height={20} />
+          <Skeleton width={"30%"} height={13} />
+          <View style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginVertical: 16, borderWidth: 1, borderColor: colors.hairline, gap: 8 }}>
+            {(["40%", "60%", "50%", "55%"] as const).map((w, i) => <Skeleton key={i} width={w} height={12} />)}
+          </View>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.hairline }}>
+              <Skeleton width={"45%"} height={13} />
+              <Skeleton width={56} height={13} />
+            </View>
+          ))}
+          <View style={{ flexDirection: "row", justifyContent: "space-between", paddingTop: 12, marginTop: 4 }}>
+            <Skeleton width={48} height={16} />
+            <Skeleton width={72} height={16} />
+          </View>
+        </View>
       </SafeAreaView>
     );
   }
@@ -408,7 +483,7 @@ export function OwnerOrderDetailScreen() {
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{order.orderNo}</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
         <View style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.hairline }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, marginBottom: 4 }}>بيانات الزبون</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, marginBottom: 4 }}>بيانات العميل</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>الاسم: {order.customerName || "—"}</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>الهاتف: {order.customerPhone || "—"}</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>النوع: {getPickupTypeMeta(order.pickupType).label}</Text>
@@ -473,33 +548,32 @@ interface OwnerRestaurantLite {
  */
 export function OwnerQrScreen() {
   const domain = process.env.EXPO_PUBLIC_DOMAIN ?? "https://menu.smart-link.ly";
-  const [restaurants, setRestaurants] = useState<OwnerRestaurantLite[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // r133-F3 (A4 N5): the app's last hand-rolled data fetch rides React Query
+  // like every other data screen — focus-refetch + shared cache (the list no
+  // longer re-fetches on every tab visit) + the provider's retry policy,
+  // and the r103-N2 retry bug class (a load() callback + useEffect that
+  // never re-ran) is structurally gone. Deletes ~10 lines.
+  const { data, isPending, error, refetch } = useQuery({
+    queryKey: ["owner-restaurants"],
+    queryFn: () => api.get<OwnerRestaurantLite[]>("/api/owner/restaurants"),
+  });
+  const restaurants = data ?? [];
 
-  // r103-N2: the fetch lived in a `deps: []` effect — the ErrorState's onRetry
-  // only flipped state (loading=true), the effect never re-ran, and the screen
-  // dead-ended into an eternal spinner. Hoisted into a callback (the MenuScreen
-  // `load` pattern) so retry actually refetches.
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const list = await api.get<OwnerRestaurantLite[]>("/api/owner/restaurants");
-      setRestaurants(list ?? []);
-    } catch (e: unknown) {
-      setError(getErrorMessage(e, "تعذّر تحميل مطاعمك"));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { void load(); }, [load]);
-
-  if (loading) {
+  if (isPending) {
+    /* r133-F3 (A4 §3, the F2b handoff): the QR screen's first paint is a
+       SHAPE skeleton — heading + the surface r-12 hairline card with the
+       name line, the 224px QR well (200px code + 12px white padding ×2)
+       and the share-button row. Was a centered spinner. */
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
+        <View style={{ padding: 16, alignItems: "center" }}>
+          <Skeleton width={"50%"} height={18} />
+          <View style={{ backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.hairline, padding: 16, marginTop: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
+            <Skeleton width={"40%"} height={15} />
+            <Skeleton width={224} height={224} borderRadius={12} />
+            <Skeleton width={140} height={40} borderRadius={8} />
+          </View>
+        </View>
       </SafeAreaView>
     );
   }
@@ -509,8 +583,8 @@ export function OwnerQrScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, alignItems: "center" }}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>رمز QR لمنيوك</Text>
         {error ? (
-          <ErrorState message={error} onRetry={() => { void load(); }} />
-        ) : restaurants && restaurants.length > 0 ? (
+          <ErrorState message={getErrorMessage(error, "تعذّر تحميل مطاعمك")} onRetry={() => { void refetch(); }} />
+        ) : restaurants.length > 0 ? (
           restaurants.map((r) => {
             const url = `${domain}/menu/${r.slug}`;
             return (

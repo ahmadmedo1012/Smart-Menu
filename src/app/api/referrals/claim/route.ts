@@ -72,6 +72,6 @@ export async function POST(request: NextRequest) {
                 return success({ registered: true });
         } catch (e) {
                 logError('referral claim error', { error: String(e) });
-                return apiError('فشل تسجيل الإحالة', 500);
+                return apiError('تعذّر تسجيل الإحالة', 500);
         }
 }

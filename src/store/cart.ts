@@ -200,14 +200,24 @@ export const useCart = create<CartStore>()(
                                         };
                                 }),
                         updateQuantity: (id, qty) =>
-                                set((s) => ({
-                                        items:
-                                                qty <= 0
-                                                        ? s.items.filter((i) => i.id !== id)
-                                                        // r106-F1: clamp — نافذة الطلب محدودة بـ99 لكن هذه الدالة كانت
-                                                        // تقبل أي قيمة (زر السلة أو localStorage قديم).
-                                                        : s.items.map((i) => (i.id === id ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, qty) } : i)),
-                                })),
+                                set((s) => {
+                                        // r133 (A3 S1): qty→0 removes the line — mirror removeItem's
+                                        // lastRemoved write so the undo banner covers this path too
+                                        // (minus button on the last unit used to delete silently,
+                                        // while the trash icon one inch away offered undo).
+                                        if (qty <= 0) {
+                                                const removed = s.items.find((i) => i.id === id);
+                                                return {
+                                                        items: s.items.filter((i) => i.id !== id),
+                                                        ...(removed ? { lastRemoved: removed } : {}),
+                                                };
+                                        }
+                                        // r106-F1: clamp — نافذة الطلب محدودة بـ99 لكن هذه الدالة كانت
+                                        // تقبل أي قيمة (زر السلة أو localStorage قديم).
+                                        return {
+                                                items: s.items.map((i) => (i.id === id ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, qty) } : i)),
+                                        };
+                                }),
                         updateNotes: (id, notes) =>
                                 set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, notes } : i)) })),
 

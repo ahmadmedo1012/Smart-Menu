@@ -101,7 +101,7 @@ export default function AdminTelegramPage() {
                                         setEventsInput((d.events ?? []).join(', '));
                                 }
                         })
-                        .catch(() => premiumToast('error', 'تعذر تحميل الإعدادات'))
+                        .catch(() => premiumToast('error', 'تعذّر تحميل الإعدادات'))
                         .finally(() => setLoading(false));
 
                 fetch('/api/telegram/broadcast-targets')
@@ -109,7 +109,7 @@ export default function AdminTelegramPage() {
                         .then((json) => {
                                 if (json.success && json.data) setTargets(json.data);
                         })
-                        .catch(() => setLoadError('تعذر تحميل أقسام تيليجرام'));
+                        .catch(() => setLoadError('تعذّر تحميل أقسام تليجرام'));
 
                 fetch('/api/telegram/diagnose?dryRun=true')
                         .then((r) => r.json())
@@ -119,14 +119,14 @@ export default function AdminTelegramPage() {
                                         setDiagnose(json.data);
                                 }
                         })
-                        .catch(() => setLoadError('تعذر تشخيص تيليجرام'));
+                        .catch(() => setLoadError('تعذّر تشخيص تليجرام'));
 
                 fetch('/api/admin/telegram/approvers')
                         .then((r) => r.json())
                         .then((json) => {
                                 if (json.success) setApprovers(json.data ?? []);
                         })
-                        .catch(() => setLoadError('تعذر تحميل الموافقين'))
+                        .catch(() => setLoadError('تعذّر تحميل الموافقين'))
                         .finally(() => setApproversLoading(false));
         }, []);
 
@@ -167,10 +167,10 @@ export default function AdminTelegramPage() {
                                 }),
                         });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'تعذر الحفظ');
+                        if (!json.success) throw new Error(json.error || 'تعذّر الحفظ');
                         premiumToast('save', 'تم حفظ إعدادات تليجرام');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'تعذر حفظ الإعدادات'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر حفظ الإعدادات'));
                 } finally {
                         setSaving(false);
                 }
@@ -181,10 +181,10 @@ export default function AdminTelegramPage() {
                 try {
                         const res = await csrfFetch('/api/telegram/test', { method: 'POST' });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'تعذر الإرسال');
+                        if (!json.success) throw new Error(json.error || 'تعذّر الإرسال');
                         premiumToast('success', 'تم إرسال رسالة الاختبار بنجاح!');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'تعذر إرسال رسالة الاختبار'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر إرسال رسالة الاختبار'));
                 } finally {
                         setTesting(false);
                 }
@@ -196,11 +196,11 @@ export default function AdminTelegramPage() {
                 try {
                         const res = await fetch('/api/telegram/diagnose');
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'تعذر التشخيص');
+                        if (!json.success) throw new Error(json.error || 'تعذّر التشخيص');
                         setDiagnose(json.data);
                         setLinkedAdmins(json.data.linkedAdmins ?? 0);
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'تعذر التشخيص'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر التشخيص'));
                 } finally {
                         setDiagnosing(false);
                 }
@@ -214,11 +214,11 @@ export default function AdminTelegramPage() {
                                 body: JSON.stringify({ label, chatId }),
                         });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'تعذر الإضافة');
+                        if (!json.success) throw new Error(json.error || 'تعذّر الإضافة');
                         setTargets((prev) => [json.data, ...prev]);
                         premiumToast('success', 'تمت إضافة جهة الإرسال');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'تعذر إضافة جهة الإرسال'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر إضافة جهة الإرسال'));
                 }
         };
 
@@ -230,10 +230,10 @@ export default function AdminTelegramPage() {
                                 body: JSON.stringify({ isActive }),
                         });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'تعذر التحديث');
+                        if (!json.success) throw new Error(json.error || 'تعذّر التحديث');
                         setTargets((prev) => prev.map((t) => (t.id === id ? { ...t, isActive } : t)));
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'تعذر تحديث الحالة'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تحديث الحالة'));
                 }
         };
 
@@ -241,11 +241,11 @@ export default function AdminTelegramPage() {
                 try {
                         const res = await csrfFetch(`/api/telegram/broadcast-targets/${id}`, { method: 'DELETE' });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'تعذر الحذف');
+                        if (!json.success) throw new Error(json.error || 'تعذّر الحذف');
                         setTargets((prev) => prev.filter((t) => t.id !== id));
                         premiumToast('success', 'تم حذف جهة الإرسال');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'تعذر حذف جهة الإرسال'));
+                        premiumToast('error', getErrorMessage(e, 'تعذّر حذف جهة الإرسال'));
                 }
         };
 
@@ -253,7 +253,7 @@ export default function AdminTelegramPage() {
 
         if (loading)
                 // r131-F5 (A11 SM-2): settings-shaped skeleton (was a bare spinner).
-                return <SettingsPageSkeleton cards={3} label="جارٍ تحميل إعدادات التليجرام..." />;
+                return <SettingsPageSkeleton cards={3} label="جارٍ تحميل إعدادات التليجرام…" />;
 
         return (
                 <div className="space-y-8 animate-fade-in max-w-3xl">
