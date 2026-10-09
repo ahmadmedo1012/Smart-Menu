@@ -236,7 +236,9 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     // — «زيادة كمية لاتيه كراميل» بدل التسمية العامة؛ pin حُدّث r121
     await page.getByLabel("زيادة كمية لاتيه كراميل").first().click();
     // الرقم داخل شريط السطر (أرقام غربية — سياسة المنصة)
-    await expect(page.getByText("المجموع الإجمالي")).toBeVisible();
+    /* r135 (إصلاح CI): نفس تعددية «المجموع الإجمالي» للاختبار السابق —
+       الملخص + المعاينة منذ r133؛ أول ظهور يكفي. */
+    await expect(page.getByText("المجموع الإجمالي").first()).toBeVisible();
     await expect(page.locator('[dir="ltr"], .tabular-nums').getByText("43.5").first()).toBeVisible({
       timeout: 10000,
     });
