@@ -121,17 +121,25 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       }
       await expect(sheet).toBeVisible({ timeout: 15_000 });
 
-      // the group renders with its hint + counter; nothing selected yet
+      // the group renders with its hint + counter; r135 defaults: the cheapest
+      // option (صغير +0) is preselected (Starbucks pattern — required groups
+      // never block on open), so the counter reads «المحدد ١/١» not 0.
       const groupFieldset = sheet.locator(`fieldset[aria-label="${GROUP}"]`);
       await expect(groupFieldset).toBeVisible({ timeout: 10_000 });
       await expect(groupFieldset.getByText("اختر على الأقل 1")).toBeVisible();
-      await expect(groupFieldset.getByText(/المحدد 0/)).toBeVisible();
+      /* r135: الافتراضي المسبق — أرخص خيار (صغير) محدد فور الفتح؛ العدّاد
+         يعرض «المحدد ١/١» بالأرقام العربية الهندية (toArabicNumber). */
+      const smallOption = groupFieldset.getByRole("button", { name: "صغير", exact: true });
+      await expect(smallOption).toHaveAttribute("aria-pressed", "true");
+      await expect(groupFieldset.getByText(/المحدد [1١]/)).toBeVisible();
 
       // ── 3. Pick «كبير» → live price updates (25 + 2 = 27) ──
       const bigOption = groupFieldset.getByRole("button", { name: /كبير/ });
       await bigOption.click();
       await expect(bigOption).toHaveAttribute("aria-pressed", "true");
-      await expect(groupFieldset.getByText(/المحدد 1/)).toBeVisible();
+      /* r135: الراديو يستبدل — العدّاد يبقى ١ والاختيار المسبق (صغير) ينزلق */
+      await expect(smallOption).toHaveAttribute("aria-pressed", "false");
+      await expect(groupFieldset.getByText(/المحدد [1١]/)).toBeVisible();
       // unit price + total both reflect the modifier (estimate mirrors server math)
       // round89 coordinator fix: scope to the price span — the quantity stepper
       // also uses text-xl tabular-nums (strict-mode 2-match).

@@ -184,6 +184,13 @@ test("rejected payment → retry reopens the form and a second submit reaches th
    * that close so the second submit below is deterministic. */
   await expect(dlg).toBeHidden({ timeout: 30000 });
 
+  /* r135: توست الرفض الصفحي (premiumToast من مستمع /api/user/events) يظل
+     معروضًا أسفل الشاشة فوق زر «إنشاء الحساب والبدء» في viewport 390×844
+     فيحجب النقرة (actionability: intercepts pointer events — ١٣٤ محاولة
+     عبر ٥ دقائق في CI). له زر «إغلاق» صريح — نغلقه قبل النقر، بلا فشل
+     إن كان قد اختفى ذاتيًا. */
+  await page.getByRole("button", { name: "إغلاق" }).first().click().catch(() => {});
+
   /* ── 6. The wizard's «إنشاء الحساب والبدء» is NOT bricked by the rejection
    * (submittedRef was reset) — clicking it reopens the payment dialog via
    * the r103-F3 retry contract: the me-check sees the same logged-in
