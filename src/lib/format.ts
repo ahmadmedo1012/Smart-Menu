@@ -124,3 +124,13 @@ export function formatPrice(n: number | string | null | undefined, opts?: { deci
 }
 
 export { toArabicNumber, formatDate, formatDateShort, formatDateTripoli };
+
+/**
+ * r136 (ليبي أولاً): قارئات الشاشة تنطق المحتوى الإنجليزي الاحتياطي
+ * (nameAr فارغ ⇒ «Burger» بدل «برجر») بالصوت العربي فتتلفظ التسمية —
+ * إعلان lang على العنصر النصي يجعل القارئ يبدّل الصوت تلقائياً.
+ * «ar» صريحة عمداً (قيمة الوالد أصلاً) — لا تغيير في النطق العربي.
+ */
+export function contentLang(ar: string | null | undefined): 'ar' | 'en' {
+  return ar ? 'ar' : 'en';
+}

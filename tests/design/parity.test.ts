@@ -1933,7 +1933,9 @@ describe('r133 parity — finest details: money seam, focus grammar, microcopy s
   });
 
   it('A12-N7: JSON-LD price is a STRING, never a number primitive', () => {
-    expect(menuSlugCc).toContain('price: String(i.price)');
+    // r136: العرض صار يعتمد السعر الفعّال (المخفَّض إن وُجد) — نية N7
+    // نفسها (نص دائماً، لا number primitive) مع تغطية الخصم.
+    expect(menuSlugCc).toContain('price: String(i.discountedPrice ?? i.price)');
     expect(menuSlugCc).not.toContain('price: Number(i.price)');
   });
 

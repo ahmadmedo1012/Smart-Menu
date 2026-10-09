@@ -16,8 +16,9 @@ export async function POST(_request: NextRequest) {
         title: "حدث اختبار",
         message: "تم إنشاء حدث اختبار من لوحة التحكم",
         metadata: {
+          // r136: EGP كان مثالاً ميتاً من قالب أجنبي — عملة المنصة LYD حصراً
           amount: Math.floor(Math.random() * 500) + 10,
-          currency: "EGP",
+          currency: "LYD",
           orderId: Math.floor(Math.random() * 10000),
         },
       },

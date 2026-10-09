@@ -5,7 +5,7 @@ import { DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
 import { DietaryIcon } from './dietary-icons';
 import { m, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { formatPrice, toArabicNumber } from '@/lib/format';
+import { formatPrice, toArabicNumber, contentLang } from '@/lib/format';
 import type { ModifierGroupProp } from './menu-types';
 import { AlertTriangle, Settings2, Sparkles, UtensilsCrossed, Zap } from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
@@ -252,7 +252,7 @@ const MenuItemCard = memo(function MenuItemCard({
                         >
                                 {/* Name (h2: page outline is h1 restaurant → h2 items) + Rating glass-pill */}
                                 <div className="flex items-start justify-between gap-2">
-                                        <h2 className="font-bold text-lg leading-[1.4] line-clamp-1">{displayName}</h2>
+                                        <h2 lang={contentLang(item.nameAr)} className="font-bold text-lg leading-[1.4] line-clamp-1">{displayName}</h2>
                                         <button
                                                 type="button"
                                                 /* r135-B: النافذ — كل أزرار البطاقة معطّلة
@@ -284,7 +284,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
                                 {/* Description */}
                                 {displayDesc ? (
-                                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                        <p lang={contentLang(item.descriptionAr)} className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                                                 {displayDesc}
                                         </p>
                                 ) : null}

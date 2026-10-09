@@ -7,6 +7,7 @@ import { createDbRateLimiter } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/client-ip';
 import { orderItemCountByOrder } from '@/lib/list-counts';
 import { attachReferralPhoneToOrder, REFERRAL_CODE_RE } from '@/lib/referral-conversion';
+import { normalizeCustomerPhone } from '@/lib/phone';
 import { PlanLimitError } from '@/lib/plan-limit-error';
 import { MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY_MESSAGE } from '@/lib/constants';
 import {
@@ -55,7 +56,12 @@ const orderItemSchema = z.object({
 const createSchema = z.object({
         idempotencyKey: z.string().max(100).optional(),
         customerName: z.string().max(50).optional(),
-        customerPhone: z.string().max(30).optional(),
+        // r136 (ليبي أولاً): هاتف الزبون يُطوَّع قبل التخزين — الأرقام الشرقية
+        // ٠٩١٢… والفواصل كانت تصل خاماً إلى إيصال واتساب المالك وروابط
+        // الاتصال. تطبيع فقط (لا بوابة نمط جديدة) كي يبقى المسار متوافقاً
+        // مع كل المرسلين الحاليين؛ القيمة الفارغة تصبح undefined فتُخزَّن ""
+        // كما كانت (بدل تخزين "abc" خاماً سابقاً).
+        customerPhone: z.string().max(30).optional().transform(normalizeCustomerPhone),
         notes: z.string().max(500).optional(),
         pickupType: z.enum(['inside', 'takeaway', 'delivery']).optional(),
         // r102-A5: subtotal/discount/total dropped — same rationale as item price

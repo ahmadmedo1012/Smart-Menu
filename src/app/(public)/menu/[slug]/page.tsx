@@ -348,7 +348,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                                         '@type': 'Offer',
                                                         // r133 (A12 N7): schema.org price is a STRING —
                                                         // a number primitive is silently dropped by validators.
-                                                        price: String(i.price),
+                                                        // r136: يطابق السعر المعروض على البطاقة — المخفّض إن
+                                                        // وُجد (نفس معادلة priceRange أعلاه)؛ كان يُعلن الأساس
+                                                        // فتظهر النتائج الغنية أغلى من الصفحة.
+                                                        price: String(i.discountedPrice ?? i.price),
                                                         priceCurrency: 'LYD',
                                                 },
                                         })),

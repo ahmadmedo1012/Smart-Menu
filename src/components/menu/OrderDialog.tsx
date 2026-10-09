@@ -14,6 +14,8 @@ import type { MenuItemProp } from './MenuItemCard';
 /* r135-B: شرائح الحمية/الحساسية — نفس مصدر البطاقة الواحد (round85-C5) */
 import { DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
 import { DietaryIcon } from './dietary-icons';
+import { contentLang } from '@/lib/format';
+import { normalizeCustomerPhone } from '@/lib/phone';
 import {
         type ModifierSelection,
         toggleModifierOption,
@@ -185,7 +187,11 @@ export function OrderDialog({
                         const setCustomerInfo = () => {
                                 const s = useCart.getState();
                                 if (customerName.trim()) s.setCustomerName(customerName.trim());
-                                if (customerPhone.trim()) s.setCustomerPhone(customerPhone.trim());
+                                // r136 (ليبي أولاً): طيّ الأرقام الشرقية والفواصل قبل
+                                // تخزينها للسلة — القيمة المعروضة في السلة والإيصال
+                                // تصبح قابلة للاتصال فوراً (نفس تطبيع المسار الخادمي).
+                                const phone = normalizeCustomerPhone(customerPhone);
+                                if (phone) s.setCustomerPhone(phone);
                                 s.setPickupType(orderType);
                                 // r102-W1: notes live on the ITEM line only (updateNotes below).
                                 // The previous setOrderNotes(notes.trim()) double-wrote the same
@@ -295,7 +301,7 @@ export function OrderDialog({
         const innerContent = (
                 <>
                         {/* Screen-reader name — base-ui warns and SR announces bare "dialog" without a Title */}
-                        <DialogTitle className="sr-only">{displayName}</DialogTitle>
+                        <DialogTitle lang={contentLang(item.nameAr)} className="sr-only">{displayName}</DialogTitle>
                         {/* Image header with gradient overlay */}
                         {item.image && (
                                 /* r121 (Q-3): على الجوال (الورقة السفلية <sm) كان الرأس h-44 (176px)
@@ -327,7 +333,7 @@ export function OrderDialog({
                                                 <AnimatedX className="size-4" />
                                         </button>
                                         <div className="absolute bottom-4 end-4 start-16">
-                                                <h3 className="text-white font-bold text-xl drop-shadow-lg">{displayName}</h3>
+                                                <h3 lang={contentLang(item.nameAr)} className="text-white font-bold text-xl drop-shadow-lg">{displayName}</h3>
                                         </div>
                                 </div>
                         )}
@@ -358,7 +364,7 @@ export function OrderDialog({
                                 <div className={cn('p-4 sm:p-5 space-y-3 sm:space-y-4', !item.image && 'pt-8')}>
                                         {!item.image && (
                                                 <div className="text-center pb-2">
-                                                        <h3 className="text-xl font-bold mb-1">{displayName}</h3>
+                                                        <h3 lang={contentLang(item.nameAr)} className="text-xl font-bold mb-1">{displayName}</h3>
                                                 </div>
                                         )}
 
@@ -369,7 +375,7 @@ export function OrderDialog({
                                         {(displayDesc || hasDietaryInfo) && (
                                                 <div className="space-y-2">
                                                         {displayDesc && (
-                                                                <p className="text-sm leading-relaxed text-muted-foreground">
+                                                                <p lang={contentLang(item.descriptionAr)} className="text-sm leading-relaxed text-muted-foreground">
                                                                         {displayDesc}
                                                                 </p>
                                                         )}

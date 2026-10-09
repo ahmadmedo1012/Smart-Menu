@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { getNextTierInfo, generateReferralCode } from '@/lib/loyalty-tiers';
 import { getClientIp } from '@/lib/client-ip';
+import { normalizeCustomerPhone, CUSTOMER_PHONE_RE } from '@/lib/phone';
 
 const loyaltyDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 // round85-A2: GET is an unauthenticated phone-to-card lookup — without a
@@ -20,10 +21,18 @@ const loyaltyGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 // stays far below it.
 const loyaltyIpLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 
-const PHONE_RE = /^\+?[0-9]{7,15}$/;
+// round85 → r136: البوابة نفسها، لكن تُطبَّق بعد التطبيع — زبون ليبي يكتب
+// ٠٩١٢… كان يُرفض بـ«رقم هاتف غير صالح» رغم أن رقمه صحيح تماماً.
+const PHONE_RE = CUSTOMER_PHONE_RE;
 
 const createSchema = z.object({
-        customerPhone: z.string().regex(PHONE_RE, 'رقم هاتف غير صالح'),
+        // r136: طيّ الأرقام الشرقية والفواصل قبل البوابة — «٠٩١٢…» كان يُرفض
+        // بـ«رقم هاتف غير صالح». القيمة الفارغة بعد التنظيف تُسقط على "" فتفشل
+        // البوابة بنفس الرسالة السابقة (سلوك القمامة كما كان تماماً).
+        customerPhone: z
+                .string()
+                .transform((p) => normalizeCustomerPhone(p) ?? '')
+                .refine((p) => PHONE_RE.test(p), 'رقم هاتف غير صالح'),
         // round87-A4: bound public free-text (values render in the owner's
         // loyalty dashboard — unbounded strings were a client-side DoS vector)
         customerName: z.string().max(50).optional(),
@@ -100,7 +109,9 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
         try {
                 const { searchParams } = new URL(request.url);
-                const phone = searchParams.get('phone');
+                // r136: الطيّ قبل الفحص — نفس تطبيع POST كي تتطابق مفاتيح البحث
+        // مع القيم المخزنة دائماً.
+        const phone = normalizeCustomerPhone(searchParams.get('phone'));
                 const cookieStore2 = await cookies();
                 const restaurantId =
                         Number(searchParams.get('restaurantId')) ||

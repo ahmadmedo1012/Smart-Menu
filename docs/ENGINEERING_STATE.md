@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **r127 deepest-detail round — pushed `f998362f`** (8 commits: ADV2-3/ADV2-5 closed, K a11y batch, typography ×99 sweep, mobile parity 139). Deploy chain healthy since r124. See r127 entry |
+| Last verified commit | **r136 Libya-first round — local verification green (tsc 0 · lint 0-10w · unit 2441/2441 · parity 481 web) — push pending at doc-write time**. Rounds r128–r135 lived in commit messages only; documented here + CHANGELOG at r136. See r136 entry |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
-| Unit tests | **2275/2275** (154 files; r127: +11 security pins, premium-toast 12-kind role matrix, parity web 64→67 cases + mobile parity 139/139 first-ever) · e2e matrix 262+ (Q-4 stress spec added r127) |
+| Unit tests | **2441/2441** (r135 world-class customer menu batch + r136: +9 Libyan-phone normalization pins, A12-N7 JSON-LD pin updated to discount-aware expression) · parity web 481 expects / mobile parity 89 checks · e2e matrix incl. qa-teams deep journeys (CI) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -28,6 +28,13 @@
 - **Ops**: `docs/ops-runbook.md` (PITR/rollback/incidents).
 
 ## Round history (recent, newest first)
+
+## r133–r136 (2026-10-09 → 2026-10-10) — LIBYA-FIRST + docs catch-up (r128–r135 were commit-message-only; this entry back-fills the ledger)
+- **r133**: WEB money-path MUSTs — wa.me Eastern-digit fold (٠٩١٢… links were dead) + Africa/Tripoli WhatsApp receipt times + ar-LY price grouping (groupDots, hydration-safe hand-rolled).
+- **r134**: mobile money-path parity (same fold in mobile), OrderDialog double-tap guard + tel attrs, postinstall prisma-generate resilience, state-token dead twin deleted.
+- **r135 (THE customer-menu round)**: sold-out UX (disable-don't-hide), OrderDialog completeness (description/dietary/allergens/defaults/sold-out states), dietary filter chips + rating sort, reviews histogram, cart undo + live regions, featured tap/swipe, table QR capture, print modifiers + QR cache — **2432 tests**; 6 CI-fix commits (strict-mode unboxing, serial-chain healing, motion useAnimate unmount crash root-cause).
+- **r136 (Libya-first + zero-bloat)**: customer phone normalized at every seam (new `src/lib/phone.ts` — Eastern fold + separator strip; orders API transform, loyalty GET+POST fold so ٠٩١٢… is no longer rejected, OrderDialog store, MenuHero tel: href) · English fallback content now carries `lang="en"` for screen readers (MenuItemCard + OrderDialog ×6 sites, `contentLang` helper) · JSON-LD offers.price discount-aware (A12-N7 pin updated, intent preserved) · test-event currency EGP→LYD · favicon.png deletion REVERTED (pinned by regression.test.ts:533 — lesson: check test pins before calling an asset dead) · +9 phone-normalization pins → **2441/2441**.
+- **Docs**: CHANGELOG r133–r136 + this back-fill. **Next recommended**: structured opening hours (schema+UI), delivery fee/min-order metadata, portion vocabulary — all product decisions requiring schema migrations, deliberately NOT rushed in r136 (zero-bloat doctrine).
 
 - **r127 (2026-10-08) — THE DEEPEST-DETAIL ROUND: 15-agent fleet (6 audit + 9 fix, 4 parallel isolated clones merged clean). Production pushed `f998362f` (8 commits).**
   - **Ledger corrections first**: the r120 deferred item "mobile fake Cairo bold TTFs" was STALE — fonts were fixed in r123 (`9b058f1b`, @expo-google-fonts/ibm-plex-sans-arabic, verified authentic by checksum); "icons off-brand" 95% resolved. Audit fleet re-quantified every open item at HEAD before touching code (7/9 ledger items still-exists, 3 partially-fixed).

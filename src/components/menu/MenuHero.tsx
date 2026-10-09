@@ -8,6 +8,7 @@
  * OptimizedImage, animated icons); everything else renders on the server.
  */
 import { normalizeWaNumber } from '@/lib/whatsapp';
+import { normalizeCustomerPhone } from '@/lib/phone';
 import { Store, Printer, Phone, Mail } from 'lucide-react';
 import { QrCornerMark } from '@/components/ui/QrCornerMark';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
@@ -150,7 +151,11 @@ export function MenuHero({
                         <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
                             {restaurant.phone && (
                                 <a
-                                    href={`tel:${restaurant.phone}`}
+                                    /* r136 (ليبي أولاً): الرابط يُبنى من الرقم المطوّع —
+                                       الفواصل والأرقام الشرقية في الرقم المخزّن كانت تُفسد
+                                       tel: على معظم الأجهزة. العرض يبقى بصيغة المالك كما هي
+                                       (نفس نمط شريحة واتساب أعلاه: href مطوّع، عرض خام). */
+                                    href={`tel:${normalizeCustomerPhone(restaurant.phone) ?? restaurant.phone}`}
                                     dir="ltr"
                                     className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-base backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
