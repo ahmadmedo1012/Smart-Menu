@@ -259,11 +259,16 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
     await ownerPage.goto("/owner/orders", { waitUntil: "domcontentloaded", timeout: 45000 });
     const card = ownerPage.locator("tbody tr").filter({ hasText: orderNoAccepted }).first();
     await expect(card).toBeVisible({ timeout: 20000 });
-    await expect(card.getByText("جديد", { exact: true })).toBeVisible();
+    /* r135 (إصلاح CI): في الجدول المكتبي نص «قيد التحضير» موجود في شارة
+       الحالة وفي زر التقدم نفسه (وأثناء busy يبقى نص الزر) — strict mode
+       يفشل على التعدد. نستهدف شارة الحالة تحديدًا ([data-slot="badge"])
+       فتكون الإثباتات على الحالة لا على نص زر ثابت الوجود. */
+    const statusBadge = () => card.locator('[data-slot="badge"]').filter({ hasText: "جديد" });
+    await expect(statusBadge()).toBeVisible();
 
     await card.getByRole("button", { name: "قيد التحضير" }).click();
     // تحول متفائل فوري + توست التأكيد بالحالة الجديدة
-    await expect(card.getByText("قيد التحضير", { exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(card.locator('[data-slot="badge"]').filter({ hasText: "قيد التحضير" })).toBeVisible({ timeout: 10000 });
     await expect(ownerPage.getByText("تم تغيير الحالة إلى قيد التحضير")).toBeVisible({
       timeout: 10000,
     });
@@ -274,12 +279,15 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
   test("رفض الطلب الثاني: إلغاء → ملغي", async () => {
     const card = ownerPage.locator("tbody tr").filter({ hasText: orderNoCancelled }).first();
     await expect(card).toBeVisible({ timeout: 20000 });
-    await expect(card.getByText("جديد", { exact: true })).toBeVisible();
+    await expect(card.locator('[data-slot="badge"]').filter({ hasText: "جديد" })).toBeVisible();
 
-    // زر الإلغاء يفتح confirm أصلي — نقبله كما يفعل مالك متأكد
-    ownerPage.once("dialog", (d) => d.accept());
+    /* r135 (إصلاح CI): تأكيد الإلغاء انتقل من confirm() الأصلي إلى
+       ConfirmDialog (مكوّن مشترك بنص «إلغاء الطلب» منذ r133) — معالج
+       الحوار الأصلي page.once("dialog") لم يعد يلتقط شيئًا فيبقى الحوار
+       مفتوحًا بلا قبول. ننقر زر التأكيد في الحوار المخصص مباشرة. */
     await card.getByRole("button", { name: "إلغاء", exact: true }).click();
-    await expect(card.getByText("ملغي", { exact: true })).toBeVisible({ timeout: 10000 });
+    await ownerPage.getByRole("button", { name: "إلغاء الطلب" }).click();
+    await expect(card.locator('[data-slot="badge"]').filter({ hasText: "ملغي" })).toBeVisible({ timeout: 10000 });
     await expect(ownerPage.getByText("تم تغيير الحالة إلى ملغي")).toBeVisible({ timeout: 10000 });
     await ownerPage.screenshot({ path: `${SHOTS}/sim-owner-08-order-cancelled.png` });
   });

@@ -185,10 +185,15 @@ test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميز
   /* ── 5. تعداد الدخول: رسالة موحدة ── */
   test("دخول بمستخدم غير موجود مقابل خاطئ — رسالة موحدة", async ({ page }) => {
     await page.goto("/login", { waitUntil: "domcontentloaded", timeout: 45000 });
-    await page.getByPlaceholder("اسم المستخدم").waitFor({ state: "visible", timeout: 15000 });
+    /* r135 (إصلاح CI): صفحة الدخول تحمل نسختين من حقل اسم المستخدم في الـDOM
+       (واحدة ظاهرة وأخرى مخفية بـautofocus — نمط منذ r133) فـstrict mode
+       يفشل على المطابقة المتعددة. نلتقط الأولى الظاهرة. */
+    const username = page.getByPlaceholder("اسم المستخدم").first();
+    const password = page.getByPlaceholder("كلمة المرور").first();
+    await username.waitFor({ state: "visible", timeout: 15000 });
     const tryLogin = async (u: string) => {
-      await page.getByPlaceholder("اسم المستخدم").fill(u);
-      await page.getByPlaceholder("كلمة المرور").fill("Wrong#Pass99");
+      await username.fill(u);
+      await password.fill("Wrong#Pass99");
       await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
       // رسالة الفشل الموحدة (توست) — انتظار شرطي على النص نفسه
       await expect(page.getByText(/غير صحيحة|تعذّر تسجيل الدخول/).first()).toBeVisible({

@@ -219,8 +219,12 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await expect(page.getByText("1 صنف", { exact: true })).toBeVisible({ timeout: 15000 });
     // اسم الصنف يظهر في السلة (الترويسة + سطر السلة — نكتفي بأول ظهور)
     await expect(page.getByText("لاتيه كراميل").first()).toBeVisible();
+    /* r135 (إصلاح CI): «المجموع الإجمالي» يظهر مرتين منذ r133 (بطاقة الملخص
+       + معاينة الطلب/الشريط اللاصق) — strict mode يرفض التعدد؛ نكتفي بأول
+       ظهور ظاهر. الاختبار كان معفى من هذا المسار لأن اختبار ما قبله كان
+       يفشل فيتخطى البقية (serial) — لما شُفي وصل إلى هنا وانكشف. */
+    await expect(page.getByText("المجموع الإجمالي").first()).toBeVisible();
     // المجموع الإجمالي للسطر المُهيَّأ: (12 + 1.5 + 1) × 2 = 29.0
-    await expect(page.getByText("المجموع الإجمالي")).toBeVisible();
     await expect(page.locator('[dir="ltr"], .tabular-nums').getByText("29").first()).toBeVisible();
 
     await page.screenshot({ path: `${SHOTS}/sim-customer-06-cart.png` });
