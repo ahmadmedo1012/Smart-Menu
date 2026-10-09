@@ -11,7 +11,7 @@
     "lint:fix": "eslint src/ tests/ scripts/ public/sw.js --fix",
     "lint:idioms": "node scripts/lint-idioms.mjs",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate",
+    "postinstall": "DATABASE_URL=\"${DATABASE_URL:-file:/tmp/smart-menu-generate.db}\" prisma generate",
     "test:parity": "env -u DATABASE_URL vitest run tests/design/parity.test.ts",
     "test": "env -u DATABASE_URL vitest run",
     "test:watch": "env -u DATABASE_URL vitest",
