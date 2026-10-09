@@ -104,7 +104,11 @@ test.describe.serial("r93 محاكاة أدمن المنصة — من لوحة �
   /* ── 1. دخول المدير العام ولوحة التحكم ── */
   test("دخول super_admin إلى لوحة تحكم الإدارة", async () => {
     await loginAdmin(rootPage, SUPER_ROOT, SUPER_PASS);
-    await expect(rootPage.getByRole("heading", { name: "لوحة التحكم" })).toBeVisible({
+    /* r135 (إصلاح CI): عنوان لوحة الأدمن أُعيدت تسميته إلى «لوحة الإدارة»
+       في r131-F5 (PageHeader القانوني الظاهر h1 لكل صفحة) — الاختبار ظل
+       ينتظر الاسم القديم «لوحة التحكم» ففشل عبر getByRole heading.
+       لوحة المالك (owner) ما زالت «لوحة التحكم» عمدًا — لا تغيير هناك. */
+    await expect(rootPage.getByRole("heading", { name: "لوحة الإدارة" })).toBeVisible({
       timeout: 20000,
     });
     await rootPage.screenshot({ path: `${SHOTS}/sim-admin-01-dashboard.png` });

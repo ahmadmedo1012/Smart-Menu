@@ -58,7 +58,15 @@ test.describe.serial("Q-4 — إضافة إلى السلة تحت الضغط: 10
       const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       const page = await context.newPage();
       const pageErrors: string[] = [];
-      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      /* r135 (تشخيص CI): كنا نخزّن err.message فقط («TypeError: Cannot read
+         properties of null (reading 'querySelectorAll')») بلا أي أثر مكاني —
+         الخطأ انفجر في دورات سريعة منذ موجة r133 وكل مواقع querySelectorAll
+         في كودنا محصّنة ضد null، فالمصدر شبه مؤكد داخل تبعية (@base-ui
+         useDismiss/markOthers أثناء فكّ الحوار مع تحويل /cart المتزامن).
+         تخزين stack كاملًا يجعل التشغيل التالي يشير للسطر الدقيق في
+         الحزمة — عندها فقط تُقيَّم ترقية @base-ui/react 1.9.0 (التي تعدّلت
+         مسارات التنظيف في useDismiss تحديدًا) بدل ترقية عمياء. */
+      page.on("pageerror", (err) => pageErrors.push(String(err.stack ?? err)));
 
       try {
         // 1) صفحة المنيو (SSR) — استقرار الشبكة قبل النقر (نمط round92-C6)
