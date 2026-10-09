@@ -97,7 +97,17 @@ export function CategoryTabs({
   const handleSelect = useCallback((id: number | null) => {
     onSelect(id)
     setTimeout(() => {
-      tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      /* r135-C (a11y): prefers-reduced-motion — التمرير السلس (smooth) حركة
+         غير ضرورية لمستخدمي «تقليل الحركة» (WCAG 2.3.3/Vestibular)؛ التحول
+         الفوري auto يحترم تفضيل النظام. يُقرأ داخل المؤقّت دائمًا على العميل. */
+      const reduce =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      tabsRef.current?.scrollIntoView({
+        behavior: reduce ? 'auto' : 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      })
     }, 50)
   }, [onSelect])
 
@@ -195,7 +205,9 @@ function TabButton({
         {label}
         <span
           className={cn(
-            "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-3xs sm:text-2xs font-bold transition-colors duration-fast",
+            /* r135-C: text-3xs (10px) → text-2xs (11px) — أرضية الحجم
+               الموحّدة للجولة؛ حجم البطاقة نفسه يكبر sm:size-5. */
+            "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-2xs font-bold transition-colors duration-fast",
             /* r95: عداد التبويب غير النشط — accent-foreground الأسطع (#df5a00)
                بدل text-orange (#bc4700) الذي كان 3.9:1 بلا AA على الداكن. */
             isActive

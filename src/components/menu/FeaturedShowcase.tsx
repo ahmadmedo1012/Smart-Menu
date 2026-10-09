@@ -24,15 +24,20 @@
  *   array is the only badge storage), absolutely
  *   positioned around the image with % coordinates (responsive, no px).
  * - §2.4 Preserved on purpose: abstract Sparkles floaters (never fake
- *   ingredient photos), NO CTA buttons (ordering stays in the grid below),
- *   prefers-reduced-motion disables all motion, arrows >=44px, aria-live
- *   counter, axe WCAG baseline must stay at zero (re-measured round83).
+ *   ingredient photos), prefers-reduced-motion disables all motion, arrows
+ *   >=44px, aria-live counter, axe WCAG baseline must stay at zero (re-measured
+ *   round83).
+ *   r135-B amendment: the scene is now TAPPABLE when the parent passes onSelect
+ *   (opens OrderDialog) + touch-swipe navigation — the old "no CTA" rule
+ *   retired by the round135 coordinator (ordering surface on the scene itself).
+ *   Reduced-motion users get the same tap; only decorative motion is disabled.
  *
  * Grid below is untouched (plan gate: `git diff MenuItemCard.tsx` empty).
  */
 
-import { useState, useCallback, useMemo, type CSSProperties, type KeyboardEvent } from 'react';
+import { useState, useCallback, useMemo, useRef, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react';
 import { m, AnimatePresence, useReducedMotion } from 'motion/react';
+import { ShoppingBag } from 'lucide-react';
 import { MotionChevronLeft, MotionChevronRight } from '@/components/ui/motion-icons';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -53,13 +58,23 @@ export type FeaturedItem = {
         featuredRank?: number | null;
         /** Round83 §2.3 — up to 3 showcase badges. */
         showcaseTags?: string[] | null;
+        /* r135-B (حزام وسروال): false = الصنف نافذ — المنسّق يرفض فتح نافذة
+         * الطلب أصلًا؛ نُخفي نحن أيضًا سطح النقر/شريحة «اضغط للطلب» حتى لا
+         * نَعِد بإجراء لا يحدث. غياب الحقل = متاح. */
+        isAvailable?: boolean;
 };
 
 const MAX_SHOWCASE = 5;
 const MAX_BADGES = 3;
+/* r135-B: عتبة السحب (48px) + نسبة السيادة الأفقية 1.5× حتى لا يُختطف
+   التمرير الرأسي للصفحة داخل المنسق */
+const SWIPE_THRESHOLD = 48;
+const SWIPE_AXIS_RATIO = 1.5;
 
-/** Featured first (rank 1 first, nulls last), then fall back to grid order. */
-export function rankFeatured(items: readonly FeaturedItem[]): FeaturedItem[] {
+/** Featured first (rank 1 first, nulls last), then fall back to grid order.
+ * r135-B: أصبحت عامّة (generic) — تحفظ نوع العنصر الكامل الذي يمرّره المنسّق
+ * (MenuItemProp & FeaturedItem) فيصل إلى onSelect بنفس النوع بلا توسيع. */
+export function rankFeatured<T extends FeaturedItem>(items: readonly T[]): T[] {
         return items
                 .filter((i) => i.isFeatured === true)
                 .sort((a, b) => {
@@ -88,11 +103,27 @@ function badgeTags(item: FeaturedItem): string[] {
         return [...new Set(fromArray)].slice(0, MAX_BADGES);
 }
 
-export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) {
+/* r135-B: البطاقة المميزة كانت معرضًا بصريًا فقط (لا نقر) — خسارة تفاعل.
+ * onSelect (اختياري): عند تمريره يصبح المشهد كله قابلاً للنقر/لوحة المفاتيح
+ * ويفتح نافذة الطلب مباشرة، مع شريحة «اضغط للطلب» ظاهرة أسفل المشهد +
+ * سحب أفقي بالإصبع للتنقل (RTL-aware). عامّية (generic) حتى يصل العنصر
+ * إلى المنسّق بنوعه الكامل (MenuItemProp & FeaturedItem). */
+export function FeaturedShowcase<T extends FeaturedItem>({
+        items,
+        onSelect,
+}: {
+        items: readonly T[];
+        /** r135-B: يُستدعى عند نقر/تنشيط المشهد بالعنصر الحالي كاملًا. */
+        onSelect?: (item: T) => void;
+}) {
         const featured = useMemo(() => rankFeatured(items), [items]);
         const [index, setIndex] = useState(0);
         const [direction, setDirection] = useState(0);
         const reduceMotion = useReducedMotion();
+        /* r135-B: حالة السحب — نقطة البداية + علم كبت النقر بعد سحبة فعلية
+           (المتصفح يطلق click بعد touchend حتى لو كانت السحبة >48px). */
+        const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+        const suppressTapRef = useRef(false);
 
         const total = featured.length;
         const goNext = useCallback(() => {
@@ -105,6 +136,39 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                 setDirection(-1);
                 setIndex((i) => (i - 1 + total) % total);
         }, [total]);
+
+        /* r135-B: السحب بالإصبع — مرآة RTL الفيزيائية للحركة: التالي يدخل من
+         * اليسار (enterX سالب أدناه) فيُكشف بسحب المحتوى نحو اليمين، والعكس
+         * للسابق — نفس اتجاه منتجات RTL الحقيقية (iOS بالعربية). الحد الأدنى
+         * 48px أفقيًا مع سيادة 1.5× على الرأسي حتى لا نعطّل تمرير الصفحة. */
+        const onTouchStart = useCallback((e: TouchEvent<HTMLDivElement>) => {
+                suppressTapRef.current = false; // إيماءة جديدة — أعِد السماح بالنقر
+                const t = e.touches[0];
+                if (t) touchStartRef.current = { x: t.clientX, y: t.clientY };
+        }, []);
+        const onTouchEnd = useCallback(
+                (e: TouchEvent<HTMLDivElement>) => {
+                        const start = touchStartRef.current;
+                        touchStartRef.current = null;
+                        if (!start || total < 2) return;
+                        const t = e.changedTouches[0];
+                        if (!t) return;
+                        const dx = t.clientX - start.x;
+                        const dy = t.clientY - start.y;
+                        if (Math.abs(dx) <= SWIPE_THRESHOLD || Math.abs(dx) < SWIPE_AXIS_RATIO * Math.abs(dy)) {
+                                return;
+                        }
+                        // سحبة فعلية — اكبت نقرة المشهد التي يطلقها المتصفح بعدها،
+                        // وأعِد تمكين النقر بعد مهلة قصيرة (أجهزة اللمس+الفأرة الهجينة)
+                        suppressTapRef.current = true;
+                        window.setTimeout(() => {
+                                suppressTapRef.current = false;
+                        }, 100);
+                        if (dx > 0) goNext(); // RTL: سحب يمينًا = التالي
+                        else goPrev(); // RTL: سحب يسارًا = السابق
+                },
+                [goNext, goPrev, total]
+        );
 
         // Keyboard support on the whole section (arrows switch scenes; RTL-aware:
         // ArrowLeft = التالي, ArrowRight = السابق — mirrored from LTR conventions).
@@ -130,6 +194,10 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                 ? current.discountedPrice
                 : null;
         const badges = badgeTags(current);
+        /* r135-B: المشهد قابل للطلب فقط حين يمرّر الأب onSelect والصنف متاح —
+         * النافذ (isAvailable=false) يبقى معرضًا بلا سطح طلب (المنسّق يرفضه
+         * أصلًا؛ لا نَعِد بإجراء لا يحدث). */
+        const tappable = Boolean(onSelect) && current.isAvailable !== false;
 
         /* §2.2 — the scene's identity pair, resolved per item (position 1-based). */
         const n = accentIndex(current, index);
@@ -165,6 +233,8 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                         per-item wash that animates on every navigation. */}
                         <div
                                 style={sceneVars}
+                                onTouchStart={onTouchStart}
+                                onTouchEnd={onTouchEnd}
                                 className="group/showcase -mx-4 relative flex min-h-[70vh] flex-col overflow-hidden rounded-b-3xl bg-[var(--scene-wash)] transition-colors duration-cinema motion-reduce:transition-none md:min-h-[80vh]"
                         >
                                 {/* Ambient glow behind the image — same accent, radial fade */}
@@ -275,8 +345,16 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                 </div>
 
                                                 {/* §2.1 — text block anchored at the scene bottom
-                                                        (reference "bottom info area" — no CTA, plan §2.4). */}
-                                                <div className="relative z-10 mx-auto w-full max-w-2xl px-4 pb-14 pt-1 text-center md:pb-20">
+                                                        (reference "bottom info area"; no CTA, plan §2.4).
+                                                        r135-B: عند قابلية النقر نرفع الحاشية السفلية
+                                                        ليخلُ شريط «اضغط للطلب» (bottom-12) للنقاط
+                                                        والشريحة معًا بلا تصادم. */}
+                                                <div
+                                                        className={cn(
+                                                                'relative z-10 mx-auto w-full max-w-2xl px-4 pt-1 text-center',
+                                                                tappable ? 'pb-24 md:pb-28' : 'pb-14 md:pb-20'
+                                                        )}
+                                                >
                                                         <h3 className="text-3xl font-bold text-foreground md:text-5xl">{displayName}</h3>
                                                         {description && (
                                                                 <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-foreground/75 line-clamp-2 md:text-base">
@@ -304,6 +382,39 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                 </div>
                                         </m.div>
                                 </AnimatePresence>
+
+                                {/* r135-B: سطح النقر — زر شفاف يغطي المشهد كله (تحت
+                                        الأسهم/النقاط z-20 فيبقى التنقل متاحًا). الاسم المتاح
+                                        الكامل + السعر في aria-label، والنقرة تُكبت بعد سحبة
+                                        فعلية (suppressTapRef) حتى لا يفتح السحبُ نافذةَ الطلب.
+                                        Enter/Space يعملان أصلاً عبر الزر نفسه. */}
+                                {tappable && onSelect && (
+                                        <button
+                                                type="button"
+                                                onClick={() => {
+                                                        if (!suppressTapRef.current) onSelect(current);
+                                                }}
+                                                aria-label={`اطلب ${displayName} الآن — ${formatPrice(discounted ?? current.price)}`}
+                                                /* r133: التركيز = المخطط العام الواحد (:focus-visible
+                                                   في globals.css) — بلا ring إضافي */
+                                                className="absolute inset-0 z-10 cursor-pointer"
+                                        >
+                                                {/* شريحة النداء — أسفل المشهد بزاوية منطقية (end)،
+                                                        ≥44px هدفاً (min-h-11)، فوق شريط النقاط (bottom-12)
+                                                        وبنمط أسهم المشهد الزجاجي نفسه */}
+                                                <span
+                                                        className={cn(
+                                                                'absolute bottom-12 end-4 inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-bold backdrop-blur-sm transition-colors duration-base',
+                                                                'border-[color-mix(in_oklab,var(--scene-accent)_50%,transparent)]',
+                                                                'bg-[color-mix(in_oklab,var(--scene-wash)_88%,var(--background))] text-[var(--scene-accent)]',
+                                                                'hover:bg-[var(--scene-accent)]/15'
+                                                        )}
+                                                >
+                                                        <ShoppingBag className="size-4" aria-hidden="true" />
+                                                        اضغط للطلب
+                                                </span>
+                                        </button>
+                                )}
 
                                 {total > 1 && (
                                         <>

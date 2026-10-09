@@ -7,8 +7,29 @@ import { getRestaurantBySlug } from '@/lib/menu-queries';
 // r133 (A3 S5): print QR rides the single SITE_ORIGIN seam (lib/seo.ts) — was a
 // private NEXT_PUBLIC_APP_URL read while seo.ts read NEXT_PUBLIC_DOMAIN.
 import { SITE_ORIGIN } from '@/lib/seo';
+// r135: الوسوم الغذائية على الورقة — زبون الحساسية يحتاجها قبل الطلب،
+// والورقة المطبوعة هي القناة الوحيدة بلا نوافذ تفاصيل.
+import { DIETARY_LABELS } from '@/lib/dietary';
 import { PrintButton } from './print-button';
 import type { Metadata } from 'next';
+
+/* r135-PERF: كاش QR على مستوى الوحدة — توليد الكود عمل CPU متزامن (~10-25ms)
+ * لكل طلب على مسار force-dynamic، والنتيجة لنفس الرابط ثابتة أبديًا (نفس
+ * البكسلات لنفس النص). طلبات الطباعة المتكررة (مالك يطبع نسخًا للموظفين)
+ * كانت تدفع الثمن كل مرة؛ الآن مرة واحدة لكل رابط في عمر العملية، والكاش
+ * مقيد بحجم بسيط (مطاعم قليلة في العملية الواحدة عادةً) — لا حاجة إلى LRU. */
+const qrCache = new Map<string, string>();
+async function menuQr(menuUrl: string): Promise<string> {
+        const cached = qrCache.get(menuUrl);
+        if (cached) return cached;
+        const url = await QRCode.toDataURL(menuUrl, {
+                width: 224,
+                margin: 1,
+                color: { dark: '#1a1a1a', light: '#ffffff' },
+        });
+        qrCache.set(menuUrl, url);
+        return url;
+}
 
 /* r93-W2a (U7): كانت هذه الصفحة تعيد وسوم مستند كاملة (جذر html وhead وbody)
  * متداخلة داخل جذر المجموعة (public) الذي يصيّر المستند أصلًا — DOM غير صالح (المتصفح يهمل الوسوم
@@ -56,6 +77,10 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
 
         // round86-B10: slim item select — the unselected include shipped the image
         // column (up to 7MB data-URLs per item) for a page that renders zero images
+        // r135-PRINT: الإضافات تُطبع الآن (كان الصنف يعرض سعره الأساسي فقط بينما
+        // نافذة الطلب الرقمية تعرض «كبير +2 د.ل» — الزبون على الورقة لم يكن يعرف
+        // أن للصنف خيارات أصلًا، ولا يظهر السعر الفعلي لأي اختيار). الخيارات
+        // المتاحة فقط، بأسعارها، في سطر واحد مضغوط — بلا صور ولا هياكل إضافية.
         const categories = await prisma.menuCategory.findMany({
                 where: { isActive: true, restaurantId: restaurant.id },
                 orderBy: { sortOrder: 'asc' },
@@ -66,7 +91,23 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                         items: {
                                 where: { status: 'available' },
                                 orderBy: { sortOrder: 'asc' },
-                                select: { id: true, name: true, nameAr: true, description: true, descriptionAr: true, price: true, discountedPrice: true },
+                                select: {
+                                        id: true, name: true, nameAr: true, description: true, descriptionAr: true,
+                                        price: true, discountedPrice: true, dietaryTags: true,
+                                        modifierGroups: {
+                                                orderBy: { sortOrder: 'asc' },
+                                                select: {
+                                                        id: true,
+                                                        nameAr: true,
+                                                        name: true,
+                                                        options: {
+                                                                where: { isAvailable: true },
+                                                                orderBy: { sortOrder: 'asc' },
+                                                                select: { id: true, nameAr: true, name: true, priceDelta: true },
+                                                        },
+                                                },
+                                        },
+                                },
                         },
                 },
         });
@@ -74,13 +115,10 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
         const totalItems = categories.reduce((a, c) => a + c.items.length, 0);
 
         /* r120 (U12-P2-3): منتج «منيو QR» بلا كود QR على الورقة المطبوعة — الكود
-         * يعيد العميل من الورقة إلى المنيو الرقمي والطلب المباشر على واتساب. */
+         * يعيد العميل من الورقة إلى المنيو الرقمي والطلب المباشر على واتساب.
+         * r135-PERF: عبر كاش الوحدة (menuQr) — نفس الرابط يولّد مرة واحدة. */
         const menuUrl = `${SITE_ORIGIN}/menu/${slug}`;
-        const qrDataUrl = await QRCode.toDataURL(menuUrl, {
-                width: 224,
-                margin: 1,
-                color: { dark: '#1a1a1a', light: '#ffffff' },
-        });
+        const qrDataUrl = await menuQr(menuUrl);
 
         return (
                 <div className="print-sheet">
@@ -208,6 +246,33 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                                                                 {(item.descriptionAr || item.description) && (
                                                                         <p className="desc">{item.descriptionAr || item.description}</p>
                                                                 )}
+                                                                {/* r135-PRINT: سطر الوسوم الغذائية — معلومة سلامة قبل الطلب،
+                                                                    بحجم مطبوع مقروء (0.75rem) ولون نحاسي هادئ يفرّقها عن الوصف. */}
+                                                                {item.dietaryTags.length > 0 && (
+                                                                        <p style={{ fontSize: '0.75rem', color: 'var(--print-primary)', margin: '0.1rem 0 0' }}>
+                                                                                {item.dietaryTags.map((t) => DIETARY_LABELS[t] ?? t).join(' · ')}
+                                                                        </p>
+                                                                )}
+                                                                {/* r135-PRINT: سطر الإضافات — «الحجم: عادي / كبير (+2 د.ل)»؛
+                                                                    المجموعات الفارغة (كل خياراتها موقوفة) تُهمل، والمجموعة
+                                                                    بلا اسم تعرض «إضافات» — الورقة تقرأ كبشري لا كقاعدة بيانات. */}
+                                                                {item.modifierGroups
+                                                                        .filter((g) => g.options.length > 0)
+                                                                        .map((g) => {
+                                                                                const label = g.nameAr || g.name || 'إضافات';
+                                                                                const opts = g.options
+                                                                                        .map((o) =>
+                                                                                                Number(o.priceDelta) === 0
+                                                                                                        ? o.nameAr || o.name
+                                                                                                        : `${o.nameAr || o.name} (+${formatPrice(Number(o.priceDelta))})`
+                                                                                        )
+                                                                                        .join(' / ');
+                                                                                return (
+                                                                                        <p key={g.id} style={{ fontSize: '0.75rem', color: 'var(--print-desc)', margin: '0.1rem 0 0' }}>
+                                                                                                {label}: {opts}
+                                                                                        </p>
+                                                                                );
+                                                                        })}
                                                         </div>
                                                 ))
                                         )}

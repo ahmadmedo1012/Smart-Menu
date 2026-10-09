@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
+import { useState, useCallback, useEffect, useRef, type KeyboardEvent, type TouchEvent } from 'react';
 import {Maximize2, Pause, Play} from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { toArabicNumber } from '@/lib/format';
 
 /* a11y (WCAG 2.2.2): autoplay must not start for reduced-motion users.
    Read once at mount — the OS-level preference rarely changes mid-session. */
@@ -14,6 +15,11 @@ const prefersReducedMotion =
         typeof window !== 'undefined' &&
         typeof window.matchMedia === 'function' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* r135-B: عتبة السحب (48px) + نسبة السيادة الأفقية 1.5× — نفس نمط
+   FeaturedShowcase حتى لا يُختطف التمرير الرأسي داخل المعرض. */
+const SWIPE_THRESHOLD = 48;
+const SWIPE_AXIS_RATIO = 1.5;
 
 export function GalleryCarousel({
         images,
@@ -45,6 +51,62 @@ export function GalleryCarousel({
                         return nextIdx;
                 });
         }, [images.length]);
+
+        /* r135-B: السحب بالإصبع — مرآة RTL الفيزيائية للحركة (نفس FeaturedShowcase):
+         * الصورة التالية تعيش يسار المركز فيُكشف بسحب المحتوى يمينًا. علم
+         * كبت النقر يمنع فتح Lightbox/إغلاقه بنقرة الشريحة التي يطلقها المتصفح
+         * بعد touchend حتى لو كانت سحبة فعلية. */
+        const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+        const suppressTapRef = useRef(false);
+        const onTouchStart = useCallback((e: TouchEvent<HTMLDivElement>) => {
+                suppressTapRef.current = false; // إيماءة جديدة — أعِد السماح بالنقر
+                const t = e.touches[0];
+                if (t) touchStartRef.current = { x: t.clientX, y: t.clientY };
+        }, []);
+        const onTouchEndStrip = useCallback(
+                (e: TouchEvent<HTMLDivElement>) => {
+                        const start = touchStartRef.current;
+                        touchStartRef.current = null;
+                        if (!start || images.length < 2) return;
+                        const t = e.changedTouches[0];
+                        if (!t) return;
+                        const dx = t.clientX - start.x;
+                        const dy = t.clientY - start.y;
+                        if (Math.abs(dx) <= SWIPE_THRESHOLD || Math.abs(dx) < SWIPE_AXIS_RATIO * Math.abs(dy)) {
+                                return;
+                        }
+                        suppressTapRef.current = true;
+                        // إعادة تمكين النقر بعد مهلة قصيرة (أجهزة اللمس+الفأرة الهجينة)
+                        window.setTimeout(() => {
+                                suppressTapRef.current = false;
+                        }, 100);
+                        if (dx > 0) next(); // RTL: سحب يمينًا = التالي
+                        else prev(); // RTL: سحب يسارًا = السابق
+                },
+                [images.length, next, prev]
+        );
+        const onTouchEndLightbox = useCallback(
+                (e: TouchEvent<HTMLDivElement>) => {
+                        const start = touchStartRef.current;
+                        touchStartRef.current = null;
+                        if (!start || images.length < 2) return;
+                        const t = e.changedTouches[0];
+                        if (!t) return;
+                        const dx = t.clientX - start.x;
+                        const dy = t.clientY - start.y;
+                        if (Math.abs(dx) <= SWIPE_THRESHOLD || Math.abs(dx) < SWIPE_AXIS_RATIO * Math.abs(dy)) {
+                                return;
+                        }
+                        suppressTapRef.current = true;
+                        window.setTimeout(() => {
+                                suppressTapRef.current = false;
+                        }, 100);
+                        setLightboxIdx((p) =>
+                                dx > 0 ? (p + 1) % images.length : (p - 1 + images.length) % images.length
+                        );
+                },
+                [images.length]
+        );
 
         useEffect(() => {
                 const start = () => {
@@ -159,7 +221,14 @@ export function GalleryCarousel({
 
         return (
                 <>
-                        <div className="group glass-card rounded-xl overflow-hidden">
+                        {/* r135-B: معالجات اللمس على حاوية الشريط — الأسهم/النقاط/الإيقاف
+                            أزرار داخلها (بلا stopPropagation للّمس) لكن السحب يحتاج عتبة
+                            أفقية فلا يتعارض مع نقرها. */}
+                        <div
+                                className="group glass-card rounded-xl overflow-hidden"
+                                onTouchStart={onTouchStart}
+                                onTouchEnd={onTouchEndStrip}
+                        >
                                 <div className="relative aspect-[21/9] md:aspect-[3/1] overflow-hidden">
                                         {images.map((img, i) => (
                                                 <div
@@ -176,10 +245,15 @@ export function GalleryCarousel({
                                                                 }
                                                         }}
                                                         className={cn(
-                                                                'absolute inset-0 transition-[opacity,transform,translate,scale,rotate] duration-cinema ease-out cursor-pointer',
+                                                                /* r135-B: كان duration-cinema (720ms) — طُبّع
+                                                                   إلى duration-slow (380ms، سقف الحركة) */
+                                                                'absolute inset-0 transition-[opacity,transform,translate,scale,rotate] duration-slow ease-out cursor-pointer',
                                                                 i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
                                                         )}
-                                                        onClick={() => openLightbox(i)}
+                                                        onClick={() => {
+                                                                /* r135-B: لا تفتح Lightbox بنقرة ما بعد السحبة */
+                                                                if (!suppressTapRef.current) openLightbox(i);
+                                                        }}
                                                 >
                                                         {loaded.has(i) && (
                                                                 <OptimizedImage
@@ -210,7 +284,7 @@ export function GalleryCarousel({
                                                                 prev();
                                                         }}
                                                         aria-label="الصورة السابقة"
-                                                        className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-base hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                        className="absolute start-3 top-1/2 -translate-y-1/2 size-11 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-base hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         <MotionChevronLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
                                                 </button>
@@ -221,7 +295,7 @@ export function GalleryCarousel({
                                                                 next();
                                                         }}
                                                         aria-label="الصورة التالية"
-                                                        className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-base hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                        className="absolute end-3 top-1/2 -translate-y-1/2 size-11 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-base hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         <MotionChevronRight className="size-4 rtl:-scale-x-100" aria-hidden="true" />
                                                 </button>
@@ -233,7 +307,7 @@ export function GalleryCarousel({
                                                                 setPaused((p) => !p);
                                                         }}
                                                         aria-label={paused ? 'تشغيل العرض التلقائي' : 'إيقاف العرض التلقائي'}
-                                                        className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                        className="absolute bottom-3 end-3 size-11 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         {paused ? (
                                                                 <Play className="size-3.5" aria-hidden="true" />
@@ -258,6 +332,7 @@ export function GalleryCarousel({
                                                                         }}
                                                                         className="relative flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                                                                         aria-label={`صورة ${i + 1}`}
+                                                                        aria-current={i === current ? 'true' : undefined}
                                                                 >
                                                                         <span
                                                                                 className={cn(
@@ -277,14 +352,21 @@ export function GalleryCarousel({
                                         type="button"
                                         onClick={(e) => {
                                                 e.stopPropagation();
-                                                openLightbox(current);
+                                                /* r135-B: لا تفتح Lightbox بنقرة ما بعد السحبة */
+                                                if (!suppressTapRef.current) openLightbox(current);
                                         }}
-                                        className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        className="absolute top-3 start-3 size-11 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         aria-label="تكبير الصورة"
                                 >
                                         <Maximize2 className="size-3.5" aria-hidden="true" />
                                 </button>
                         </div>
+
+                        {/* r135-B: إعلان تغيّر الشريحة لقارئات الشاشة — الأرقام العربية
+                            كعرف التطبيق (تُحدّث مهذبًا مع كل تنقل) */}
+                        <p className="sr-only" aria-live="polite">
+                                {`صورة ${toArabicNumber(current + 1)} من ${toArabicNumber(images.length)}`}
+                        </p>
 
                         {/* Lightbox */}
                         {lightbox && (
@@ -293,8 +375,15 @@ export function GalleryCarousel({
                                         role="dialog"
                                         aria-modal="true"
                                         aria-label={restaurantName ? `معرض صور ${restaurantName}` : 'معرض الصور'}
-                                        className="fixed inset-0 z-(--z-lightbox) bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
-                                        onClick={closeLightbox}
+                                        /* r135-B: سحب بالإصبع داخل Lightbox + كبت إغلاق الخلفية
+                                           بنقرة ما بعد السحبة (نفس عتبة الشريط). فخ التركيز/
+                                           Escape/إعادة التركيز كما هي (r121-K-4). */
+                                        onTouchStart={onTouchStart}
+                                        onTouchEnd={onTouchEndLightbox}
+                                        className="fixed inset-0 z-(--z-lightbox) bg-black/85 backdrop-blur-md flex items-center justify-center animate-[fade-in_240ms_var(--ease-out-quart)_both]"
+                                        onClick={() => {
+                                                if (!suppressTapRef.current) closeLightbox();
+                                        }}
                                         onKeyDown={trapFocus}
                                 >
                                         <button
@@ -323,7 +412,7 @@ export function GalleryCarousel({
                                                         alt={`${restaurantName || 'صورة'} ${lightboxIdx + 1}`}
                                                         width={1200}
                                                         height={675}
-                                                        className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-scale-in"
+                                                        className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-[scale-in_240ms_var(--ease-out-quart)_both]"
                                                         loading="lazy"
                                                 />
 
@@ -364,6 +453,7 @@ export function GalleryCarousel({
                                                                                         type="button"
                                                                                         onClick={() => setLightboxIdx(i)}
                                                                                         aria-label={`صورة ${i + 1}`}
+                                                                                        aria-current={i === lightboxIdx ? 'true' : undefined}
                                                                                         className="relative flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                                                                                 >
                                                                                         <span

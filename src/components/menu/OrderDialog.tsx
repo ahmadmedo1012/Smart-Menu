@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import {Store} from 'lucide-react';
+import { AlertTriangle, Store } from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
@@ -11,6 +11,9 @@ import AnimatedX from '@/components/ui/x-icon';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import type { MenuItemProp } from './MenuItemCard';
+/* r135-B: شرائح الحمية/الحساسية — نفس مصدر البطاقة الواحد (round85-C5) */
+import { DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
+import { DietaryIcon } from './dietary-icons';
 import {
         type ModifierSelection,
         toggleModifierOption,
@@ -22,6 +25,7 @@ import {
         unitPriceWithModifiers,
         selectedCount,
         buildModifierPayload,
+        defaultModifierSelection,
 } from './menu-types';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 // r121-O-1: canonical pickup labels for the order-type segmented control
@@ -43,6 +47,8 @@ type OrderDialogProps = {
 };
 
 const QUICK_NOTES = ['بدون سكر', 'سكر زيادة', 'بدون ثلج', 'حار', 'بارد', 'بدون بصل'];
+/* r135-B: سقف الملاحظات — مصدر واحد للعداد وmaxLength (500 أصلاً) */
+const NOTES_MAX = 500;
 
 export function OrderDialog({
         item,
@@ -95,13 +101,19 @@ export function OrderDialog({
                         setNotes('');
                         setQuantity(1);
                         setConfirmed(false);
-                        setModSelection({});
+                        /* r135-B (نمط Starbucks): اختيارات مسبقة ذكية — كل مجموعة
+                         * إلزامية تُملأ بأرخص الخيارات المتاحة فور الفتح، فيصبح
+                         * «أضف إلى السلة» نقرة واحدة. المجموعات الاختيارية تبقى
+                         * فارغة — لا إضافة مدفوعة لم يطلبها العميل. */
+                        setModSelection(
+                                defaultModifierSelection(visibleModifierGroups(item?.modifierGroups))
+                        );
                         setModError(null);
                         setOrderType(cartPickupType ?? 'inside');
                         setCustomerName('');
                         setCustomerPhone('');
                 }
-        }, [open, item?.id, cartPickupType]);
+        }, [open, item, cartPickupType]);
 
         const handleConfirm = useCallback(() => {
                 if (!item) return null;
@@ -116,6 +128,22 @@ export function OrderDialog({
                 const validation = validateModifierGroups(groups, modSelection);
                 if (!validation.ok) {
                         setModError({ groupId: validation.groupId, message: validation.message });
+                        /* r135-B: تمرير أول مجموعة ناقصة إلى منتصف الشاشة — في قوائم
+                         * الإضافات الطويلة قد يكون حقل الخطأ خارج الإطار فلا يفهم
+                         * العميل سبب المنع. مع prefers-reduced-motion: قفز فوري.
+                         * يرافق رسالة role=alert الموجودة (لا يغني عنها). */
+                        if (validation.groupId != null && typeof document !== 'undefined') {
+                                document
+                                        .getElementById(`mod-group-${validation.groupId}`)
+                                        ?.scrollIntoView({
+                                                block: 'center',
+                                                behavior:
+                                                        typeof window !== 'undefined' &&
+                                                        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                                                                ? 'auto'
+                                                                : 'smooth',
+                                        });
+                        }
                         return;
                 }
                 // r127-F2 (Q-4) defense-in-depth: the submit body below talks to the
@@ -244,6 +272,12 @@ export function OrderDialog({
         if (!item) return null;
 
         const displayName = item.nameAr || item.name;
+        /* r135-B: الوصف الكامل + علم وجود شرائح الحمية/الحساسية — تُعرض أعلى
+         * المحتوى (انظر أسفل)؛ نافذة الطلب هي المكان الوحيد الذي يجب أن يُقرأ
+         * فيه النص الطويل دون قصّ (البطاقة تقصّه إلى سطرين). */
+        const displayDesc = (item.descriptionAr || item.description || '').trim();
+        const hasDietaryInfo =
+                (item.dietaryTags?.length ?? 0) > 0 || (item.allergens?.length ?? 0) > 0;
         /* w3-f1: the live per-unit estimate (base + Σ modifier deltas — mirrors
          * the server math; see the F1-5 comment in handleConfirm). */
         const modGroups = visibleModifierGroups(item.modifierGroups);
@@ -299,7 +333,15 @@ export function OrderDialog({
                         )}
 
                         {confirmed ? (
-                                <div className="p-10 text-center animate-scale-in">
+                                /* r135-B: role=status + aria-live=polite — قارئات الشاشة
+                                 * تسمع «تمت الإضافة إلى السلة» في فترة الانتظار (~800ms)
+                                 * قبل التحويل إلى السلة. الحركة كانت animate-scale-in
+                                 * (520ms) — طُبّعت إلى 240ms (سقف الحركة 380ms). */
+                                <div
+                                        role="status"
+                                        aria-live="polite"
+                                        className="p-10 text-center animate-[scale-in_240ms_var(--ease-out-quart)_both]"
+                                >
                                         <div className="size-20 rounded-2xl bg-glass-bg/60 backdrop-blur-sm border border-glass-border flex items-center justify-center mx-auto mb-4">
                                                 {/* decorative backdrop — checkmark lives in the orange circle only */}
                                         </div>
@@ -317,6 +359,45 @@ export function OrderDialog({
                                         {!item.image && (
                                                 <div className="text-center pb-2">
                                                         <h3 className="text-xl font-bold mb-1">{displayName}</h3>
+                                                </div>
+                                        )}
+
+                                        {/* r135-B: وصف الصنف كاملًا (بلا قصّ) + شرائح الحمية
+                                                ومسببات الحساسية بنمط البطاقة نفسه — إظهار مسببات
+                                                الحساسية قبل الطلب ممارسة عالمية (EU-FIC) ولا مكان
+                                                أنسب من هنا حيث يُحسم القرار. */}
+                                        {(displayDesc || hasDietaryInfo) && (
+                                                <div className="space-y-2">
+                                                        {displayDesc && (
+                                                                <p className="text-sm leading-relaxed text-muted-foreground">
+                                                                        {displayDesc}
+                                                                </p>
+                                                        )}
+                                                        {hasDietaryInfo && (
+                                                                <div className="flex flex-wrap gap-1.5">
+                                                                        {item.dietaryTags?.map((tag) => (
+                                                                                <span
+                                                                                        key={tag}
+                                                                                        className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-2xs text-basil"
+                                                                                >
+                                                                                        <DietaryIcon tag={tag} className="size-3 shrink-0" />
+                                                                                        {DIETARY_LABELS[tag] || tag}
+                                                                                </span>
+                                                                        ))}
+                                                                        {item.allergens?.map((tag) => (
+                                                                                <span
+                                                                                        key={tag}
+                                                                                        className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-2xs text-warning"
+                                                                                >
+                                                                                        <AlertTriangle
+                                                                                                className="size-3 text-warning"
+                                                                                                aria-hidden="true"
+                                                                                        />{' '}
+                                                                                        {ALLERGEN_LABELS[tag] || tag}
+                                                                                </span>
+                                                                        ))}
+                                                                </div>
+                                                        )}
                                                 </div>
                                         )}
 
@@ -364,6 +445,9 @@ export function OrderDialog({
                                                                 return (
                                                                         <fieldset
                                                                                 key={g.id}
+                                                                                /* r135-B: مرساة التمرير — عند فشل التحقق يُمرَّر
+                                                                                   أول مجموعة ناقصة إلى منتصف الشاشة (handleConfirm) */
+                                                                                id={`mod-group-${g.id}`}
                                                                                 className={cn(glassPillCard, 'p-4')}
                                                                                 aria-label={groupName}
                                                                         >
@@ -386,7 +470,12 @@ export function OrderDialog({
                                                                                 <div className="flex flex-wrap gap-1.5">
                                                                                         {g.options.map((o) => {
                                                                                                 const selected = modSelection[g.id]?.includes(o.id) ?? false;
-                                                                                                const disabled = isOptionDisabled(g, modSelection, o.id);
+                                                                                                /* r135-B: الخيار النافذ (isAvailable=false) يُعرض معطّلًا لكنه
+                                                                                                   مرئيًا مشطوبًا مع تلميح «غير متوفر» — إضافة العميل المعتادة
+                                                                                                   يجب أن تبقى معروفة (نمط talabat/Deliveroo). الدالة النقية
+                                                                                                   toggleModifierOption ترفضه أصلًا — هذا إظهار بصري فقط. */
+                                                                                                const unavailable = !o.isAvailable;
+                                                                                                const disabled = unavailable || isOptionDisabled(g, modSelection, o.id);
                                                                                                 return (
                                                                                                         <button
                                                                                                                 key={o.id}
@@ -401,15 +490,22 @@ export function OrderDialog({
                                                                                                                 }}
                                                                                                                 className={cn(
                                                                                                                         'px-3.5 min-h-11 inline-flex items-center rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                                                                        selected
-                                                                                                                                /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA 5.42:1) */
-                                                                        ? 'bg-orange/10 border-orange/40 text-accent-foreground'
-                                                                                                                                : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground',
+                                                                                                                        unavailable
+                                                                                                                                ? 'bg-glass-bg/30 border-glass-border text-muted-foreground opacity-50 cursor-not-allowed'
+                                                                                                                                : selected
+                                                                                                                                  /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA 5.42:1) */
+                                                                                                                                        ? 'bg-orange/10 border-orange/40 text-accent-foreground'
+                                                                                                                                        : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground',
                                                                                                                         // gentle maxSelect ceiling: not-selected options dim at capacity
-                                                                                                                        disabled && 'opacity-40 cursor-not-allowed'
+                                                                                                                        disabled && !unavailable && 'opacity-40 cursor-not-allowed'
                                                                                                                 )}
                                                                                                         >
-                                                                                                                {o.nameAr || o.name}
+                                                                                                                <span className="inline-flex items-center gap-1">
+                                                                                                                        <span className={cn(unavailable && 'line-through')}>{o.nameAr || o.name}</span>
+                                                                                                                        {unavailable && (
+                                                                                                                                <span className="text-2xs font-medium">غير متوفر</span>
+                                                                                                                        )}
+                                                                                                                </span>
                                                                                                                 {/* r121 (H-1): سحب decimals:1 من فروق الخيارات — «+2.0» صارت
                                                                                                                     «+2» و«0.25» تبقى «0.25» بدل تدويرها إلى «0.3». */}
                                                                                                                 {o.priceDelta !== 0 && (
@@ -587,18 +683,27 @@ export function OrderDialog({
                                                 </div>
                                         </div>
 
-                                        {/* Notes textarea — glass-pill */}
-                                        <textarea
-                                                id="order-notes"
-                                                name="notes"
-                                                value={notes}
-                                                onChange={(e) => setNotes(e.target.value)}
-                                                placeholder="ملاحظات إضافية للطلب…"
-                                                rows={2}
-                                                maxLength={500}
-                                                aria-label="ملاحظات إضافية"
-                                                className={cn(glassPillInput, 'h-auto py-3 resize-none')}
-                                        />
+                                        {/* Notes textarea — glass-pill
+                                            r135-B: عدّاد الأحرف (٥٠٠ سقف) يظهر فقط بعد
+                                            بدء الكتابة — يطمئن العميل أن ملاحظته تُحفظ. */}
+                                        <div>
+                                                <textarea
+                                                        id="order-notes"
+                                                        name="notes"
+                                                        value={notes}
+                                                        onChange={(e) => setNotes(e.target.value)}
+                                                        placeholder="ملاحظات إضافية للطلب…"
+                                                        rows={2}
+                                                        maxLength={NOTES_MAX}
+                                                        aria-label="ملاحظات إضافية"
+                                                        className={cn(glassPillInput, 'h-auto py-3 resize-none')}
+                                                />
+                                                {notes.length > 0 && (
+                                                        <p className="mt-1 text-end text-2xs tabular-nums text-muted-foreground">
+                                                                {toArabicNumber(notes.length)}/{toArabicNumber(NOTES_MAX)}
+                                                        </p>
+                                                )}
+                                        </div>
 
                                         {/* Total + WhatsApp — r121-ADV4-1: sticky footer. The whole
                                             sheet scrolls (max-h 94dvh) so a plain CTA sat 44px below

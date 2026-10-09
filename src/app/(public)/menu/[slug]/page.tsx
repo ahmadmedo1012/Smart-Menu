@@ -101,6 +101,13 @@ export async function generateMetadata({
 // error degrades the showcase away (.catch → []) instead of breaking the
 // menu page. r86-B2 scoping stays (category join — MenuItem has NO
 // restaurantId column in schema.prisma).
+//
+// r135-SOLD-OUT: unavailable items now CROSS THE WIRE (status serialized as
+// isAvailable) so the customer grid renders them greyed-out with a
+// «غير متوفر حالياً» chip instead of silently vanishing — NN/g pattern:
+// disable-and-keep-visible beats removal (no layout shift, preserves desire,
+// sets expectations). The ORDER API keeps re-validating availability at
+// submit (route.ts ownership + status checks) — server stays money-truth.
 async function fetchShowcaseFlags(restaurantId: number) {
         return prisma
                 .$queryRaw<
@@ -149,29 +156,34 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 // guarded raw query below, so a schema-lagging DB degrades to "no
                 // showcase" instead of a broken menu page / failed build.
                 prisma.menuItem.findMany({
-                        where: { status: 'available', category: { is: { restaurantId: restaurant.id, isActive: true } } },
+                        // r135-SOLD-OUT: ALL statuses selected (was: status:'available'
+                        // filter) — sold-out items ship with isAvailable:false and the
+                        // customer grid greys them out. Only the ORDER API still gates
+                        // on availability (server re-validation stays the truth).
+                        where: { category: { is: { restaurantId: restaurant.id, isActive: true } } },
                         select: {
                                 // round86-B7: no per-item category embed (categories are sent
-                                // once and joined by categoryId client-side), no status (the
-                                // query filters to 'available' anyway) — ~15-25% smaller flight
+                                // once and joined by categoryId client-side) — ~15-25% smaller flight
                                 id: true, name: true, nameAr: true, description: true, descriptionAr: true,
                                 price: true, discountedPrice: true, image: true, sortOrder: true,
-                                categoryId: true, createdAt: true,
+                                categoryId: true, createdAt: true, status: true,
                                 dietaryTags: true, allergens: true, avgRating: true, ratingCount: true,
                                 // w3-f1 (F1-2): modifier groups — ONE hierarchical select, no
-                                // per-item round-trips (no N+1). Only AVAILABLE options cross
-                                // the wire; the serializer below drops groups left empty by
-                                // that filter, so a group whose options were all switched off
-                                // disappears from the customer menu entirely.
+                                // per-item round-trips (no N+1).
+                                // r135-SOLD-OUT: unavailable OPTIONS also cross the wire now
+                                // (isAvailable serialized per option) so the OrderDialog can
+                                // render them as disabled «غير متوفر» chips instead of making
+                                // them vanish — regulars can tell their usual add-on is out of
+                                // stock. Groups with ZERO available options are still dropped
+                                // by the serializer below so they can never block validation.
                                 modifierGroups: {
                                         orderBy: { sortOrder: 'asc' },
                                         select: {
                                                 id: true, nameAr: true, name: true,
                                                 minSelect: true, maxSelect: true, required: true,
                                                 options: {
-                                                        where: { isAvailable: true },
                                                         orderBy: { sortOrder: 'asc' },
-                                                        select: { id: true, nameAr: true, name: true, priceDelta: true },
+                                                        select: { id: true, nameAr: true, name: true, priceDelta: true, isAvailable: true },
                                                 },
                                         },
                                 },
@@ -221,7 +233,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         }));
 
         const serializedItems = items.map(
-                ({ price, discountedPrice, avgRating, ratingCount, createdAt, ...rest }) => ({
+                ({ price, discountedPrice, avgRating, ratingCount, createdAt, status, ...rest }) => ({
                         id: rest.id,
                         name: rest.name,
                         nameAr: rest.nameAr,
@@ -231,20 +243,23 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         sortOrder: rest.sortOrder,
                         categoryId: rest.categoryId,
                         createdAt: createdAt.toISOString(),
+                        // r135-SOLD-OUT: availability flag instead of server-side vanishing.
+                        isAvailable: status === 'available',
                         dietaryTags: rest.dietaryTags,
                         allergens: rest.allergens,
                         price: Number(price),
                         discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
                         avgRating: avgRating !== null ? Number(avgRating) : null,
                         ratingCount,
-                        isPopular: popularIds.has(rest.id),
-                        isNew: !popularIds.has(rest.id) && createdAt.getTime() > SEVEN_DAYS_AGO.getTime(),
-                        isFeatured: featuredMap.get(rest.id)?.isFeatured ?? false,
-                        featuredRank: featuredMap.get(rest.id)?.featuredRank ?? null,
-                        showcaseTags: featuredMap.get(rest.id)?.showcaseTags ?? null,
-                        // w3-f1 (F1-2): groups that survived the available-options filter;
-                        // empty ones are dropped here (a group with zero bookable options
-                        // must not render — and must not block required-group validation).
+                        isPopular: popularIds.has(rest.id) && status === 'available',
+                        isNew: !popularIds.has(rest.id) && createdAt.getTime() > SEVEN_DAYS_AGO.getTime() && status === 'available',
+                        isFeatured: featuredMap.get(rest.id)?.isFeatured === true && status === 'available',
+                        featuredRank: status === 'available' ? featuredMap.get(rest.id)?.featuredRank ?? null : null,
+                        showcaseTags: status === 'available' ? featuredMap.get(rest.id)?.showcaseTags ?? null : null,
+                        // w3-f1 (F1-2) + r135-SOLD-OUT: groups keep ≥1 AVAILABLE option
+                        // (a group with zero bookable options must not render — and must not
+                        // block required-group validation); unavailable options stay in the
+                        // payload with isAvailable:false so the dialog can grey them out.
                         modifierGroups: rest.modifierGroups
                                 .map((g) => ({
                                         id: g.id,
@@ -258,10 +273,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                                 nameAr: o.nameAr,
                                                 name: o.name,
                                                 priceDelta: Number(o.priceDelta),
-                                                isAvailable: true,
+                                                isAvailable: o.isAvailable,
                                         })),
                                 }))
-                                .filter((g) => g.options.length > 0),
+                                .filter((g) => g.options.some((o) => o.isAvailable)),
                 })
         );
 
@@ -312,21 +327,31 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 hasMenu: {
                         '@type': 'Menu',
                         name: `قائمة ${restaurant.name}`,
+                        // r135: language + Arabic-first names — the rendered page is
+                        // Arabic (lang=ar dir=rtl), so the machine-readable menu must
+                        // carry the Arabic name/description when they exist (nameAr
+                        // || name), not the English fallback.
+                        inLanguage: 'ar',
                         hasMenuSection: categories.map((c) => ({
                                 '@type': 'MenuSection',
-                                name: c.name,
-                                hasMenuItem: (itemsByCategory.get(c.id) ?? []).map((i) => ({
-                                        '@type': 'MenuItem',
-                                        name: i.name,
-                                        description: i.description,
-                                        offers: {
-                                                '@type': 'Offer',
-                                                // r133 (A12 N7): schema.org price is a STRING —
-                                                // a number primitive is silently dropped by validators.
-                                                price: String(i.price),
-                                                priceCurrency: 'LYD',
-                                        },
-                                })),
+                                name: c.nameAr || c.name,
+                                hasMenuItem: (itemsByCategory.get(c.id) ?? [])
+                                        // r135-SOLD-OUT: only AVAILABLE items are advertised to
+                                        // machines — sold-out items stay visible to humans but
+                                        // must not be offered as orderable in schema.org.
+                                        .filter((i) => i.status === 'available')
+                                        .map((i) => ({
+                                                '@type': 'MenuItem',
+                                                name: i.nameAr || i.name,
+                                                description: i.descriptionAr || i.description,
+                                                offers: {
+                                                        '@type': 'Offer',
+                                                        // r133 (A12 N7): schema.org price is a STRING —
+                                                        // a number primitive is silently dropped by validators.
+                                                        price: String(i.price),
+                                                        priceCurrency: 'LYD',
+                                                },
+                                        })),
                         })),
                 },
         };

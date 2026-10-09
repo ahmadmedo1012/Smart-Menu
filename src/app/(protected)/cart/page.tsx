@@ -20,6 +20,8 @@ import { useCartTotals } from './use-cart-totals';
 import { CartLineItem } from './CartLineItem';
 import { ReviewDialog } from './ReviewDialog';
 import { PickupTypeSelector } from './PickupTypeSelector';
+// r135-TABLE: قراءة رقم الطاولة المخزّن من رابط QR للمنيو — انظر lib/table-session.ts
+import { readTableNumber } from '@/lib/table-session';
 import { CustomerInfoCard } from './CustomerInfoCard';
 import { CartSummaryCard } from './CartSummaryCard';
 import { CartEmptyState } from './CartEmptyState';
@@ -187,7 +189,17 @@ export default function CartPage() {
                 // الحوار معطلاً بـ «جاري…» نهائياً حتى إعادة تحميل الصفحة.
                 // نُقل الفحص قبل القفل كسابقة PaymentDialog (r120): فشل التحقق
                 // يجب أن يترك الزر صالحاً لإعادة المحاولة بعد اختصار النص.
-                const composedNotes = [notes, pickupType === 'delivery' ? `العنوان: ${deliveryAddress}` : '']
+                /* r135-TABLE: رقم الطاولة من رابط QR (‎?table=N‎ يلتقطه المنيو ويخزنه
+                   في sessionStorage) يُلحق بالملاحظات — طلب «في المطعم» بلا هوية
+                   طاولة كان يترك الموظف يسأل «مين الطالب؟» في كل مرة.
+                   المنطق في lib/table-session (keeps the r121 source-order pin —
+                   لا كتلة try جديدة في هذا الملف). */
+                const tableNumber = readTableNumber();
+                const composedNotes = [
+                        notes,
+                        pickupType === 'delivery' ? `العنوان: ${deliveryAddress}` : '',
+                        tableNumber !== null ? `طاولة: ${tableNumber}` : '',
+                ]
                         .filter(Boolean)
                         .join('\n');
                 if (composedNotes.length > 500) {
@@ -287,6 +299,16 @@ export default function CartPage() {
                         // r106-N1: confirmed success (fresh 201 OR the inert already:true
                         // replay) — retire the key so the next checkout mints a new one.
                         checkoutKeyRef.current = '';
+                        /* r135: مفتاح الإحالة كان يعيش للأبد — الزبون الذي دخل برابط
+                           صديقه مرة واحدة كان يحمل الكود في كل طلب لاحق فيُحتسب لصديقه
+                           إلى ما لا نهاية. التحويل اكتمل الآن: الطلب حُفظ بالكود — المفتاح
+                           يُنظّف فورًا، والزيارة القادمة برابط ‎?ref=‎ جديد تكتب كودًا
+                           جديدًا نظيفًا (ReferralHandler يكتب فوق القيمة عند وجودها). */
+                        try {
+                                localStorage.removeItem('smartmenu_referral');
+                        } catch {
+                                /* private mode — لا شيء لتنظيفه */
+                        }
                 } catch (e) {
                         // round90-F4 (M1): the thrown Error already carries the mapped
                         // server message; network failures fall back to the general copy.

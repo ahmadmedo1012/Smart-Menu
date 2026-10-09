@@ -736,11 +736,18 @@ function walkSrc(dir: string): string[] {
 const srcTextR127 = walkSrc('src').map(raw).join('\n');
 
 describe('r127 consumption gates — micro-typography tokens are actually consumed', () => {
-  it('text-2xs ≥40 TSX consumers across src/ (48 at r127-F4)', () => {
+  it('text-2xs ≥40 TSX consumers across src/ (48 at r127-F4, 93 at r135)', () => {
     expect((srcTextR127.match(/\btext-2xs\b/g) ?? []).length).toBeGreaterThanOrEqual(40);
   });
-  it('text-3xs ≥40 TSX consumers across src/ (48 at r127-F4)', () => {
-    expect((srcTextR127.match(/\btext-3xs\b/g) ?? []).length).toBeGreaterThanOrEqual(40);
+  /* r135 (مدارك §طباعة): الحد الأدنى للنص المقروء هو 11px (text-2xs) —
+     text-3xs (10px) أصبح تحت الأرضية، فهاجرت الجولة 135 ستة مواقع
+     «شارات/رقائق» في مكونات المنيو الزبونية (MenuItemCard/OrderDialog/
+     CartSlideOver/CategoryTabs) من text-3xs إلى text-2xs (48→34 مستهلكًا).
+     البوابة تتحول من أرضية (≥40) إلى سقف (≤34): النقصان مسموح ومستمر،
+     والزيادة انتكاس للقرار — أي استحداث نص 10px في المستقبل يجب أن يفشل
+     هنا ويُراجَع. */
+  it('text-3xs ≤34 TSX consumers across src/ (r135 11px-floor migration: 48→34; ceiling, not floor)', () => {
+    expect((srcTextR127.match(/\btext-3xs\b/g) ?? []).length).toBeLessThanOrEqual(34);
   });
 });
 

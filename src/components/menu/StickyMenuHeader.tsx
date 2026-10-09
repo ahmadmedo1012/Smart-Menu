@@ -21,6 +21,10 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
         const [scrolled, setScrolled] = useState(false);
         const [mobileOpen, setMobileOpen] = useState(false);
         const drawerRef = useRef<HTMLDivElement>(null);
+        /* r135-C (WCAG 2.4.3): مرجع مُشغّل الدرج (الهامبرغر) — أي إغلاق
+           (Escape/الخلفية/رابط/زر) يُرجع التركيز إليه؛ بلا هذا يبقى التركيز
+           معلقًا على <body> بعد اختفاء الدرج. */
+        const triggerRef = useRef<HTMLButtonElement>(null);
         const progress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
         useMotionValueEvent(scrollYProgress, 'change', (v) => {
@@ -36,6 +40,9 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                         'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
                 const firstFocusable = drawer.querySelector<HTMLElement>(focusableSelector);
                 firstFocusable?.focus();
+                /* r135-C: نسخة محلية للمرجع — قاعدة exhaustive-deps: قيمة
+                   triggerRef.current وقت التنظيف قد تختلف عن وقت التأثير. */
+                const trigger = triggerRef.current;
                 const handleKeyDown = (e: KeyboardEvent) => {
                         if (e.key === 'Escape') {
                                 e.stopPropagation();
@@ -59,7 +66,13 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                         }
                 };
                 drawer.addEventListener('keydown', handleKeyDown);
-                return () => drawer.removeEventListener('keydown', handleKeyDown);
+                return () => {
+                        drawer.removeEventListener('keydown', handleKeyDown);
+                        /* r135-C: الإرجاع غير مشروط (نمط ReviewSheet r94-A9) —
+                           يعمل عند Escape/نقرة الخلفية/التنقل عبر الروابط/إغلاق
+                           الدرج بأي مسار آخر. */
+                        trigger?.focus();
+                };
         }, [mobileOpen]);
 
         return (
@@ -131,6 +144,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                         <HighContrastToggle />
                                         {/* Mobile hamburger */}
                                         <button
+                                                ref={triggerRef}
                                                 type="button"
                                                 aria-label="القائمة"
                                                 aria-expanded={mobileOpen}

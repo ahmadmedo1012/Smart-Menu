@@ -46,6 +46,7 @@ import { SlidersHorizontal } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { cn } from '@/lib/utils';
 import { formatPrice, normalizeArabic } from '@/lib/format';
+import { DietaryIcon } from './dietary-icons';
 
 interface MenuToolbarProps {
         search: string;
@@ -58,6 +59,12 @@ interface MenuToolbarProps {
         /** Short menus (<8 items) don't need search — hide to reclaim the fold */
         hideSearch?: boolean;
         className?: string;
+        /* r135-C: فلاتر غذائية (نمط Deliveroo) — تُشتق من بيانات المنيو في
+           المنسّق (MenuPageClient) وتُخزّن في معلمات الرابط؛ لا شيء يُعرض
+           حين لا تمرّر الخيارات (منيو بلا وسوم غذائية). */
+        dietaryOptions?: { value: string; label: string }[];
+        activeDietary?: string[];
+        onToggleDietary?: (tag: string) => void;
 }
 
 const SORT_OPTIONS = [
@@ -65,6 +72,9 @@ const SORT_OPTIONS = [
         { value: 'price-asc', label: 'السعر: من الأقل للأعلى' },
         { value: 'price-desc', label: 'السعر: من الأعلى للأقل' },
         { value: 'name', label: 'الاسم' },
+        /* r135-C: الأعلى تقييماً — القيمة تمر عبر منظومة الترتيب نفسها
+           (SORT_VALUES في MenuPageClient تشمل 'rating' منذ r135). */
+        { value: 'rating', label: 'الأعلى تقييماً' },
 ] as const;
 
 export function MenuToolbar({
@@ -76,6 +86,9 @@ export function MenuToolbar({
         onSuggestionClick,
         hideSearch = false,
         className,
+        dietaryOptions,
+        activeDietary,
+        onToggleDietary,
 }: MenuToolbarProps) {
         const [showSort, setShowSort] = useState(false);
         const [showSuggestions, setShowSuggestions] = useState(false);
@@ -85,6 +98,16 @@ export function MenuToolbar({
         const inputRef = useRef<HTMLInputElement>(null);
         const containerRef = useRef<HTMLDivElement>(null);
         const listboxId = 'menu-search-suggestions';
+        /* r135-C (WCAG 2.4.3): مرجع مُشغّل قائمة الترتيب — كل مسارات الإغلاق
+           (Escape/نقرة خارجية/اختيار خيار) تُرجع التركيز إليه بدل تركه
+           على <body> بعد إزالة القائمة. */
+        const sortTriggerRef = useRef<HTMLButtonElement>(null);
+
+        /* r135-C: إغلاق موحّد لقائمة الترتيب مع إرجاع التركيز للمُشغّل. */
+        const closeSortMenu = useCallback((returnFocus = true) => {
+                setShowSort(false);
+                if (returnFocus) sortTriggerRef.current?.focus();
+        }, []);
 
         useEffect(() => {
                 setActiveIdx(-1);
@@ -173,7 +196,10 @@ export function MenuToolbar({
         );
 
         return (
-                <div ref={containerRef} className={cn('relative mb-4 flex gap-2 items-start', className)}>
+                /* r135-C: صفّان — البحث/الترتيب في الأعلى ورقائق الفلاتر الغذائية
+                   تحتها؛ الحاوية الخارجية عمودية كي يبقى ارتفاع كل صف مستقلًا. */
+                <div className={cn('mb-4 flex flex-col gap-2.5', className)}>
+                        <div ref={containerRef} className="relative flex gap-2 items-start">
                         {/* Search input — glass card wrapper */}
                         {!hideSearch && (
                                 <div className="flex-1 relative">
@@ -294,6 +320,7 @@ export function MenuToolbar({
                                 options are NOT tabbable — Arrow keys move focus among them (roving). */}
                         <div className="relative">
                                 <button
+                                        ref={sortTriggerRef}
                                         type="button"
                                         aria-label="ترتيب"
                                         aria-haspopup="menu"
@@ -312,7 +339,9 @@ export function MenuToolbar({
                                 </button>
                                 {showSort && (
                                         <>
-                                                <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} aria-hidden="true" />
+                                                {/* r135-C (WCAG 2.4.3): الإغلاق بالنقرة الخارجية يُرجع
+                                                   التركيز للمُشغّل — كان يُرمى على <body>. */}
+                                                <div className="fixed inset-0 z-40" onClick={() => closeSortMenu()} aria-hidden="true" />
                                                 <div
                                                         className="absolute end-0 top-full z-50 mt-2 w-48 origin-top-right overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg animate-scale-in sm:end-auto sm:start-0 sm:w-52"
                                                         role="menu"
@@ -323,15 +352,29 @@ export function MenuToolbar({
                                                         }}
                                                         onKeyDown={(e) => {
                                                                 const opts = e.currentTarget.querySelectorAll<HTMLButtonElement>("[role='menuitemradio']");
-                                                                const cur = Array.from(opts).findIndex((o) => o === document.activeElement);
+                                                                const list = Array.from(opts);
+                                                                const cur = list.findIndex((o) => o === document.activeElement);
                                                                 if (e.key === 'ArrowDown') {
                                                                         e.preventDefault();
-                                                                        opts[(cur + 1) % opts.length]?.focus();
+                                                                        list[(cur + 1) % list.length]?.focus();
                                                                 } else if (e.key === 'ArrowUp') {
                                                                         e.preventDefault();
-                                                                        opts[(cur - 1 + opts.length) % opts.length]?.focus();
+                                                                        list[(cur - 1 + list.length) % list.length]?.focus();
+                                                                } else if (e.key === 'Home') {
+                                                                        /* r135-C: Home/End — أول/آخر خيار (نمط APG menu). */
+                                                                        e.preventDefault();
+                                                                        list[0]?.focus();
+                                                                } else if (e.key === 'End') {
+                                                                        e.preventDefault();
+                                                                        list[list.length - 1]?.focus();
+                                                                } else if (e.key === 'Tab') {
+                                                                        /* r135-C: Tab لا يهرب خلف الطبقة الغالبة — الخيارات
+                                                                           ليست tabbable (tabIndex -1) فكان Tab يقفز إلى
+                                                                           الصفحة خلف الـoverlay؛ نُدوّره داخل القائمة. */
+                                                                        e.preventDefault();
+                                                                        (e.shiftKey ? list[list.length - 1] : list[0])?.focus();
                                                                 } else if (e.key === 'Escape') {
-                                                                        setShowSort(false);
+                                                                        closeSortMenu();
                                                                 }
                                                         }}
                                                 >
@@ -344,7 +387,9 @@ export function MenuToolbar({
                                                                         tabIndex={-1}
                                                                         onClick={() => {
                                                                                 onSortChange(opt.value);
-                                                                                setShowSort(false);
+                                                                                /* r135-C: الاختيار يغلق القائمة ويُرجع التركيز
+                                                                                   للمُشغّل — الخيار يُزال من الـDOM بعدها. */
+                                                                                closeSortMenu();
                                                                         }}
                                                                         className={cn(
                                                                                 'w-full px-4 py-3 text-start text-sm transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-accent focus-visible:bg-accent focus-visible:outline-none',
@@ -358,6 +403,40 @@ export function MenuToolbar({
                                         </>
                                 )}
                         </div>
+                        </div>
+
+                        {/* r135-C: رقائق الفلاتر الغذائية — تُعرض فقط إذا وفُجد في المنيو
+                            صنف يحمل الوسم (المنسّق يشتقها من البيانات الفعلية)؛ النمط
+                            البصري نفسه رقائق CategoryTabs، وكل رقاقة toggle-pressed
+                            (نمط APG) لأنها تُصفّي قائمة واحدة لا تبدّل لوحات. */}
+                        {(dietaryOptions?.length ?? 0) > 0 && (
+                                <div
+                                        role="group"
+                                        aria-label="فلاتر غذائية"
+                                        className="flex gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1"
+                                >
+                                        {(dietaryOptions ?? []).map((d) => {
+                                                const active = activeDietary?.includes(d.value) ?? false;
+                                                return (
+                                                        <button
+                                                                key={d.value}
+                                                                type="button"
+                                                                aria-pressed={active}
+                                                                onClick={() => onToggleDietary?.(d.value)}
+                                                                className={cn(
+                                                                        'inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-colors sm:text-sm',
+                                                                        active
+                                                                                ? 'border-orange bg-orange text-orange-foreground shadow-sm'
+                                                                                : 'border-border/20 bg-background/60 text-muted-foreground hover:bg-orange/10'
+                                                                )}
+                                                        >
+                                                                <DietaryIcon tag={d.value} className="size-3.5" />
+                                                                {d.label}
+                                                        </button>
+                                                );
+                                        })}
+                                </div>
+                        )}
                 </div>
         );
 }

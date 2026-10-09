@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
-import { ChefHat, MessageCircle, SearchX, UtensilsCrossed } from 'lucide-react';
+import { Armchair, ChefHat, MessageCircle, SearchX, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -20,11 +20,22 @@ const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { normalizeWaNumber } from '@/lib/whatsapp';
+import { DIETARY_LABELS } from '@/lib/dietary';
+// r135-TABLE: التقاط ‎?table=N‎ من رابط QR للطاولة — انظر lib/table-session.ts
+import { captureTableFromUrl } from '@/lib/table-session';
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string };
 
-const SORT_VALUES = ['default', 'price-asc', 'price-desc', 'name'] as const;
+/* r135: الترتيب يوسّع بـ«الأعلى تقييماً» — البيانات (avgRating/ratingCount)
+ * كانت تعبر السلك منذ w3-f1 لكن الترتيب لم يعرضها قط. */
+const SORT_VALUES = ['default', 'price-asc', 'price-desc', 'name', 'rating'] as const;
 type SortValue = (typeof SORT_VALUES)[number];
+
+/* r135: فلاتر غذائية عميلة (نمط Deliveroo/talabat) — العميل النباتي لا
+ * ينبغي أن يفتّش حبة حبة بين الحبوب؛ الرقائق تُشتق من بيانات المنيو
+ * الفعلية (تظهر فقط ما يوجد في المنيو) وتُخزّن في الرابط (قابل للمشاركة). */
+const DIETARY_FILTER_KEYS = ['vegetarian', 'vegan', 'gluten_free', 'spicy'] as const;
+type DietaryFilterKey = (typeof DIETARY_FILTER_KEYS)[number];
 
 function isValidSort(v: string | null): v is SortValue {
         return v !== null && (SORT_VALUES as readonly string[]).includes(v);
@@ -62,7 +73,7 @@ function UrlFilterSync({
         onParams,
 }: {
         categories: CategoryProp[];
-        onParams: (p: { q: string; cat: number | null; sort: SortValue }) => void;
+        onParams: (p: { q: string; cat: number | null; sort: SortValue; diet: string[] }) => void;
 }) {
         useEffect(() => {
                 const read = () => {
@@ -76,7 +87,14 @@ function UrlFilterSync({
                         }
                         const sortRaw = p.get('sort');
                         const sort = isValidSort(sortRaw) ? sortRaw! : 'default';
-                        onParams({ q, cat, sort });
+                        // r135: diet=vegan,spicy — فلاتر غذائية قابلة للمشاركة عبر الرابط
+                        const diet = (p.get('diet') || '')
+                                .split(',')
+                                .map((d) => d.trim())
+                                .filter((d): d is DietaryFilterKey =>
+                                        (DIETARY_FILTER_KEYS as readonly string[]).includes(d)
+                                );
+                        onParams({ q, cat, sort, diet });
                 };
                 read(); // التحميل الكامل/الأول: طبّق معلمات الرابط فور الماء
                 window.addEventListener('popstate', read); // رجوع/تقدم المتصفح
@@ -103,16 +121,27 @@ export function MenuPageClient({
         /* r97-W6: حالة معلمات URL محلية (كانت قراءة useSearchParams مباشرة —
            انظر UrlFilterSync أعلاه). القيم الافتراضية تعرض المنيو كاملًا في
            SSR؛ الرابط المُعلم يُطبّق فور الماء. */
-        const [urlState, setUrlState] = useState<{ q: string; cat: number | null; sort: SortValue }>({
+        const [urlState, setUrlState] = useState<{ q: string; cat: number | null; sort: SortValue; diet: string[] }>({
                 q: '',
                 cat: null,
                 sort: 'default',
+                diet: [],
         });
         const search = urlState.q;
         const activeCategory = urlState.cat;
         const sort = urlState.sort;
+        const activeDietary = urlState.diet;
 
         const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
+        /* r135-TABLE: رقم الطاولة من رابط QR لكل طاولة (‎?table=N‎). يُقرأ مرة
+           واحدة (المعلم لا يدخل حالة التصفية) ويُخزّن في sessionStorage حتى
+           ينجو من الانتقال إلى السلة، حيث يُلحق بملاحظات الطلب. الشريحة
+           المعلومة تُعلم الزبون أن طلبه سيصل موقّعًا بطاولته. المنطق في
+           lib/table-session (مصدر واحد مع صفحة السلة). */
+        const [tableNumber, setTableNumber] = useState<number | null>(null);
+        useEffect(() => {
+                setTableNumber(captureTableFromUrl());
+        }, []);
         /* a11y: one shared ReviewSheet instance (was mounted per-card — N dialogs in the DOM).
                 Fed by onReview from each card; keeps ReviewSheet's own focus trap/restore. */
         const [reviewItem, setReviewItem] = useState<{ id: number; name: string } | null>(null);
@@ -132,7 +161,7 @@ export function MenuPageClient({
         // searchParams) + تحديث الحالة المحلية فورًا — UrlFilterSync يؤكد نفس
         // القيم عند مزامنة Next للـHistory API (idempotent).
         const updateURL = useCallback(
-                (updates: { q?: string; cat?: number | null; sort?: string }) => {
+                (updates: { q?: string; cat?: number | null; sort?: string; diet?: string[] }) => {
                         const p = new URLSearchParams(window.location.search);
                         if (updates.q !== undefined) {
                                 if (updates.q) p.set('q', updates.q);
@@ -146,6 +175,10 @@ export function MenuPageClient({
                                 if (updates.sort !== 'default') p.set('sort', updates.sort);
                                 else p.delete('sort');
                         }
+                        if (updates.diet !== undefined) {
+                                if (updates.diet.length > 0) p.set('diet', updates.diet.join(','));
+                                else p.delete('diet');
+                        }
                         const qs = p.toString();
                         window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
                         setUrlState((prev) => {
@@ -154,6 +187,7 @@ export function MenuPageClient({
                                 if (updates.cat !== undefined) next.cat = updates.cat;
                                 if (updates.sort !== undefined)
                                         next.sort = isValidSort(updates.sort) ? updates.sort : 'default';
+                                if (updates.diet !== undefined) next.diet = updates.diet;
                                 return next;
                         });
                 },
@@ -207,6 +241,9 @@ export function MenuPageClient({
 
         const performQuickAdd = useCallback(
                 (item: MenuItemProp) => {
+                        /* r135-SOLD-OUT: حزام وأحزمة — البطاقة تعطّل أزرارها أصلًا؛
+                           هذا الحارس يمنع أي مسار متبقٍ (لوحة مفاتيح، حالات قديمة). */
+                        if (item.isAvailable === false) return;
                         addItem({
                                 itemId: item.id,
                                 name: item.nameAr || item.name,
@@ -242,9 +279,11 @@ export function MenuPageClient({
 
         /* r110-F11: فتح نافذة الصنف يمر بنفس الحارس — أفضل من الاعتراض عند
                 «تأكيد» النافذة لأن المستخدم لو خيّر المعدلات ثم عرف أن السلة ستُفرغ
-                لضاع جهده؛ الاعتراض المبكر أوضح. */
+                لضاع جهده؛ الاعتراض المبكر أوضح. r135-SOLD-OUT: الصنف غير المتاح
+                لا يفتح نافذة — لا يوجد ما يُطلب أصلًا. */
         const handleOpenOrder = useCallback(
                 (item: MenuItemProp) => {
+                        if (item.isAvailable === false) return;
                         guardCartSwitch(() => setOrderItem(item), item.nameAr || item.name);
                 },
                 [guardCartSwitch]
@@ -268,21 +307,53 @@ export function MenuPageClient({
                         setRestaurantDetails(restaurantId, restaurantWhatsapp || '', restaurantName || '');
         }, [restaurantId, restaurantWhatsapp, restaurantName, setRestaurantDetails]);
 
-        /* ── Filtered + sorted items ── */
+        /* r135-PERF: فهرس عربي مطبّع مُسبق الحساب — كان الفلتر يطبّع اسم ووصف
+           كل صنف من جديد عند كل ضغطة حرف (normalizeArabic على C×I في كل
+           keystroke). يحسب مرة واحدة لكل تغيير في العناصر ثم بحث O(I) بلا
+           تطبيع متكرر. */
+        const normalizedIndex = useMemo(() => {
+                const m = new Map<number, { name: string; desc: string }>();
+                for (const item of items) {
+                        m.set(item.id, {
+                                name: normalizeArabic(item.nameAr || item.name),
+                                desc: normalizeArabic(item.descriptionAr || item.description),
+                        });
+                }
+                return m;
+        }, [items]);
+
+        /* r135: خيارات الفلاتر الغذائية — تُشتق من بيانات المنيو الفعلية:
+           الرقاقة تظهر فقط إذا وُجد صنف واحد على الأقل يحمل الوسم (لا رقائق
+           ميتة على منيو لا يحتويها). التسميات من نفس معجم البطاقات. */
+        const dietaryOptions = useMemo(() => {
+                const present = new Set<string>();
+                for (const item of items) {
+                        for (const tag of item.dietaryTags ?? []) present.add(tag);
+                }
+                return DIETARY_FILTER_KEYS
+                        .filter((k) => present.has(k))
+                        .map((k) => ({ value: k, label: DIETARY_LABELS[k] ?? k }));
+        }, [items]);
+
+        /* ── Filtered + sorted items ──
+           r135: الفلترة الغذائية تُطبّق داخل نطاق البحث (AND) — نباتي + «شاورما»
+           = شاورما نباتية فقط. الصنف المنتهي يبقى في النتائج (رمادي، غير قابل
+           للطلب) — هذا هو نمط «تعطيل لا إخفاء». */
         const filteredItems = useMemo(() => {
+                const q = normalizeArabic(search.trim());
                 const result = items.filter((item) => {
-                        const q = normalizeArabic(search.trim());
-                        const matchesSearch =
-                                q === '' ||
-                                normalizeArabic(item.nameAr || item.name).includes(q) ||
-                                normalizeArabic(item.descriptionAr || item.description).includes(q);
+                        const idx = normalizedIndex.get(item.id)!;
+                        const matchesSearch = q === '' || idx.name.includes(q) || idx.desc.includes(q);
                         const matchesCategory = activeCategory === null || item.categoryId === activeCategory;
-                        return matchesSearch && matchesCategory;
+                        const matchesDietary =
+                                activeDietary.length === 0 ||
+                                activeDietary.every((tag) => (item.dietaryTags ?? []).includes(tag));
+                        return matchesSearch && matchesCategory && matchesDietary;
                 });
 
                 switch (sort) {
                         case 'price-asc':
-                                result.sort((a, b) => (a.discountedPrice ?? a.price) - (b.discountedPrice ?? b.price));
+                                result.sort((a, b) => (a.discountedPrice ?? a.price) - (b.discountedPrice ?? a.price));
                                 break;
                         case 'price-desc':
                                 result.sort((a, b) => (b.discountedPrice ?? b.price) - (a.discountedPrice ?? a.price));
@@ -290,9 +361,21 @@ export function MenuPageClient({
                         case 'name':
                                 result.sort((a, b) => (a.nameAr || a.name).localeCompare(b.nameAr || b.name));
                                 break;
+                        case 'rating':
+                                /* r135: الأعلى تقييماً — المصنَّفون أولاً (بأعداد تقييم صحيحة)
+                                   ثم الأعلى متوسطاً؛ غير المصنّفين في نهايتهم بترتيبهم الأصلي. */
+                                result.sort((a, b) => {
+                                        const ra = a.avgRating != null && (a.ratingCount ?? 0) > 0;
+                                        const rb = b.avgRating != null && (b.ratingCount ?? 0) > 0;
+                                        if (ra && rb) return (b.avgRating ?? 0) - (a.avgRating ?? 0);
+                                        if (ra) return -1;
+                                        if (rb) return 1;
+                                        return 0;
+                                });
+                                break;
                 }
                 return result;
-        }, [items, search, activeCategory, sort]);
+        }, [items, search, activeCategory, sort, activeDietary, normalizedIndex]);
 
         /* ── Popular items ── */
         const popularItems = useMemo(
@@ -318,14 +401,32 @@ export function MenuPageClient({
                 [filteredItems, popularVisible]
         );
 
+        /* r135: العدّادات واعية للبحث والفلاتر الغذائية — كانت تُحسب من القائمة
+           الكاملة فتُظهر «المشروبات ٧» بينما نتائج البحث الحالية فيها صنفان
+           فقط؛ الآن العدّ يطابق ما يراه الزبون فعلاً (الفئة نفسها غير مفلترة
+           عمداً — الرقاقة تعرض ما ستحصل عليه عند اختيارها). */
+        const dietAndSearchBase = useMemo(
+                () =>
+                        items.filter((item) => {
+                                const q = normalizeArabic(search.trim());
+                                const idx = normalizedIndex.get(item.id)!;
+                                const matchesSearch = q === '' || idx.name.includes(q) || idx.desc.includes(q);
+                                const matchesDietary =
+                                        activeDietary.length === 0 ||
+                                        activeDietary.every((tag) => (item.dietaryTags ?? []).includes(tag));
+                                return matchesSearch && matchesDietary;
+                        }),
+                [items, search, activeDietary, normalizedIndex]
+        );
+
         const itemCounts = useMemo(() => {
                 const counts = new Map<number | null, number>();
-                counts.set(null, items.length);
+                counts.set(null, dietAndSearchBase.length);
                 for (const cat of categories) {
-                        counts.set(cat.id, items.filter((i) => i.categoryId === cat.id).length);
+                        counts.set(cat.id, dietAndSearchBase.filter((i) => i.categoryId === cat.id).length);
                 }
                 return counts;
-        }, [items, categories]);
+        }, [dietAndSearchBase, categories]);
 
         // ponytail: dead scroll listener removed — it was an empty useCallback doing nothing
 
@@ -341,7 +442,7 @@ export function MenuPageClient({
                 setReviewItem({ id: item.id, name: item.nameAr || item.name });
         }, []);
 
-        const hasActiveFilter = search !== '' || activeCategory !== null;
+        const hasActiveFilter = search !== '' || activeCategory !== null || activeDietary.length > 0;
 
         /* r126 (P4-W3b / audit F2): 0 أصناف في كل الفئات = منيو فارغ فعلاً —
            «اختر فئة أخرى» هنا تضلّل الزبون (لا توجد فئة أخرى أصلًا). نسخة
@@ -357,8 +458,11 @@ export function MenuPageClient({
 
                         {/* Stage H — cinematic featured showcase (addition only; the
                                 full grid below stays untouched). Renders nothing when no
-                                item is featured. */}
-                        <FeaturedShowcase items={items} />
+                                item is featured.
+                                r135: onSelect — البطاقة المميزة كانت معرضًا بصريًا فقط لا
+                                يمكن النقر عليه (خسارة تفاعل كبيرة): الآن كل مشهد
+                                قابل للنقر/لوحة المفاتيح ويفتح نافذة الطلب مباشرة. */}
+                        <FeaturedShowcase items={items} onSelect={handleOpenOrder} />
 
                         <MenuToolbar
                                 search={search}
@@ -368,7 +472,30 @@ export function MenuPageClient({
                                 items={items}
                                 onSuggestionClick={handleSuggestionClick}
                                 hideSearch={items.length < 8}
+                                /* r135: فلاتر غذائية (نمط Deliveroo) — تُشتق من بيانات المنيو
+                                   وتُخزّن في الرابط؛ الخيارات الميتة لا تظهر. */
+                                dietaryOptions={dietaryOptions}
+                                activeDietary={activeDietary}
+                                onToggleDietary={(tag) =>
+                                        updateURL({
+                                                diet: activeDietary.includes(tag)
+                                                        ? activeDietary.filter((t) => t !== tag)
+                                                        : [...activeDietary, tag],
+                                        })
+                                }
                         />
+
+                        {/* r135-TABLE: شريحة معلومات — تظهر فقط عندما دخل الزبون من
+                            كود QR لطاولة محددة؛ صيغة بصرية هادئة (لا تشتت عن المنيو). */}
+                        {tableNumber !== null && (
+                                <div
+                                        className="mb-3 inline-flex items-center gap-1.5 rounded-sm bg-primary/10 px-2.5 py-1.5 text-xs text-accent-foreground animate-fade-in"
+                                        role="status"
+                                >
+                                        <Armchair className="size-3.5" aria-hidden="true" />
+                                        طاولة {toArabicNumber(tableNumber)} — سيصل طلبك موقّعًا بهذه الطاولة
+                                </div>
+                        )}
 
                         {hasActiveFilter && (
                                 <div
@@ -392,9 +519,18 @@ export function MenuPageClient({
                                                         /* r125 (11-b): هدف لمس ٤٤px — الحشوة المرئية ظلّت مضغوطة
                                                            (py-1 ≈ 26px) لكن الطبقة before تمدّد مساحة النقر
                                                            ±10px عموديًا (نمط منطقة النقر دون تضخيم الصف). */
-                                                        className="relative text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-accent-foreground hover:bg-primary/20 transition-colors before:absolute before:-inset-x-2 before:-inset-y-2.5 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                        className="relative text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-accent-foreground hover:bg-primary/20 transition-colors before:absolute before:-inset-x-2 before:-inset-y-2.5 before:content-['']"
                                                 >
-                                                        إعادة تعيين
+                                                        إعادة تعيين الفئة
+                                                </button>
+                                        )}
+                                        {activeDietary.length > 0 && (
+                                                <button
+                                                        type="button"
+                                                        onClick={() => updateURL({ diet: [] })}
+                                                        className="relative text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-accent-foreground hover:bg-primary/20 transition-colors before:absolute before:-inset-x-2 before:-inset-y-2.5 before:content-['']"
+                                                >
+                                                        إزالة الفلاتر الغذائية
                                                 </button>
                                         )}
                                 </div>
@@ -488,7 +624,8 @@ className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm 
                                                                 <button
                                                                         type="button"
                                                                         onClick={() => {
-                                                                                updateURL({ q: '', cat: null });
+                                                                                /* r135: يصفر كل شيء — بحث وفئة وفلاتر غذائية */
+                                                                                updateURL({ q: '', cat: null, diet: [] });
                                                                         }}
                                                                         /* r125 (11-b): min-h-11 — زر المال في حالة الفراغ كان
                                                                            py-2 (36px) تحت حدّ ٤٤px للّمس على الجوال. */

@@ -67,6 +67,13 @@ type SerializedItem = {
     // badge storage (migration 20260906055500).
     showcaseTags: string[] | null;
     createdAt: string;
+    // r135-SOLD-OUT: availability crosses the wire — false renders the card
+    // greyed-out with «غير متوفر حالياً» instead of the item vanishing.
+    isAvailable: boolean;
+    // r135: present in the payload since w3-f1 but never TYPED here — now the
+    // dietary filter chips + OrderDialog allergen block consume them typed.
+    dietaryTags: string[];
+    allergens: string[];
     // w3-f1: live modifier groups (empty array = no choices).
     modifierGroups: ModifierGroupProp[];
 };

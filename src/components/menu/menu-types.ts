@@ -178,6 +178,43 @@ export function isOptionDisabled(
 }
 
 /**
+ * r135-B (نمط Starbucks في الاختيار المسبق): القيم الافتراضية الذكية للإضافات
+ * عند فتح نافذة الصنف — «أضف إلى السلة» تصبح نقرة واحدة بدل سلسلة اختيارات.
+ *
+ * القاعدة (نقية، بلا React/DOM — قابلة للاختبار بـ vitest):
+ * - لكل مجموعة minSelect > 0: تُختار أرخص الخيارات **المتاحة** حتى بلوغ
+ *   minSelect (المجموعات الأحادية selection ترث نفس القاعدة = أرخص خيار واحد).
+ * - الخيارات غير المتاحة (isAvailable=false) تُتخطى — لا يُبنى افتراضي على
+ *   خيار لا يمكن طلبه.
+ * - المجموعات الاختيارية (minSelect <= 0) لا تحصل على أي افتراضي — تبقى
+ *   فارغة فلا يُفرض على العميل إضافة مدفوعة لم يطلبها.
+ * - إن كان عدد الخيارات المتاحة أقل من minSelect (بيانات شاذة) تُؤخذ
+ *   المتاحة فقط؛ التحقق لاحقًا (validateModifierGroups) يوضّح النقص للعميل.
+ * - الترتيب عند تساوي الأسعار يتبع ترتيب الخيارات الأصلي (sort مستقر).
+ *
+ * @param groups المجموعات كما تصل من الخادم (يفضَّل تمرير ناتج
+ *               visibleModifierGroups — المجموعات المعطّلة كليًا لا تُفيد).
+ * @returns حالة اختيار جاهزة للتهيئة الأولى في OrderDialog.
+ */
+export function defaultModifierSelection(groups: ModifierGroupProp[]): ModifierSelection {
+        const selection: ModifierSelection = {};
+        for (const g of groups) {
+                if (g.minSelect <= 0) continue;
+                const available = g.options.filter((o) => o.isAvailable);
+                if (available.length === 0) continue;
+                /* الأرخص أولًا؛ الترتيب المستقر يحفظ ترتيب القائمة عند التساوي */
+                const cheapest = [...available].sort((a, b) => a.priceDelta - b.priceDelta);
+                /* سقف دفاعي: لا نتجاوز maxSelect الصريح (>0) ولا المتاح فعليًا */
+                const cap =
+                        g.maxSelect > 0 ? Math.min(g.minSelect, g.maxSelect) : g.minSelect;
+                const take = Math.min(cap, available.length);
+                if (take <= 0) continue;
+                selection[g.id] = cheapest.slice(0, take).map((o) => o.id);
+        }
+        return selection;
+}
+
+/**
  * Client-side unit-price ESTIMATE mirroring the server math exactly
  * (orders/route.ts: eff = discountedPrice ?? price; + Σ priceDelta).
  * ⚠ Display only — the server re-prices from its own DB rows on POST; this

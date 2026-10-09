@@ -16,6 +16,7 @@ import {
         unitPriceWithModifiers,
         selectedCount,
         buildModifierPayload,
+        defaultModifierSelection,
         type ModifierGroupProp,
 } from "@/components/menu/menu-types";
 
@@ -250,5 +251,121 @@ describe("F1-6 edge cases combined (required blocks, radio replace, cap reject)"
                 let sel = toggleModifierOption([extras], {}, 2, 21);
                 sel = toggleModifierOption([extras], sel, 2, 22);
                 expect(toggleModifierOption([extras], sel, 2, 23)).toBe(sel);
+        });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * r135-B — defaultModifierSelection (نمط Starbucks): القيم الافتراضية الذكية
+ * عند فتح نافذة الصنف. القاعدة: كل مجموعة minSelect>0 تُملأ بأرخص الخيارات
+ * المتاحة؛ الاختيارية تبقى فارغة؛ غير المتاح يُتخطى.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+describe("defaultModifierSelection (r135-B smart defaults)", () => {
+        it("required radio group (minSelect=1, maxSelect=1) → exactly the CHEAPEST option", () => {
+                // الحجم: صغير (0) أرخص من كبير (+2) → يُختار صغير فقط
+                const sel = defaultModifierSelection([size]);
+                expect(sel).toEqual({ 1: [11] });
+        });
+
+        it("required multi group (minSelect=2) → the TWO cheapest available options", () => {
+                const group: ModifierGroupProp = {
+                        id: 5,
+                        name: "Toppings",
+                        nameAr: "إضافات البيتزا",
+                        minSelect: 2,
+                        maxSelect: 4,
+                        required: true,
+                        options: [
+                                { id: 51, name: "Cheese", nameAr: "جبن", priceDelta: 3, isAvailable: true },
+                                { id: 52, name: "Mushroom", nameAr: "مشروم", priceDelta: 1, isAvailable: true },
+                                { id: 53, name: "Olive", nameAr: "زيتون", priceDelta: 2, isAvailable: true },
+                        ],
+                };
+                // مشروم (1) ثم زيتون (2) — الجبن (3) يُستبعد
+                const sel = defaultModifierSelection([group]);
+                expect(sel).toEqual({ 5: [52, 53] });
+                // الافتراضي يرضي التحقق فورًا (نقرة واحدة تكفي للإضافة)
+                expect(validateModifierGroups([group], sel)).toEqual({ ok: true });
+        });
+
+        it("optional groups (minSelect=0) get NO default — stay empty", () => {
+                const sel = defaultModifierSelection([extras]);
+                expect(sel).toEqual({});
+        });
+
+        it("skips unavailable options even when they are the cheapest", () => {
+                const group: ModifierGroupProp = {
+                        id: 6,
+                        name: "Milk",
+                        nameAr: "الحليب",
+                        minSelect: 1,
+                        maxSelect: 1,
+                        required: true,
+                        options: [
+                                // أرخص خيار لكنه نافذ — لا يجوز بناء الافتراضي عليه
+                                { id: 61, name: "Oat", nameAr: "شوفان", priceDelta: 0, isAvailable: false },
+                                { id: 62, name: "Almond", nameAr: "لوز", priceDelta: 1.5, isAvailable: true },
+                                { id: 63, name: "Regular", nameAr: "عادي", priceDelta: 0.5, isAvailable: true },
+                        ],
+                };
+                const sel = defaultModifierSelection([group]);
+                expect(sel).toEqual({ 6: [63] });
+        });
+
+        it("zero required groups → empty selection", () => {
+                const optionalOnly: ModifierGroupProp[] = [
+                        { ...extras },
+                        { ...size, minSelect: 0, required: false },
+                ];
+                expect(defaultModifierSelection(optionalOnly)).toEqual({});
+                expect(defaultModifierSelection([])).toEqual({});
+        });
+
+        it("mixed: required groups pre-filled with cheapest, optional untouched", () => {
+                const sel = defaultModifierSelection([size, extras]);
+                expect(sel).toEqual({ 1: [11] });
+                // extras (minSelect=0) لا مفتاح لها إطلاقًا — لا إضافة مدفوعة بلا طلب
+                expect(sel[2]).toBeUndefined();
+                // المجموعة كاملة تمرّ من التحقق بلا تدخل العميل
+                expect(validateModifierGroups([size, extras], sel)).toEqual({ ok: true });
+        });
+
+        it("ties in price keep the original option order (stable sort)", () => {
+                const group: ModifierGroupProp = {
+                        id: 7,
+                        name: "Sides",
+                        nameAr: "مقبلات",
+                        minSelect: 2,
+                        maxSelect: 2,
+                        required: true,
+                        options: [
+                                { id: 71, name: "Fries", nameAr: "بطاطس", priceDelta: 1, isAvailable: true },
+                                { id: 72, name: "Coleslaw", nameAr: "سلطة كولسلو", priceDelta: 1, isAvailable: true },
+                                { id: 73, name: "Rice", nameAr: "أرز", priceDelta: 1, isAvailable: true },
+                        ],
+                };
+                const sel = defaultModifierSelection([group]);
+                // أول خيارين بترتيب القائمة الأصلي عند تساوي السعر
+                expect(sel).toEqual({ 7: [71, 72] });
+        });
+
+        it("a required group with fewer available options than minSelect takes what exists", () => {
+                const group: ModifierGroupProp = {
+                        id: 8,
+                        name: "Sauces",
+                        nameAr: "الصوصات",
+                        minSelect: 2,
+                        maxSelect: 3,
+                        required: true,
+                        options: [
+                                { id: 81, name: "Garlic", nameAr: "ثومية", priceDelta: 0, isAvailable: true },
+                                { id: 82, name: "BBQ", nameAr: "باربكيو", priceDelta: 1, isAvailable: false },
+                                { id: 83, name: "Spicy", nameAr: "حار", priceDelta: 2, isAvailable: false },
+                        ],
+                };
+                const sel = defaultModifierSelection([group]);
+                expect(sel).toEqual({ 8: [81] });
+                // النقص يبقى مرئيًا للتحقق — العميل يرى سبب المنع بوضوح
+                expect(validateModifierGroups([group], sel).ok).toBe(false);
         });
 });
