@@ -331,8 +331,10 @@
         /* r134-W2 (#17): --state-button-pressed-scale: 0.98 deleted — zero
            consumers (buttons press via active:scale-[0.97] / --press-scale,
            the r130 W2-3 .btn reality); the XC audit caught it as a dead
-           fork of the canon's 0.97 press ladder. */
-        --state-button-pressed-duration: var(--motion-duration-micro);
+           fork of the canon's 0.97 press ladder. r134-V1: the duration twin
+           (--motion-duration-micro alias) was consumer-dead too — deleted
+           with its pin, completing the canon alignment (madarek deleted
+           both this round). */
         --state-button-disabled-opacity: 0.55;
 
         --state-card-hover-elevation: 0 4px 12px rgb(0 0 0 / 0.06);

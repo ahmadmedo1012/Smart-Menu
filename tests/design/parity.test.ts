@@ -1591,7 +1591,8 @@ describe('r130 parity — P1 focus ring + link hover AA + state/premium token fa
       '--state-button-hover-translate',
       // r134-W2 (#17): --state-button-pressed-scale removed — zero consumers
       // (the .btn reality presses at active:scale 0.97, not 0.98).
-      '--state-button-pressed-duration',
+      // r134-V1: --state-button-pressed-duration removed too — consumer-dead
+      // twin (buttons transition via --t-micro directly), madarek-matched.
       '--state-button-disabled-opacity',
       '--state-card-hover-elevation',
       '--state-card-hover-translate',
