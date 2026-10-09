@@ -72,9 +72,10 @@ test.describe("journey: full review (تقييم كامل)", () => {
     await expect(sheet.getByText("أضف تقييمك")).toBeVisible({ timeout: 15_000 });
 
     /* r135: منتقي النجوم صار radiogroup حقيقي (WCAG) — كل نجمة role=radio
-       بوسم «{n} من ٥ نجوم» بالأرقام العربية الهندية (كانت أزرارًا بوسم
-       «تقييم N نجوم» قبل جولة 135). */
-    await sheet.getByRole("radio", { name: "٤ من ٥ نجوم" }).click();
+       بوسم «{n} من ٥ نجوم»: الرقم غربي (سياسة الأرقام الغربية للمنصة —
+       toArabicNumber اسمه خادع: لا يستخدم الهندية أبدًا) والخمسة حرف
+       مشرق في القالب الحرفي. كانت أزرارًا بوسم «تقييم N نجوم» قبل 135. */
+    await sheet.getByRole("radio", { name: "4 من ٥ نجوم" }).click();
     await sheet.getByPlaceholder("اكتب تعليقك (اختياري)").fill(comment);
     await sheet.getByPlaceholder("الاسم (اختياري)").fill(reviewer);
 
