@@ -1,12 +1,20 @@
 import type { PropsWithChildren } from "react";
-import { AppState, type AppStateStatus } from "react-native";
+import { AccessibilityInfo, AppState, Easing, type AppStateStatus } from "react-native";
 import { QueryClient, QueryClientProvider, focusManager } from "@tanstack/react-query";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast, { type ToastConfig } from "react-native-toast-message";
 import { View } from "react-native";
+import { AlertCircle, CheckCircle2, Info, X } from "lucide-react-native";
+
 import { Text } from "@/components/ui/Text";
-import { colors } from "@/theme/colors";
+import { PressableScale } from "@/components/motion/PressableScale";
+import { colors, pastelFamilies } from "@/theme/colors";
+import { elevation } from "@/theme/elevation";
+import { radius } from "@/theme/radius";
+import { motion } from "@/theme/motion";
+import { bezierPoints, easings } from "@/theme/easings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,49 +41,130 @@ focusManager.setEventListener((setFocused) => {
   return () => sub.remove();
 });
 
-const renderToast = ({ type, text1, text2 }: { type: "success" | "error" | "info"; text1?: string; text2?: string }) => {
-  // Madarek dark status tokens (1:1 with web globals.css): success mint
-  // #7FD39A, danger rose #F0938F, info sky #8FBBF2. Toast surface rides the
-  // Madarek card #0D1428 with the accent on the RTL start edge.
-  const accentColor = type === "success" ? colors.mint : type === "error" ? colors.rose : colors.sky;
+/**
+ * r132-F2b (A4 S3, porting the web r131-F4 fleet toast canon): the toast
+ * surface is the premiumToast twin —
+ *   · bottom-END placement (web: sonner bottom-left under dir=rtl; here the
+ *     card rides alignSelf flex-end, which is the inline-end/physical-left
+ *     edge in this forced-RTL app). Was top-positioned (the react-native-
+ *     toast-message default) — the web ruling is bottom-end fleet-wide.
+ *   · 28px icon well (r-md) on the PASTEL solid family ground with the -ink
+ *     glyph (mint success / rose error / yellow info) — was a 4px accent
+ *     stripe with no icon.
+ *   · status coding = the 1px inline-START hairline (the card border stays
+ *     1px; only borderStartColor flips per kind) — was a 4px accent slab.
+ *   · ERROR toasts are MANUAL-DISMISS ONLY (autoHide: false — tap the card,
+ *     the close button, or swipe). Was 4s auto-hide: "تعذّر إرسال الطلب"
+ *     vanished before it could be read, and "تم تسجيل طلبك — تعذّر فتح
+ *     واتساب" (an instruction the user must act on) disappeared with it.
+ *   · SR announcements: every toast fires AccessibilityInfo
+ *     .announceForAccessibility (TalkBack/VoiceOver were silent before) and
+ *     the card carries accessibilityLiveRegion polite + role alert for the
+ *     error family (the web role=alert/status tiering).
+ *   · entrance/exit ride the ladder: 380ms (--t-slow) linear slide on
+ *     --ease-out, mirroring the web animate-slide-up recipe.
+ */
+type ToastKind = "success" | "error" | "info";
+
+const TOAST_WELL: Record<ToastKind, { bg: string; ink: string; hairline: string; Glyph: typeof CheckCircle2 }> = {
+  // Madarek pastel families (colors.ts SSOT) — solid -soft ground + -ink glyph.
+  success: { bg: pastelFamilies.mint.bg, ink: pastelFamilies.mint.ink, hairline: colors.mint, Glyph: CheckCircle2 },
+  error: { bg: pastelFamilies.rose.bg, ink: pastelFamilies.rose.ink, hairline: colors.rose, Glyph: AlertCircle },
+  info: { bg: pastelFamilies.yellow.bg, ink: pastelFamilies.yellow.ink, hairline: colors.yellow, Glyph: Info },
+};
+
+const renderToast = ({
+  type, text1, text2, onHide,
+}: { type: ToastKind; text1?: string; text2?: string; onHide: () => void }) => {
+  const well = TOAST_WELL[type];
+  const Glyph = well.Glyph;
   return (
-    <View style={{
-      // RTL (r130 W2-4): the accent rides the START edge — logical spelling
-      // (borderStart*) renders the same right edge in this forced-RTL app
-      // while staying direction-correct if the app ever flips.
-      backgroundColor: colors.surface, borderStartWidth: 4, borderStartColor: accentColor,
-      borderRadius: 12, padding: 12, marginHorizontal: 16, marginVertical: 8,
-      shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
-      width: "92%", maxWidth: 460, alignSelf: "center",
-    }}>
-      <Text style={{ color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
-      {text2 ? (
-        <Text style={{ color: colors.muted, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 2 }}>{text2}</Text>
-      ) : null}
-    </View>
+    <PressableScale
+      onPress={onHide}
+      accessibilityRole={type === "error" ? "alert" : "text"}
+      accessibilityLiveRegion="polite"
+      style={{
+        flexDirection: "row", alignItems: "flex-start", gap: 12,
+        backgroundColor: colors.surface,
+        borderWidth: 1, borderColor: colors.hairline,
+        // RTL: the status hairline rides the START edge (logical spelling —
+        // same right edge in forced-RTL, direction-correct if the app flips).
+        borderStartWidth: 1, borderStartColor: well.hairline,
+        borderRadius: radius.lg, padding: 12,
+        marginHorizontal: 16, marginVertical: 8,
+        width: "92%", maxWidth: 460,
+        // bottom-END anchor: inline-end = physical left under RTL (the web
+        // twin's sonner bottom-left + dir=rtl).
+        alignSelf: "flex-end",
+        // r132-F2b (A4 N1): the toast shadow consumes theme/elevation rung 3
+        // (the web premiumToast rides --elev-3).
+        ...elevation[3],
+      }}
+    >
+      {/* 28px pastel well — the fleet toast icon grammar (was no icon). */}
+      <View style={{ width: 28, height: 28, borderRadius: radius.md, backgroundColor: well.bg, alignItems: "center", justifyContent: "center", marginTop: 1 }}>
+        <Glyph size={16} color={well.ink} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
+        <Text style={{ color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
+        {text2 ? (
+          <Text style={{ color: colors.muted, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 2 }}>{text2}</Text>
+        ) : null}
+      </View>
+      {/* Manual-dismiss affordance (the web close button twin) — the ONLY
+          way out of an error toast besides swipe/tap-anywhere; 32px lane +
+          hitSlop 4 clears the 44px floor. */}
+      <PressableScale
+        onPress={onHide}
+        hitSlop={4}
+        accessibilityLabel="إغلاق"
+        style={{ width: 32, height: 32, alignItems: "center", justifyContent: "center", marginTop: -4, marginEnd: -4 }}
+      >
+        <X size={16} color={colors.muted} />
+      </PressableScale>
+    </PressableScale>
   );
 };
 
 const customToastConfig: ToastConfig = {
-  success: ({ text1, text2 }) => renderToast({ type: "success", text1, text2 }),
-  error: ({ text1, text2 }) => renderToast({ type: "error", text1, text2 }),
-  info: ({ text1, text2 }) => renderToast({ type: "info", text1, text2 }),
+  success: ({ text1, text2, hide }) => renderToast({ type: "success", text1, text2, onHide: () => hide() }),
+  error: ({ text1, text2, hide }) => renderToast({ type: "error", text1, text2, onHide: () => hide() }),
+  info: ({ text1, text2, hide }) => renderToast({ type: "info", text1, text2, onHide: () => hide() }),
 };
 
 export function AppProviders({ children }: PropsWithChildren) {
+  const insets = useSafeAreaInsets();
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
       </GestureHandlerRootView>
-      <Toast config={customToastConfig} />
+      <Toast
+        config={customToastConfig}
+        position="bottom"
+        bottomOffset={16 + insets.bottom}
+        animationConfig={{ type: "timing", duration: motion.SLOW, easing: Easing.bezier(...bezierPoints(easings.out)) }}
+      />
     </QueryClientProvider>
   );
 }
 
+function showToast(kind: ToastKind, text1: string, text2?: string) {
+  Toast.show({
+    type: kind, text1, text2,
+    position: "bottom",
+    // r132-F2b (r131 fleet doctrine "error toasts manual-dismiss"): the
+    // failure reason never auto-vanishes — success/info keep the 4s default.
+    autoHide: kind !== "error",
+  });
+  // Live-region announcement: the custom toast surface renders outside the
+  // accessibility tree the screen reader listens to — announce it explicitly
+  // (the web twin relies on role=alert/status implicit aria-live).
+  AccessibilityInfo.announceForAccessibility(text2 ? `${text1}. ${text2}` : text1);
+}
+
 export const toast = {
-  success: (text1: string, text2?: string) => Toast.show({ type: "success", text1, text2 }),
-  error: (text1: string, text2?: string) => Toast.show({ type: "error", text1, text2 }),
-  info: (text1: string, text2?: string) => Toast.show({ type: "info", text1, text2 }),
+  success: (text1: string, text2?: string) => showToast("success", text1, text2),
+  error: (text1: string, text2?: string) => showToast("error", text1, text2),
+  info: (text1: string, text2?: string) => showToast("info", text1, text2),
 };

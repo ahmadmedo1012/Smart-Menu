@@ -10,8 +10,9 @@
  */
 import { DarkTheme, type Theme } from "@react-navigation/native";
 import type { NativeStackNavigationOptions } from "@react-navigation/native-stack";
-import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
+import type { BottomTabNavigationOptions, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 
+import { PressableScale } from "@/components/motion/PressableScale";
 import { PLEX_SEMIBOLD } from "@/theme/typography";
 import { colors } from "@/theme/colors";
 
@@ -40,6 +41,19 @@ export const STACK_SCREEN_OPTIONS: NativeStackNavigationOptions = {
   contentStyle: { backgroundColor: colors.night },
 };
 
+/**
+ * r132-F2b (A4 S9, r131 fleet ruling "press 0.97 controls / 0.93 nav"): the
+ * bottom-nav thumb press rides the STRONGER 0.93@80ms register — the one
+ * rung PressableScale's ladder reserves for bottom-nav thumbs. Both tab bars
+ * (AdminStack + OwnerStack) ride react-navigation's native feedback with no
+ * custom register before this; the shared TAB_SCREEN_OPTIONS below wires
+ * them both at once. Native props (role=tab, selected state, label) pass
+ * straight through PressableScale.
+ */
+function TabBarButton(props: BottomTabBarButtonProps) {
+  return <PressableScale scaleTo={0.93} {...props} />;
+}
+
 /** Bottom-tab chrome — surface-1 bar, gold active tint, SemiBold labels. */
 export const TAB_SCREEN_OPTIONS: BottomTabNavigationOptions = {
   headerShown: true,
@@ -58,4 +72,5 @@ export const TAB_SCREEN_OPTIONS: BottomTabNavigationOptions = {
   tabBarInactiveTintColor: colors.muted,
   // r126-M1: same fix as headers — tab labels are native chrome.
   tabBarLabelStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 11 },
+  tabBarButton: TabBarButton,
 };

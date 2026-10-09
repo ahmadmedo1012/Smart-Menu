@@ -11,8 +11,10 @@
  *      the seeded gallery images and navigates with the next arrow.
  *      Fixture adaptation: qa-seed.mjs ships no gallery, so the localhost
  *      al-waha-cafe-demo restaurant was given one via a data-only DB update
- *      (gallery = ['/hero-phone.webp','/main21.webp','/og-default.png'] —
- *      local public assets so /_next/image can optimize them).
+ *      (gallery = ['/demo/cover-interior.webp','/demo/cover-barista.webp',
+ *      '/og-default.png'] — r132: repointed off the deleted dead heroes
+ *      hero-phone/main21 to the live demo covers, the same paths the
+ *      round96 demo migration seeds, so /_next/image can optimize them).
  *   3. Wizard back (رجوع المعالج) — registration wizard back-navigation
  *      returns to the previous step WITHOUT losing entered data, and a
  *      forward again keeps the same data (no submit — no account created).

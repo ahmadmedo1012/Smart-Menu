@@ -389,7 +389,10 @@ describe('r121 P-5 — plan-days helpers behind the expiry banner', () => {
 
         it('blocked category save surfaces the server reason (menu-page catch aligned to use-item-save)', () => {
                 const menu = src('src/app/(protected)/owner/menu/page.tsx');
-                expect(menu).toContain("getErrorMessage(e, 'فشل الحفظ')");
+                // r131 غيّرت الفعل «فشل» إلى «تعذر» (مسح الفعل على مستوى العائلة) —
+                // الدبوس لحق بالعائلة r132؛ العقد نفسه (getErrorMessage يمرر سبب
+                // الخادم) بلا تغيير.
+                expect(menu).toContain("getErrorMessage(e, 'تعذر الحفظ')");
         });
 });
 

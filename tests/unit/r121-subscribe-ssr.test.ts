@@ -109,9 +109,11 @@ describe('r121 G-5 — /subscribe SSR shell (pricing twin)', () => {
 describe('r121 G-5 — fallback path preserved (round86-B5 contract)', () => {
         it('initialPlans=null → the loading state still renders (client fetch takes over)', () => {
                 const html = render(null);
-                // the visible spinner + the SR live region (LoadingAnnouncer's text
-                // itself is effect-driven, so it never appears in any SSR HTML)
-                expect(html).toContain('animate-spin');
+                // r131 استبدلت مؤشر الدوران بهياكل skeleton (موجة loading.tsx ×16)
+                // — الدبوس لحق بالعائلة r132: نفس عقد fallback (الحالة + المنطقة
+                // الحية للقارئ) بشراسة skeleton بدل animate-spin. LoadingAnnouncer's
+                // text itself is effect-driven, so it never appears in any SSR HTML.
+                expect(html).toContain('skeleton');
                 expect(html).toMatch(/role="status"/);
         });
 

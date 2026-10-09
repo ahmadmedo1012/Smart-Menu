@@ -101,7 +101,12 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
              على مستوى المستند كله فتتصادم مع هيكل التطبيق الذي يغلف الصفحة. */
           .print-sheet, .print-sheet * { margin: 0; padding: 0; box-sizing: border-box; }
           .print-sheet {
-            font-family: 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+            /* r132 (A3 §1.3 re-point): the print-only Noto Naskh Arabic webfont
+               (113.7KB, the sheet's sole consumer) was deleted with the other
+               never-fetched faces — the sheet now stacks the already-shipped
+               IBM Plex Sans Arabic (Traditional Arabic stays first: the
+               Windows-native Naskh cut prints where installed). */
+            font-family: 'Traditional Arabic', 'IBM Plex Sans Arabic', serif;
             color: var(--print-foreground); background: var(--print-background);
             line-height: 1.6; padding: 1.5cm;
             /* معاينة على الشاشة كورقة A4 بيضاء داخل هيكل التطبيق (تفتح في تبويب مستقل) */

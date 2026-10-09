@@ -7,7 +7,7 @@ import { Check } from "lucide-react-native";
 
 import { api } from "@/services/api/client";
 import { Button } from "@/components/ui/Button";
-import { Spinner, ErrorState } from "@/components/ui";
+import { Spinner, ErrorState, EmptyState } from "@/components/ui";
 import { Text } from "@/components/ui/Text";
 import { toast } from "@/app/providers";
 import { formatPrice } from "@/lib/format";
@@ -61,6 +61,18 @@ export function SubscribePlanScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <ErrorState message={loadError} onRetry={() => { void refetch(); }} />
+      </SafeAreaView>
+    );
+  }
+
+  // r132-F2b (A4 S6b): the plans-empty branch — PricingScreen has one, this
+  // screen didn't: a trapped UNPAID owner against an empty plans API saw a
+  // bare screen with a dead «التالي». Same EmptyState family + copy as the
+  // pricing twin.
+  if (plans.length === 0) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+        <EmptyState title="لا توجد باقات متاحة" />
       </SafeAreaView>
     );
   }
@@ -151,7 +163,11 @@ export function SubscribeMenuScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
+      {/* r132-F2b (A4 S5): paddingBottom 96 → 140 + insets.bottom (the
+          sibling formula at the plan screen) — the sticky CTA zone is
+          16 + insets.bottom + 56 ≈ 106px on a 34px-inset iPhone, so 96
+          left the last ~10px of the واتساب field under the CTA. */}
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 140 + insets.bottom }}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>بيانات مطعمك</Text>
         <LabelAndInput label="اسم المطعم" value={name} onChange={setName} placeholder="مطعم البرج" />
         <LabelAndInput label="الرابط (slug)" value={slug} onChange={(v) => setSlug(v.toLowerCase().replace(/[^a-z0-9-]/g, ""))} placeholder="al-borg" />
@@ -172,10 +188,26 @@ export function SubscribePaymentScreen() {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // r132-F2b (A4 S6a): field-level error halos — the money form had ZERO
+  // client-side validation; phone:"" / amount:Number("") → 0 were POSTed
+  // and the owner discovered the problem as a generic server-400 toast.
+  const [fieldErrors, setFieldErrors] = useState<{ phone?: boolean; amount?: boolean }>({});
   // r118-B3 (A6 P2-1): in-screen success state — see onPay.
   const [submitted, setSubmitted] = useState(false);
 
   const onPay = async () => {
+    /* r132-F2b (A4 S6a, SO A6 "zero field validation" ruling twin): gate
+       the POST on required sender phone (≥8 digits) + amount > 0, with the
+       rose fieldFocusBorderStyle(_, error) halo already in the grammar. */
+    const amountNum = Number(amount);
+    const nextErrors: { phone?: boolean; amount?: boolean } = {};
+    if (phone.replace(/[^\d]/g, "").length < 8) nextErrors.phone = true;
+    if (!amount.trim() || Number.isNaN(amountNum) || amountNum <= 0) nextErrors.amount = true;
+    if (nextErrors.phone || nextErrors.amount) {
+      setFieldErrors(nextErrors);
+      toast.error(nextErrors.phone ? "يُرجى إدخال رقم مرسل صحيح (8 أرقام على الأقل)" : "يُرجى إدخال مبلغ صحيح للتحويل");
+      return;
+    }
     setSubmitting(true);
     try {
       const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
@@ -237,7 +269,9 @@ export function SubscribePaymentScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
+      {/* r132-F2b (A4 S5): same 140 + insets.bottom fix as the details step —
+          the receipt-note card rode under the CTA on notched devices. */}
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 140 + insets.bottom }}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>طريقة الدفع</Text>
         <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
           {(["libyana", "madar", "bank"] as const).map((p) => (
@@ -249,8 +283,8 @@ export function SubscribePaymentScreen() {
             </PressableScale>
           ))}
         </View>
-        <LabelAndInput label="رقم المرسل" value={phone} onChange={setPhone} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
-        <LabelAndInput label="المبلغ" value={amount} onChange={setAmount} placeholder="50" keyboardType="numeric" />
+        <LabelAndInput label="رقم المرسل" value={phone} error={fieldErrors.phone} onChange={(v) => { setPhone(v); if (fieldErrors.phone) setFieldErrors((e) => ({ ...e, phone: false })); }} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
+        <LabelAndInput label="المبلغ" value={amount} error={fieldErrors.amount} onChange={(v) => { setAmount(v); if (fieldErrors.amount) setFieldErrors((e) => ({ ...e, amount: false })); }} placeholder="50" keyboardType="numeric" />
         {/* r126-M3: the old copy promised receipt upload «من شاشة الإعدادات
             لاحقًا» — that feature does not exist (the expo-image-picker
             plugin + camera permissions were removed with it). Honest copy:
@@ -268,16 +302,18 @@ export function SubscribePaymentScreen() {
   );
 }
 
-function LabelAndInput({ label, value, onChange, placeholder, keyboardType }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; keyboardType?: "default" | "phone-pad" | "numeric" }) {
+function LabelAndInput({ label, value, onChange, placeholder, keyboardType, error }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; keyboardType?: "default" | "phone-pad" | "numeric"; error?: boolean }) {
   // r131-F10 (fix 7): the wizard's shared field rides the app-wide focus
   // halo (fieldFocusBorderStyle) — these inputs had no focus treatment.
+  // r132-F2b (A4 S6a): the error half of the grammar lights up too (rose
+  // resting border while the field carries a validation error).
   const [focused, setFocused] = useState(false);
   return (
     <View style={{ marginBottom: 12 }}>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, marginBottom: 4 }}>{label}</Text>
       {/* r126-M6: minHeight (was height: 44) + paddingVertical — text grows
           with system font scale instead of clipping at fontScale ≥1.3. */}
-      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor={colors.muted} keyboardType={keyboardType || "default"} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} style={{ minHeight: 44, borderRadius: 8, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, ...fieldFocusBorderStyle(focused) }} />
+      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor={colors.muted} keyboardType={keyboardType || "default"} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} style={{ minHeight: 44, borderRadius: 8, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, ...fieldFocusBorderStyle(focused, error) }} />
     </View>
   );
 }

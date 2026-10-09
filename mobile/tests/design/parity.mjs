@@ -50,6 +50,10 @@
  *   landing grammar 6 · scope-rule negatives 3
  *   r131-F10 11 · raw-Pressable/pressed-register bans · 24px price metric ×2
  *   · 56px grey state tile · field-focus grammar ×3 · copy rulings ×2
+ *   r132-F2b 21 · whatsapp trunk-0 · skeleton canon · toast recipe · 44px
+ *   input · FAB inset · wizard CTA padding ×3 · payment gate · plans-empty
+ *   · EmptyState family ×2 · 0.93 tab press · elevation ladder · A10 twins
+ *   (formatPrice smart-trim · receipt decimals/labels · network-error map)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
@@ -80,6 +84,17 @@ const inputSrc = read('src/components/ui/Input.tsx');
 const menuScreenSrc = read('src/screens/public/MenuScreen.tsx');
 const pricingScreenSrc = read('src/screens/public/PricingScreen.tsx');
 const subscribeScreensSrc = read('src/screens/subscribe/SubscribeScreens.tsx');
+// r132-F2b section sources — same RAW doctrine (what ships is what gets
+// pinned). navTheme is .tsx since r132 (it renders the tab button now).
+const providersSrc = read('src/app/providers.tsx');
+const ownerScreensSrc = read('src/screens/owner/OwnerScreens.tsx');
+const navThemeSrc = read('src/navigation/navTheme.tsx');
+const whatsappSrc = read('src/lib/whatsapp.ts');
+const receiptSrc = read('src/lib/receipt.ts');
+const formatSrc = read('src/lib/format.ts');
+const getErrorMessageSrc = read('src/lib/get-error-message.ts');
+const skeletonSrc = read('src/components/ui/Skeleton.tsx');
+const elevationSrc = read('src/theme/elevation.ts');
 const appJson = JSON.parse(read('app.json'));
 const pkg = JSON.parse(read('package.json'));
 
@@ -755,8 +770,8 @@ check(
   'MenuScreen raw fields (search + cart sheet) must ride fieldFocusBorderStyle like the Input primitive',
 );
 check(
-  subscribeScreensSrc.includes('fieldFocusBorderStyle(focused)'),
-  'SubscribeScreens LabelAndInput must ride fieldFocusBorderStyle (the wizard fields had no focus treatment)',
+  subscribeScreensSrc.includes('fieldFocusBorderStyle(focused, error)'),
+  'SubscribeScreens LabelAndInput must ride fieldFocusBorderStyle (the wizard fields had no focus treatment; r132-F2b adds the error half for the payment gate)',
 );
 
 // 5. Copy rulings: error verb تعذّر everywhere (the فشل/تعذر fleet split is
@@ -769,6 +784,152 @@ check(
 check(
   !codeOnly.some(({ s }) => /جاري(?!ٍ)/.test(s)),
   'جارٍ keeps its tanween — no bare جاري in code strings (r131 typo sweep must stay clean)',
+);
+
+// ── §r132-F2b · round-132 mobile polish pins (whatsapp twin · skeleton ·
+// toast recipe · 44px input · FAB inset · wizard CTA padding · payment
+// gate · plans-empty · EmptyState family · 0.93 tab press · elevation
+// ladder · A10 stale-twin trio) ──────────────────────────────────────────
+// Same doctrine as §r131-F10: text scans over the RAW sources read at the
+// top — what ships in the repo is what gets pinned, so the next drift
+// surfaces in CI the same way a token drift does.
+
+// 1. WhatsApp trunk-0 (A10 finding 3 — the MUST): the mobile lib carries
+//    the web r109-F2 fix — a leading local trunk 0 (0912345678) becomes
+//    218912345678, because wa.me rejects wa.me/0… verbatim (orders to
+//    local-format restaurants were never delivered). And the FAB rides the
+//    ONE lib implementation — the r103-F9 inline third copy predates the
+//    fix and is gone.
+check(
+  whatsappSrc.includes('digits = `218${digits.slice(1)}`'),
+  'whatsapp lib must carry the r109-F2 trunk-0 fix (09… → 218…) — the web money-path fix the mobile twin lacked (dead wa.me/0… links for local Libyan numbers)',
+);
+check(
+  fabSrc.includes('normalizeWaNumber(number)') && !fabSrc.includes('digits.startsWith("00")'),
+  'FloatingWhatsApp must ride the ONE lib normalizer — no third inline copy (A10 #3: the inline copy shipped the pre-fix body)',
+);
+
+// 2. Skeleton canon (A4 S1, r131 fleet ruling "skeleton 1200 linear + RM
+//    kill"): the money path's first paint is a SHAPE skeleton matching the
+//    loaded layout, not a centered spinner.
+check(
+  skeletonSrc.includes('duration: 1200') && skeletonSrc.includes('Easing.linear'),
+  'the Skeleton primitive rides the fleet canon: 1200ms LINEAR loop (ease-in-out pulsing the sweep velocity is retired)',
+);
+check(
+  skeletonSrc.includes('useReducedMotion()') && skeletonSrc.includes('progress.value = reducedMotion'),
+  'Skeleton must kill the sweep under reduced motion (the web twin zeroes --motion-duration-skeleton; the driver resolves to 0 under RM)',
+);
+check(
+  menuScreenSrc.includes('<Skeleton width={64} height={64} borderRadius={8} />') && !menuScreenSrc.includes('<Spinner'),
+  'MenuScreen loading = SHAPE skeletons matching the item-card layout (64px thumb + text lines + price row on surface r-12 hairline cards) — the centered spinner is retired',
+);
+
+// 3. Toast recipe (A4 S3, the web r131-F4 fleet toast canon port):
+//    bottom-end placement, 28px pastel icon well, 1px status hairline on
+//    the inline-start edge, manual-dismiss errors, SR announcements.
+check(
+  providersSrc.includes('position="bottom"') && providersSrc.includes('alignSelf: "flex-end"'),
+  'toasts are bottom-END placed (the fleet ruling; was react-native-toast-message\u2019s top default + centered)',
+);
+check(
+  providersSrc.includes('autoHide: kind !== "error"'),
+  'error toasts are MANUAL-DISMISS (autoHide: false) — the failure reason never auto-vanishes after 4s (r131 doctrine)',
+);
+check(
+  providersSrc.includes('width: 28, height: 28, borderRadius: radius.md')
+    && providersSrc.includes('borderWidth: 1, borderColor: colors.hairline')
+    && providersSrc.includes('borderStartWidth: 1'),
+  'toast card = the web premiumToast recipe: 28px r-md pastel icon well + 1px hairline card with the status color on the inline-START edge (was a 4px accent slab, no icon)',
+);
+check(
+  providersSrc.includes('announceForAccessibility'),
+  'toasts announce via AccessibilityInfo.announceForAccessibility — TalkBack/VoiceOver were served silence before',
+);
+
+// 4. 44px input (A4 S2, the r131 fleet input ruling — the web 48→44 root
+//    fix reaches the mobile leg): ONE height for all fields.
+check(
+  inputSrc.includes('min-h-11') && !stripComments(inputSrc).includes('min-h-12'),
+  'the <Input>/<PasswordInput> primitives ride the fleet 44px input height (min-h-11; the 48px min-h-12 split-brain is retired)',
+);
+
+// 5. FAB safe-area inset (A4 S4, the r131 deferred straggler): every
+//    floating element in the app is inset-aware — now including the FAB.
+check(
+  fabSrc.includes('useSafeAreaInsets()') && fabSrc.includes('62 + insets.bottom'),
+  'FloatingWhatsApp bottom offset must be inset-aware (62 + insets.bottom — was a hardcoded 96 that ignored insets)',
+);
+
+// 6. Wizard sticky-CTA padding (A4 S5): all three wizard screens ride the
+//    140 + insets.bottom formula — the CTA zone is ~106px on a 34px-inset
+//    iPhone, so paddingBottom 96 left the last field under the CTA.
+check(
+  (subscribeScreensSrc.match(/paddingBottom: 140 \+ insets\.bottom/g) ?? []).length === 3
+    && !subscribeScreensSrc.includes('paddingBottom: 96'),
+  'all three subscribe wizard screens ride paddingBottom: 140 + insets.bottom (the sibling formula — the sticky CTA must never cover the last field)',
+);
+
+// 7. Payment money-form gate (A4 S6a): no POST with an empty sender phone
+//    or a zero amount — the owner saw a generic 400 toast instead of a
+//    field-level error.
+check(
+  subscribeScreensSrc.includes('fieldErrors') && subscribeScreensSrc.includes('amountNum <= 0'),
+  'the payment form gates the POST on required sender phone (≥8 digits) + amount > 0, with rose halos via fieldFocusBorderStyle(_, error)',
+);
+
+// 8. Plans-empty branch (A4 S6b): the trapped-owner screen ships the same
+//    empty state as its pricing twin (was a bare screen + dead «التالي»).
+check(
+  subscribeScreensSrc.includes('لا توجد باقات متاحة'),
+  'SubscribePlan ships the plans-empty branch (the pricing twin\u2019s copy) — no dead «التالي» against an empty plans API',
+);
+
+// 9. EmptyState family (A4 S8): the two inline raw-text empties ride the
+//    canonical 56px well (fleet ruling "empty = 56 grey / 18/600").
+check(
+  menuScreenSrc.includes('title="السلة فارغة"') && ownerScreensSrc.includes('title="لا توجد طلبات بعد"'),
+  'the cart-sheet + dashboard empties ride the EmptyState family (no raw 13px muted text bypassing the 56px well)',
+);
+
+// 10. 0.93 bottom-nav press (A4 S9, r131 fleet ruling "0.97 controls /
+//     0.93 nav"): the shared tab chrome wires the stronger thumb register
+//     (covers BOTH tab bars — admin + owner — via TAB_SCREEN_OPTIONS).
+check(
+  navThemeSrc.includes('scaleTo={0.93}') && navThemeSrc.includes('tabBarButton: TabBarButton'),
+  'bottom-nav thumbs ride the 0.93 press register via the shared tab chrome (was react-navigation native feedback with no custom register)',
+);
+
+// 11. Elevation ladder (A4 N1): the dead elevationCss carrier is gone, the
+//     three real shadow sites consume theme/elevation rungs, and no
+//     hand-rolled Android elevation survives outside the ladder module.
+check(
+  !stripComments(elevationSrc).includes('elevationCss'),
+  'the dead elevationCss CSS-string carrier is gone (zero imports + a stale "pinned by parity" claim — A4 N1 deletion half)',
+);
+check(
+  fabSrc.includes('...elevation[6]') && menuScreenSrc.includes('...elevation[6]') && providersSrc.includes('...elevation[3]'),
+  'the FAB + sticky cart CTA ride elevation rung 6 and the toast rides rung 3 (the web --elev-3 twin) — no hand-rolled off-ladder shadow twins',
+);
+check(
+  !codeOnly.some(({ f, s }) => f !== 'src/theme/elevation.ts' && /elevation:\s*\d/.test(s)),
+  'no hand-rolled elevation: <number> styles outside theme/elevation.ts (the ladder is the only carrier)',
+);
+
+// 12. A10 finding 5 — the stale-twin trio (web round-12x fixes reach the
+//     mobile leg): price smart-trim, receipt decimals/labels, network
+//     error copy.
+check(
+  formatSrc.includes("fixed.replace(/\\.?0+$/, '')"),
+  'formatPrice rides the web r120 smart trim (12.75 → «12.75», never a bare «.0», max 2dp) — the platforms must agree on money strings',
+);
+check(
+  !receiptSrc.includes('decimals: 1') && receiptSrc.includes('getPickupTypeMeta, PICKUP_TYPE_META'),
+  'receipts ride decimals: 2 + the canonical pickup labels (web r121: the owner share said 7.3 for a 7.25 item; unknown pickup enums printed raw)',
+);
+check(
+  getErrorMessageSrc.includes('/^network request failed$/i') && getErrorMessageSrc.includes('NETWORK_ERROR_ARABIC'),
+  'getErrorMessage maps RN fetch engine strings to friendly Arabic — raw English «Network request failed» never surfaces in the Arabic UI',
 );
 
 // ── report ───────────────────────────────────────────────────────────────────

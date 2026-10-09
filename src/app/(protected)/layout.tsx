@@ -97,14 +97,16 @@ export default async function RootLayout({
         // 2×2 duplication. React forces crossorigin=anonymous for as:"font".
         /* MADAREK PARITY — first paint preloads only the two arabic subsets
            (~86 KB): IBM Plex Sans Arabic 400 + 700 (font-display: swap on the
-           rest; Cairo/Readex stay registered as fallbacks via /fonts/fonts.css). */
+           rest; r132/A3 §1.3: the never-fetched Cairo/Readex/Naskh/Serif
+           fallback faces were deleted — /fonts/fonts.css ships Plex only). */
         preload('/fonts/plex-sans-arabic-400-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/plex-sans-arabic-700-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
         // r93-W2a (U1): خط العناوين — المصدر الواحد للحقيقة هو تعريف @theme inline
-        // في globals.css (Readex Pro أولًا) وسطر :root مرآة مطابقة له؛ هذا الـ
+        // في globals.css (IBM Plex Sans Arabic أولًا) وسطر :root مرآة مطابقة له؛ هذا الـ
         // preload يطابق الجذر العام ويمنع وميض تبديل خط العناوين هنا.
         // (تعليق r88-A2 القديم ادّعى أن Readex Pro «فعّال في الوضع الفاتح» —
-        // غير دقيق؛ وُحّد في r93-W2a.) — نُقل إلى هنا مع تحويل التخطيط إلى
+        // غير دقيق؛ وُحّد في r93-W2a. r132/A3 §1.3: لم يعد لReadex Pro وجود
+        // أصلاً — وجوهها حُذفت من /fonts.) — نُقل إلى هنا مع تحويل التخطيط إلى
         // fragment في r119 (الجذر يملك <html>/<body> الآن).
         const nonce = (await headers()).get('x-nonce') ?? '';
         // r119-S5-P1-3: <html>/<head>/<body> now come from the ROOT layout

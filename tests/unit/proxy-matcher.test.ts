@@ -38,13 +38,15 @@ function matches(pathname: string): boolean {
 
 describe('proxy matcher — static assets are actually excluded (B-1)', () => {
         const SKIPPED = [
-                '/fonts/cairo-arabic.woff2',
-                '/fonts/readex-pro.woff',
+                // r132: repointed off the deleted cairo/readex fallback faces —
+                // same .woff2-under-/fonts/ shape, both live files.
+                '/fonts/plex-sans-arabic-400-normal-arabic.woff2',
+                '/fonts/plex-mono-400-normal-latin.woff2',
                 '/fonts/fonts.css',
-                // round94-W3: promo.mp4 was deleted (dead weight, reports A+F) — the
-                // path stays as a matcher-regex sample only: what's under test is the
-                // .mp4 EXTENSION exclusion, not the file's existence. promo-poster.webp
-                // (still present, pending owner decision) keeps /video/ real.
+                // round94-W3 + r132: promo.mp4 was deleted (dead weight, reports
+                // A+F) and public/video/ itself is gone since round94 — the
+                // paths stay as matcher-regex samples only: what's under test
+                // is the extension exclusion, not the file's existence.
                 '/video/promo.mp4',
                 '/video/promo-poster.webp',
                 '/icon-192.png',
@@ -52,8 +54,11 @@ describe('proxy matcher — static assets are actually excluded (B-1)', () => {
                 '/og-default.png',
                 '/apple-touch-icon.png',
                 '/brand-icon.png',
-                '/main21.webp',
-                '/hero-phone.webp',
+                // r132: hero-phone.webp + main21.webp were deleted (dead heroes,
+                // A3 §1.1) — the .webp exclusion sample now rides the live demo
+                // covers (the round96 migration's own gallery paths).
+                '/demo/cover-interior.webp',
+                '/demo/cover-barista.webp',
                 '/favicon.ico',
                 // literals that were already correctly excluded — must stay excluded
                 '/manifest.json',

@@ -50,7 +50,7 @@ When working on ANY component or page, apply professional, world-class design st
 - It is PROHIBITED to finish ANY UI task before running a self-review (UI/UX Review) covering: visual consistency, responsiveness across screen sizes, and RTL support without any distortion.
 - No UI task is complete until the UI/UX Review passes.
 
-**Arabic-first**: RTL بـ `<html dir="rtl" lang="ar">`، خطوط **self-hosted** تُخدم من `/fonts/fonts.css` (روابط stylesheet في الـlayout + preload لأوزان cairo-arabic.woff2 وreadex-pro.woff2 العربية، font-display: swap) — **ليست next/font** ولا خطوط Google الخارجية (قرار موثّق: صفر جولة شبكة حاجبة للعرض)، CSS logical properties (`ms-`/`me-`).
+**Arabic-first**: RTL بـ `<html dir="rtl" lang="ar">`، خطوط **self-hosted** تُخدم من `/fonts/fonts.css` (روابط stylesheet في الـlayout + preload لوزني plex-sans-arabic-400/700 العربية — r132/A3 §1.3: وجوه القاهرة/النسخ/ريدكس/سيريف الاحتياطية حُذفت كلها؛ /fonts فيه عائلة IBM Plex فقط، font-display: swap) — **ليست next/font** ولا خطوط Google الخارجية (قرار موثّق: صفر جولة شبكة حاجبة للعرض)، CSS logical properties (`ms-`/`me-`).
 
 **اللون البرتقالي**: `#f66d0f` (oklch(0.55 0.19 45)). الوضع المظلم افتراضي، `.light` override.
 

@@ -101,7 +101,7 @@ const nextConfig: NextConfig = {
                                 ],
                         },
                         // round85-B7: immutable caching for fingerprint-free public assets.
-                        // ~1.6MB of fonts/video files previously revalidated on every
+                        // ~1.6MB of font files previously revalidated on every
                         // QR visit (Vercel static default is must-revalidate) — now cached for
                         // a year with zero round trips for repeat visitors.
                         // (round87-C2: /animations rule dropped — the .lottie cluster was deleted)
@@ -111,12 +111,10 @@ const nextConfig: NextConfig = {
                                         { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
                                 ],
                         },
-                        {
-                                source: '/video/:path*',
-                                headers: [
-                                        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-                                ],
-                        },
+                        // r132 (A3 should#7): the /video/:path* immutable rule deleted —
+                        // public/video/ itself is gone (promo.mp4 removed round94);
+                        // the rule matched nothing. The r121-G-3 /demo/:path* rule
+                        // below carries the image-caching story now.
                         // OG card re-renders on rebrand — cache for a day + serve stale while
                         // revalidating instead of a hard year
                         {
@@ -153,28 +151,11 @@ const nextConfig: NextConfig = {
                         // round92-D3 (plan D3, from 1-d P1 finding): the two heaviest public
                         // images — main21.webp (122K, ShowcaseSection) and hero-phone.webp
                         // (77K, HeroSection) — had NO rule and were re-downloaded on every
-                        // visit (~197K per new QR scan). Different lifetimes by naming
-                        // convention, verified via git history (each file touched exactly
-                        // once — but the conventions differ):
-                        //   - main21.webp carries its version IN the filename (main**21**) —
-                        //     a replacement ships as main22.webp, so the old immutable cache
-                        //     entry is never wrong → same policy as /fonts and /video.
-                        //   - hero-phone.webp is an unversioned brand asset (was replaced
-                        //     in-place once: png→webp round) — a future in-place swap under
-                        //     the same URL must reach visitors, so it gets the og-default
-                        //     rebrand policy (1 day + SWR a week) instead of immutable.
-                        {
-                                source: '/main21.webp',
-                                headers: [
-                                        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-                                ],
-                        },
-                        {
-                                source: '/hero-phone.webp',
-                                headers: [
-                                        { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
-                                ],
-                        },
+                        // visit (~197K per new QR scan). DELETED r132 (A3 §1.1): both files
+                        // died with the r128-F1b/r129 landing redesigns (zero render sites,
+                        // 199.5KB shipped on every deploy) — their cache rules went with
+                        // them, along with the (already-matching-nothing) /video/:path*
+                        // rule above.
                         // round94-W3 (A-Low6): brand-icon.png had NO rule — every direct
                         // fetch revalidated (max-age=0, must-revalidate). In practice it is
                         // rendered through _next/image (Header/Footer/login — the optimizer
@@ -193,10 +174,8 @@ const nextConfig: NextConfig = {
                         // max-age=0, must-revalidate). They are demo-stable but
                         // regenerable IN PLACE (r96-generate-demo-images.sh writes the
                         // same filenames), so they get the "stable but regenerable"
-                        // week + SWR-a-day policy (hero-phone / icon-512 family), NOT
-                        // main21's immutable — that precedent requires the version in
-                        // the filename, and a regenerated demo/<name>.webp must reach
-                        // visitors within the week. NOTE: this rule must live HERE,
+                        // week + SWR-a-day policy (the icon-512 family) — a regenerated
+                        // demo/<name>.webp must reach visitors within the week. NOTE: this rule must live HERE,
                         // not proxy.ts — the proxy matcher deliberately skips image
                         // extensions (round89-B1), so a proxy rule can never see
                         // /demo/*.webp; static-asset caching has always been this

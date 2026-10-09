@@ -13,7 +13,9 @@ import { api } from "@/services/api/client";
 import { OptimizedImage } from "@/components/shared/OptimizedImage";
 import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { Button } from "@/components/ui/Button";
-import { EmptyState, ErrorState, Spinner } from "@/components/ui";
+import { EmptyState, ErrorState } from "@/components/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { elevation } from "@/theme/elevation";
 import { toast } from "@/app/providers";
 import { useCart } from "@/store/cart";
 import { buildWhatsAppShareUrl, normalizeWaNumber } from "@/lib/whatsapp";
@@ -147,9 +149,43 @@ export function MenuScreen() {
   });
 
   if (loading) {
+    /* r132-F2b (A4 S1, r131 fleet ruling "skeleton 1200 linear + RM kill"):
+       the money path's first paint is a SHAPE skeleton — header + search +
+       pills + 4 item-card rows ([64px thumb + two text lines + price row] on
+       surface r-12 hairline cards, exactly the MenuItemCard geometry) riding
+       the family Skeleton primitive. Was a centered spinner: told the diner
+       nothing about the page and made fast networks look slow. */
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}><Spinner /></View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]} accessibilityLabel="جارٍ تحميل المنيو">
+        <View style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.hairline }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <Skeleton width={48} height={48} borderRadius={12} />
+            <View style={{ flex: 1, gap: 6 }}>
+              <Skeleton width={"60%"} height={18} />
+              <Skeleton width={"40%"} height={12} />
+            </View>
+          </View>
+        </View>
+        <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+          <Skeleton width={"100%"} height={44} borderRadius={8} />
+        </View>
+        <View style={{ paddingVertical: 8 }}>
+          <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 16 }}>
+            {[72, 56, 64, 56].map((w, i) => <Skeleton key={i} width={w} height={30} borderRadius={16} />)}
+          </View>
+        </View>
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
+              <Skeleton width={64} height={64} borderRadius={8} />
+              <View style={{ flex: 1, gap: 6 }}>
+                <Skeleton width={"55%"} height={14} />
+                <Skeleton width={"80%"} height={11} />
+                <Skeleton width={60} height={14} />
+              </View>
+            </View>
+          ))}
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -261,8 +297,9 @@ export function MenuScreen() {
             style={{
               flexDirection: "row", alignItems: "center", justifyContent: "space-between",
               backgroundColor: colors.gold, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12,
-              shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
+              // r132-F2b (A4 N1): the shadow consumes theme/elevation rung 6
+              // (the floating-CTA register) instead of hand-rolling twins.
+              ...elevation[6],
             }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <ShoppingCart size={18} color={colors.void} />
@@ -710,7 +747,14 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
         </View>
       ) : null}
       {items.length === 0 ? (
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", paddingVertical: 24 }}>السلة فارغة</Text>
+        /* r132-F2b (A4 S8): the in-sheet empty rides the canonical EmptyState
+           well (56px grey tile + 18/600) — was 13px muted raw text, the exact
+           grammar the fleet ruling "empty = 56 grey / 18/600" retired. */
+        <EmptyState
+          title="السلة فارغة"
+          description="أضف أصنافًا من المنيو لتبدأ الطلب"
+          icon={<ShoppingCart size={24} color={pastelFamilies.grey.deep} />}
+        />
       ) : (
         items.map((i) => (
           <View key={i.id} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.hairline }}>

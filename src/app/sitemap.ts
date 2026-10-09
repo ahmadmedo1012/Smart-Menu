@@ -1,7 +1,16 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
+import { error as logError } from '@/lib/logger';
 
 import { SITE_ORIGIN } from '@/lib/seo';
+
+// r132 (A3 §4 / A11 SM-P2): the sitemap must degrade, never hard-fail. The
+// route used to hit Prisma bare — `next build` without a live PG (the r130
+// local-build blocker) and runtime DB blips 500'd /sitemap.xml entirely,
+// losing even the 4 static routes. Now: DB failure → log + serve the static
+// base list. Daily ISR keeps a degraded (build-time) list self-healing once
+// the DB is reachable again — no redeploy needed.
+export const revalidate = 86400;
 
 // r126 (M7): unified origin — was apex-domain fallback
 const BASE_URL = SITE_ORIGIN;
@@ -54,64 +63,74 @@ const MIN_MENU_ITEMS = 3;
 const CANONICAL_DEMO_SLUG = 'al-waha-cafe-demo';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-        // round89-C3 (dx-2 ب-2): item counts per restaurant. The old shape
-        // (`categories: { select: { _count: { select: { items: true } } } }`)
-        // compiled into a FULL-TABLE aggregate LEFT JOIN of MenuItem plus every
-        // category row materialized — just to SUM the per-category counts.
-        // One grouped join returns the same per-restaurant totals directly.
-        // (MenuItem belongs to a category, not the restaurant — counts must
-        // route through MenuCategory.)
-        const [restaurants, itemCounts, recentOrders] = await Promise.all([
-                prisma.restaurant.findMany({
-                        where: { isActive: true },
-                        // round97-X3: showOnLanding feeds the content gate (the
-                        // landing-directory flag vouches for thin-but-real menus).
-                        select: { id: true, slug: true, updatedAt: true, showOnLanding: true },
-                }),
-                prisma.$queryRaw<{ restaurantId: number; items: bigint }[]>`
-                        SELECT c."restaurantId" AS "restaurantId", COUNT(mi."id") AS "items"
-                        FROM "MenuCategory" c
-                        JOIN "MenuItem" mi ON mi."categoryId" = c."id"
-                        GROUP BY c."restaurantId"
-                `,
-                // round92-A5: last order per restaurant inside the activity
-                // window — grouped + filtered in SQL (same grouped-join shape
-                // as the item counts; no per-restaurant round-trips). Any
-                // order status counts: an order attempt is business activity.
-                prisma.order.groupBy({
-                        by: ['restaurantId'],
-                        _max: { createdAt: true },
-                        where: { createdAt: { gte: new Date(Date.now() - ACTIVITY_WINDOW_MS) } },
-                }),
-        ]);
-        const itemsByRestaurant = new Map<number, number>(
-                itemCounts.map((r) => [r.restaurantId, Number(r.items)])
-        );
-        const lastOrderByRestaurant = new Map<number, Date>(
-                recentOrders.map((r) => [r.restaurantId, r._max.createdAt ?? new Date(0)])
-        );
-        const cutoff = Date.now() - ACTIVITY_WINDOW_MS;
-        const isAlive = (r: { id: number; updatedAt: Date }): boolean =>
-                r.updatedAt.getTime() >= cutoff ||
-                (lastOrderByRestaurant.get(r.id)?.getTime() ?? 0) >= cutoff;
+        let menuPages: MetadataRoute.Sitemap = [];
+        try {
+                // round89-C3 (dx-2 ب-2): item counts per restaurant. The old shape
+                // (`categories: { select: { _count: { select: { items: true } } } }`)
+                // compiled into a FULL-TABLE aggregate LEFT JOIN of MenuItem plus every
+                // category row materialized — just to SUM the per-category counts.
+                // One grouped join returns the same per-restaurant totals directly.
+                // (MenuItem belongs to a category, not the restaurant — counts must
+                // route through MenuCategory.)
+                const [restaurants, itemCounts, recentOrders] = await Promise.all([
+                        prisma.restaurant.findMany({
+                                where: { isActive: true },
+                                // round97-X3: showOnLanding feeds the content gate (the
+                                // landing-directory flag vouches for thin-but-real menus).
+                                select: { id: true, slug: true, updatedAt: true, showOnLanding: true },
+                        }),
+                        prisma.$queryRaw<{ restaurantId: number; items: bigint }[]>`
+                                SELECT c."restaurantId" AS "restaurantId", COUNT(mi."id") AS "items"
+                                FROM "MenuCategory" c
+                                JOIN "MenuItem" mi ON mi."categoryId" = c."id"
+                                GROUP BY c."restaurantId"
+                        `,
+                        // round92-A5: last order per restaurant inside the activity
+                        // window — grouped + filtered in SQL (same grouped-join shape
+                        // as the item counts; no per-restaurant round-trips). Any
+                        // order status counts: an order attempt is business activity.
+                        prisma.order.groupBy({
+                                by: ['restaurantId'],
+                                _max: { createdAt: true },
+                                where: { createdAt: { gte: new Date(Date.now() - ACTIVITY_WINDOW_MS) } },
+                        }),
+                ]);
+                const itemsByRestaurant = new Map<number, number>(
+                        itemCounts.map((r) => [r.restaurantId, Number(r.items)])
+                );
+                const lastOrderByRestaurant = new Map<number, Date>(
+                        recentOrders.map((r) => [r.restaurantId, r._max.createdAt ?? new Date(0)])
+                );
+                const cutoff = Date.now() - ACTIVITY_WINDOW_MS;
+                const isAlive = (r: { id: number; updatedAt: Date }): boolean =>
+                        r.updatedAt.getTime() >= cutoff ||
+                        (lastOrderByRestaurant.get(r.id)?.getTime() ?? 0) >= cutoff;
 
-        const menuPages: MetadataRoute.Sitemap = restaurants
-                .filter((r) => {
-                        // round97-X3 (a): content gate — ≥3 items OR showOnLanding.
-                        const itemCount = itemsByRestaurant.get(r.id) ?? 0;
-                        if (itemCount < MIN_MENU_ITEMS && !r.showOnLanding) return false;
-                        // round97-X3 (b): flagship demo bypasses the junk-name
-                        // patterns (see CANONICAL_DEMO_SLUG) — not the gates.
-                        if (r.slug === CANONICAL_DEMO_SLUG) return isAlive(r);
-                        // round92-A5: junk-name patterns + (c) the 90-day activity gate.
-                        return !JUNK_SLUG_PATTERNS.some((re) => re.test(r.slug)) && isAlive(r);
-                })
-                .map((r) => ({
-                        url: `${BASE_URL}/menu/${r.slug}`,
-                        lastModified: r.updatedAt,
-                        changeFrequency: 'daily',
-                        priority: 0.8,
-                }));
+                menuPages = restaurants
+                        .filter((r) => {
+                                // round97-X3 (a): content gate — ≥3 items OR showOnLanding.
+                                const itemCount = itemsByRestaurant.get(r.id) ?? 0;
+                                if (itemCount < MIN_MENU_ITEMS && !r.showOnLanding) return false;
+                                // round97-X3 (b): flagship demo bypasses the junk-name
+                                // patterns (see CANONICAL_DEMO_SLUG) — not the gates.
+                                if (r.slug === CANONICAL_DEMO_SLUG) return isAlive(r);
+                                // round92-A5: junk-name patterns + (c) the 90-day activity gate.
+                                return !JUNK_SLUG_PATTERNS.some((re) => re.test(r.slug)) && isAlive(r);
+                        })
+                        .map((r) => ({
+                                url: `${BASE_URL}/menu/${r.slug}`,
+                                lastModified: r.updatedAt,
+                                changeFrequency: 'daily',
+                                priority: 0.8,
+                        }));
+        } catch (err) {
+                // r132: degrade, never 500 — crawlers always get a valid sitemap
+                // (the 4 static routes); the daily ISR revalidation picks the
+                // restaurant pages back up once the DB is reachable again.
+                logError('sitemap: DB unavailable — serving the static base routes only', {
+                        error: err instanceof Error ? err.message : String(err),
+                });
+        }
 
         return [
                 { url: BASE_URL, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },

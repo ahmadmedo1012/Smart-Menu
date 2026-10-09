@@ -311,10 +311,18 @@ export function GalleryCarousel({
                                                 className="relative max-w-5xl max-h-[92vh] mx-4 w-full flex items-center justify-center"
                                                 onClick={(e) => e.stopPropagation()}
                                         >
-                                                {/* ponytail: raw <img> because OptimizedImage uses fill+object-cover. Lightbox needs object-contain with max-height constraint. next/image doesn't support this layout without hardcoding dimensions. */}
+                                                {/* ponytail: raw <img> because OptimizedImage uses fill+object-cover. Lightbox needs object-contain with max-height constraint. next/image doesn't support this layout without hardcoding dimensions.
+                                                    r132 (A3 finding 8, CLS): width/height attrs added — the lightbox img had no
+                                                    intrinsic dims, so every slide change laid out a 0×0→full-size image inside
+                                                    the centered flex and re-centered visibly on slow links. 1200×675 is the
+                                                    seeded gallery's 16:9 (demo covers); object-contain + max-* keep the
+                                                    rendered geometry constrained — the attrs only give the browser the
+                                                    aspect-ratio box up front. */}
                                                 <img
                                                         src={images[lightboxIdx]}
                                                         alt={`${restaurantName || 'صورة'} ${lightboxIdx + 1}`}
+                                                        width={1200}
+                                                        height={675}
                                                         className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-scale-in"
                                                         loading="lazy"
                                                 />

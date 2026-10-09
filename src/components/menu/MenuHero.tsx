@@ -103,7 +103,10 @@ export function MenuHero({
                         </div>
                     )}
 
-                    {/* Signwriting treatment — Readex display face, warm gradient via the hero token */}
+                    {/* Signwriting treatment — IBM Plex Sans Arabic display face
+                        (r132/A3 §1.3: was "Readex display face" — the Readex
+                        faces were never-fetched dead weight, deleted), warm
+                        gradient via the hero token */}
                     <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-semibold mb-3 text-balance leading-[1.3] text-gradient-hero drop-shadow-sm">
                         {restaurant.name}
                     </h1>

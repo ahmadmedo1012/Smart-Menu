@@ -10,7 +10,7 @@
  *   - U5: مرايا rtl: لانزلاق Sheet الأفقي في الاتجاهين
  *   - U6: أول تصيير للرابط بلا window (SSR=hydration)
  *   - U7: صفحة الطباعة بلا وسوم جذر مكررة + تقنية إخفاء الهيكل في الطباعة
- *   - U8: aria-label عربي لهاتف البطل + توحيد «الربط الذكي»
+ *   - U8: توحيد «الربط الذكي» (علامة هاتف البطل حُذفت مع مكوّنها الميت r132)
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
@@ -18,7 +18,6 @@ import { join } from 'node:path';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { ReferralCard } from '@/components/loyalty/ReferralCard';
-import { IPhoneMockup } from '@/components/ui/iphone-mockup';
 
 const src = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 const gone = (p: string) => !existsSync(join(process.cwd(), p));
@@ -42,10 +41,12 @@ describe('U1 — --font-heading موحد على IBM Plex Sans Arabic (المصد
         expect(css).toMatch(/h1, h2 \{\s*font-family: var\(--font-heading\)/);
     });
 
-    it('خطوط IBM Plex الـ 12 مسجلة في fonts.css وملفات woff2 موجودة فعلًا', () => {
+    it('خطوط IBM Plex الـ 10 مسجلة في fonts.css وملفات woff2 موجودة فعلًا', () => {
         const fontsCss = src('public/fonts/fonts.css');
         const faces = [...fontsCss.matchAll(/src:\s*url\(['"](\/fonts\/plex-[^'")]+)['"]\)/g)].map((m) => m[1]);
-        expect(faces.length).toBe(12);
+        // r132 (A3 §1.3): 12 → 10 — وجها IBM Plex Serif المائلان حُذفا (صفر مستهلكين؛
+        // 285KB من وجوه القاهرة/نسخ/ريدكس التي لا تُجلب أبدًا حُذفت معهما).
+        expect(faces.length).toBe(10);
         for (const f of faces) {
             expect(existsSync(join(process.cwd(), 'public', f.replace(/^\//, '')))).toBe(true);
         }
@@ -63,10 +64,20 @@ describe('U1 — --font-heading موحد على IBM Plex Sans Arabic (المصد
 // ── U4: الكود الميت محذوف ─────────────────────────────────────────────────
 
 describe('U4 — الكود الميت المؤكد محذوف (بعد تحقق rg صفر مراجع حية)', () => {
-    it('الملفات الثلاثة زالت من الشجرة', () => {
+    it('الملفات الميتة زالت من الشجرة (3 من r93 + 6 من r132)', () => {
         expect(gone('src/components/ui/VideoWrapper.tsx')).toBe(true);
         expect(gone('src/components/ui/kinetic-text.tsx')).toBe(true);
         expect(gone('src/hooks/useScrollProgress.ts')).toBe(true);
+        // r132 (A3 §2): المكونات الستة الميتة — 3 بلا مستورد إطلاقًا
+        // (Eyebrow/SectionContainer/SectionHeader) + 3 إنتاجية الميتة
+        // (iphone-mockup/scroll-parallax/clip-path-reveal — اختبارها ووثائقها
+        // كانت مستوردَيها الوحيدين وحُدّثتا قبل الحذف).
+        expect(gone('src/components/ui/Eyebrow.tsx')).toBe(true);
+        expect(gone('src/components/ui/SectionContainer.tsx')).toBe(true);
+        expect(gone('src/components/ui/SectionHeader.tsx')).toBe(true);
+        expect(gone('src/components/ui/iphone-mockup.tsx')).toBe(true);
+        expect(gone('src/components/ui/scroll-parallax.tsx')).toBe(true);
+        expect(gone('src/components/ui/clip-path-reveal.tsx')).toBe(true);
     });
 
     it('marquee: لا keyframes ولا class ولا ذكر في reduced-motion', () => {
@@ -97,12 +108,14 @@ describe('U4 — الكود الميت المؤكد محذوف (بعد تحقق 
 describe('U5 — مرايا rtl: لانزلاق Sheet الأفقي (فيزيائي↔منطقي)', () => {
     it('side=right وside=left لكل من starting/ending بإشارة معكوسة في RTL', () => {
         const s = src('src/components/ui/sheet.tsx');
+        // r131 غيّر الانزلاق من 2.5rem (لمحة جزئية) إلى خروج كامل -100%/100%
+        // دون تحديث هذا التثبيت — الدبوس لحق بالعائلة r132.
         // side=right في RTL يُرصّ على الحافة اليسرى → الانزلاق سالب (نحو الحافة)
-        expect(s).toContain('rtl:data-[side=right]:data-starting-style:translate-x-[-2.5rem]');
-        expect(s).toContain('rtl:data-[side=right]:data-ending-style:translate-x-[-2.5rem]');
+        expect(s).toContain('rtl:data-[side=right]:data-starting-style:translate-x-[-100%]');
+        expect(s).toContain('rtl:data-[side=right]:data-ending-style:translate-x-[-100%]');
         // side=left في RTL يُرصّ على الحافة اليمنى → الانزلاق موجب
-        expect(s).toContain('rtl:data-[side=left]:data-starting-style:translate-x-[2.5rem]');
-        expect(s).toContain('rtl:data-[side=left]:data-ending-style:translate-x-[2.5rem]');
+        expect(s).toContain('rtl:data-[side=left]:data-starting-style:translate-x-[100%]');
+        expect(s).toContain('rtl:data-[side=left]:data-ending-style:translate-x-[100%]');
     });
 });
 
@@ -167,15 +180,11 @@ describe('U7 — صفحة الطباعة: لا وسوم جذر مكررة وال
     });
 });
 
-// ── U8: a11y وتسمية العلامة ───────────────────────────────────────────────
+// ── U8: تسمية العلامة ───────────────────────────────────────────────────────
 
-describe('U8 — aria-label عربي لهاتف البطل', () => {
-    it('يُقرأ «هاتف آيفون تجريبي» لا "iPhone mockup"', () => {
-        const html = renderToString(createElement(IPhoneMockup, { model: '15-pro' }));
-        expect(html).toContain('هاتف آيفون تجريبي');
-        expect(html).not.toContain('iPhone mockup');
-    });
-});
+// r132 (A3 §2/finding 9): حُذف اختبار «هاتف آيفون تجريبي» مع مكوّنه —
+// IPhoneMockup كان كودًا ميتًا إنتاجيًا (اختباره هو مستوردُه الوحيد) ولا يعرض
+// أي صفحة اليوم هاتفًا؛ العقد انتقل مع المكوّن. بقي توحيد اسم العلامة.
 
 describe('U8 — تسمية العلامة موحدة على «الربط الذكي» (الأكثر استخدامًا)', () => {
     it('صفحة 404 لم تعد تستخدم الصيغة الثالثة «سمارت مينيو»', () => {

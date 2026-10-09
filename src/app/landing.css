@@ -358,14 +358,16 @@
 .landing .landing-megamenu-item-desc { display: block; color: var(--ln-cream-dim); font-size: 12px; margin-block-start: 2px; }
 
 /* ── 4 · button families (Madarek landing.css:371-487 verbatim) ──────
-   gold = lime fill with ink text, hover lifts; ghost = hairline pill;
-   text = quiet tertiary. r130 (W2-3, P0-3): the source's P3-25 ::after
-   radial sheen on .ln-btn-gold IS ported (verbatim, landing.css:421-431)
-   — the kit §7 blanket gradient ban never covered the reference's own
-   conversion-pill treatment. */
+   gold = lime fill with ink text, hover lifts; ghost = hairline pill.
+   r130 (W2-3, P0-3): the source's P3-25 ::after radial sheen on
+   .ln-btn-gold IS ported (verbatim, landing.css:421-431) — the kit
+   §7 blanket gradient ban never covered the reference's own
+   conversion-pill treatment.
+   r132 (A3 §3.2): the .ln-btn-text "quiet tertiary" family deleted —
+   zero JSX consumers ever rendered it (all 6 arms + badge + RM
+   opt-outs went together). */
 .landing .ln-btn-gold,
-.landing .ln-btn-ghost,
-.landing .ln-btn-text {
+.landing .ln-btn-ghost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -447,30 +449,6 @@
 }
 .landing .ln-btn-ghost.xl { padding: 12px 32px; font-size: 16px; min-block-size: 48px; }
 
-/* quiet tertiary — opens the registry */
-.landing .ln-btn-text {
-  padding: 10px 16px;
-  font-size: 14.5px;
-  min-block-size: 44px;
-  background: transparent;
-  color: var(--ln-cream-dim);
-}
-.landing .ln-btn-text:hover { color: var(--ln-cream); }
-.landing .ln-btn-text-badge {
-  min-inline-size: 26px;
-  block-size: 20px;
-  padding-inline: 7px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: var(--ln-radius-pill);
-  background: rgb(245 243 231 / 0.08);
-  color: var(--ln-cream-dim);
-  font-family: var(--ln-mono);
-  font-size: 11.5px;
-  font-weight: var(--fw-semibold);
-  font-variant-numeric: tabular-nums;
-}
-
 /* ── chrome completion (r128-F1b) — canonical press recipe (PORT-KIT §4
    press: translate + scale .97 @ 80ms, R8) + nav-link svg transition,
    verbatim from the canonical buttons family; the later cascade resolves
@@ -478,8 +456,7 @@
 .landing .landing-nav-link svg { transition: transform var(--ln-t-fast) var(--ln-ease-out); }
 
 .landing .ln-btn-gold:active,
-.landing .ln-btn-ghost:active,
-.landing .ln-btn-text:active {
+.landing .ln-btn-ghost:active {
   transform: scale(var(--press-scale, 0.97));
   transition-duration: var(--t-micro);
 }
@@ -1239,7 +1216,8 @@
   line-height: 1.1;
   direction: ltr;
 }
-.landing .ln-stat-unit { color: var(--ln-cream-dim); font-size: 24px; margin-inline-start: 2px; }
+/* r132 (A3 §3.2): .landing .ln-stat-unit deleted — stat units never
+   rendered (sibling .ln-stat-value/-label/-note are live). */
 .landing .ln-stat-label { margin-block-start: 8px; color: var(--ln-cream); font-size: 14px; font-weight: var(--fw-semibold); overflow-wrap: anywhere; }
 .landing .ln-stat-note { margin-block-start: 3px; color: var(--ln-cream-dim); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
 
@@ -1740,7 +1718,6 @@
      interactive elements on small screens. */
   .landing .ln-btn-gold,
   .landing .ln-btn-ghost,
-  .landing .ln-btn-text,
   .landing .landing-nav-link {
     min-block-size: 48px;
     padding-block: var(--sp-3);
@@ -1753,8 +1730,7 @@
 @media (max-width: 560px) {
   .landing .ln-hero-actions { gap: var(--sp-3); }
   .landing .ln-hero-actions .ln-btn-gold,
-  .landing .ln-hero-actions .ln-btn-ghost,
-  .landing .ln-hero-actions .ln-btn-text { inline-size: 100%; }
+  .landing .ln-hero-actions .ln-btn-ghost { inline-size: 100%; }
   .landing .ln-constellation-strip { grid-template-columns: 1fr; }
   /* GAP-5: 2×2 at 390px was a solid text block — give the numbers room */
   .landing .ln-progress-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-5) var(--sp-3); }
@@ -1782,7 +1758,6 @@
   .landing .ln-constellation-dot { animation: none; }
   .landing .ln-btn-gold,
   .landing .ln-btn-ghost,
-  .landing .ln-btn-text,
   .landing .landing-header,
   .landing .ln-station-card,
   .landing .ln-role-row { transition: none; }
@@ -1827,8 +1802,7 @@
    responded. */
 @media (prefers-reduced-motion: reduce) {
   .landing .ln-btn-gold:active,
-  .landing .ln-btn-ghost:active,
-  .landing .ln-btn-text:active {
+  .landing .ln-btn-ghost:active {
     transform: none;
     background: var(--ln-lime-deep);
   }

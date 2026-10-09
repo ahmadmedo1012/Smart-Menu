@@ -67,9 +67,20 @@ function formatDateShort(date: Date): string {
  */
 export function formatPrice(n: number | string | null | undefined, opts?: { decimals?: number; suffix?: string }): string {
   const num = Number(n ?? 0) || 0;
-  const dec = opts?.decimals ?? (Number.isInteger(num) ? 0 : 1);
   const suffix = opts?.suffix ?? ' د.ل';
-  return `${toArabicNumber(num.toFixed(dec))}${suffix}`;
+  // r132-F2b (A10 #5, porting web r120 U1-P2-2 + U5-F-13 verbatim): the
+  // smart trim is the default — never a bare ".0" (12 → "12" not "12.0"),
+  // real fractions survive (12.75 → "12.75" instead of rounding to
+  // "12.8"), max two decimals. An explicit `decimals` still governs —
+  // receipts/share texts pin their precision by test, display sites now
+  // drop it. The mobile twin still rounded to 1dp: the two platforms
+  // disagreed on money strings (a parity program's core metric).
+  if (opts?.decimals != null) {
+    return `${toArabicNumber(num.toFixed(opts.decimals))}${suffix}`;
+  }
+  const fixed = num.toFixed(2);
+  const trimmed = fixed.includes('.') ? fixed.replace(/\.?0+$/, '') : fixed;
+  return `${toArabicNumber(trimmed)}${suffix}`;
 }
 
 export { toArabicNumber, formatDate, formatDateShort };

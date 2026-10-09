@@ -30,8 +30,13 @@ export function Input({ className, error, onFocus, onBlur, ...props }: InputProp
     <TextInput
       className={cn(
         // r126-M6: minHeight (was h-12) — fixed height clipped input text at
-        // fontScale ≥1.3; py-3 keeps the ≥48px resting box with room to grow.
-        "min-h-12 rounded-md bg-input px-4 py-3 text-base text-foreground",
+        // fontScale ≥1.3; py-3 keeps a ≥44px resting box with room to grow.
+        // r132-F2b (A4 S2, r131 fleet input ruling — the web root fix
+        // 48→44 finally reaches the mobile leg): min-h-12 (48px) → min-h-11
+        // (44px). The primitive was the ONLY 48px field left — every raw
+        // sheet field already rode minHeight 44 (MenuScreen/SubscribeScreens)
+        // and the search row 44; one height for all fields.
+        "min-h-11 rounded-md bg-input px-4 py-3 text-base text-foreground",
         "font-sans placeholder:text-muted-foreground", className,
       )}
       style={fieldFocusBorderStyle(focused, error)}
@@ -53,7 +58,9 @@ export function PasswordInput({ className, error, onFocus, onBlur, ...props }: I
           // r130 W2-4 (RTL): pr-12 → pe-12 — the eye toggle sits at `end-2`,
           // so the text inset must be logical too (physical right padding
           // starved the toggle's side in this forced-RTL app).
-          "min-h-12 rounded-md bg-input px-4 py-3 pe-12 text-base text-foreground",
+          // r132-F2b (A4 S2): 44px like <Input> (was min-h-12 — the fleet
+          // input ruling; see the Input comment above).
+          "min-h-11 rounded-md bg-input px-4 py-3 pe-12 text-base text-foreground",
           "font-sans placeholder:text-muted-foreground", className,
         )}
         style={fieldFocusBorderStyle(focused, error)}

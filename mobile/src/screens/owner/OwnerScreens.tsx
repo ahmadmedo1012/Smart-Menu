@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { View, ScrollView, RefreshControl, Share, FlatList, Vibration, Alert } from "react-native";
+import { View, ScrollView, RefreshControl, Share, FlatList, Vibration, Alert, AccessibilityInfo } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
@@ -77,7 +77,14 @@ export function OwnerDashboardScreen() {
             </View>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
             {stats.recentOrders.length === 0 ? (
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", paddingVertical: 16 }}>لا توجد طلبات بعد</Text>
+              /* r132-F2b (A4 S8): the dashboard's recent-orders empty rides
+                 the canonical EmptyState well (56px grey tile + 18/600) —
+                 was 13px muted raw text, the grammar the fleet ruling
+                 "empty = 56 grey / 18/600" retired. The pagination
+                 end-state («لا مزيد من الطلبات») stays intentionally
+                 quiet below — it is an end-of-list marker, not an empty
+                 state. */
+              <EmptyState title="لا توجد طلبات بعد" />
             ) : (
               stats.recentOrders.slice(0, 5).map((o) => (
                 // r130 W2-4: order CARD → --state-card-pressed-scale 0.99
@@ -200,6 +207,12 @@ export function OwnerOrdersScreen() {
     const known = knownOrderIdsRef.current;
     if (known && rows.some((o) => !known.has(o.id))) {
       Vibration.vibrate([0, 200, 100, 200]);
+      /* r132-F2b (A4 S7, ties into the S3 live-region ruling): the new-order
+         event announces to screen readers too. The haptic itself stays the
+         documented single-site scope — RN ignores pattern arrays on iOS (a
+         single generic buzz) and expo-haptics is not a dependency; adopting
+         a haptic register is deliberately deferred (report, not risk). */
+      AccessibilityInfo.announceForAccessibility("وصل طلب جديد");
     }
     const nextKnown = known ?? new Set<number>();
     for (const o of rows) nextKnown.add(o.id);

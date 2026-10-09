@@ -9,7 +9,8 @@
  * Registers (tokens.css:163-175 "one press register" note):
  *   · controls (buttons/pills/CTAs) → default scaleTo 0.97 (--press-scale);
  *   · cards → pass scaleTo={0.99} (--state-card-pressed-scale, tokens.css:248);
- *   · only a bottom-nav thumb press may go stronger (0.93) — none here.
+ *   · bottom-nav thumbs go stronger (0.93) — the shared tab chrome wires it
+ *     (navTheme TabBarButton, r132-F2b/A4 S9; both AdminStack + OwnerStack).
  *
  * Reduced motion (useReducedMotion): scale is dropped — press feedback
  * degrades to a plain opacity dip, which is not spatial movement.

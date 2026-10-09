@@ -271,11 +271,22 @@ export default function OwnerQRPage() {
                                 <div className="print-qr-sheet" aria-hidden="true">
                                         <div className="hidden print:flex flex-col items-center gap-4">
                                                 <p className="text-2xl font-bold text-black">{name || 'المطعم'}</p>
+                                                {/* r132 (A3 must#2 closed): the print sheet renders
+                                                    the QR at 65×65mm. The audit's "w-m] h-m] corrupted
+                                                    classes" was an ANSI-stripping artifact of the report
+                                                    pipeline — `[65m` is a valid SGR color code, so
+                                                    `w-[65mm]` read back as `w-m]`; source + compiled CSS
+                                                    were verified correct (`.w-\[65mm\]{width:65mm}`).
+                                                    The inline style now pins the print geometry explicitly
+                                                    too (belt-and-braces: sizing no longer depends on
+                                                    Tailwind class generation, and the raw <img> gets
+                                                    explicit dimensions at this call site). */}
                                                 <SelfHostedQR
                                                         value={url}
                                                         size={1000}
                                                         alt=""
                                                         className="w-[65mm] h-[65mm]"
+                                                        style={{ width: '65mm', height: '65mm' }}
                                                 />
                                                 <p className="text-lg font-medium text-black">امسح الرمز لتصفح المنيو</p>
                                                 <p dir="ltr" className="text-sm text-black">{url}</p>

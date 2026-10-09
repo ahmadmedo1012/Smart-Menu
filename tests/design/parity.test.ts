@@ -24,7 +24,7 @@
  *   - the z-order ladder 0..600 (Madarek §1.11), both cascades;
  *   - the ambient loop bands (1.6/2.4/3.6/6/9/22s) + stagger step/cap +
  *     RTL motion direction;
- *   - the 12-face IBM Plex @font-face manifest (family/weight/style/display/
+ *   - the 10-face IBM Plex @font-face manifest (family/weight/style/display/
  *     unicode-range per face) + on-disk existence of every woff2
  *     (public/fonts/fonts.css);
  *   - the full prefers-contrast: more port (15 tokens × 2 themes) and the
@@ -501,7 +501,9 @@ describe('r126 parity — ambient loops, stagger & RTL motion (§4.3)', () => {
   });
 });
 
-// ── r126: the 12-face IBM Plex manifest (fonts.css + on-disk woff2) ─────────
+// ── r126: the 10-face IBM Plex manifest (fonts.css + on-disk woff2) ─────────
+// r132 (A3 §1.3): 12 → 10 — the never-consumed fallback families were purged
+// (Plex Serif italic ×2 here; Cairo/Readex/Naskh never rode this manifest).
 
 const FONT_MANIFEST: ReadonlyArray<readonly [file: string, family: string, weight: string, style: string]> = [
   ['plex-sans-arabic-400-normal-arabic.woff2', 'IBM Plex Sans Arabic', '400', 'normal'],
@@ -512,19 +514,17 @@ const FONT_MANIFEST: ReadonlyArray<readonly [file: string, family: string, weigh
   ['plex-sans-arabic-500-normal-latin.woff2', 'IBM Plex Sans Arabic', '500', 'normal'],
   ['plex-sans-arabic-600-normal-latin.woff2', 'IBM Plex Sans Arabic', '600', 'normal'],
   ['plex-sans-arabic-700-normal-latin.woff2', 'IBM Plex Sans Arabic', '700', 'normal'],
-  ['plex-serif-400-italic-latin.woff2', 'IBM Plex Serif', '400', 'italic'],
-  ['plex-serif-500-italic-latin.woff2', 'IBM Plex Serif', '500', 'italic'],
   ['plex-mono-400-normal-latin.woff2', 'IBM Plex Mono', '400', 'normal'],
   ['plex-mono-500-normal-latin.woff2', 'IBM Plex Mono', '500', 'normal'],
 ];
 
-describe('r126 parity — the 12-face IBM Plex manifest (public/fonts/fonts.css)', () => {
-  it('declares exactly 12 Plex faces (Cairo/Noto/Readex fallbacks ride alongside)', () => {
+describe('r126 parity — the 10-face IBM Plex manifest (public/fonts/fonts.css)', () => {
+  it('declares exactly 10 Plex faces (r132: serif/naskh/cairo/readex fallbacks purged)', () => {
     const plexFaces = fontFaces.filter((b) => /url\(['"]\/fonts\/plex-/.test(b));
     expect(
       plexFaces.length,
-      'the IBM Plex manifest must declare exactly 12 faces'
-    ).toBe(12);
+      'the IBM Plex manifest must declare exactly 10 faces'
+    ).toBe(10);
   });
   it.each(FONT_MANIFEST)(
     '%s: family/weight/style + swap + unicode-range + woff2 on disk',
@@ -1382,10 +1382,6 @@ describe('r129 parity — token-matrix SM rows (5 misvalued + 8 missing → cano
     pin(dark, 'r129-dark', '--scrim-blur', '4px');
     pin(light, 'r129-light', '--glass-blur', '16px');
     pin(light, 'r129-light', '--scrim-blur', '4px');
-  });
-
-  it('--font-serif: IBM Plex Serif + Georgia (canonical tokens.css:50)', () => {
-    pin(dark, 'r129-dark', '--font-serif', '"IBM Plex Serif", Georgia, serif');
   });
 
   it('--brand-purple = the lavender ink chain (dark #B7A0F4 / light #8A6FE0)', () => {
