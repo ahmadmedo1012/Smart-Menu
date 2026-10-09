@@ -15,12 +15,17 @@ function toArabicNumber(n: number | string): string {
 /**
  * Normalizes Arabic text for search/filter matching:
  * - strips tashkeel (diacritics) and tatweel
+ * - folds Eastern Arabic digits (٠-٩→0-9) — r133-A12 S12 (r134-W2 mobile
+ *   port): an Arabic-keyboard customer typing «٠٩١٢…» got zero hits on
+ *   digit-bearing names because the ASCII digits in the data never matched
+ *   (web src/lib/format.ts is the twin)
  * - folds alef variants (أإآ→ا), alef maqsura (ى→ي), ta marbuta (ة→ه)
  * - lowercases Latin
  */
 export function normalizeArabic(s: string): string {
   return s
     .replace(/[\u064B-\u0652\u0640]/g, '')
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))
     .replace(/[أإآ]/g, 'ا')
     .replace(/ى/g, 'ي')
     .replace(/ة/g, 'ه')
@@ -65,6 +70,10 @@ function formatDateShort(date: Date): string {
  * Unifies 3 competing patterns (toFixed(1) site displays vs toFixed(2)
  * receipt vs plain price) — always Western digit + space + "د.ل".
  */
+function groupDots(intStr: string): string {
+  return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 export function formatPrice(n: number | string | null | undefined, opts?: { decimals?: number; suffix?: string }): string {
   const num = Number(n ?? 0) || 0;
   const suffix = opts?.suffix ?? ' د.ل';
@@ -75,12 +84,18 @@ export function formatPrice(n: number | string | null | undefined, opts?: { deci
   // receipts/share texts pin their precision by test, display sites now
   // drop it. The mobile twin still rounded to 1dp: the two platforms
   // disagreed on money strings (a parity program's core metric).
+  // r134-W2 (#4, porting web r133 R14/A12 S2): the whole part groups ar-LY
+  // dots ≥ 1,000 — the KPI «إيرادات اليوم» rendered «12500 د.ل» ungrouped
+  // while web shows «12.500» (hand-rolled, hydration-safe like web; the
+  // money whole-part only, the decimal separator stays an ASCII dot).
   if (opts?.decimals != null) {
-    return `${toArabicNumber(num.toFixed(opts.decimals))}${suffix}`;
+    const [w, f] = num.toFixed(opts.decimals).split('.');
+    return `${toArabicNumber(f !== undefined ? `${groupDots(w)}.${f}` : groupDots(w))}${suffix}`;
   }
   const fixed = num.toFixed(2);
   const trimmed = fixed.includes('.') ? fixed.replace(/\.?0+$/, '') : fixed;
-  return `${toArabicNumber(trimmed)}${suffix}`;
+  const [w2, f2] = trimmed.split('.');
+  return `${toArabicNumber(f2 !== undefined ? `${groupDots(w2)}.${f2}` : groupDots(w2))}${suffix}`;
 }
 
 export { toArabicNumber, formatDate, formatDateShort };

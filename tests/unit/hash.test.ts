@@ -33,7 +33,12 @@ function legacyHash(password: string, salt = randomBytes(32).toString('hex')): s
         return `${salt}:${hash}`;
 }
 
-describe('hash.ts — real-execution KDF (pbkdf2 sha512)', () => {
+// r134-W2 (#14): suite-level timeout 20s — the real 600k-iteration pbkdf2
+// ops take ~200-600ms each in isolation, but under full-suite parallel load
+// (154 files, 2 CPUs) the default 5s budget was breached intermittently
+// (hash.test.ts:50/:65 flakes across 3 audit runs). The KDF itself is NOT
+// weakened — only the wall-clock budget of the tests around it.
+describe('hash.ts — real-execution KDF (pbkdf2 sha512)', { timeout: 20_000 }, () => {
         it('v2 roundtrip: hashPassword → verifyHash(true); format ties to ITERATIONS (OWASP ≥ 210k)', () => {
                 const stored = hashPassword('correct-horse-battery-staple');
                 const parts = stored.split(':');

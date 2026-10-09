@@ -1589,7 +1589,8 @@ describe('r130 parity — P1 focus ring + link hover AA + state/premium token fa
   it('interaction-state family: --state-button/card/input/tab/link/loading-* present (tokens.css §state)', () => {
     for (const t of [
       '--state-button-hover-translate',
-      '--state-button-pressed-scale',
+      // r134-W2 (#17): --state-button-pressed-scale removed — zero consumers
+      // (the .btn reality presses at active:scale 0.97, not 0.98).
       '--state-button-pressed-duration',
       '--state-button-disabled-opacity',
       '--state-card-hover-elevation',
@@ -2068,5 +2069,82 @@ describe('r133 parity — finest details: money seam, focus grammar, microcopy s
     const ordersCc = cc('src/app/(protected)/owner/orders/page.tsx');
     expect(ordersCc).not.toContain('const constLoadingMore');
     expect(ordersCc).toContain('const [loadingMore, setLoadingMore] = useState(false);');
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// r134 (W2) — fix-wave pins: mobile money-path twins (Eastern-digit fold ·
+// ar-LY grouping · search fold — mobile harness carries its own), the
+// OrderDialog double-tap guard + tel contract + lazy isMobile, the spin
+// 700ms @theme bridge, the JSON-LD E.164 telephone, the SW privacy skip,
+// and the copy unifications (تخطَّ · فئة).
+// ════════════════════════════════════════════════════════════════════════════
+describe('r134 parity — W2 fix wave: money-path UX, spin canon, SW privacy, copy', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('#11: animate-spin rides the 700ms canon via the @theme bridge (+ explicit keyframes)', () => {
+    expect(theme['--animate-spin']).toBe('spin 700ms linear infinite');
+    // the bridge must not depend on Tailwind's default-theme keyframes
+    expect(globalsRaw).toContain('@keyframes spin { to { transform: rotate(360deg); } }');
+  });
+
+  it('#5: JSON-LD telephone is E.164 — the raw owner string rides normalizeWaNumber', () => {
+    const menuSlugCc = cc('src/app/(public)/menu/[slug]/page.tsx');
+    expect(menuSlugCc).toContain("import { normalizeWaNumber } from '@/lib/whatsapp';");
+    expect(menuSlugCc).toContain('const wa = normalizeWaNumber(restaurant.phone || restaurant.whatsapp);');
+    expect(menuSlugCc).toContain('telephone: wa ? `+${wa}` : undefined');
+  });
+
+  it('#2/#3/#12: OrderDialog — addLockRef double-tap guard, no dead submitting spinner, tel contract, lazy isMobile', () => {
+    const s = cc('src/components/menu/OrderDialog.tsx');
+    // the H1 twin of MenuPageClient's quick-add lock
+    expect(s).toContain('if (addLockRef.current) return;');
+    expect(s).toContain('addLockTimerRef.current = setTimeout(() => {');
+    expect(s).toContain('}, 400);');
+    // the synchronous submitting flag + its never-rendering spinner are gone
+    expect(s).not.toContain('setSubmitting');
+    expect(s).not.toContain('submitting ||');
+    // phone input: numeric keyboard + autofill contract
+    expect(s).toContain('type="tel"');
+    expect(s).toContain('inputMode="tel"');
+    expect(s).toContain('autoComplete="tel"');
+    // mobile surface detected on FIRST render (no desktop Dialog flash)
+    expect(s).toContain("window.matchMedia('(min-width: 640px)').matches");
+    expect(s).not.toContain('window.innerWidth < 640');
+  });
+
+  it('#6/#7: skip-link shadda تخطَّ on both shells; the filter surface says فئة, not قسم', () => {
+    for (const p of [
+      'src/app/(public)/layout.tsx',
+      'src/app/(protected)/layout.tsx',
+    ]) {
+      const l = cc(p);
+      expect(l, p).toContain('تخطَّ إلى المحتوى الرئيسي');
+      expect(l, p).not.toContain('تخطى إلى المحتوى الرئيسي');
+    }
+    const tabsCc = cc('src/components/menu/CategoryTabs.tsx');
+    expect(tabsCc).toContain('aria-label="تصفية الأصناف حسب الفئة"');
+    expect(tabsCc).toContain('اختيار فئة يعرض أصنافها فقط في القائمة أدناه');
+    expect(tabsCc).not.toContain('حسب القسم');
+    // the twin empty-state copy already said فئة (MenuPageClient 462/469)
+    const menuPageCc = cc('src/components/menu/MenuPageClient.tsx');
+    expect(menuPageCc).toContain("'لا توجد أصناف في هذه الفئة'");
+    expect(menuPageCc).toContain("'اختر فئة أخرى'");
+  });
+
+  it('#9/#10: SW never caches protected navigation HTML; the dead navigation regex is gone; cache bumped', () => {
+    const sw = raw('public/sw.js');
+    expect(sw).toContain("const PROTECTED_NAVIGATION = [/^\\/(owner|admin|cart|order-confirmed|subscribe|login)(\\/|$)/];");
+    expect(sw).toContain('const isProtected = PROTECTED_NAVIGATION.some((re) => re.test(url.pathname));');
+    expect(sw).toContain('if (!isProtected) {');
+    // the empty-alternation discriminator that matched EVERY pathname is gone
+    // from CODE (comment-stripped — the fix's own explanatory comment names it)
+    const swCc = noCc(sw);
+    expect(swCc).not.toContain('/^\\/([^.]*|$)/');
+    // version bumped with this file's policy change (also purges v7's
+    // already-cached protected HTML on shared devices)
+    expect(sw).toContain("const CACHE_NAME = 'smart-menu-v8';");
   });
 });

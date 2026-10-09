@@ -112,7 +112,7 @@ export function CategoryTabs({
       <div
         ref={tabsRef}
         role="group"
-        aria-label="تصفية الأصناف حسب القسم"
+        aria-label="تصفية الأصناف حسب الفئة"
         aria-describedby="category-tabs-hint"
         className={cn(
           /* glass pill strip */
@@ -122,9 +122,12 @@ export function CategoryTabs({
           className,
         )}
       >
-        {/* sr-only hint so SR users understand the group filters the list below */}
+        {/* sr-only hint so SR users understand the group filters the list below
+            r134-W2 (#7): فئة unified — the menu surface said قسم here while
+            its own empty state (MenuPageClient) + mobile said فئة; فئة wins
+            repo-wide on the customer-facing surface. */}
         <span id="category-tabs-hint" className="sr-only">
-          اختيار قسم يعرض أصنافه فقط في القائمة أدناه
+          اختيار فئة يعرض أصنافها فقط في القائمة أدناه
         </span>
         <TabButton
           label="الكل"

@@ -100,7 +100,8 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
 
   /* ── 2. تصفية بفئة: النتائج تنحصر والجمع العربي صحيح ── */
   test("تصفية بفئة «المشروبات الساخنة»: 3 أصناف فقط", async () => {
-    const catGroup = page.getByRole("group", { name: "تصفية الأصناف حسب القسم" });
+    // r134-W2 (#7): القسم → الفئة — the category filter group label unified on فئة
+    const catGroup = page.getByRole("group", { name: "تصفية الأصناف حسب الفئة" });
     await expect(catGroup).toBeVisible({ timeout: 15000 });
 
     await catGroup.locator('button:has-text("المشروبات الساخنة")').first().click();

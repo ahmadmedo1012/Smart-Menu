@@ -1,5 +1,8 @@
-const CACHE_NAME = 'smart-menu-v7';
+const CACHE_NAME = 'smart-menu-v8';
 // REMINDER: bump CACHE_VERSION whenever this file changes
+// (r134-W2: v7 → v8 — the protected-navigation cache.put skip below changes
+// what lives in CACHE_NAME; the bump also purges any owner/admin/cart HTML a
+// v7 SW already wrote on a shared device.)
 // r126 (P4-W3b / audit G2): the two first-paint arabic subsets (~86 KB,
 // fonts.css "First paint needs only the two preloaded arabic subsets") are
 // precached at install — previously they were cache-first ONLY after the
@@ -95,12 +98,11 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// Navigations: network-first
-	if (url.pathname.match(/^\/([^.]*|$)/)) {
-		event.respondWith(networkFirst(request));
-		return;
-	}
-
+	// Navigations (everything left after assets / images / API): network-first.
+	// r134-W2 (#10): the old `/^\/([^.]*|$)/` discriminator was dead code —
+	// its empty alternation matched EVERY pathname, so both the guarded branch
+	// and the fallthrough ran the identical networkFirst. One unconditional
+	// respondWith; the protected-route cache policy lives inside networkFirst (#9).
 	event.respondWith(networkFirst(request));
 });
 
@@ -187,12 +189,24 @@ async function networkOnly(request) {
 	}
 }
 
+// r134-W2 (#9): authenticated navigation HTML must never be WRITTEN to
+// CacheStorage — on a shared device the old put let the SW resurrect the last
+// /owner / /admin / /cart shell (with its stale inlined state) from the cache.
+// The fetch stays network-first (offline fallback only for public pages);
+// protected navigations just skip the cache.put. Covers the whole (protected)
+// route group: owner, admin, cart, order-confirmed, subscribe, login.
+const PROTECTED_NAVIGATION = [/^\/(owner|admin|cart|order-confirmed|subscribe|login)(\/|$)/];
+
 async function networkFirst(request) {
 	try {
 		const res = await fetch(request);
 		if (res.ok) {
-			const cache = await caches.open(CACHE_NAME);
-			cache.put(request, res.clone());
+			const url = new URL(request.url);
+			const isProtected = PROTECTED_NAVIGATION.some((re) => re.test(url.pathname));
+			if (!isProtected) {
+				const cache = await caches.open(CACHE_NAME);
+				cache.put(request, res.clone());
+			}
 		}
 		return res;
 	} catch {

@@ -14,10 +14,16 @@
  *    body — wa.me/09… dead links on the app for exactly the restaurants
  *    web fixed two rounds ago.
  *  - validate length 8-15
+ *  - r133-A12 M1 (r134-W2 mobile port): Eastern Arabic digits (٠٩١٢…) fold
+ *    to Western FIRST — `\d` is ASCII-only, so the strip below used to
+ *    delete them to "" → null → the owner's saved number silently killed
+ *    every wa.me link on the app (the MenuScreen checkout fell back to the
+ *    share picker instead of the restaurant chat; web twin src/lib/whatsapp).
  */
 export function normalizeWaNumber(input: string | null | undefined): string | null {
         if (!input) return null;
-        let digits = input.replace(/[^\d]/g, "");
+        const western = input.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+        let digits = western.replace(/[^\d]/g, "");
         if (digits.startsWith("00")) digits = digits.slice(2);
         if (digits.startsWith("0")) {
                 // plausible Libyan local formats are 9-11 digits (09XXXXXXXX mobile,

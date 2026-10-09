@@ -12,6 +12,10 @@ import { toast } from "@/app/providers";
 
 import { Text } from "@/components/ui/Text";
 import { colors } from "@/theme/colors";
+// r134-W2 (#15): the support link rides the shared normalizer + builder —
+// the hand-rolled [^\d] strip was the pre-r133-A12-M1 body (Eastern digits
+// ٠٩١٢… stripped to "" → wa.me/ dead link; same bug class the lib fold fixes).
+import { buildWhatsAppShareUrl, normalizeWaNumber } from "@/lib/whatsapp";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب").max(100),
@@ -46,8 +50,8 @@ export function LoginScreen() {
   };
 
   const openSupport = () => {
-    const digits = SUPPORT_WHATSAPP.replace(/[^\d]/g, "");
-    void Linking.openURL(`https://wa.me/${digits}?text=${encodeURIComponent("مرحبًا، أحتاج مساعدة في استرجاع كلمة المرور")}`);
+    const wa = normalizeWaNumber(SUPPORT_WHATSAPP);
+    void Linking.openURL(buildWhatsAppShareUrl("مرحبًا، أحتاج مساعدة في استرجاع كلمة المرور", wa));
   };
 
   return (

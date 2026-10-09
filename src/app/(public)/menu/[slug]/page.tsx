@@ -24,6 +24,8 @@ import { prisma } from '@/lib/db';
 import { SITE_ORIGIN } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
+// r134-W2 (#5): JSON-LD telephone rides the ONE wa.me normalizer (E.164).
+import { normalizeWaNumber } from '@/lib/whatsapp';
 import { MenuHero } from '@/components/menu/MenuHero';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
@@ -286,13 +288,19 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         ? (restaurant.gallery[0] as string).startsWith('http') ? (restaurant.gallery[0] as string) : `${origin}${restaurant.gallery[0]}`
                         : undefined);
 
+        // r134-W2 (#5): E.164 with the explicit + prefix — the raw owner string
+        // (local 09…, +218…, Eastern digits ٠٩١٢…) used to leak verbatim into
+        // schema.org; validators drop non-E.164 values, so the field was dead
+        // weight for exactly the restaurants the wa.me fold fixed.
+        const wa = normalizeWaNumber(restaurant.phone || restaurant.whatsapp);
+
         const jsonLd = {
                 '@context': 'https://schema.org',
                 '@type': 'Restaurant',
                 name: restaurant.name,
                 description: restaurant.description,
                 url: `${origin}/menu/${slug}`,
-                telephone: restaurant.phone || restaurant.whatsapp || undefined,
+                telephone: wa ? `+${wa}` : undefined,
                 // r121-L-3: حقل المطبخ الثابت («ليبي» لكل مطعم — حتى بيتزا روما
                 // «الإيطالية») حُذف: لا يوجد حقل مطبخ في قاعدة البيانات أصلًا،
                 // وحذف الحقل الاختياري أفضل من اختلاق قيمة.

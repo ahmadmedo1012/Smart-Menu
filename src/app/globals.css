@@ -206,6 +206,14 @@
         --transition-duration-slower: var(--t-slower);
         --transition-duration-cinema: var(--t-cinema);
 
+        /* ── r134 (W2 #11): spinner-arc bridge — Tailwind's default
+           `--animate-spin` rides a 1s revolution while the canon pins the
+           loading arc at 700ms (--motion-duration-stat, the same rung the
+           button sheen sweep uses). ONE bridge flips every `animate-spin`
+           utility (~37 sites) onto the canon without touching them; the
+           reduced-motion belt (§4.6) already freezes spinners under RM. ── */
+        --animate-spin: spin 700ms linear infinite;
+
         /* ── r126 (P4-F1 M5): elevation-ladder bridge — every default
            shadow-* utility resolves onto --elev-1..5 (Madarek §1.9 grammar:
            dark fill-led + inset top-light, light soft two-layer), which also
@@ -320,7 +328,10 @@
            that wins over the tokens.css:243 spelling of 0.5. ── */
         --state-button-hover-bg-shift: 4%;
         --state-button-hover-translate: -1px;
-        --state-button-pressed-scale: 0.98;
+        /* r134-W2 (#17): --state-button-pressed-scale: 0.98 deleted — zero
+           consumers (buttons press via active:scale-[0.97] / --press-scale,
+           the r130 W2-3 .btn reality); the XC audit caught it as a dead
+           fork of the canon's 0.97 press ladder. */
         --state-button-pressed-duration: var(--motion-duration-micro);
         --state-button-disabled-opacity: 0.55;
 
@@ -1433,6 +1444,11 @@ textarea:autofill {
    ══════════════════════════════════════════════════════════════ */
 
 @keyframes fade-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+/* r134 (W2 #11): explicit @keyframes spin — the @theme --animate-spin bridge
+   above overrides Tailwind's default value; the keyframes are declared here so
+   the 700ms spin never depends on the default-theme keyframes surviving the
+   override (same rotate-to-360 body Tailwind ships). */
+@keyframes spin { to { transform: rotate(360deg); } }
 /* r132 (A3 §3.1): @keyframes fade-out deleted — its sole consumer was the
    commented ::view-transition-old(root) rule above (select.tsx's
    data-closed:fade-out-0 is the tw-animate utility, not this keyframe). */

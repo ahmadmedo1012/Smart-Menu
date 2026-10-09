@@ -58,6 +58,8 @@
  *   insets · money-list memo · logical sticky sides · dead-sm ban ·
  *   OwnerQr React Query · shape skeletons ×6 · price ladder + chip tnum ·
  *   microcopy (عميل · تليجرام · «…» · 09XXXXXXXX · رمز QR)
+ *   r134-W2 4 · whatsapp Eastern-digit fold · normalizeArabic fold ·
+ *   formatPrice ar-LY groupDots · LoginScreen shared support builder
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
@@ -1113,6 +1115,45 @@ check(
 check(
   !codeOnly.some(({ s }) => s.includes('QR كود')) && codeOnly.some(({ s }) => s.includes('رمز QR')),
   'QR is «رمز QR» everywhere on mobile (A9 rec #9) — no «QR كود» split left',
+);
+
+// ── §r134-W2 · round-134 mobile money-path pins (the web r133 A12 trio
+// finally reaches the app twin: Eastern-digit wa.me fold · search fold ·
+// ar-LY price grouping · shared support builder). Same doctrine: text
+// scans over the RAW sources read at the top. ─────────────────────────
+
+const loginScreenSrc = read('src/screens/auth/LoginScreen.tsx');
+
+// 1. r134 #1 (the P1): normalizeWaNumber folds Eastern digits BEFORE the
+//    \d strip — Arabic-digit owner numbers (٠٩١٢…) opened the WhatsApp
+//    share picker instead of the restaurant chat at checkout.
+check(
+  whatsappSrc.includes('const western = input.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));')
+    && whatsappSrc.indexOf('const western') < whatsappSrc.indexOf('let digits'),
+  'whatsapp lib folds Eastern digits (٠٩١٢…) to Western BEFORE the \\d strip — Arabic-digit owner numbers reach the restaurant chat, not the share picker (r133 A12-M1 mobile twin)',
+);
+
+// 2. r134 #8: search parity — normalizeArabic folds Eastern digits so an
+//    Arabic-keyboard query «٠٩١٢» matches ASCII-digit names.
+check(
+  formatSrc.includes('.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))'),
+  'normalizeArabic folds Eastern digits — Arabic-keyboard search «٠٩١٢» finds digit-bearing names (r133 A12-S12 mobile twin)',
+);
+
+// 3. r134 #4: formatPrice groups ar-LY dots ≥ 1000 — the KPI «إيرادات
+//    اليوم» renders «12.500 د.ل» exactly like web (hand-rolled, not Intl).
+check(
+  formatSrc.includes('function groupDots(intStr: string): string {')
+    && formatSrc.includes('intStr.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ".")'),
+  'formatPrice groups the whole part ar-LY (12500 → «12.500 د.ل») — the platforms agree on money strings (r133 R14/S2 mobile twin)',
+);
+
+// 4. r134 #15: the support link rides the shared builder — no hand-rolled
+//    [^\d] strip (the pre-fold body) left in LoginScreen.
+check(
+  loginScreenSrc.includes('normalizeWaNumber(SUPPORT_WHATSAPP)')
+    && loginScreenSrc.includes('buildWhatsAppShareUrl('),
+  'LoginScreen support link rides normalizeWaNumber + buildWhatsAppShareUrl — no third inline wa.me builder (same Eastern-digit class as the fold)',
 );
 
 // ── report ───────────────────────────────────────────────────────────────────

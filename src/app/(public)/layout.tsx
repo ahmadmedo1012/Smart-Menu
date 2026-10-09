@@ -163,7 +163,9 @@ export default async function RootLayout({
                                 href="#main-content"
                                 className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-(--z-toast) focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-orange-foreground focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-ring/60"
                         >
-                                تخطى إلى المحتوى الرئيسي
+                                {/* r134-W2 (#6): تخطَّ shadda — matches the HomePage.tsx in-world
+                                    skip link (the r133 shadda sweep missed the two shell layouts). */}
+                                تخطَّ إلى المحتوى الرئيسي
                         </a>
                         <div className="grain-overlay" />
                                 {/* r95: داكن أولاً — توأمة SmartBot.

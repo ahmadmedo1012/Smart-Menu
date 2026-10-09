@@ -53,13 +53,18 @@ export function OrderDialog({
         restaurantId,
         restaurantLogo,
 }: OrderDialogProps) {
-        const [isMobile, setIsMobile] = useState(false);
-        useEffect(() => {
-                setIsMobile(window.innerWidth < 640);
-        }, []);
+        /* r134-W2 (#12): lazy CSS-media detection — the old useEffect ran AFTER
+         * first paint, so mobile users saw the desktop Dialog for one frame
+         * before the bottom Sheet swapped in. The initializer is SSR-safe
+         * (window guarded) and this dialog only ever mounts OPEN on client
+         * interaction (item starts null), so the first real render is already
+         * on the correct surface. Tailwind's sm breakpoint = min-width 640px,
+         * so NOT sm ⇒ mobile — the exact inverse of the old innerWidth < 640. */
+        const [isMobile] = useState(
+                () => typeof window !== 'undefined' && !window.matchMedia('(min-width: 640px)').matches
+        );
         const [notes, setNotes] = useState('');
         const [quantity, setQuantity] = useState(1);
-        const [submitting, setSubmitting] = useState(false);
         /* w3-f1: modifier selection (groupId → selected optionIds, insertion order)
          * + the first unmet-group error from the shared pure validation. */
         const [modSelection, setModSelection] = useState<ModifierSelection>({});
@@ -70,18 +75,25 @@ export function OrderDialog({
         const [confirmed, setConfirmed] = useState(false);
         const cartPickupType = useCart((s) => s.pickupType);
         const whatsappTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+        /* r134-W2 (#2): double-tap guard on «أضف إلى السلة» — the MenuPageClient
+         * H1 twin (addLockRef 400ms). The handler is synchronous, so the old
+         * `submitting` flag flipped true→false within one tick and never gated
+         * anything: two fast taps added the line TWICE before the 800ms close. */
+        const addLockRef = useRef(false);
+        const addLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
         const router = useRouter();
 
-        // Clear the whatsapp-redirect timer on unmount so a late navigation can't fire
+        // Clear the whatsapp-redirect + add-lock release timers on unmount so a
+        // late navigation/ref write can't fire
         useEffect(() => () => {
                 if (whatsappTimerRef.current) clearTimeout(whatsappTimerRef.current);
+                if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
         }, []);
 
         useEffect(() => {
                 if (open) {
                         setNotes('');
                         setQuantity(1);
-                        setSubmitting(false);
                         setConfirmed(false);
                         setModSelection({});
                         setModError(null);
@@ -94,6 +106,10 @@ export function OrderDialog({
         const handleConfirm = useCallback(() => {
                 if (!item) return null;
                 if (!restaurantWhatsapp) return;
+                // r134-W2 (#2): swallow the second tap of a double-tap before any
+                // validation/store work — the lock is taken below on the real add
+                // path and released after 400ms (MenuPageClient H1 pattern).
+                if (addLockRef.current) return;
                 // w3-f1: required-group gate BEFORE any cart write — the shared pure
                 // validator returns the first unmet group with a ready Arabic reason.
                 const groups = visibleModifierGroups(item.modifierGroups);
@@ -111,7 +127,14 @@ export function OrderDialog({
                 // usable, and the customer can simply retry — the page never dies.
                 try {
                         setModError(null);
-                        setSubmitting(true);
+                        // r134-W2 (#2): the lock rides with the cart write — a validation
+                        // failure above never locks (the customer can fix + retry at once),
+                        // a store crash keeps the 400ms lock (no hammering a broken seam).
+                        addLockRef.current = true;
+                        if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
+                        addLockTimerRef.current = setTimeout(() => {
+                                addLockRef.current = false;
+                        }, 400);
 
                         const displayName = item.nameAr || item.name;
                         /* F1-5 — SERVER IS THE ONLY SOURCE OF TRUTH FOR MONEY:
@@ -180,7 +203,6 @@ export function OrderDialog({
                         }
                         setCustomerInfo();
 
-                        setSubmitting(false);
                         setConfirmed(true);
                         if (whatsappTimerRef.current) clearTimeout(whatsappTimerRef.current);
                         whatsappTimerRef.current = setTimeout(() => {
@@ -195,7 +217,6 @@ export function OrderDialog({
                         // a store crash must never unmount the menu page — the dialog
                         // recovers in place and the customer can retry (the cart is
                         // server-repriced anyway, so a half-applied line is harmless)
-                        setSubmitting(false);
                         premiumToast('error', 'تعذّرت إضافة الطلب إلى السلة', 'حدث خلل غير متوقع — حاول مرة أخرى');
                 }
         }, [
@@ -438,6 +459,12 @@ export function OrderDialog({
                                                         onChange={(e) => setCustomerPhone(e.target.value)}
                                                         placeholder="رقم الهاتف (اختياري)"
                                                         maxLength={15}
+                                                        /* r134-W2 (#3): numeric-keyboard + autofill contract — was a bare
+                                                           text input, so phones offered the alphabet keyboard and never
+                                                           offered the saved number. */
+                                                        type="tel"
+                                                        inputMode="tel"
+                                                        autoComplete="tel"
                                                         dir="ltr"
                                                         aria-label="رقم الهاتف"
                                                         className={cn(glassPillInput, 'text-left')}
@@ -601,18 +628,12 @@ export function OrderDialog({
                                                         type="button"
                                                         className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] shadow-[var(--shadow-card-premium)] text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,box-shadow] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         onClick={handleConfirm}
-                                                        disabled={submitting || !restaurantWhatsapp}
+                                                        disabled={!restaurantWhatsapp}
                                                 >
-                                                        {submitting ? (
-                                                                <span className="flex items-center gap-2">
-                                                                        <span className="size-4 rounded-full border-2 border-whatsapp-ink/40 border-t-whatsapp-ink animate-spin" />
-                                                                        جارٍ…
-                                                                </span>
-                                                        ) : (
-                                                                <>
-                                                                        <AnimatedMessageCircle className="size-5 text-whatsapp-ink" /> أضف إلى السلة
-                                                                </>
-                                                        )}
+                                                        {/* r134-W2 (#2): the synchronous submitting spinner branch is
+                                                            retired (it could never render — the flag flipped within one
+                                                            tick); the addLockRef guard above owns double-tap protection. */}
+                                                        <AnimatedMessageCircle className="size-5 text-whatsapp-ink" /> أضف إلى السلة
                                                 </button>
                                                 {!restaurantWhatsapp && (
                                                         <p className="text-2xs text-center text-destructive">
@@ -631,7 +652,7 @@ export function OrderDialog({
         const sharedProps = {
                 open,
                 onOpenChange: ((o: boolean) => {
-                        if (!o && !submitting) onOpenChange(false);
+                        if (!o) onOpenChange(false);
                 }) as (open: boolean) => void,
         };
         // ponytail: two render paths — CSS approach would need display:none hack, this is cleaner
