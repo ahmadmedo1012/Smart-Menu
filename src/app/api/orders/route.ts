@@ -8,6 +8,8 @@ import { getClientIp } from '@/lib/client-ip';
 import { orderItemCountByOrder } from '@/lib/list-counts';
 import { attachReferralPhoneToOrder, REFERRAL_CODE_RE } from '@/lib/referral-conversion';
 import { normalizeCustomerPhone } from '@/lib/phone';
+// r137: فرض رسوم التوصيل والحد الأدنى — نفس الحقيقة المالية للواجهة
+import { deliveryFeeFor, isBelowMinOrder, minOrderMessage } from '@/lib/delivery-meta';
 import { PlanLimitError } from '@/lib/plan-limit-error';
 import { MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY_MESSAGE } from '@/lib/constants';
 import {
@@ -365,6 +367,23 @@ export async function POST(request: NextRequest) {
                         return apiError('المطعم غير متاح حالياً', 409);
                 }
 
+                // r137 (رسوم التوصيل + الحد الأدنى): فرض خادمي فقط — إجمالي
+                // العميل لا يُوثق أبدًا (نفس مبدأ إعادة التسعير r102-A5). الرسوم
+                // تُضاف إلى total بعد المجموع الفرعي، وsubtotal يبقى أسعار
+                // الأصناف وحدها (فصل صادق في كل الفواتير/الإحصاءات).
+                const deliveryMeta = {
+                        fee: restaurant.deliveryFee == null ? null : Number(restaurant.deliveryFee),
+                        minOrder: restaurant.minOrder == null ? null : Number(restaurant.minOrder),
+                };
+                const effectivePickupType = body.pickupType ?? 'inside';
+                if (isBelowMinOrder(recalcSubtotal, effectivePickupType, deliveryMeta)) {
+                        return apiError(
+                                `${minOrderMessage(deliveryMeta.minOrder!)} — أضف أصنافاً أكثر ثم أعد المحاولة`,
+                                422,
+                        );
+                }
+                const feeTotal = deliveryFeeFor(effectivePickupType, deliveryMeta);
+
                 // Check plan order limit — inside the tx with the create (round-76: TOCTOU
                 // race — concurrent POSTs both passed the old outside count check)
                 const data = await prisma.$transaction(async (tx) => {
@@ -409,7 +428,9 @@ export async function POST(request: NextRequest) {
                                         pickupType: body.pickupType ?? 'inside',
                                         subtotal: recalcSubtotal, // Prisma auto-converts number to Decimal for Decimal fields
                                         discount,
-                                        total: recalcSubtotal - discount,
+                                        // r137: الرسوم تُضاف بعد المجموع الفرعي (خادميًا فقط —
+                                        // feeTotal محسوبة من صف المطعم أعلاه، لا من العميل)
+                                        total: recalcSubtotal - discount + feeTotal,
                                         restaurantId: body.restaurantId,
                                         items: {
                                                 create: body.items.map((i) => {

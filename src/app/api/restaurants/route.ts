@@ -13,6 +13,10 @@ import {
         restaurantFieldSchema,
         isSlugHeldByPendingPayment,
 } from '@/lib/validation';
+// r137: ساعات الدوام المهيكلة + رسوم التوصيل/الحد الأدنى (نفس المحللات
+// المشتركة مع مسارات PUT/settings — مصدر واحد للرسائل العربية)
+import { parseOpeningHoursPayload } from '@/lib/opening-hours';
+import { parseDeliveryAmount } from '@/lib/delivery-meta';
 import { orderCountByRestaurant, categoryCountByRestaurant } from '@/lib/list-counts';
 import { getClientIp } from '@/lib/client-ip';
 
@@ -56,6 +60,14 @@ const createSchema = z.object({
         password: passwordOptional,
         showOnLanding: z.boolean().optional(),
         featuredRank: z.number().int().optional(),
+        /* r137: رسوم التوصيل/الحد الأدنى (اختياريان — null/فراغ = إطفاء؛
+           لا بوابة خطة: أمانة منيو جوهرية، كل الباقات) + ساعات الدوام
+           المهيكلة (مصفوفة فارغة = لا شيء). ليست حقول تسجيل حساسة — لا
+           تلامس خطة/فوترة (قاعدة mass-assign round-76 تبقى على
+           planId/showOnLanding/featuredRank وحدها). */
+        deliveryFee: z.union([z.number(), z.string()]).optional(),
+        minOrder: z.union([z.number(), z.string()]).optional(),
+        hours: z.array(z.unknown()).optional(),
 }).refine((d) => (d.restaurants?.length ?? 0) > 0, {
         message: 'يجب توفير بيانات منيو واحد على الأقل',
 });
@@ -108,6 +120,12 @@ export async function GET(request: NextRequest) {
                                 orderBy: { createdAt: 'desc' },
                                 include: {
                                         plan: { select: { id: true, name: true, nameAr: true, price: true } },
+                                        /* r137: ساعات الدوام لصف التحرير في RestaurantFormDialog
+                                           (نفس إسقاط اليوم الأربعة العام). */
+                                        hours: {
+                                                orderBy: { dayOfWeek: 'asc' },
+                                                select: { dayOfWeek: true, closed: true, opensAt: true, closesAt: true },
+                                        },
                                 },
                                 skip: (page - 1) * pageSize,
                                 take: pageSize,
@@ -224,6 +242,24 @@ export async function POST(request: NextRequest) {
                         }
                 }
 
+                /* r137: تطبيع حقلي التوصيل + فك الساعات قبل المعاملة — فشل
+                   التحقق يُجهض قبل أي كتابة (نفس عائلة 422 العربية كمسارات
+                   PUT/settings). لا قيمة = لا عمود يُكتب (يبقى null المخطط). */
+                const deliveryData: { deliveryFee?: number; minOrder?: number } = {};
+                if ('deliveryFee' in body) {
+                        const r = parseDeliveryAmount(body.deliveryFee);
+                        if (!r.ok) return error(`رسوم التوصيل: ${r.error}`, 422);
+                        if (r.value != null) deliveryData.deliveryFee = r.value;
+                }
+                if ('minOrder' in body) {
+                        const r = parseDeliveryAmount(body.minOrder);
+                        if (!r.ok) return error(`الحد الأدنى للطلب: ${r.error}`, 422);
+                        if (r.value != null) deliveryData.minOrder = r.value;
+                }
+                const hoursParsed = parseOpeningHoursPayload(body.hours);
+                if (!hoursParsed.ok) return error(hoursParsed.error, 422);
+                const hoursRows = hoursParsed.rows;
+
                 const result = await prisma.$transaction(async (tx) => {
                         // round87-A6: public self-registration must run at the FREE plan's
                         // advertised caps (10 items / 100 orders). Previously the row kept
@@ -270,6 +306,13 @@ export async function POST(request: NextRequest) {
                                                 // r93-N4: السقوف المنزّلة من الخطة (مسار الأدمن فقط —
                                                 // التسجيل الذاتي أعلاه يفرض سقوف الخطة المجانية)
                                                 ...(planCaps ?? {}),
+                                                /* r137: رسوم التوصيل/الحد الأدنى مطبَّعين قبل المعاملة
+                                                   (لا قيمة = لا عمود يُكتب — يبقى null المخطط)،
+                                                   والساعات إنشاءً متداخلًا واحدًا ذريًا. */
+                                                ...(deliveryData as Record<string, unknown>),
+                                                ...(hoursRows.length > 0
+                                                        ? { hours: { create: hoursRows } }
+                                                        : {}),
                                         },
                                 });
                                 if (i === 0) primary = restaurant;

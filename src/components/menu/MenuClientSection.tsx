@@ -32,6 +32,9 @@ type Restaurant = {
     whatsapp: string | null;
     id: number;
     logo: string;
+    /* r137: رسوم التوصيل (رقم أو null — الميزة مطفأة) — تسمية خيار
+       التوصيل في OrderDialog. */
+    deliveryFee?: number | null;
 };
 
 type SerializedCategory = {
@@ -110,6 +113,7 @@ export function MenuClientSection(props: {
                     restaurantName={restaurant.name}
                     restaurantId={restaurant.id}
                     restaurantLogo={restaurant.logo}
+                    deliveryFee={restaurant.deliveryFee ?? null}
                 />
             </div>
 

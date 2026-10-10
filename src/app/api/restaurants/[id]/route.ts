@@ -16,6 +16,9 @@ import {
         normalizeSlug,
         slugOptional,
 } from '@/lib/validation';
+// r137: ساعات الدوام المهيكلة + رسوم التوصيل/الحد الأدنى
+import { parseOpeningHoursPayload } from '@/lib/opening-hours';
+import { parseDeliveryAmount } from '@/lib/delivery-meta';
 // r121-A-10: the orders-guard + P2003→409 mapping moved to the shared lib
 // (same rules as the owner path, one unified 409 copy).
 import { ORDERS_PRESENT_MESSAGE, countRestaurantOrders, isOrdersPresentP2003 } from '@/lib/restaurant-delete-guard';
@@ -42,6 +45,13 @@ const updateSchema = restaurantFieldSchema.partial().extend({
         slug: slugOptional,
         logo: z.string().max(2000).optional(),
         gallery: z.array(z.string().max(2000)).max(10).optional(),
+        /* r137: رسوم التوصيل/الحد الأدنى (null/فراغ = إطفاء). تُمرَّر خامًا هنا
+           وتُطبَّع بـ parseDeliveryAmount — رقم في JSON أو سلسلة الإعدادات
+           كلاهما مقبول (نفس مسار المرآة في /api/settings). المصفوفة الفارغة
+           hours = مسح الساعات كلها (إطفاء الميزة). */
+        deliveryFee: z.union([z.number(), z.string()]).optional(),
+        minOrder: z.union([z.number(), z.string()]).optional(),
+        hours: z.array(z.unknown()).optional(),
 });
 
 const adminUpdateSchema = updateSchema.extend({
@@ -70,6 +80,51 @@ function restaurantMediaError(
                 if (e) return e;
         }
         return null;
+}
+
+/**
+ * r137: تطبيع حقلي رسوم التوصيل/الحد الأدنى من أي مسار مطاعم — قيمة
+ * خام (رقم أو سلسلة) → Decimal قابل للتخزين أو null (إطفاء)، أو رسالة
+ * 422 عربية (تُعاد من المسار كما هي — نفس عائلة أخطاء الحقول الأخرى).
+ */
+function normalizeDeliveryFields(
+        parsed: { deliveryFee?: unknown; minOrder?: unknown }
+): { ok: true; data: { deliveryFee?: number | null; minOrder?: number | null } } | { ok: false; error: string } {
+        const out: { deliveryFee?: number | null; minOrder?: number | null } = {};
+        if ('deliveryFee' in parsed) {
+                const r = parseDeliveryAmount(parsed.deliveryFee);
+                if (!r.ok) return { ok: false, error: `رسوم التوصيل: ${r.error}` };
+                out.deliveryFee = r.value;
+        }
+        if ('minOrder' in parsed) {
+                const r = parseDeliveryAmount(parsed.minOrder);
+                if (!r.ok) return { ok: false, error: `الحد الأدنى للطلب: ${r.error}` };
+                out.minOrder = r.value;
+        }
+        return { ok: true, data: out };
+}
+
+/**
+ * r137: بناء بيانات التحديث من المسار المُحلَّل (المسارات الثلاثة أدناه
+ * تتشاركه) — يفصل الساعات المهيكلة (كتابة متداخلة استبدالية: حذف الكل
+ * ثم إنشاء الصفوف الجديدة داخل نفس update الذري) عن الحقول السلمية،
+ * ويطبّع رسوم التوصيل/الحد الأدنى قبل أي كتابة.
+ */
+function buildRestaurantUpdateData(
+        parsed: Record<string, unknown>
+): { ok: true; data: Record<string, unknown> } | { ok: false; error: string } {
+        const { hours: hoursInput, ...scalar } = parsed;
+        const delivery = normalizeDeliveryFields(scalar as { deliveryFee?: unknown; minOrder?: unknown });
+        if (!delivery.ok) return delivery;
+        const data: Record<string, unknown> = Object.fromEntries(
+                Object.entries({ ...scalar, ...delivery.data }).filter(([, v]) => v !== undefined)
+        );
+        if (hoursInput !== undefined) {
+                const parsedHours = parseOpeningHoursPayload(hoursInput);
+                if (!parsedHours.ok) return { ok: false, error: parsedHours.error };
+                data.hours = { deleteMany: {}, create: parsedHours.rows };
+        }
+        return { ok: true, data };
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -115,10 +170,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                                         currency: true,
                                         themeColor: true,
                                         isActive: true,
+                                        /* r137: رسوم التوصيل/الحد الأدنى لصفحة السلة —
+                                           تسمية الخيار، سطر الرسوم، وبوابة الحد الأدنى
+                                           (الفرض الخادمي في POST /api/orders هو الحقيقة). */
+                                        deliveryFee: true,
+                                        minOrder: true,
                                 },
                         });
                         if (!pub) return apiError('المطعم غير موجود', 404);
-                        return success(pub);
+                        // r137: Decimal → number عبر السلك (نفس عائلة أسعار المنيو العام)
+                        return success({
+                                ...pub,
+                                deliveryFee: pub.deliveryFee == null ? null : Number(pub.deliveryFee),
+                                minOrder: pub.minOrder == null ? null : Number(pub.minOrder),
+                        });
                 }
                 const data = await prisma.restaurant.findUnique({
                         where: { id: rId },
@@ -207,10 +272,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         const parsed = updateSchema.parse(body);
                         const mediaErr = restaurantMediaError(parsed, rId);
                         if (mediaErr) return apiError(mediaErr, 422);
-                        data = await prisma.restaurant.update({
-                                where: { id: rId },
-                                data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
-                        });
+                        const built = buildRestaurantUpdateData(parsed as unknown as Record<string, unknown>);
+                        if (!built.ok) return apiError(built.error, 422);
+                        data = await prisma.restaurant.update({ where: { id: rId }, data: built.data });
                 } else if (auth.role === 'super_admin' || auth.role === 'admin' || auth.role === 'sub_admin') {
                         // Staff may use the full admin schema (plan/maxItems/featuredRank/...)
                         // only when they hold MANAGE_RESTAURANTS. admin (legacy role) passes
@@ -220,10 +284,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                                 const parsed = adminUpdateSchema.parse(body);
                                 const mediaErr = restaurantMediaError(parsed, rId);
                                 if (mediaErr) return apiError(mediaErr, 422);
-                                data = await prisma.restaurant.update({
-                                        where: { id: rId },
-                                        data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
-                                });
+                                const built = buildRestaurantUpdateData(parsed as unknown as Record<string, unknown>);
+                                if (!built.ok) return apiError(built.error, 422);
+                                data = await prisma.restaurant.update({ where: { id: rId }, data: built.data });
                         } else {
                                 // No permission: staff may still edit a restaurant they manage via a
                                 // UserRestaurant link, but ONLY with the restricted schema — never
@@ -237,10 +300,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                                 const parsed = updateSchema.parse(body);
                                 const mediaErr = restaurantMediaError(parsed, rId);
                                 if (mediaErr) return apiError(mediaErr, 422);
-                                data = await prisma.restaurant.update({
-                                        where: { id: rId },
-                                        data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
-                                });
+                                const built = buildRestaurantUpdateData(parsed as unknown as Record<string, unknown>);
+                                if (!built.ok) return apiError(built.error, 422);
+                                data = await prisma.restaurant.update({ where: { id: rId }, data: built.data });
                         }
                 } else {
                         // Regular USER role: no write access to restaurants at all

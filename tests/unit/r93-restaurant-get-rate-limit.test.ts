@@ -90,6 +90,10 @@ const PUB_ROW = {
         currency: 'LYD',
         themeColor: 'amber',
         isActive: true,
+        /* r137: وصفا التوصيل يرافقان الإسقاط العام (صفحة السلة تقرؤهما من هذا
+           المسار) — Decimal يُكرَّه number عبر السلك، والمطفي = null. */
+        deliveryFee: null,
+        minOrder: null,
 };
 
 beforeEach(() => {

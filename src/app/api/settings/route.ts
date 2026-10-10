@@ -11,6 +11,9 @@ import {
         isSlugHeldByPendingPayment,
         normalizeSlug,
 } from '@/lib/validation';
+// r137: ساعات الدوام المهيكلة + رسوم التوصيل/الحد الأدنى (محرّر المالك)
+import { parseOpeningHoursPayload, type ParsedOpeningHours } from '@/lib/opening-hours';
+import { parseDeliveryAmount } from '@/lib/delivery-meta';
 
 const singleSchema = z.object({
         key: z.string().min(1).max(100),
@@ -46,6 +49,12 @@ const RESTAURANT_FIELDS = [
         'workingHours',
         'themeColor',
         'pickupTypes',
+        /* r137: رسوم التوصيل/الحد الأدنى (قيمة نصية خام — تُطبَّع بـ
+           parseDeliveryAmount، الفراغ = إطفاء null) وساعات الدوام
+           المهيكلة (JSON في غلاف الإعدادات ≤20k). */
+        'deliveryFee',
+        'minOrder',
+        'hours',
 ];
 
 export async function GET(request: NextRequest) {
@@ -90,7 +99,16 @@ export async function GET(request: NextRequest) {
                         // shape (`restaurant._count.orders/.categories`) is identical.
                         prisma.restaurant.findUnique({
                                 where: { id: restaurantId },
-                                include: { plan: true },
+                                include: {
+                                        plan: true,
+                                        /* r137: ساعات الدوام لمحرّر المالك (نفس إسقاط اليوم
+                                           الأربعة العام). deliveryFee/minOrder سلميان — يأتيان
+                                           مع الصف كاملًا بلا include. */
+                                        hours: {
+                                                orderBy: { dayOfWeek: 'asc' },
+                                                select: { dayOfWeek: true, closed: true, opensAt: true, closesAt: true },
+                                        },
+                                },
                         }),
                         orderCountByRestaurant([restaurantId]),
                         categoryCountByRestaurant([restaurantId]),
@@ -167,6 +185,9 @@ export async function PUT(request: NextRequest) {
                         let oldLogo: string | null = null;
                         let oldGallery: string[] = [];
                         let updateData: Record<string, unknown> = {};
+                        /* r137: صفوف الساعات المهيكلة (إن وُجد عنصر restaurant_hours
+                           في الدفعة) — تُستبدل استبدالًا كاملًا بعد نجاح تحديث الصف. */
+                        let hoursRows: ParsedOpeningHours[] | undefined;
                         if (restaurantFields.length > 0) {
                                 updateData = {};
                                 for (const f of restaurantFields) {
@@ -199,6 +220,31 @@ export async function PUT(request: NextRequest) {
                                                                 return apiError(`الرابط ${normalized} محجوز بطلب دفع معلق`, 409);
                                                         }
                                                         updateData.slug = normalized;
+                                                } else if (fieldName === 'deliveryFee' || fieldName === 'minOrder') {
+                                                        /* r137: قيمة نصية خام من محرّر المالك — الفراغ = إطفاء
+                                                           (كتابة null صريحة)، والرقم يُقرَّب لمنزلتين
+                                                           (نفس عمود Decimal(10,2) للأسعار). */
+                                                        const r = parseDeliveryAmount(f.value);
+                                                        if (!r.ok) {
+                                                                return apiError(
+                                                                        `${fieldName === 'deliveryFee' ? 'رسوم التوصيل' : 'الحد الأدنى للطلب'}: ${r.error}`,
+                                                                        422,
+                                                                );
+                                                        }
+                                                        updateData[fieldName] = r.value;
+                                                } else if (fieldName === 'hours') {
+                                                        /* r137: ساعات الدوام — JSON في غلاف الإعدادات. تُفكّ هنا
+                                                           (رسائل 422 العربية نفسها) وتُستبدل استبدالًا كاملًا
+                                                           تحت (القيد الفريد restaurantId+dayOfWeek يمنع الدمج). */
+                                                        let parsed: unknown;
+                                                        try {
+                                                                parsed = JSON.parse(f.value);
+                                                        } catch {
+                                                                return apiError('ساعات الدوام غير صالحة — تعذّر قراءة البيانات', 422);
+                                                        }
+                                                        const r = parseOpeningHoursPayload(parsed);
+                                                        if (!r.ok) return apiError(r.error, 422);
+                                                        hoursRows = r.rows;
                                                 } else {
                                                         // r121-C4: canonical bound for every other mirror field
                                                         // (logo/gallery keep the 20k envelope + media checks below)
@@ -235,6 +281,23 @@ export async function PUT(request: NextRequest) {
                                         oldLogo = prev?.logo ?? null;
                                         oldGallery = prev?.gallery ?? [];
                                         await prisma.restaurant.update({ where: { id: restaurantId }, data: updateData });
+                                }
+                                /* r137: استبدال الساعات المهيكلة — حذف كامل ثم إنشاء
+                                   الصفوف الجديدة داخل معاملة واحدة (القيد الفريد
+                                   restaurantId+dayOfWeek يجعل الدمج مستحيلًا أصلًا).
+                                   المصفوفة الفارغة = مسح كامل (إطفاء الميزة — الغياب
+                                   الصادق). بعد نجاح تحديث الصف أعلاه، لا قبلها. */
+                                if (hoursRows !== undefined) {
+                                        await prisma.$transaction([
+                                                prisma.openingHours.deleteMany({ where: { restaurantId } }),
+                                                ...(hoursRows.length > 0
+                                                        ? [
+                                                                        prisma.openingHours.createMany({
+                                                                                data: hoursRows.map((row) => ({ ...row, restaurantId })),
+                                                                        }),
+                                                                ]
+                                                        : []),
+                                        ]);
                                 }
                         }
                         // Clean up the replaced logo only after the DB write succeeded

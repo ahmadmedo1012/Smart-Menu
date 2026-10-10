@@ -110,6 +110,7 @@ export function MenuPageClient({
         restaurantName,
         restaurantId,
         restaurantLogo,
+        deliveryFee,
 }: {
         categories: CategoryProp[];
         items: Array<MenuItemProp & FeaturedItem>;
@@ -117,6 +118,9 @@ export function MenuPageClient({
         restaurantName?: string;
         restaurantId: number;
         restaurantLogo?: string;
+        /* r137: رسوم التوصيل للمطعم — تسمية خيار التوصيل في OrderDialog
+           («التوصيل (5 د.ل رسومًا)»). null = الميزة مطفأة. */
+        deliveryFee?: number | null;
 }) {
         /* r97-W6: حالة معلمات URL محلية (كانت قراءة useSearchParams مباشرة —
            انظر UrlFilterSync أعلاه). القيم الافتراضية تعرض المنيو كاملًا في
@@ -672,6 +676,7 @@ className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm 
                                 restaurantName={restaurantName}
                                 restaurantId={restaurantId}
                                 restaurantLogo={restaurantLogo}
+                                deliveryFee={deliveryFee}
                         />
 
                         {/* Shared reviews dialog — single instance for all cards (a11y + DOM size) */}

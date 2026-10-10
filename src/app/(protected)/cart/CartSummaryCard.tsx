@@ -5,11 +5,15 @@ import type { CartItem } from '@/store/cart';
 
 interface CartSummaryCardProps {
         items: CartItem[];
+        /** المجموع الفرعي (أسعار الأصناف وحدها — الرسوم تُضاف سطرًا منفصلًا). */
         total: number;
+        /* r137: رسوم التوصيل المستحقة لهذا الطلب (0 = لا سطر — سياسة
+           الغياب الصادق للقيمة الصفرية/المطفأة). */
+        deliveryFee?: number;
 }
 
 /** Order summary card — verbatim extraction from the cart page (round89-G1). */
-export function CartSummaryCard({ items, total }: CartSummaryCardProps) {
+export function CartSummaryCard({ items, total, deliveryFee = 0 }: CartSummaryCardProps) {
         return (
                 <div className="rounded-md bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mb-8 animate-slide-up stagger-4">
                         <h3 className="text-sm font-bold mb-4 text-muted-foreground">ملخص الطلب</h3>
@@ -35,6 +39,14 @@ export function CartSummaryCard({ items, total }: CartSummaryCardProps) {
                                 ))}
                         </div>
                         <div className="h-px bg-gradient-to-r from-transparent via-orange/30 to-transparent my-3" />
+                        {/* r137: سطر الرسوم — منفصل عن المجموع الفرعي (فصل صادق:
+                           الرسوم تُضاف بعد المجموع، لا تُذاب فيه) ويعرض فقط بقيمة > 0. */}
+                        {deliveryFee > 0 && (
+                                <div className="flex items-center justify-between text-sm mb-2">
+                                        <span className="text-muted-foreground">رسوم التوصيل</span>
+                                        <span className="font-medium tabular-nums">{formatPrice(deliveryFee)}</span>
+                                </div>
+                        )}
                         <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">المجموع الإجمالي</span>
                                 <div className="flex items-baseline gap-1">
@@ -42,7 +54,8 @@ export function CartSummaryCard({ items, total }: CartSummaryCardProps) {
                                                 {/* round97-X3: shared formatPrice (suffix '' — the د.ل
                                                     span below stays separate for the baseline layout). */}
                                                 {/* r121 (H-1): إسقاط decimals:1 — نفس عيار العرض الذكي. */}
-                                                {formatPrice(total, { suffix: '' })}
+                                                {/* r137: الرسوم مضافة بعد المجموع الفرعي */}
+                                                {formatPrice(total + deliveryFee, { suffix: '' })}
                                         </span>
                                         <span className="text-sm text-muted-foreground">د.ل</span>
                                 </div>

@@ -57,14 +57,27 @@ describe('getRestaurantBySlug — query contract', () => {
                 const arg = mockRestaurantFindUnique.mock.calls[0][0];
                 expect(Object.keys(arg.select).sort()).toEqual(
                         [
-                                'address', 'description', 'email', 'gallery', 'id', 'logo',
-                                'name', 'phone', 'slug', 'whatsapp', 'workingHours',
+                                'address', 'description', 'email', 'gallery', 'hours', 'id', 'logo',
+                                'minOrder', 'name', 'phone', 'slug', 'whatsapp', 'workingHours',
+                                'deliveryFee',
                         ].sort(),
                 );
                 // internal/plan columns must never reach the public menu payload
                 for (const forbidden of ['planId', 'maxOrders', 'maxItems', 'themeColor', 'currency', 'showOnLanding', 'featuredRank', 'planStart', 'planEnd']) {
                         expect(arg.select).not.toHaveProperty(forbidden);
                 }
+        });
+
+        /* r137: ساعات الدوام المهيكلة تعبر بترتيب ثابت (dayOfWeek asc) وبالإسقاط
+           العام الأربعة فقط — العميل يحسب «مفتوح الآن» بنفسه (الصفحة ISR) فلا
+           timestamps ولا ids تعبر. */
+        it('r137: hours ride the public projection — dayOfWeek asc + the four public fields only', async () => {
+                await getRestaurantBySlug('al-waha-cafe');
+                const arg = mockRestaurantFindUnique.mock.calls[0][0];
+                expect(arg.select.hours).toEqual({
+                        orderBy: { dayOfWeek: 'asc' },
+                        select: { dayOfWeek: true, closed: true, opensAt: true, closesAt: true },
+                });
         });
 
         it('returns the row through the withRetry wrapper (transient pool errors retried upstream)', async () => {

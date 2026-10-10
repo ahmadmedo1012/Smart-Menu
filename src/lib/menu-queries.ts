@@ -7,6 +7,11 @@ import { prisma, withRetry } from '@/lib/db';
 // React cache() is the sanctioned equivalent when fetch isn't used — Prisma.)
 // Note: isActive:true is applied here (not just in the page) so inactive
 // restaurants get neither metadata nor a page — the page 404s anyway.
+//
+// r137: hours (ساعات الدوام المهيكلة — شارة «مفتوح الآن»، تُحسب على
+// العميل حصراً) + deliveryFee/minOrder (رسوم التوصيل/الحد الأدنى —
+// تسمية خيار التوصيل في OrderDialog) تعبر مع المطعم. Decimal يُسلسَل
+// Number() عند الاستهلاك (نفس عائلة أسعار الأصناف).
 export const getRestaurantBySlug = cache(async (slug: string) =>
         withRetry(() =>
                 prisma.restaurant.findUnique({
@@ -23,6 +28,12 @@ export const getRestaurantBySlug = cache(async (slug: string) =>
                                 workingHours: true,
                                 gallery: true,
                                 email: true,
+                                deliveryFee: true,
+                                minOrder: true,
+                                hours: {
+                                        orderBy: { dayOfWeek: 'asc' },
+                                        select: { dayOfWeek: true, closed: true, opensAt: true, closesAt: true },
+                                },
                         },
                 })
         )

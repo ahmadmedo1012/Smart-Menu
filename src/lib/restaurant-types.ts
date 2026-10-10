@@ -1,4 +1,7 @@
 import type { PlanSummary as Plan } from './plan-types';
+// r137: ساعات الدوام المهيكلة لصف التحرير في RestaurantFormDialog
+// (Decimal للرسوم/الحد يصل سلسلة عبر JSON — الحوار يطوّعه عند العرض).
+import type { OpeningHoursRow } from './opening-hours';
 
 /**
  * round89-E5 — the ONE shared restaurant row type (dx-1 ج-3).
@@ -16,24 +19,28 @@ import type { PlanSummary as Plan } from './plan-types';
  * one was read by at least one of the six previous interfaces.
  */
 export interface Restaurant {
-	id: number;
-	name: string;
-	slug: string;
-	description: string;
-	logo: string;
-	_count: { orders: number; categories: number };
-	// /api/restaurants (admin family) row fields
-	phone?: string;
-	whatsapp?: string;
-	email?: string;
-	address?: string;
-	workingHours?: string;
-	planId?: number | null;
-	plan?: Plan | null;
-	city?: string | null;
-	showOnLanding?: boolean | null;
-	featuredRank?: number | null;
-	// /api/owner/restaurants (owner menus list) extras
-	isPrimary?: boolean;
-	createdAt?: string;
+        id: number;
+        name: string;
+        slug: string;
+        description: string;
+        logo: string;
+        _count: { orders: number; categories: number };
+        // /api/restaurants (admin family) row fields
+        phone?: string;
+        whatsapp?: string;
+        email?: string;
+        address?: string;
+        workingHours?: string;
+        planId?: number | null;
+        plan?: Plan | null;
+        city?: string | null;
+        showOnLanding?: boolean | null;
+        featuredRank?: number | null;
+        // r137: ساعات الدوام المهيكلة + وصفا التوصيل (list GET يحملهما معهما)
+        hours?: OpeningHoursRow[];
+        deliveryFee?: string | number | null;
+        minOrder?: string | number | null;
+        // /api/owner/restaurants (owner menus list) extras
+        isPrimary?: boolean;
+        createdAt?: string;
 }

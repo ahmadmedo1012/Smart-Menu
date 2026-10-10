@@ -4,6 +4,8 @@ import QRCode from 'qrcode';
 import { prisma } from '@/lib/db';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
+// r137: سطر دوام مهيكل صغير تحت ترويسة الورقة (إن وُجدت ساعات مهيكلة)
+import { formatHoursForPrint } from '@/lib/opening-hours';
 // r133 (A3 S5): print QR rides the single SITE_ORIGIN seam (lib/seo.ts) — was a
 // private NEXT_PUBLIC_APP_URL read while seo.ts read NEXT_PUBLIC_DOMAIN.
 import { SITE_ORIGIN } from '@/lib/seo';
@@ -71,6 +73,11 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                         description: true,
                         phone: true,
                         workingHours: true,
+                        /* r137: الساعات المهيكلة لسطر الدوام تحت الترويسة */
+                        hours: {
+                                orderBy: { dayOfWeek: 'asc' },
+                                select: { dayOfWeek: true, closed: true, opensAt: true, closesAt: true },
+                        },
                 },
         });
         if (!restaurant) notFound();
@@ -212,6 +219,14 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                                 {restaurant.phone && <> 📞 {restaurant.phone} </>}
                                 {restaurant.workingHours && <> 🕐 {restaurant.workingHours}</>}
                         </p>
+                        {/* r137: سطر الدوام المهيكل — «السبت: 16:00–23:00 · الجمعة: مغلق».
+                            يظهر فقط إذا عبّأ المالك محرّر الأسبوع (غياب صادق: بلا صفوف
+                            لا يُختلق سطر). الورقة تبقى نصية بلا حالة «الآن» — الحساب
+                            اللحظي عميلي فقط (شارة المنيو الرقمي). */}
+                        {(() => {
+                                const line = formatHoursForPrint(restaurant.hours);
+                                return line ? <p className="sub">🕒 {line}</p> : null;
+                        })()}
                         <p className="sub" style={{ fontSize: '0.8rem', color: 'var(--print-footer)' }}>
                                 {toArabicNumber(categories.length)} قسم · {toArabicNumber(totalItems)} صنف
                         </p>

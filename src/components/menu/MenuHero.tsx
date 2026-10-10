@@ -9,6 +9,10 @@
  */
 import { normalizeWaNumber } from '@/lib/whatsapp';
 import { normalizeCustomerPhone } from '@/lib/phone';
+// r137: شارة «مفتوح الآن» — جزيرة عميلية (الحساب عميلي فقط لأن الصفحة
+// مخبأة ISR؛ انظر تعليق المكون)
+import { OpenStatusBadge } from './OpenStatusBadge';
+import type { OpeningHoursRow } from '@/lib/opening-hours';
 import { Store, Printer, Phone, Mail } from 'lucide-react';
 import { QrCornerMark } from '@/components/ui/QrCornerMark';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
@@ -28,6 +32,8 @@ export type MenuHeroRestaurant = {
     address: string | null;
     workingHours: string | null;
     gallery: string[];
+    /* r137: ساعات الدوام المهيكلة (null/[] = الميزة نائمة — لا شارة). */
+    hours?: OpeningHoursRow[] | null;
 };
 
 export function MenuHero({
@@ -112,6 +118,13 @@ export function MenuHero({
                         {restaurant.name}
                     </h1>
 
+                    {/* r137: شارة «مفتوح الآن · يغلق 23:00» — تحسب على العميل
+                        فقط (الصفحة مخبأة ISR — الحالة الخادمية كانت ستكذب بلحظة
+                        الخبز). لا ساعات مهيكلة → لا شارة (غياب صادق). */}
+                    <div className="flex justify-center mb-1">
+                        <OpenStatusBadge hours={restaurant.hours} />
+                    </div>
+
                     {restaurant.description && (
                         <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
                             {restaurant.description}
@@ -130,6 +143,8 @@ export function MenuHero({
                         {restaurant.workingHours && (
                             <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground glass-card px-3.5 py-2 rounded-full backdrop-blur-md border border-white/5 dark:border-white/[0.04]">
                                 <AnimatedClock className="size-3.5" />
+                                {/* r137: النص الحر صار «ملاحظات دوام إضافية» بجانب
+                                    الساعات المهيكلة — يبقى يُعرض كما هو تماماً. */}
                                 {restaurant.workingHours}
                             </span>
                         )}

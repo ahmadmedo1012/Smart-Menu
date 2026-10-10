@@ -33,6 +33,15 @@ import { CartPageHeader } from './CartPageHeader';
 import { DeliveryAddressField } from './DeliveryAddressField';
 // r121-O-1: labels derive from the canonical pickup map (value/icon stay local)
 import { PICKUP_TYPE_META } from '@/lib/order-status';
+// r137: رسوم التوصيل/الحد الأدنى — الحقيقة المالية الواحدة للواجهة والخادم
+import {
+        deliveryFeeFor,
+        deliveryFeeLabel,
+        hasDeliveryFee,
+        isBelowMinOrder,
+        minOrderMessage,
+        type DeliveryMeta,
+} from '@/lib/delivery-meta';
 
 const PICKUP_OPTIONS = (['inside', 'takeaway', 'delivery'] as const).map((k) => ({
         value: k,
@@ -82,6 +91,9 @@ export default function CartPage() {
         const [isFetchingPickupTypes, setIsFetchingPickupTypes] = useState(false);
         const [pickupTypesError, setPickupTypesError] = useState(false);
         const [waError, setWaError] = useState(false);
+        /* r137: رسوم التوصيل/الحد الأدنى للمطعم (من نفس جلب أنواع الطلب —
+           GET /api/restaurants/[id] العام). null = الميزة مطفأة. */
+        const [deliveryMeta, setDeliveryMeta] = useState<DeliveryMeta>({ fee: null, minOrder: null });
         const submittingRef = useRef(false);
         // r106-N1 (Next-actions #6, mirroring mobile N4 with a stronger lifecycle):
         // idempotency key for POST /api/orders. Minted once per checkout attempt
@@ -121,6 +133,14 @@ export default function CartPage() {
                                 );
                                 setSupportedPickupTypes(arr);
                                 setRestaurantSlug(d.data?.slug ?? null);
+                                /* r137: نفس الجلب يحمل وصفَي التوصيل — الرسوم تظهر على
+                                   خيار التوصيل وفي الملخص، والحد الأدنى يُبنى بوابة
+                                   عربية صادقة. الفرض الخادمي في POST /api/orders هو
+                                   الحقيقة دائماً (هذا عرض فقط). */
+                                setDeliveryMeta({
+                                        fee: typeof d.data?.deliveryFee === 'number' ? d.data.deliveryFee : null,
+                                        minOrder: typeof d.data?.minOrder === 'number' ? d.data.minOrder : null,
+                                });
                                 // Reset pickupType if current selection isn't supported
                                 if (!arr.includes(pickupTypeRef.current)) setPickupType(arr[0] || 'takeaway');
                         })
@@ -145,7 +165,14 @@ export default function CartPage() {
 
         const filteredPickupOptions = PICKUP_OPTIONS.filter(
                 (o) => supportedPickupTypes.length === 0 || supportedPickupTypes.includes(o.value)
-        );
+        ).map((o) => ({
+                ...o,
+                /* r137: خيار التوصيل يعلن رسومه الصريحة — «التوصيل (5 د.ل رسومًا)» */
+                label:
+                        o.value === 'delivery' && hasDeliveryFee(deliveryMeta)
+                                ? deliveryFeeLabel(deliveryMeta.fee!)
+                                : o.label,
+        }));
 
         useEffect(() => {
                 const id = setTimeout(() => setAnimateItems(true), 50);
@@ -156,8 +183,26 @@ export default function CartPage() {
         // checkout payload no longer carries client money fields.
         const { subtotal } = useCartTotals(items);
 
+        /* r137: فصل صادق للرسوم — تُضاف بعد المجموع الفرعي (لا تُذاب فيه)،
+           والحد الأدنى يقيّم المجموع الفرعي وحده (الرسوم ليست «قيمة سلة»). */
+        const deliveryFeeAmount = deliveryFeeFor(pickupType, deliveryMeta);
+        const grandTotal = subtotal + deliveryFeeAmount;
+        const belowMinOrder = isBelowMinOrder(subtotal, pickupType, deliveryMeta);
+
         const handleCheckout = async () => {
                 if (submittingRef.current) return; // double-click guard
+                /* r137: بوابة الحد الأدنى لطلب التوصيل — نمط r120/r121 نفسه: أغلق
+                   حوار المراجعة أولاً (التنبيه والتمرير تحته)، والفحص قبل قفل
+                   الإرسال كي يبقى الزر صالحاً لإعادة المحاولة. الفرض الخادمي
+                   (422 في POST /api/orders) هو الصندوق الأسود لهذه البوابة. */
+                if (belowMinOrder) {
+                        setShowPreview(false);
+                        premiumToast('error', `${minOrderMessage(deliveryMeta.minOrder!)} — أضف أصنافاً أكثر`);
+                        const banner = document.getElementById('min-order-error');
+                        banner?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        banner?.focus();
+                        return;
+                }
                 // r119-S5-P1-2: a delivery order with an empty address was silently
                 // submitted — the restaurant got «العنوان:» with nothing after it and
                 // the customer got a call-back hunt. Block at the source with an
@@ -357,6 +402,9 @@ export default function CartPage() {
                                           };
                                   }),
                                   totalPrice: Number(serverEcho?.total ?? 0),
+                                  /* r137: سطر الرسوم يفسّر الإجمالي الخادمي (الإجمالي
+                                     شاملها — الخادم أضافها في POST /api/orders). */
+                                  deliveryFee: deliveryFeeAmount,
                                   notes: serverEcho?.notes || undefined,
                                   customerName: serverEcho?.customerName?.trim() || undefined,
                                   customerPhone: serverEcho?.customerPhone?.trim() || undefined,
@@ -371,7 +419,8 @@ export default function CartPage() {
                                           price: i.price,
                                           notes: [i.modifiersSummary, i.notes || undefined].filter(Boolean).join('\n') || undefined,
                                   })),
-                                  totalPrice: subtotal,
+                                  totalPrice: grandTotal,
+                                  deliveryFee: deliveryFeeAmount,
                                   notes:
                                           pickupType === 'delivery'
                                                   ? `${notes || ''}\nالعنوان: ${deliveryAddress}`.trim()
@@ -476,6 +525,20 @@ export default function CartPage() {
                                         <DeliveryAddressField value={deliveryAddress} onChange={setDeliveryAddress} />
                                 )}
 
+                                {/* r137: بوابة الحد الأدنى لطلب التوصيل — سلة دون الحد تُعلن
+                                    صراحة (لا زر معطل بلا سبب). focusable كي يقود إليه حوار
+                                    المراجعة عند محاولة الإرسال (نمط scroll-to-error r135). */}
+                                {belowMinOrder && (
+                                        <div
+                                                id="min-order-error"
+                                                role="alert"
+                                                tabIndex={-1}
+                                                className="rounded-md bg-destructive/10 border border-destructive/30 p-4 mb-6 text-sm text-destructive text-center animate-fade-in focus:outline-none"
+                                        >
+                                                {minOrderMessage(deliveryMeta.minOrder!)} — أضف أصنافاً أكثر لإتمام طلب التوصيل
+                                        </div>
+                                )}
+
                                 {/* Cart items */}
                                 <div className="space-y-4 mb-8">
                                         {items.map((item, idx) => (
@@ -505,7 +568,7 @@ export default function CartPage() {
                                         onPhoneChange={setCustomerPhone}
                                 />
 
-                                <CartSummaryCard items={items} total={subtotal} />
+                                <CartSummaryCard items={items} total={subtotal} deliveryFee={deliveryFeeAmount} />
 
                                 {/* Loyalty — earn points */}
                                 {restaurantId && (
@@ -536,7 +599,8 @@ export default function CartPage() {
                                                 <div className="flex-1 min-w-0 md:hidden">
                                                         <p className="text-2xs text-muted-foreground">المجموع الإجمالي</p>
                                                         <p className="font-heading font-bold text-lg tabular-nums">
-                                                                {formatPrice(subtotal)}
+                                                                {/* r137: الرسوم مضافة بعد المجموع الفرعي (فصل صادق) */}
+                                                                {formatPrice(grandTotal)}
                                                         </p>
                                                 </div>
                                                 {/* r131 (A2 P1-1): الظلّ الملوّن shadow-lg shadow-orange/20
@@ -560,7 +624,8 @@ export default function CartPage() {
                                         items={items}
                                         pickupType={pickupType}
                                         notes={notes}
-                                        total={subtotal}
+                                        total={grandTotal}
+                                        deliveryFee={deliveryFeeAmount}
                                         isSubmitting={isSubmitting}
                                         onCheckout={handleCheckout}
                                 />

@@ -51,6 +51,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
                                 workingHours: true,
                                 themeColor: true,
                                 currency: true,
+                                /* r137: رسوم التوصيل/الحد الأدنى (الجوال + الويب)
+                                   وساعات الدوام المهيكلة (شارة «مفتوح الآن»
+                                   تُحسب عميليًا — الحمولة بيانات خام فقط). */
+                                deliveryFee: true,
+                                minOrder: true,
+                                hours: {
+                                        orderBy: { dayOfWeek: 'asc' },
+                                        select: { dayOfWeek: true, closed: true, opensAt: true, closesAt: true },
+                                },
                         },
                 })
         );
@@ -164,6 +173,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
                 workingHours: restaurant.workingHours,
                 themeColor: restaurant.themeColor,
                 currency: restaurant.currency,
+                /* r137: نفس عائلة إجبار الأرقام في الأسعار أدناه — Decimal
+                   يُسلسَل string، والعملاء (ويب/جوال) يكتبونه number. */
+                deliveryFee: restaurant.deliveryFee == null ? null : Number(restaurant.deliveryFee),
+                minOrder: restaurant.minOrder == null ? null : Number(restaurant.minOrder),
+                hours: restaurant.hours,
             },
             categories: cachedMenu.categories,
             items: cachedMenu.items,

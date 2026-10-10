@@ -393,6 +393,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                         slug,
                                         logo: restaurant.logo,
                                         whatsapp: restaurant.whatsapp,
+                                        /* r137: رسوم التوصيل تعبر كرقم (تسمية خيار التوصيل في
+                                           OrderDialog) — null = الميزة مطفأة. */
+                                        deliveryFee:
+                                                restaurant.deliveryFee == null ? null : Number(restaurant.deliveryFee),
                                 }}
                                 categories={serializedCategories}
                                 serializedItems={serializedItems}

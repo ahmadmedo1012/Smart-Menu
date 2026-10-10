@@ -29,6 +29,15 @@ import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 // a paste failed only at the server with a generic message after upload work.
 import { RESTAURANT_FIELD_LIMITS } from '@/lib/validation';
 // r133 (A3 S4): live whatsapp validity preview — an invalid stored number
+// r137: محرّر ساعات الدوام الأسبوعي + حقلا رسوم التوصيل/الحد الأدنى
+import {
+        WeeklyHoursEditor,
+        emptyWeeklyHours,
+        weeklyHoursFromRows,
+        weeklyHoursToPayload,
+} from '@/components/owner/WeeklyHoursEditor';
+import { parseOpeningHoursPayload, type OpeningHoursRow } from '@/lib/opening-hours';
+import { parseDeliveryAmount } from '@/lib/delivery-meta';
 // silently kills the public WhatsApp CTA (MenuHero drops the pill), so the
 // owner's only symptom was the ordering channel quietly disappearing.
 import { normalizeWaNumber } from '@/lib/whatsapp';
@@ -44,6 +53,10 @@ interface RestaurantData {
         email: string;
         address: string;
         workingHours: string;
+        /* r137: الساعات المهيكلة + وصفا التوصيل (Decimal يصل سلسلة عبر JSON) */
+        hours?: OpeningHoursRow[];
+        deliveryFee?: string | number | null;
+        minOrder?: string | number | null;
         logo: string;
         gallery: string[];
         plan: Plan | null;
@@ -70,6 +83,11 @@ export default function OwnerSettingsPage() {
         const [logo, setLogo] = useState('');
         const [gallery, setGallery] = useState<string[]>([]);
         const [pickupTypes, setPickupTypes] = useState<string[]>([]);
+        /* r137: ساعات الدوام (محرّر أسبوعي) + حقلا التوصيل (سلاسل خام —
+           الفراغ = إطفاء الميزة). */
+        const [hoursState, setHoursState] = useState(emptyWeeklyHours());
+        const [deliveryFeeInput, setDeliveryFeeInput] = useState('');
+        const [minOrderInput, setMinOrderInput] = useState('');
         const [loading, setLoading] = useState(true);
         const [saving, setSaving] = useState(false);
         const [submitted, setSubmitted] = useState(false);
@@ -102,6 +120,11 @@ export default function OwnerSettingsPage() {
                                         setPickupTypes(
                                                 r.pickupTypes ? r.pickupTypes.split(',') : ['inside', 'takeaway', 'delivery']
                                         );
+                                        /* r137: تعبئة المحرّر من الصفوف المخزّنة + إدخالا
+                                           التوصيل (Decimal يصل سلسلة — يُعرض رقمًا نظيفًا). */
+                                        setHoursState(weeklyHoursFromRows(r.hours));
+                                        setDeliveryFeeInput(r.deliveryFee != null ? String(Number(r.deliveryFee)) : '');
+                                        setMinOrderInput(r.minOrder != null ? String(Number(r.minOrder)) : '');
                                 }
                                 setPlans(plansData.data ?? []);
                         })
@@ -174,6 +197,24 @@ export default function OwnerSettingsPage() {
                         premiumToast('error', 'يرجى اختيار نوع طلب واحد على الأقل');
                         return;
                 }
+                /* r137: تحقق العميل أولاً (نفس المحللات الخادمية — رسائل 422
+                   العربية ذاتها تظهر toast قبل أي إرسال). */
+                const hoursPayload = weeklyHoursToPayload(hoursState);
+                const hoursCheck = parseOpeningHoursPayload(hoursPayload);
+                if (!hoursCheck.ok) {
+                        premiumToast('error', hoursCheck.error);
+                        return;
+                }
+                const feeCheck = parseDeliveryAmount(deliveryFeeInput);
+                if (!feeCheck.ok) {
+                        premiumToast('error', `رسوم التوصيل: ${feeCheck.error}`);
+                        return;
+                }
+                const minCheck = parseDeliveryAmount(minOrderInput);
+                if (!minCheck.ok) {
+                        premiumToast('error', `الحد الأدنى للطلب: ${minCheck.error}`);
+                        return;
+                }
                 setSaving(true);
                 try {
                         const items = [
@@ -181,6 +222,11 @@ export default function OwnerSettingsPage() {
                                 { key: 'restaurant_logo', value: logo },
                                 { key: 'restaurant_gallery', value: JSON.stringify(gallery) },
                                 { key: 'restaurant_pickupTypes', value: pickupTypes.join(',') },
+                                /* r137: الساعات (JSON داخل غلاف الإعدادات) + حقلا
+                                   التوصيل كسلاسل خام — الفراغ = إطفاء (null خادميًا). */
+                                { key: 'restaurant_hours', value: JSON.stringify(hoursPayload) },
+                                { key: 'restaurant_deliveryFee', value: deliveryFeeInput },
+                                { key: 'restaurant_minOrder', value: minOrderInput },
                         ];
                         const res = await csrfFetch(`/api/settings${activeId ? `?restaurantId=${activeId}` : ''}`, {
                                 method: 'PUT',
@@ -432,6 +478,64 @@ export default function OwnerSettingsPage() {
                                 {pickupTypes.length === 0 && (
                                         <p role="alert" className="text-xs text-destructive mt-2">يجب اختيار نوع طلب واحد على الأقل</p>
                                 )}
+
+                                {/* r137: حقلا التوصيل — رسوم التوصيل والحد الأدنى.
+                                   الفراغ = الميزة مطفأة (غياب صادق في واجهة الزبون)؛
+                                   رسوم 0 مخزنة تُعامل معاملة الإطفاء. لا بوابة خطة
+                                   عمداً: هذه أمانة منيو جوهرية، كل الباقات تحصل عليها. */}
+                                <div className="grid grid-cols-2 gap-3 mt-4">
+                                        <div>
+                                                <Label htmlFor="restaurant-delivery-fee" className="text-xs">
+                                                        رسوم التوصيل (د.ل)
+                                                </Label>
+                                                <Input
+                                                        id="restaurant-delivery-fee"
+                                                        type="number"
+                                                        inputMode="decimal"
+                                                        min={0}
+                                                        step={0.5}
+                                                        dir="ltr"
+                                                        placeholder="5"
+                                                        value={deliveryFeeInput}
+                                                        onChange={(e) => setDeliveryFeeInput(e.target.value)}
+                                                        className="mt-1 text-sm text-start"
+                                                />
+                                                <p className="text-2xs text-muted-foreground mt-1">
+                                                        فارغ = بلا رسوم. يظهر على خيار التوصيل وسطر الملخص ويُفرض خادميًا
+                                                </p>
+                                        </div>
+                                        <div>
+                                                <Label htmlFor="restaurant-min-order" className="text-xs">
+                                                        الحد الأدنى للطلب (د.ل)
+                                                </Label>
+                                                <Input
+                                                        id="restaurant-min-order"
+                                                        type="number"
+                                                        inputMode="decimal"
+                                                        min={0}
+                                                        step={1}
+                                                        dir="ltr"
+                                                        placeholder="20"
+                                                        value={minOrderInput}
+                                                        onChange={(e) => setMinOrderInput(e.target.value)}
+                                                        className="mt-1 text-sm text-start"
+                                                />
+                                                <p className="text-2xs text-muted-foreground mt-1">
+                                                        فارغ = بلا حد. يمنع إرسال طلبات التوصيل دونه (على الواجهة والخادم)
+                                                </p>
+                                        </div>
+                                </div>
+                        </div>
+
+                        {/* r137: ساعات الدوام المهيكلة — محرّر أسبوعي (السبت أولًا).
+                            الشارة «مفتوح الآن» تُحسب عميليًا من هذه الصفوف؛ workingHours
+                            النصي أعلاه يبقى «ملاحظات دوام إضافية» بجانبها. */}
+                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
+                                <h2 className="text-sm font-bold mb-1">ساعات الدوام (اختياري)</h2>
+                                <p className="text-xs text-muted-foreground mb-4">
+                                        عند تعبئتها تظهر شارة «مفتوح الآن · يغلق 23:00» في صفحة المنيو — فارغة تبقى مطفأة
+                                </p>
+                                <WeeklyHoursEditor value={hoursState} onChange={setHoursState} submitted={submitted} />
                         </div>
 
                         {/* Settings form */}
@@ -546,15 +650,20 @@ export default function OwnerSettingsPage() {
                                                         />
                                                 </div>
                                                 <div>
-                                                        <Label htmlFor="restaurant-hours" className="text-xs">ساعات العمل</Label>
+                                                        <Label htmlFor="restaurant-hours" className="text-xs">ملاحظات دوام إضافية</Label>
                                                         <Input
                                                                 id="restaurant-hours"
                                                                 maxLength={RESTAURANT_FIELD_LIMITS.workingHours}
                                                                 value={form.workingHours}
                                                                 onChange={(e) => setForm({ ...form, workingHours: e.target.value })}
-                                                                placeholder="8:00 صباحاً - 12:00 منتصف الليل"
+                                                                placeholder="مثال: أيام الجمعة نقصر الدوام"
                                                                 className="mt-1 text-sm"
                                                         />
+                                                        {/* r137: النص الحر صار «ملاحظات دوام إضافية» بجانب المحرّر
+                                                            المهيكل أعلاه — الساعات الصارمة تُدار من هناك. */}
+                                                        <p className="text-2xs text-muted-foreground mt-1">
+                                                                نص حر يظهر في صفحة المنيو — الساعات الدقيقة من «ساعات الدوام» أعلاه
+                                                        </p>
                                                 </div>
                                         </div>
                                 </div>

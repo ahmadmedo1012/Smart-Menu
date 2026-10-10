@@ -105,9 +105,17 @@ model Restaurant {
   maxItems           Int                 @default(50)
   maxOrders          Int                 @default(500)
   pickupTypes        String              @default("inside,takeaway,delivery")
+  // r137 (ليبي أولاً): رسوم التوصيل والحد الأدنى للطلب — NULL = الميزة
+  // مطفأة (سياسة الصفر-انتفاخ: الحالة الفارغة غير مرئية إطلاقًا). نفس
+  // نوع MenuItem.price (Decimal(10,2)) عمداً — عمود واحد للحقيقة المالية.
+  deliveryFee        Decimal?            @db.Decimal(10, 2)
+  minOrder           Decimal?            @db.Decimal(10, 2)
   loyaltyCards       LoyaltyCard[]
   categories         MenuCategory[]
   orders             Order[]
+  // r137: ساعات الدوام المهيكلة (شارة «مفتوح الآن» في صفحة المنيو).
+  // workingHours النصي الحر يبقى «ملاحظات دوام إضافية» بجانبها.
+  hours              OpeningHours[]
   referrals          Referral[]
   plan               SubscriptionPlan?   @relation(fields: [planId], references: [id])
   rewardTransactions RewardTransaction[]
@@ -119,6 +127,33 @@ model Restaurant {
   @@index([isActive])
   @@index([showOnLanding, isActive])
   @@index([planId])
+}
+
+// r137 — ساعات الدوام المهيكلة (ساعات الدوام).
+//
+// قرار الصفر-انتفاخ الموثّق: نافذة واحدة يوميًا (لا وردية ثانية). الدوام
+// الليلي الذي يعبر منتصف الليل يُمثَّل بـ closesAt < opensAt (مثل 20:00 →
+// 02:00) — computeOpenStatus في src/lib/opening-hours.ts يفكّ العبور على
+// العميل. يوم بلا صف = غير مفتوح ذلك اليوم؛ لا صفوف إطلاقًا = الميزة
+// نائمة (لا شارة، workingHours النصي يبقى كما هو).
+//
+// dayOfWeek باتفاقية JS getDay: 0=الأحد .. 6=السبت. المحرّرات (المالك
+// والأدمن) تعرض الأسبوع الليبي السبت أولًا لكن التخزين يبقى بهذه
+// الاتفاقية — LIBYAN_WEEK_ORDER في src/lib/opening-hours.ts.
+model OpeningHours {
+  id           Int        @id @default(autoincrement())
+  restaurantId Int
+  dayOfWeek    Int // 0=الأحد..6=السبت (JS getDay) — فريد مع المطعم
+  closed       Boolean    @default(false)
+  // HH:MM بنظام 24 ساعة، أرقام غربية (سياسة أرقام المنصة r135)
+  opensAt      String
+  closesAt     String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, dayOfWeek])
+  @@index([restaurantId])
 }
 
 model MenuCategory {

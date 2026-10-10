@@ -10,6 +10,10 @@ import AnimatedCart from '@/components/ui/shopping-cart-icon';
 import { m } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { formatPrice, toArabicNumber } from '@/lib/format';
+/* r137: رسوم التوصيل في الورقة الجانبية — تُجلب عند اختيار التوصيل فقط
+   (نفس المصدر العام GET /api/restaurants/[id] الذي تقرؤه صفحة السلة —
+   لا نسخة في متجر السلة كي لا تتقادم). */
+import { deliveryFeeFor, type DeliveryMeta } from '@/lib/delivery-meta';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { buttonVariants } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -47,6 +51,31 @@ export function CartSlideOver() {
         const undoRemove = useCart((s) => s.undoRemove);
         const lastRemoved = useCart((s) => s.lastRemoved);
         const cartRestaurantId = useCart((s) => s.restaurantId);
+        /* r137: نوع الطلب الحالي (يكتبه OrderDialog في المتجر) — يحدد استحقاق
+           رسوم التوصيل في ورقة السلة. */
+        const pickupType = useCart((s) => s.pickupType);
+        const [deliveryMeta, setDeliveryMeta] = useState<DeliveryMeta>({ fee: null, minOrder: null });
+        const feeFetchedFor = useRef<number | null>(null);
+        useEffect(() => {
+                if (pickupType !== 'delivery' || !cartRestaurantId) return;
+                /* جلب واحد لكل مطعم (تغيّر السلة لمطعم آخر يعيد الجلب) — الإجمالي
+                   الحقيقي يعيد الخادم تسعيره عند الدفع على أي حال. */
+                if (feeFetchedFor.current === cartRestaurantId) return;
+                feeFetchedFor.current = cartRestaurantId;
+                fetch(`/api/restaurants/${cartRestaurantId}`)
+                        .then((r) => r.json())
+                        .then((d) => {
+                                setDeliveryMeta({
+                                        fee: typeof d.data?.deliveryFee === 'number' ? d.data.deliveryFee : null,
+                                        minOrder: typeof d.data?.minOrder === 'number' ? d.data.minOrder : null,
+                                });
+                        })
+                        .catch(() => {
+                                /* فشل الجلب = لا سطر رسوم (عرض فقط — الخادم يفرض الحقيقة) */
+                                feeFetchedFor.current = null;
+                        });
+        }, [pickupType, cartRestaurantId]);
+        const slideOverFee = deliveryFeeFor(pickupType, deliveryMeta);
         const prevRef = useRef(totalItems);
         const [bounce, setBounce] = useState(false);
         const [open, setOpen] = useState(false);
@@ -320,9 +349,17 @@ export function CartSlideOver() {
                                         <div className="flex items-center justify-between text-sm">
                                                 <span className="text-muted-foreground">الإجمالي</span>
                                                 <span className="font-bold tabular-nums text-base">
-                                                        {formatPrice(subtotal)}
+                                                        {/* r137: الرسوم (إن استحقت) مضافة بعد المجموع —
+                                                           فصل صادق قبل صفحة الدفع */}
+                                                        {formatPrice(subtotal + slideOverFee)}
                                                 </span>
                                         </div>
+                                        {/* r137: سطر الرسوم — يظهر فقط عند اختيار التوصيل وبقيمة > 0 */}
+                                        {slideOverFee > 0 && (
+                                                <p className="text-2xs text-muted-foreground text-end">
+                                                        شامل رسوم توصيل {formatPrice(slideOverFee)}
+                                                </p>
+                                        )}
                                         <Link
                                                 href="/cart"
                                                 onClick={() => setOpen(false)}

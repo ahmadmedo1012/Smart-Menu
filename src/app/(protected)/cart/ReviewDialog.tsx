@@ -21,7 +21,10 @@ interface ReviewDialogProps {
         items: CartItem[];
         pickupType: 'inside' | 'takeaway' | 'delivery';
         notes: string;
+        /** الإجمالي النهائي (أسعار الأصناف + رسوم التوصيل إن وجدت). */
         total: number;
+        /* r137: رسوم التوصيل المستحقة لهذا الطلب (0 = لا سطر). */
+        deliveryFee?: number;
         isSubmitting: boolean;
         onCheckout: () => void;
 }
@@ -35,6 +38,7 @@ export function ReviewDialog({
         pickupType,
         notes,
         total,
+        deliveryFee = 0,
         isSubmitting,
         onCheckout,
 }: ReviewDialogProps) {
@@ -138,6 +142,14 @@ export function ReviewDialog({
                                                 ))}
                                         </div>
                                         <div className="h-px bg-gradient-to-r from-transparent via-orange/20 to-transparent" />
+                                        {/* r137: سطر الرسوم في المراجعة النهائية — نفس فصل
+                                            الملخص (الرسوم بعد المجموع الفرعي، لا تُذاب فيه). */}
+                                        {deliveryFee > 0 && (
+                                                <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">رسوم التوصيل</span>
+                                                        <span className="tabular-nums font-medium">{formatPrice(deliveryFee)}</span>
+                                                </div>
+                                        )}
                                         <div className="flex justify-between font-bold text-lg">
                                                 <span>الإجمالي</span>
                                                 <span className="tabular-nums text-primary">

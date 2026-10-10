@@ -30,6 +30,8 @@ import {
         defaultModifierSelection,
 } from './menu-types';
 import { formatPrice, toArabicNumber } from '@/lib/format';
+// r137: تسمية خيار التوصيل مع الرسوم («التوصيل (5 د.ل رسومًا)»)
+import { deliveryFeeLabel } from '@/lib/delivery-meta';
 // r121-O-1: canonical pickup labels for the order-type segmented control
 import { getPickupTypeMeta } from '@/lib/order-status';
 import { cn } from '@/lib/utils';
@@ -46,6 +48,9 @@ type OrderDialogProps = {
         restaurantName?: string;
         restaurantId: number;
         restaurantLogo?: string;
+        /* r137: رسوم توصيل المطعم (رقم أو null — الميزة مطفأة) — تسمية
+           خيار التوصيل. */
+        deliveryFee?: number | null;
 };
 
 const QUICK_NOTES = ['بدون سكر', 'سكر زيادة', 'بدون ثلج', 'حار', 'بارد', 'بدون بصل'];
@@ -60,6 +65,7 @@ export function OrderDialog({
         restaurantName,
         restaurantId,
         restaurantLogo,
+        deliveryFee,
 }: OrderDialogProps) {
         /* r134-W2 (#12): lazy CSS-media detection — the old useEffect ran AFTER
          * first paint, so mobile users saw the desktop Dialog for one frame
@@ -660,7 +666,13 @@ export function OrderDialog({
                                                                                 : 'text-muted-foreground hover:text-foreground'
                                                                 )}
                                                         >
-                                                                {getPickupTypeMeta(type).label}
+                                                                {/* r137: خيار التوصيل يعلن رسومه الصريحة — «التوصيل
+                                                                   (5 د.ل رسومًا)» (لا مفاجآت عند الدفع؛ الرسوم
+                                                                   تُفرض خادميًا في POST /api/orders). بلا رسوم /
+                                                                   ميزة مطفأة: التسمية القانونية كما هي. */}
+                                                                {type === 'delivery' && deliveryFee != null && deliveryFee > 0
+                                                                        ? deliveryFeeLabel(deliveryFee)
+                                                                        : getPickupTypeMeta(type).label}
                                                         </button>
                                                 ))}
                                         </div>

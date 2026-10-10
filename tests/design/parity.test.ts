@@ -2158,3 +2158,141 @@ describe('r134 parity — W2 fix wave: money-path UX, spin canon, SW privacy, co
     expect(sw).toContain("const CACHE_NAME = 'smart-menu-v8';");
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+// r137 — الساعات المهيكلة (ساعات الدوام) + رسوم التوصيل/الحد الأدنى.
+// المسامير تحرس العقود عبر الملفات المصدرية (نفس أسلوب r133/r134: قراءة
+// خام + قراءة مقشورة التعليقات):
+//   - الشارة عميلية فقط (الصفحة ISR — لا حساب خادمي للحالة أبدًا)
+//   - الحالة الفارغة غير مرئية (لا شارة بلا ساعات، لا سطر رسوم بلا قيمة)
+//   - الرسوم تُفرض خادميًا (total = subtotal + fee من صف المطعم، لا العميل)
+//   - الهجرتان zz_round137_* بنمط المستودع + القيد الفريد المركّب
+//   - لا بوابة خطة (أمانة منيو جوهرية — كل الباقات)
+// ════════════════════════════════════════════════════════════════════════════
+describe('r137 parity — structured opening hours + delivery fee/min-order (Libya-first)', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('S1: OpenStatusBadge — عميلي فقط، aria-live، النصان القانونيان، وميض-صفر حتى التركيب', () => {
+    const s = raw('src/components/menu/OpenStatusBadge.tsx');
+    expect(s).toContain("'use client'");
+    expect(s).toContain('aria-live="polite"');
+    expect(s).toContain('مفتوح الآن · يغلق');
+    expect(s).toContain('مغلق حاليًا');
+    expect(s).toContain('computeOpenStatus(hours, tripoliWallClock())');
+    // السكوت الصادق: لا ساعات → لا شارة
+    expect(s).toContain('if (!hours || hours.length === 0) return;');
+  });
+
+  it('S2: الحساب عميلي فقط — شارة القلب لا تُحسب في مكون خادمي أبدًا', () => {
+    // MenuHero خادمي (server hero r86-B6) — يستورد الشارة كجزيرة، لا الحساب
+    const heroCc = cc('src/components/menu/MenuHero.tsx');
+    expect(heroCc).toContain("import { OpenStatusBadge } from './OpenStatusBadge'");
+    expect(heroCc).toContain('<OpenStatusBadge hours={restaurant.hours} />');
+    expect(heroCc).not.toContain('computeOpenStatus');
+    // صفحة المنيو (RSC خادمية) لا تحسب الحالة أيضًا — البيانات الخام فقط
+    const pageCc = cc('src/app/(public)/menu/[slug]/page.tsx');
+    expect(pageCc).not.toContain('computeOpenStatus');
+    // العارض النصي الحر (workingHours pill) باقٍ بجانب الشارة
+    expect(heroCc).toContain('{restaurant.workingHours}');
+  });
+
+  it('S3: المخطط والهجرات — نمط zz_round137_* + القيد الفريد المركّب + نفس نوع مال MenuItem.price', () => {
+    const schema = raw('prisma/schema.prisma');
+    // مطابقة متسامحة مع المسافات (المسامير تثبّت القيم لا التنسيق)
+    const schemaSquashed = schema.replace(/\s+/g, ' ');
+    expect(schema).toContain('model OpeningHours {');
+    expect(schema).toContain('@@unique([restaurantId, dayOfWeek])');
+    expect(schemaSquashed).toContain('hours OpeningHours[]');
+    // نفس عائلة الحقيقة المالية: Decimal(10,2) — لا Int ملّيم ولا String
+    expect(schemaSquashed).toContain('deliveryFee Decimal? @db.Decimal(10, 2)');
+    expect(schemaSquashed).toContain('minOrder Decimal? @db.Decimal(10, 2)');
+    // الهجرتان بالتسمية القانونية
+    expect(existsSync('prisma/migrations/zz_round137_opening_hours/migration.sql')).toBe(true);
+    expect(existsSync('prisma/migrations/zz_round137_delivery_meta/migration.sql')).toBe(true);
+    const hoursSql = raw('prisma/migrations/zz_round137_opening_hours/migration.sql');
+    expect(hoursSql).toContain('CREATE TABLE "OpeningHours"');
+    expect(hoursSql).toContain('ON DELETE CASCADE');
+    expect(hoursSql).toContain('"OpeningHours_restaurantId_dayOfWeek_key"');
+  });
+
+  it('S4: محرّر الأسبوع — السبت أولًا (الأسبوع الليبي)، مغلق-طوال-اليوم، input[type=time]', () => {
+    const s = cc('src/components/owner/WeeklyHoursEditor.tsx');
+    expect(s).toContain('LIBYAN_WEEK_ORDER.map((day)');
+    expect(s).toContain('مغلق طوال اليوم');
+    expect(s).toContain('type="time"');
+    // المحرّر مشترك بين المالك والأدمن (توأم واحد لا نسختان)
+    expect(cc('src/app/(protected)/owner/settings/page.tsx')).toContain('WeeklyHoursEditor');
+    expect(cc('src/app/(protected)/admin/restaurants/RestaurantFormDialog.tsx')).toContain('WeeklyHoursEditor');
+  });
+
+  it('S5: workingHours النصي صار «ملاحظات دوام إضافية» في المحرّرين، يُعرض كما هو في المنيو', () => {
+    expect(cc('src/app/(protected)/owner/settings/page.tsx')).toContain('ملاحظات دوام إضافية');
+    expect(cc('src/app/(protected)/admin/restaurants/RestaurantFormDialog.tsx')).toContain('ملاحظات دوام إضافية');
+  });
+
+  it('S6: الرسوم خادمية الحقيقة — تضاف إلى total في المعاملة من صف المطعم، لا الحمولة', () => {
+    const s = cc('src/app/api/orders/route.ts');
+    expect(s).toContain('const feeTotal = deliveryFeeFor(effectivePickupType, deliveryMeta);');
+    expect(s).toContain('total: recalcSubtotal - discount + feeTotal');
+    expect(s).toContain('isBelowMinOrder(recalcSubtotal, effectivePickupType, deliveryMeta)');
+    // 422 بنص الواجهة نفسه (نفس minOrderMessage)
+    expect(s).toContain('minOrderMessage(deliveryMeta.minOrder!)');
+  });
+
+  it('S7: خيار التوصيل يعلن رسومه — OrderDialog + صفحة السلة (تسمية المشترك deliveryFeeLabel)', () => {
+    const od = cc('src/components/menu/OrderDialog.tsx');
+    expect(od).toContain('deliveryFeeLabel(deliveryFee)');
+    const cart = cc('src/app/(protected)/cart/page.tsx');
+    expect(cart).toContain('deliveryFeeLabel(deliveryMeta.fee!)');
+    expect(cart).toContain('import {');
+  });
+
+  it('S8: فصل الرسوم الصادق — سطر مستقل في الملخص والمراجعة والفاتورة، لا ذوبان في المجموع', () => {
+    expect(cc('src/app/(protected)/cart/CartSummaryCard.tsx')).toContain('رسوم التوصيل');
+    expect(cc('src/app/(protected)/cart/ReviewDialog.tsx')).toContain('رسوم التوصيل');
+    expect(cc('src/components/menu/CartSlideOver.tsx')).toContain('شامل رسوم توصيل');
+    const receipt = cc('src/lib/receipt.ts');
+    expect(receipt).toContain('رسوم التوصيل');
+    // صفحة السلة: grandTotal = subtotal + fee (بعد المجموع، لا قبله)
+    const cart = cc('src/app/(protected)/cart/page.tsx');
+    expect(cart).toContain('const grandTotal = subtotal + deliveryFeeAmount;');
+  });
+
+  it('S9: بوابة الحد الأدنى — شريط عربي صادق + scroll-to-error + الفحص قبل قفل الإرسال', () => {
+    const cart = cc('src/app/(protected)/cart/page.tsx');
+    expect(cart).toContain('id="min-order-error"');
+    expect(cart).toContain("document.getElementById('min-order-error')");
+    expect(cart).toContain('scrollIntoView({ behavior: \'smooth\', block: \'center\' })');
+    // الفحص قبل submittingRef (زر قابل لإعادة المحاولة — نمط r121 H-2)
+    expect(cart.indexOf('if (belowMinOrder) {')).toBeLessThan(cart.indexOf('submittingRef.current = true;'));
+  });
+
+  it('S10: لا بوابة خطة — أمانة المنيو الجوهرية لا تُقيد بـ maxItems/maxOrders', () => {
+    // المكتبة المالية المشتركة لا تعرف شيئًا عن حدود الخطة أصلاً
+    const libCc = cc('src/lib/delivery-meta.ts');
+    expect(libCc).not.toContain('plan-limit');
+    expect(libCc).not.toContain('subscription');
+    // ولا مسار الطلبات: لا PlanLimitError على مسار الرسوم/الحد
+    const ordersCc = cc('src/app/api/orders/route.ts');
+    expect(ordersCc.indexOf('isBelowMinOrder')).toBeGreaterThan(-1);
+    // (PlanLimitError يبقى حصريًا على فحص السقف داخل المعاملة كما كان)
+  });
+
+  it('S11: البيانات تعبر السلك — المنيو العام (الجوال) + إسقاط getRestaurantBySlug', () => {
+    const publicMenuCc = cc('src/app/api/public/menu/[slug]/route.ts');
+    expect(publicMenuCc).toContain('deliveryFee == null ? null : Number(restaurant.deliveryFee)');
+    expect(publicMenuCc).toContain('hours: restaurant.hours');
+    const queriesCc = cc('src/lib/menu-queries.ts');
+    expect(queriesCc).toContain('deliveryFee: true');
+    expect(queriesCc).toContain('minOrder: true');
+  });
+
+  it('S12: صفحة الطباعة تحمل سطر الدوام المهيكل تحت الترويسة (إن وُجد)', () => {
+    const printCc = cc('src/app/(public)/menu/[slug]/print/page.tsx');
+    expect(printCc).toContain('formatHoursForPrint(restaurant.hours)');
+    // السطر يعتمد المكتبة المشتركة (لا منطق دوام منفصل في الورقة)
+    expect(printCc).toContain("import { formatHoursForPrint } from '@/lib/opening-hours'");
+  });
+});

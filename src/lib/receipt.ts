@@ -20,6 +20,10 @@ export function buildReceiptMessage(opts: {
   restaurantName: string;
   items: ReceiptItem[];
   totalPrice: number;
+  /* r137: رسوم التوصيل المستحقة (يُعرض السطر فقط بقيمة > 0) — الإجمالي
+     الممرَّر يجب أن يكون شاملًا الرسوم (صدق الفاتورة: السطور تُفسّر
+     الإجمالي، لا تناقضه). */
+  deliveryFee?: number;
   notes?: string;
   customerName?: string;
   customerPhone?: string;
@@ -65,6 +69,12 @@ export function buildReceiptMessage(opts: {
   });
   lines.push(SEP);
   lines.push("");
+
+  // ── r137: Delivery fee (separate line, after the items, before the total) ──
+  if (opts.deliveryFee && opts.deliveryFee > 0) {
+    lines.push(`🛵 *رسوم التوصيل*      ${formatPrice(opts.deliveryFee, { decimals: 2 })}`);
+    lines.push("");
+  }
 
   // ── Total ──
   lines.push(`💵 *الإجمالي*`);
