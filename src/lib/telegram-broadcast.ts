@@ -16,7 +16,8 @@ interface BroadcastOpts {
         adminOnly?: boolean;
 }
 
-export async function sendToChat(
+// (r138): داخلي — مستهلكها الوحيد broadcastToAll في نفس الملف.
+async function sendToChat(
         botToken: string,
         chatId: string,
         message: string,

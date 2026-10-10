@@ -21,6 +21,10 @@ interface ReviewDialogProps {
         items: CartItem[];
         pickupType: 'inside' | 'takeaway' | 'delivery';
         notes: string;
+        /* r138-exec-2 (J2): عنوان التوصيل — الحقل الإلزامي الوحيد للتوصيل؛
+           يُركَّب داخل الملاحظات لحظة الإرسال (cart/page.tsx composedNotes)
+           فلا بد أن يراه الزبون في المراجعة قبل «تأكيد وإرسال». */
+        deliveryAddress?: string;
         /** الإجمالي النهائي (أسعار الأصناف + رسوم التوصيل إن وجدت). */
         total: number;
         /* r137: رسوم التوصيل المستحقة لهذا الطلب (0 = لا سطر). */
@@ -37,6 +41,8 @@ export function ReviewDialog({
         items,
         pickupType,
         notes,
+        /* r138-exec-2 (J2): انظر التعليق في الواجهة أعلاه. */
+        deliveryAddress = '',
         total,
         deliveryFee = 0,
         isSubmitting,
@@ -103,6 +109,16 @@ export function ReviewDialog({
                                                         {getPickupTypeMeta(pickupType).label}
                                                 </span>
                                         </div>
+                                        {/* r138-exec-2 (J2): سطر العنوان عند التوصيل — نفس التسمية
+                                            التي ستصل في الفاتورة (يُركَّب في الملاحظات عند الإرسال:
+                                            «العنوان: …») وبأسلوب سطر النوع نفسه؛ خطأ كتابة واحد
+                                            كان يكتشفه المطعم بالهاتف بعد فوات الأوان. */}
+                                        {pickupType === 'delivery' && !!deliveryAddress.trim() && (
+                                                <div className="flex items-start gap-2 text-sm">
+                                                        <span className="text-muted-foreground shrink-0">العنوان:</span>
+                                                        <span className="font-medium min-w-0">{deliveryAddress.trim()}</span>
+                                                </div>
+                                        )}
                                         <div className="divide-y divide-border/50">
                                                 {items.map((item) => (
                                                         <div key={item.id} className="flex justify-between gap-2 py-2 text-sm">

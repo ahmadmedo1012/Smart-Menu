@@ -10,7 +10,8 @@ import { z } from 'zod';
  * high finding). Schema semantics are EXACTLY identical: same constraints,
  * same Arabic messages, same defaults in modifierGroupCreateInput.
  */
-export const modifierOptionSchema = z.object({
+/* (r138): داخلي — تستهلكه modifierGroupSchema في نفس الملف. */
+const modifierOptionSchema = z.object({
         id: z.number().int().positive().optional(),
         nameAr: z.string().min(1, 'اسم الخيار مطلوب').max(60),
         name: z.string().max(60).optional(),

@@ -3,6 +3,7 @@ import { HomePage } from '@/components/landing/HomePage';
 import { prisma } from '@/lib/db';
 import { getFeaturedRestaurants, type FeaturedRestaurant } from '@/lib/landing';
 import type { PublicStats } from '@/components/landing/landing-data';
+import { SITE_ORIGIN } from '@/lib/seo';
 
 // round85-B2: landing data (stats + featured) now rendered SERVER-side and
 // baked into the ISR page (60s — same freshness profile the /api/public routes
@@ -40,5 +41,29 @@ export default async function Home() {
                 getFeaturedRestaurants().catch(() => [] as FeaturedRestaurant[]),
         ]);
 
-        return <HomePage initialStats={stats} initialFeatured={featured.length > 0 ? featured : null} />;
+        return (
+                <>
+                        {/* r138 (F9): كيان المنصة يُصدَّر من الصفحة الرئيسية وحدها —
+                            كان في (public)/layout فتراكب مع كيان المطعم في كل
+                            صفحات /menu/[slug] بلا @graph. أُضيف url وinLanguage
+                            (نواقص المواصفة) وبقي السعر الحقيقي 0 (الخطة المجانية). */}
+                        <script
+                                type="application/ld+json"
+                                dangerouslySetInnerHTML={{
+                                        __html: JSON.stringify({
+                                                '@context': 'https://schema.org',
+                                                '@type': 'SoftwareApplication',
+                                                name: 'الربط الذكي | Smart Menu',
+                                                description: 'منيو رقمي ذكي للمطاعم والمقاهي',
+                                                applicationCategory: 'BusinessApplication',
+                                                operatingSystem: 'Web',
+                                                url: SITE_ORIGIN,
+                                                inLanguage: 'ar',
+                                                offers: { '@type': 'Offer', price: '0', priceCurrency: 'LYD' },
+                                        }).replace(/</g, '\\u003c'),
+                                }}
+                        />
+                        <HomePage initialStats={stats} initialFeatured={featured.length > 0 ? featured : null} />
+                </>
+        );
 }

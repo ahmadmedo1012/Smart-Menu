@@ -68,6 +68,16 @@
         --color-info: var(--info);
         --color-info-foreground: var(--info-foreground);
         --color-destructive-foreground: var(--destructive-foreground);
+        /* r138 (P1-1 — تدقيق r138-b): توأمات الحبر النصي لأحبار الحالة — الفاتح
+           يستهلكها للنص عبر أدوات Tailwind (توكنات -ink: عائلات mint/yellow/rose
+           deep الداكنة ≥4.5:1 على الخلفيات الفاتحة المحسوبة 7.0-11.2:1) بينما
+           الداكن يبقى على أحباره الأساسية نفسها (8-11:1) فلا يتغير عرضه إطلاقًا.
+           التوكنات نفسها معرّفة أصلًا في :root/.light (§1.6) — هنا فقط تصديرها
+           لأدوات Tailwind (نفس نمط --color-saffron-ink r94). */
+        --color-success-ink: var(--success-ink);
+        --color-warning-ink: var(--warning-ink);
+        --color-danger-ink: var(--danger-ink);
+        --color-basil-ink: var(--c-basil-ink);
         /* r121-I-6: the r96-W4a --color-*-soft tint twins were deleted — zero
            adoption in 25 rounds (surfaces use the ad-hoc bg-success/15 opacity
            utilities instead); values removed from :root/.light below too. */
@@ -601,6 +611,9 @@
         --c-ash-pale: #121A36;                 /* surface-2 wash */
         --c-night: #070B16;                    /* night ground base */
         --c-basil: #7FD39A;                    /* mint-ink — dietary/health */
+        /* r138 (P1-1): الحبر النصي لرقائق الحمية — ليليًا نفس mint-ink
+           (القيمة الداكنة ذاتها فلا يتغير العرض؛ الفاتح يقلبها إلى mint-deep). */
+        --c-basil-ink: var(--c-mint-ink);
         --c-espresso: #05070F;                 /* void ink — fg on gold fills (was #1a130b) */
         --c-bloom: #F0938F;                    /* rose-ink night */
 
@@ -884,6 +897,9 @@
         --c-ash-pale: #F1EFEC;                 /* neutral-150 wash */
         --c-night: #191918;                    /* deepest warm ink */
         --c-basil: #4FA66D;                    /* mint-ink — dietary/health */
+        /* r138 (P1-1): نص رقائق الحمية في الفاتح — mint-deep: 8.6:1 على
+           basil/10 (كان mint-ink 2.72:1 — تدقيق r138-b). */
+        --c-basil-ink: var(--c-mint-deep);
         --c-espresso: #1A0F06;                 /* accent-fg — fg on copper fills */
         --c-bloom: #DD6E78;                    /* rose-ink */
 

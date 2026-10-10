@@ -21,6 +21,8 @@ import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { normalizeWaNumber } from '@/lib/whatsapp';
 import { DIETARY_LABELS } from '@/lib/dietary';
+// r138-exec-2 (J3): أيقونة × لرقاقة مسح البحث (نفس أيقونة زر المسح في MenuToolbar)
+import AnimatedX from '@/components/ui/x-icon';
 // r135-TABLE: التقاط ‎?table=N‎ من رابط QR للطاولة — انظر lib/table-session.ts
 import { captureTableFromUrl } from '@/lib/table-session';
 
@@ -42,13 +44,15 @@ function isValidSort(v: string | null): v is SortValue {
 }
 
 // r93-W2a (U2): جمع عربي ديناميكي لعدد نتائج التصفية (نمط cartCountPhrase
-// من r92-A9) — «تم العثور على صنف واحد / صنفان / 5 أصناف / 12 صنفًا» بدل
+// من r92-A9) — «عُثر على صنف واحد / صنفين / 5 أصناف / 12 صنفًا» بدل
 // «N صنف» الثابت الذي كان ينكسر عند 2-10. الصفر يُعالج خارج الدالة
 // («لا توجد نتائج») لذا لا يحتاج صيغة خاصة هنا. مُصدَّرة ليبثها الاختبار.
+// r138-exec-2 (J4): المثنى «صنفين» بدل «صنفان» — المعدود مجرور بعد
+// «عُثر على» (إعراب جر)، والمبني للمجهول «عُثر» بدل «تم العثور».
 export function foundItemsPhrase(count: number): string {
         const noun = getArabicPlural(count, 'صنف', {
                 one: 'صنف واحد',
-                two: 'صنفان',
+                two: 'صنفين',
                 few: 'أصناف',
                 many: 'صنفًا',
         });
@@ -107,6 +111,9 @@ export function MenuPageClient({
         categories,
         items,
         restaurantWhatsapp,
+        /* r138-exec-2 (J1): هاتف المطعم للتواصل البديل عند غياب واتساب
+           صالح — نفس الرقم الذي يعرض رابط tel: في MenuHero (عرض خام). */
+        restaurantPhone,
         restaurantName,
         restaurantId,
         restaurantLogo,
@@ -115,6 +122,8 @@ export function MenuPageClient({
         categories: CategoryProp[];
         items: Array<MenuItemProp & FeaturedItem>;
         restaurantWhatsapp?: string;
+        /* r138-exec-2 (J1): انظر أعلاه — يُذكر في رسالة البوابة عند وجوده. */
+        restaurantPhone?: string;
         restaurantName?: string;
         restaurantId: number;
         restaurantLogo?: string;
@@ -267,6 +276,24 @@ export function MenuPageClient({
 
         const handleQuickAdd = useCallback(
                 (item: MenuItemProp) => {
+                        /* r138-exec-2 (J1): بوابة واتساب للإضافة السريعة — كانت الإضافة
+                           السريعة تُتخطى فحص الواتساب كليًا (نافذة الصنف تعطّل زرها عند
+                           الغياب) فيبني الزبون سلة كاملة ثم يصطدم بجدار صفحة السلة
+                           (normalizeWaNumber فارغ → الطلب لا يُحفظ أبدًا). البوابة نفسها
+                           الآن على المسندين، وقبل حوار تبديل السلة كي لا نُفرغ سلة مطعم
+                           آخر ثم نخبر الزبون أن الطلب غير متاح أصلًا. الرسالة بصياغة
+                           عائلة «لا واتساب» الموحّدة (OrderDialog/صفحة السلة) مع قناة
+                           الهاتف إن وُجد رقم (نفس رابط tel: في MenuHero). */
+                        if (!normalizeWaNumber(restaurantWhatsapp)) {
+                                premiumToast(
+                                        'error',
+                                        'الطلب غير متاح حاليًا لهذا المطعم',
+                                        restaurantPhone
+                                                ? `لم يتم إعداد واتساب بعد — يمكنك الاتصال بالمطعم مباشرة على ${restaurantPhone}`
+                                                : 'لم يتم إعداد واتساب بعد للمطعم. يُرجى التواصل مع المطعم مباشرة.',
+                                );
+                                return;
+                        }
                         if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
                         /* r110-F11: اعتراض التبديل قبل القفل — إن رفض المستخدم لا يجب أن
                                 يبقى القفل ممسكًا 400ms بلا فعل، وإن ظهر حوار التأكيد فالقفل
@@ -278,7 +305,7 @@ export function MenuPageClient({
                                 addLockTimerRef.current = setTimeout(() => { addLockRef.current = false; }, 400);
                         }, item.nameAr || item.name);
                 },
-                [guardCartSwitch, performQuickAdd]
+                [guardCartSwitch, performQuickAdd, restaurantWhatsapp, restaurantPhone]
         );
 
         /* r110-F11: فتح نافذة الصنف يمر بنفس الحارس — أفضل من الاعتراض عند
@@ -448,6 +475,12 @@ export function MenuPageClient({
 
         const hasActiveFilter = search !== '' || activeCategory !== null || activeDietary.length > 0;
 
+        /* r138-exec-2 (J3): نفس مسند إخفاء البحث (<8 أصناف) — يُستخدم أيضاً
+           لعرض رقاقة المسح: ?q= من الرابط يُطبَّق دائماً (UrlFilterSync) حتى
+           على المنيوهات التي يُخفى فيها صندوق البحث، فكان المنيو مفلتراً بلا
+           أداة إلغاء. */
+        const hideSearch = items.length < 8;
+
         /* r126 (P4-W3b / audit F2): 0 أصناف في كل الفئات = منيو فارغ فعلاً —
            «اختر فئة أخرى» هنا تضلّل الزبون (لا توجد فئة أخرى أصلًا). نسخة
            دافئة + CTA تواصل واتساب بدلها. */
@@ -475,7 +508,8 @@ export function MenuPageClient({
                                 onSortChange={(v) => updateURL({ sort: v })}
                                 items={items}
                                 onSuggestionClick={handleSuggestionClick}
-                                hideSearch={items.length < 8}
+                                /* r138-exec-2 (J3): القيمة نفسها كمقام واحد (انظر hideSearch أعلاه). */
+                                hideSearch={hideSearch}
                                 /* r135: فلاتر غذائية (نمط Deliveroo) — تُشتق من بيانات المنيو
                                    وتُخزّن في الرابط؛ الخيارات الميتة لا تظهر. */
                                 dietaryOptions={dietaryOptions}
@@ -514,8 +548,25 @@ export function MenuPageClient({
                                         <span>
                                                 {filteredItems.length === 0
                                                         ? 'لا توجد نتائج'
-                                                        : `تم العثور على ${foundItemsPhrase(filteredItems.length)}`}
+                                                        : `عُثر على ${foundItemsPhrase(filteredItems.length)}`}
                                         </span>
+                                        {/* r138-exec-2 (J3): بحث نشط من الرابط وصندوق البحث مخفي
+                                            (<8 أصناف) — لا يوجد صندوق يعرض النص ولا زر مسح؛
+                                            رقاقة «بحث: النص ×» بنمط رقاقتي الفئة/الحمية نفسه
+                                            (قبل: منيو مفلتر بلا تفسير ولا أداة إلغاء). */}
+                                        {hideSearch && search !== '' && (
+                                                <button
+                                                        type="button"
+                                                        onClick={() => updateURL({ q: '' })}
+                                                        /* نفس aria-label لزر المسح في MenuToolbar (r120 U8-F-3) —
+                                                           لا يجتمعان أبداً: الرقاقة تُعرض فقط حين الصندوق مخفي. */
+                                                        aria-label="مسح البحث"
+                                                        className="relative inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-accent-foreground hover:bg-primary/20 transition-colors before:absolute before:-inset-x-2 before:-inset-y-2.5 before:content-['']"
+                                                >
+                                                        بحث: <span className="max-w-[40vw] truncate">{search}</span>
+                                                        <AnimatedX className="size-3 shrink-0" aria-hidden="true" />
+                                                </button>
+                                        )}
                                         {activeCategory !== null && (
                                                 <button
                                                         type="button"
@@ -649,7 +700,18 @@ className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm 
                                                 <div
                                                         key={item.id}
                                                         className="animate-reveal"
-                                                        style={{ animationDelay: `${(index % 6) * 60}ms` }}
+                                                        /* r138-d (F3): قفزة العرض للبطاقات تحت الطية — الخطة المدفوعة
+                                                           تسمح بمنيوهات ضخمة (حتى 9999 صنفًا) وكل شيء يُرسم دفعة
+                                                           واحدة اليوم (SSR + flight + DOM). content-visibility:auto
+                                                           يمنع المتصفح من حساب رسم/تخطيط البطاقات خارج الشاشة،
+                                                           وcontain-intrinsic-size يرسم عنصرًا بديلًا بارتفاع تقريبي
+                                                           (auto = يتذكر المتصفح الارتفاع الحقيقي بعد أول رسم).
+                                                           من البطاقة 8 فصاعدًا فقط — ما فوقها مرشح LCP/أول لقطة. */
+                                                        style={index >= 8 ? {
+                                                                animationDelay: `${(index % 6) * 60}ms`,
+                                                                contentVisibility: 'auto',
+                                                                containIntrinsicSize: 'auto 480px',
+                                                        } : { animationDelay: `${(index % 6) * 60}ms` }}
                                                 >
                                                         <MenuItemCard
                                                                 item={item}

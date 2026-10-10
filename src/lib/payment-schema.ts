@@ -14,18 +14,36 @@
 import { z } from 'zod';
 import { usernameOptional, slugField } from '@/lib/validation';
 
-/** Normalize Arabic-Indic digits (٠-٩) to Western (0-9) before validation. */
-export function normalizeDigits(s: string): string {
+/**
+ * Normalize Arabic-Indic digits (٠-٩) to Western (0-9).
+ * (r138): داخلي فقط — كان تصديرها بلا مستورد، ومستهلكها الوحيد الآن
+ * paymentPhoneField أدناه (كان قديمًا يعمل بعد الفحص فيرفض ما بُني له).
+ */
+function normalizeDigits(s: string): string {
         return s.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 }
 
+/**
+ * (r138 — إصلاح انحراف r138-e «المسار الرابع داخل SM»): حقل هاتف الدفع —
+ * الأرقام الشرقية (٠٩١٢…) تُطوى إلى غربية قبل التحقق لا بعده. سابقًا كان
+ * الـregex يسبق التطبيع فيرفض رقمًا صالحًا، بينما مسارا الطلبات والولاء
+ * (normalizeCustomerPhone في lib/phone.ts) يقبلانه ويطبعانه — نفس الزبون
+ * كان يجد بوابتين مختلفتين. الحدود والرسالة كما هي: 09 + 8 أرقام ليبية.
+ * حقل واحد مشترك بين مسارَي إنشاء الدفع (هنا) والترقية
+ * (subscriptions/upgrade) اللذين كانا نسخة يدوية منحرفة (وثّق انحراف
+ * الترقية r121-C-api: نسخة بلا تطبيع أصلًا).
+ */
+export const paymentPhoneField = z.preprocess(
+        (v) => (typeof v === 'string' ? normalizeDigits(v) : v),
+        z
+                .string()
+                .regex(/^09\d{8}$/, 'رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09')
+                .optional()
+);
+
 export const createPaymentSchema = z
         .object({
-                phone: z
-                        .string()
-                        .regex(/^09\d{8}$/, 'رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09')
-                        .optional()
-                        .transform((v) => (v ? normalizeDigits(v) : v)),
+                phone: paymentPhoneField,
                 amount: z.number().positive(),
                 provider: z.enum(['libyana', 'madar', 'bank']),
                 planId: z.number().int().positive(),

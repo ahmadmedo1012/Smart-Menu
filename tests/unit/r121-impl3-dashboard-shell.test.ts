@@ -461,8 +461,12 @@ describe('r121 L-batch — robots/titles/JSON-LD hygiene', () => {
                 expect(print).toContain('alternates: { canonical:');
                 const robots = src('src/app/robots.ts');
                 expect(robots).not.toContain('/menu/*/print');
-                // L-6 cart/order-confirmed trim is a SEPARATE batch — still disallowed:
-                expect(robots).toContain('"/cart"');
+                // r138 (F8): /cart + /order-confirmed تركا قائمة المنع أيضًا — الصفحتان
+                // تقدمان noindex على مستوى الصفحة، والحجب في robots مع noindex هو
+                // وصفة «مفهرس رغم الحجب» نفسها التي أصلحها r121-L-2 للطباعة.
+                expect(robots).not.toContain('"/cart"');
+                expect(robots).not.toContain('"/order-confirmed"');
+                expect(robots).toContain('"/admin/"');
         });
 
         it('L-3: servesCuisine removed from the Restaurant JSON-LD', () => {

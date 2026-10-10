@@ -362,16 +362,19 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
                 expect(mockPaymentCreate).not.toHaveBeenCalled();
         });
 
-        it('Arabic-Indic digit phone is REJECTED by the regex before normalizeDigits can run (documented quirk)', async () => {
-                // '٠٩١٢٣٤٥٦٧٨' → normalizeDigits would map it to 0912345678, but
-                // the /^09\d{8}$/ check runs FIRST (\d never matches ٠-٩) — the
-                // transform is unreachable for the input it was built for.
+        it('Arabic-Indic digit phone is normalized BEFORE validation (r138 fix of the r138-e quirk)', async () => {
+                // كان quirk موثقًا في r138-e وثبّته هذا الاختبار: الـregex
+                // كان يسبق normalizeDigits فيرفض «٠٩١٢٣٤٥٦٧٨» — بينما مسارا
+                // الطلبات والولاء (normalizeCustomerPhone) يقبلانه ويطبعانه،
+                // فكان نفس الزبون يجد بوابتين مختلفتين. r138 قلبت الترتيب:
+                // التطبيع أولًا (z.preprocess) فالرقم الشرقي يُقبل ويُخزَّن
+                // غربيًا — نفس سياسة بقية الأسطولة.
                 const res = await callSubscriptionsPost(subscribeBody({ phone: '٠٩١٢٣٤٥٦٧٨' }));
 
-                expect(res.status).toBe(422);
-                const json = await res.json();
-                expect(json.error).toBe('رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09');
-                expect(mockPaymentCreate).not.toHaveBeenCalled();
+                expect(res.status).toBe(201);
+                expect(mockPaymentCreate).toHaveBeenCalledTimes(1);
+                const createArg = mockPaymentCreate.mock.calls[0][0];
+                expect(createArg.data.phone).toBe('0912345678');
         });
 });
 

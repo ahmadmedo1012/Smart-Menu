@@ -53,7 +53,8 @@ export function closeAreaPath(linePath: string, points: ChartPoint[], baselineY:
         return `${linePath} L ${last.x} ${baselineY} L ${first.x} ${baselineY} Z`;
 }
 
-export function polarToCartesian(
+/* (r138): داخلي — تستهلكه donutSlicePath في نفس الملف. */
+function polarToCartesian(
         cx: number,
         cy: number,
         radius: number,

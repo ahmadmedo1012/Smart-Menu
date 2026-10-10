@@ -9,7 +9,9 @@ import { timingSafeEqualStrings } from '@/lib/secure-compare';
 export { CSRF_COOKIE, CSRF_HEADER } from '@/lib/csrf-shared';
 import { CSRF_COOKIE, CSRF_HEADER } from '@/lib/csrf-shared';
 
-export const CSRF_EXEMPT = new Set([
+/* (r138): داخلي — تستهلكه assertSameOrigin أدناه فقط (ثابت أمني، لا عقد
+   خارجي: القائمة تُدار هنا ومعفاة مساراتها عبر المنطق نفسه). */
+const CSRF_EXEMPT = new Set([
         '/api/telegram/webhook',
         '/api/health',
         // Pre-flight validation runs before signup and has no side effects — the

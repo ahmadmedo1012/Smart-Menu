@@ -69,6 +69,10 @@ export default function CartPage() {
                 setPickupType,
                 setCustomerPhone,
                 clearCart,
+                /* r138-exec-2 (J4): العدّ بالوحدات لا الأسطر — نفس دلالة الشريحة
+                   الجانبية (CartSlideOver totalItems)؛ كانت الصفحتان تعرضان
+                   رقمين مختلفين لنفس السلة (أسطر مقابل وحدات). */
+                totalItems,
         } = useCart();
 
         const [showPreview, setShowPreview] = useState(false);
@@ -508,7 +512,8 @@ export default function CartPage() {
                 <>
                         <Header />
                         <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in pt-20 overflow-x-clip">
-                                <CartPageHeader count={items.length} />
+                                {/* r138-exec-2 (J4): وحدات لا أسطر — انظر التعليق عند التفكيك أعلاه. */}
+                                <CartPageHeader count={totalItems()} />
 
                                 <OrderStepper />
 
@@ -533,7 +538,9 @@ export default function CartPage() {
                                                 id="min-order-error"
                                                 role="alert"
                                                 tabIndex={-1}
-                                                className="rounded-md bg-destructive/10 border border-destructive/30 p-4 mb-6 text-sm text-destructive text-center animate-fade-in focus:outline-none"
+                                                /* r138 (P1-1): danger-ink — كان destructive
+                                                   2.77:1 على destructive/10 في الفاتح. */
+                                                className="rounded-md bg-destructive/10 border border-destructive/30 p-4 mb-6 text-sm text-danger-ink text-center animate-fade-in focus:outline-none"
                                         >
                                                 {minOrderMessage(deliveryMeta.minOrder!)} — أضف أصنافاً أكثر لإتمام طلب التوصيل
                                         </div>
@@ -576,7 +583,9 @@ export default function CartPage() {
                                 )}
 
                                 {waError && (
-                                        <div className="rounded-md bg-destructive/10 border border-destructive/30 p-4 mb-6 text-sm text-destructive text-center animate-fade-in">
+                                        /* r138 (P1-1): danger-ink — كان destructive
+                                           2.77:1 على destructive/10 في الفاتح. */
+                                        <div className="rounded-md bg-destructive/10 border border-destructive/30 p-4 mb-6 text-sm text-danger-ink text-center animate-fade-in">
                                                 رقم واتساب المطعم غير متوفر. يُرجى التواصل مع المطعم مباشرة.
                                         </div>
                                 )}
@@ -624,6 +633,8 @@ export default function CartPage() {
                                         items={items}
                                         pickupType={pickupType}
                                         notes={notes}
+                                        /* r138-exec-2 (J2): يُعرض سطر العنوان في الملخص عند التوصيل. */
+                                        deliveryAddress={deliveryAddress}
                                         total={grandTotal}
                                         deliveryFee={deliveryFeeAmount}
                                         isSubmitting={isSubmitting}

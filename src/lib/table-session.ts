@@ -16,11 +16,13 @@
  *   جلسة جديدة فارغة — لا يرث طاولة الأمس.
  */
 
-export const TABLE_SESSION_KEY = 'smartmenu_table';
-export const TABLE_MAX = 999;
+/* (r138): الثلاثة داخليون — الواجهة العامة للوحدة هي captureTableFromUrl
+   وreadTableNumber. */
+const TABLE_SESSION_KEY = 'smartmenu_table';
+const TABLE_MAX = 999;
 
 /** قيمة رقمية صالحة أم لا (عدد صحيح ضمن 1..999). */
-export function isValidTableNumber(n: number): boolean {
+function isValidTableNumber(n: number): boolean {
         return Number.isInteger(n) && n > 0 && n <= TABLE_MAX;
 }
 

@@ -20,7 +20,8 @@ function requestId(): string {
   return ((globalThis as Record<string, unknown>).__requestId as string) ?? crypto.randomUUID().slice(0, 8);
 }
 
-export function log(level: LogLevel, message: string, meta?: Record<string, unknown>): void {
+// (r138): داخلي — info/warn/error هي الواجهة، وlog مستهلك داخليًا فقط.
+function log(level: LogLevel, message: string, meta?: Record<string, unknown>): void {
   const ts = timestamp();
   const rid = requestId();
 

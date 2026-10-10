@@ -9,7 +9,7 @@ import { categoryCountByRestaurant, orderCountByRestaurant } from '@/lib/list-co
 import {
         restaurantFieldSchema,
         isSlugHeldByPendingPayment,
-        normalizeSlug,
+        slugField,
 } from '@/lib/validation';
 // r137: ساعات الدوام المهيكلة + رسوم التوصيل/الحد الأدنى (محرّر المالك)
 import { parseOpeningHoursPayload, type ParsedOpeningHours } from '@/lib/opening-hours';
@@ -24,9 +24,6 @@ const singleSchema = z.object({
 });
 
 const batchSchema = z.array(singleSchema);
-
-// round85-A5: same slug format rule as the restaurants create/update routes
-const SLUG_RE = /^[a-z0-9-]+$/;
 
 // r121-C4/H4 (X2 §3): the restaurant_* mirror fields validated against the
 // canonical Restaurant column caps — same shared pieces restaurants/[id] PUT
@@ -197,10 +194,22 @@ export async function PUT(request: NextRequest) {
                                                         // round85-A5: malformed slugs would break the public /menu/[slug]
                                                         // route (SEO + QR codes already printed) — enforce the same
                                                         // format as restaurant create/update.
-                                                        const normalized = normalizeSlug(f.value);
-                                                        if (!SLUG_RE.test(normalized)) {
-                                                                return apiError('صيغة الرابط غير صالحة — أحرف صغيرة وأرقام وشرطات فقط', 422);
+                                                        /* (r138 — توحيد SLUG_RE، خطر الانحراف الموثق في r138-e):
+                                                           آخر نسخة regex inline حية في الأسطولة — صار الفحص عبر
+                                                           slugField القانوني من validation.ts (نفس نمط r97-X3
+                                                           وr121-O-7/r121-ADV1-1 في payment-schema وvalidate
+                                                           وowner/restaurants وrestaurants/[id]). تنضم الحدود
+                                                           أيضًا (3–100 حرفًا — سياسة round97-X3: تشديد فقط على
+                                                           مدخلات الكتابة) ورسالة 422 تصبح الرسالة القانونية
+                                                           الموحدة لبقية مسارات الرابط. */
+                                                        const slugParsed = slugField.safeParse(f.value);
+                                                        if (!slugParsed.success) {
+                                                                return apiError(
+                                                                        slugParsed.error.issues[0]?.message ?? 'صيغة الرابط غير صالحة',
+                                                                        422
+                                                                );
                                                         }
+                                                        const normalized = slugParsed.data;
                                                         // r121-C3 (X2 §2/§7): this branch previously had NO
                                                         // uniqueness pre-check at all — a real collision died as
                                                         // P2002 → the generic name-conflict 409 («هذا الاسم موجود

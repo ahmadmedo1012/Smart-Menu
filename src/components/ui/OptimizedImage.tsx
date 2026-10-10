@@ -52,7 +52,16 @@ const OptimizedImage = memo(function OptimizedImage({
   onError,
   sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
 }: OptimizedImageProps) {
-  const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "loaded" | "error">((
+    /* r138 (LCP): الصور المتلهفة (priority/fetchPriority=high — مرشحو LCP)
+       تُرسم مرئية من الـSSR مباشرة: الحالة الابتدائية «loaded» تعني
+       opacity-100 في HTML الخادم، فتنكشف الصورة فور وصول بايتاتها (هي
+       مُسبقة الجلب أصلاً عبر preload الذي يصدّره next/image) بدل انتظار
+       الترطيب + حدث onLoad — قياس r138-d: على 3G الليبي كان LCP مثبتاً
+       على 6-9s بسبب هذا الربط وحده. الشيمر لا يظهر لها أصلاً (حالة
+       loading هي شرطه) لأن الصورة المعجلة تصل قبل أن يُرسم الهيكل. */
+    priority || fetchPriority === "high"
+  ) ? "loaded" : "loading");
 
   return (
     <div

@@ -261,11 +261,15 @@ describe('r121-C3 — PUT /api/settings restaurant_slug branch', () => {
                 });
         });
 
-        it('malformed slug stays a 422 format error (round85-A5 contract unchanged)', async () => {
+        it('malformed slug stays a 422 format error (r138: canonical slugField message)', async () => {
+                // (r138): صار الفحص عبر slugField القانوني (آخر نسخة regex inline
+                // حية في settings — وحّدتها r138 بعد أن وثّقت r138-e خطر انحرافها)،
+                // فرسالة 422 هي رسالة slugField القانونية نفسها التي تثبّتها
+                // payment-schema-caps.test.ts لبقية مسارات الرابط.
                 const res = await putSettings([{ key: 'restaurant_slug', value: 'INVALID_SLUG' }]);
                 expect(res.status).toBe(422);
                 const json = await res.json();
-                expect(json.error).toBe('صيغة الرابط غير صالحة — أحرف صغيرة وأرقام وشرطات فقط');
+                expect(json.error).toBe('الرابط يجب أن يحتوي على أحرف إنكليزية وأرقام فقط');
                 expect(mockRestaurantUpdate).not.toHaveBeenCalled();
         });
 });

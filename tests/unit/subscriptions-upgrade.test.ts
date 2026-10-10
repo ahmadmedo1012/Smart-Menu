@@ -238,6 +238,18 @@ describe('POST /api/subscriptions/upgrade — happy path', () => {
                 });
         });
 
+        it('(r138) Arabic-Indic digit phone is accepted and stored Western — same gateway as the subscribe path', async () => {
+                // (r138 — اتساق بوابة الدفع): كانت هذه النسخة اليدوية من حقل
+                // الهاتف بلا تطبيع الأرقام الشرقية أصلًا (وثّق الانحراف r121-C-api)،
+                // بينما مسار الاشتراك كان يطبعها — نفس الزبون، بوابتان. الآن
+                // الحقل واحد مشترك (paymentPhoneField): التطبيع قبل التحقق.
+                const res = await callPost(upgradeBody({ phone: '٠٩١٢٣٤٥٦٧٨' }));
+
+                expect(res.status).toBe(201);
+                const createArg = mockPaymentCreate.mock.calls[0][0];
+                expect(createArg.data.phone).toBe('0912345678');
+        });
+
         it('upgrade to a strictly higher tier is allowed (sortOrder compared, not price)', async () => {
                 setRestaurant(9, 1); // currently on basic (sortOrder 1, price 49 > 0)
 

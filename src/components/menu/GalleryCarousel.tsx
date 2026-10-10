@@ -262,6 +262,9 @@ export function GalleryCarousel({
                                                                         className="size-full"
                                                                         skeleton={false}
                                                                         priority={i === 0}
+                                                                        /* r138: نفس درس البطاقة والعرض المميز — التمرير الصريح
+                                                                           لـfetchpriority (priority وحده لا يكفي في Next 16). */
+                                                                        fetchPriority={i === 0 ? 'high' : undefined}
                                                                         /* round88-A2: strip fills the max-w-4xl (896px) hero container
                                                                            minus its px-4 gutter — 21/9 aspect. Old generic sizes
                                                                            underfetched 640-1024 (50vw vs ~100vw box) → blur. */
@@ -339,7 +342,11 @@ export function GalleryCarousel({
                                                                                         'block h-1.5 rounded-full transition-[width,background-color] duration-base',
                                                                                         i === current
                                                                                                 ? 'w-6 bg-orange shadow-md'
-                                                                                                : 'w-1.5 bg-white/40 hover:bg-white/60'
+                                                                                                /* r138 (P2): النقطة الخاملة أوضح —
+                                                                                                   white/50 + حلقة داكنة: 3.2:1 على صور
+                                                                                                   متوسطة (كانت /40 ≈2.6:1) والحلقة تضمن
+                                                                                                   الحد فوق الصور الفاتحة (1.4.11). */
+                                                                                                : 'w-1.5 bg-white/50 ring-1 ring-black/60 hover:bg-white/65'
                                                                                 )}
                                                                         />
                                                                 </button>
@@ -459,7 +466,11 @@ export function GalleryCarousel({
                                                                                         <span
                                                                                                 className={cn(
                                                                                                         'block h-1.5 rounded-full transition-[width,background-color] duration-base',
-                                                                                                        i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
+                                                                                                        /* r138 (P2): الخاملة white/50 + حلقة داكنة —
+                                                                                                           4.9:1 على خلفية Lightbox الداكنة (كانت
+                                                                                                           /30 ≈2.5-2.7:1) والحلقة تسند أسوأ حالة
+                                                                                                           تداخل مع صورة فاتحة (1.4.11). */
+                                                                                                        i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/50 ring-1 ring-black/60 hover:bg-white/65'
                                                                                                 )}
                                                                                         />
                                                                                 </button>

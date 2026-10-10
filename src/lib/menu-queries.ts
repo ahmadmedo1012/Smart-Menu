@@ -25,6 +25,9 @@ export const getRestaurantBySlug = cache(async (slug: string) =>
                                 whatsapp: true,
                                 slug: true,
                                 address: true,
+                                // r138: مدينة المطعم (عمود موجود منذ الأصل) — تُصدَّر الآن
+                                // كـ addressLocality في JSON-LD PostalAddress.
+                                city: true,
                                 workingHours: true,
                                 gallery: true,
                                 email: true,

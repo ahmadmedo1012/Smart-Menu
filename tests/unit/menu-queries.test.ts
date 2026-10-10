@@ -57,11 +57,13 @@ describe('getRestaurantBySlug — query contract', () => {
                 const arg = mockRestaurantFindUnique.mock.calls[0][0];
                 expect(Object.keys(arg.select).sort()).toEqual(
                         [
-                                'address', 'description', 'email', 'gallery', 'hours', 'id', 'logo',
+                                'address', 'city', 'description', 'email', 'gallery', 'hours', 'id', 'logo',
                                 'minOrder', 'name', 'phone', 'slug', 'whatsapp', 'workingHours',
                                 'deliveryFee',
                         ].sort(),
                 );
+                // r138: city تنضم للإسقاط العام — عمود عام يُصدَّر كـ addressLocality
+                // في JSON-LD PostalAddress (لا يزال بلا أعمدة تشغيلية).
                 // internal/plan columns must never reach the public menu payload
                 for (const forbidden of ['planId', 'maxOrders', 'maxItems', 'themeColor', 'currency', 'showOnLanding', 'featuredRank', 'planStart', 'planEnd']) {
                         expect(arg.select).not.toHaveProperty(forbidden);

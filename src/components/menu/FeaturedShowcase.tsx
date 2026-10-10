@@ -313,6 +313,9 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                                                    → eager + high priority (was lazy). */
                                                                                 sizes="(max-width: 768px) calc(75vw - 24px), min(55vw, 493px)"
                                                                                 priority={index === 0}
+                                                                                /* r138: نفس درس MenuItemCard — priority لا يصدّر
+                                                                                   fetchpriority في Next 16؛ التمرير الصريح إلزامي. */
+                                                                                fetchPriority={index === 0 ? 'high' : undefined}
                                                                         />
                                                                 ) : (
                                                                         <div className="relative flex aspect-square items-center justify-center rounded-3xl border border-[color-mix(in_oklab,var(--scene-accent)_35%,transparent)] bg-[color-mix(in_oklab,var(--scene-wash)_60%,var(--scene-accent)_40%)] text-6xl font-black text-[var(--scene-accent)] md:text-7xl">
@@ -366,10 +369,15 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                                    وكسور حقيقية بمنزلتين، مطابق لتكوين بطاقات الشبكة. */}
                                                                 {discounted != null ? (
                                                                         <>
-                                                                                <span className="text-2xl font-bold text-success tabular-nums md:text-3xl">
+                                                                                {/* r138 (P1-1): حبر السعر المخفّض في الفاتح —
+                                                                                   success-ink 7.8-8.0:1 على غسيلات المشهد
+                                                                                   (كان success 2.48-2.54:1)؛ والداكن كما هو. */}
+                                                                                <span className="text-2xl font-bold text-success-ink tabular-nums md:text-3xl">
                                                                                         {formatPrice(discounted)}
                                                                                 </span>
-                                                                                <span className="text-sm text-foreground/60 line-through tabular-nums md:text-base">
+                                                                                {/* r138 (P2): المشطوب /70 بدل /60 — كان
+                                                                                   4.31:1 (تحت 4.5) والآن 5.9-6.0:1. */}
+                                                                                <span className="text-sm text-foreground/70 line-through tabular-nums md:text-base">
                                                                                         {formatPrice(current.price)}
                                                                                 </span>
                                                                         </>

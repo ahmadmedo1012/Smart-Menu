@@ -149,7 +149,9 @@ function OrderContent() {
                                 <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
                                         {/* r131 (A2 P3-7 — حكم 56px): بئر النجاح 56px r-xl. */}
                                         <div className="size-14 rounded-xl bg-success/10 flex items-center justify-center animate-scale-in">
-                                                <CheckCircle className="size-7 text-success" />
+                                                {/* r138 (P1-1): أيقونة البئر — success-ink في الفاتح
+                                                   8.3:1 كرسم (كان 2.6:1)؛ الداكن كما هو. */}
+                                                <CheckCircle className="size-7 text-success-ink" />
                                         </div>
 
                                         <div className="space-y-2">
@@ -161,7 +163,10 @@ function OrderContent() {
                                                 <button
                                                         type="button"
                                                         onClick={handleCopyOrderNo}
-                                                        className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+                                                        /* r138 (P1-2): هدف لمس ≥24×24 (2.5.8) — الحشوة
+                                                           ترفع منطقة النقر إلى ~36px بلا تغيير الشكل
+                                                           الأنيق (كان ~16×90px — تدقيق r138-b). */
+                                                        className="inline-flex min-h-6 items-center justify-center rounded-sm px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
                                                 >
                                                         {copiedOrderNo ? 'تم النسخ ✓' : 'نسخ رقم الطلب'}
                                                 </button>

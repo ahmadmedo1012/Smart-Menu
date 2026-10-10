@@ -12,6 +12,9 @@ import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 import AnimatedStar from '@/components/ui/star-icon';
 import { EmptyState } from '@/components/ui/empty-state';
+/* r138 (P1-3): المعلن المعتمد للتحميل — نفس نمط PickupTypeSelector
+   في رحلة الزبون (role=status + sr-only + إعلان الاكتمال). */
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
 const starAnimate = { rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] };
 
@@ -485,7 +488,9 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                         />
                                                         {/* Error */}
                                                         {submitError && (
-                                                                <p className="text-xs text-destructive" role="alert">
+                                                                /* r138 (P1-1): danger-ink — كان destructive
+                                                                   3.19:1 على أبيض الفاتح. */
+                                                                <p className="text-xs text-danger-ink" role="alert">
                                                                         {submitError}
                                                                 </p>
                                                         )}
@@ -513,7 +518,18 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                 </div>
 
                                                 {/* Reviews list */}
-                                                <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                                                {/* r138 (P1-3): السبينر كان صامتًا لقارئات الشاشة —
+                                                   aria-busy على الحاوية + LoadingAnnouncer (4.1.3
+                                                   — تدقيق r138-b: «جارٍ تحميل التقييمات»). */}
+                                                <div
+                                                        className="flex-1 overflow-y-auto p-5 space-y-4"
+                                                        aria-busy={loading || undefined}
+                                                >
+                                                        <LoadingAnnouncer
+                                                                loading={loading}
+                                                                message="جارٍ تحميل التقييمات"
+                                                                completedMessage="تم تحميل التقييمات"
+                                                        />
                                                         {loading ? (
                                                                 <div className="flex justify-center py-8">
                                                                         <div className="size-6 rounded-full border-2 border-border border-t-orange animate-spin" />
@@ -521,7 +537,9 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                         ) : fetchError ? (
                                                                 <div className="text-center py-10" role="alert" aria-live="assertive">
                                                                         <AnimatedMessageCircle className="size-10 text-destructive/50 mx-auto mb-3" />
-                                                                        <p className="text-sm text-destructive mb-3">
+                                                                        {/* r138 (P1-1): danger-ink — كان destructive
+                                                                            3.19:1 على أبيض الفاتح (الأيقونة زخرفية /50 تبقى). */}
+                                                                        <p className="text-sm text-danger-ink mb-3">
                                                                                 تعذّر تحميل التقييمات. تحقق من اتصالك بالإنترنت.
                                                                         </p>
                                                                         {/* r95: رابط إعادة المحاولة — accent-foreground الأسطع (AA) */}

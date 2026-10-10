@@ -30,6 +30,9 @@ type Restaurant = {
     name: string;
     slug: string;
     whatsapp: string | null;
+    /* r138-exec-2 (J1): هاتف المطعم — يُذكر في رسالة بوابة الواتساب
+       بالإضافة السريعة كبديل تواصل عند غياب رقم صالح. */
+    phone: string | null;
     id: number;
     logo: string;
     /* r137: رسوم التوصيل (رقم أو null — الميزة مطفأة) — تسمية خيار
@@ -110,6 +113,8 @@ export function MenuClientSection(props: {
                     categories={categories}
                     items={serializedItems}
                     restaurantWhatsapp={restaurant.whatsapp ?? undefined}
+                    /* r138-exec-2 (J1): قناة الهاتف البديلة لرسالة البوابة. */
+                    restaurantPhone={restaurant.phone ?? undefined}
                     restaurantName={restaurant.name}
                     restaurantId={restaurant.id}
                     restaurantLogo={restaurant.logo}

@@ -309,6 +309,32 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         // weight for exactly the restaurants the wa.me fold fixed.
         const wa = normalizeWaNumber(restaurant.phone || restaurant.whatsapp);
 
+        // r138 (F1): ساعات الدوام المهيكلة (r137) تُصدَّر أخيرًا إلى الآلة — كانت
+        // محمّلة في الصفحة نفسها (تُغذّي شارة MenuHero) لكن jsonLd أهملها، فكان
+        // الدوام غائبًا عن Google/الخرائط بينما هو أهم إجابة يبحث عنها الزبون.
+        // اتفاقية التخزين: dayOfWeek برقم getDay (0=الأحد..6=السبت)؛ الصفوف
+        // المغلقة تُحذف (لا معنى لتصدير يوم مغلق)؛ العابر لمنتصف الليل
+        // (closesAt < opensAt) يُصدَّر كما هو — مواصفة schema.org تسمح بعبور
+        // الإغلاق لليوم التالي؛ «00:00 → 00:00» يعني دوامًا متواصلًا 24 ساعة
+        // (اتفاقية lib/opening-hours) فيُصدَّر 00:00–23:59.
+        const SCHEMA_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+        const openHoursSpec = restaurant.hours
+                .filter((h) => !h.closed)
+                .map((h) => {
+                        const alwaysOpen = h.opensAt === h.closesAt;
+                        return {
+                                '@type': 'OpeningHoursSpecification',
+                                dayOfWeek: `https://schema.org/${SCHEMA_DAY_NAMES[h.dayOfWeek] ?? 'Sunday'}`,
+                                opens: alwaysOpen ? '00:00' : h.opensAt,
+                                closes: alwaysOpen ? '23:59' : h.closesAt,
+                        };
+                });
+
+        // r138 (F4): العنوان يُرقّى من نص حر إلى PostalAddress مع المدينة —
+        // العمود موجود في قاعدة البيانات منذ الأصل ولم يكن يُصدَّر. تحتفظ
+        // الحقول الاختيارية بحذفها عند الفراغ (سياسة r121-L-3: لا اختلاق قيم).
+        const hasPostalAddress = !!(restaurant.address || restaurant.city);
+
         const jsonLd = {
                 '@context': 'https://schema.org',
                 '@type': 'Restaurant',
@@ -323,7 +349,20 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         priceRange: `${Math.min(...effectivePrices)}-${Math.max(...effectivePrices)} د.ل`,
                 } : {}),
                 ...(restaurantImage ? { image: restaurantImage } : {}),
-                ...(restaurant.address ? { address: restaurant.address } : {}),
+                // r138 (F4): PostalAddress بدل النص الحر — المدينة عمود حقيقي
+                // في قاعدة البيانات كان يُهمل. عنوان الشارع يبقى نصًا حرًا
+                // (هكذا يكتبه المالك) داخل streetAddress.
+                ...(hasPostalAddress ? {
+                        address: {
+                                '@type': 'PostalAddress',
+                                ...(restaurant.address ? { streetAddress: restaurant.address } : {}),
+                                ...(restaurant.city ? { addressLocality: restaurant.city } : {}),
+                        },
+                } : {}),
+                // r138 (F1): see openHoursSpec above — only exported when the
+                // owner actually filled the r137 week editor (no rows = field
+                // omitted entirely, never an empty array).
+                ...(openHoursSpec.length > 0 ? { openingHoursSpecification: openHoursSpec } : {}),
                 hasMenu: {
                         '@type': 'Menu',
                         name: `قائمة ${restaurant.name}`,
@@ -354,6 +393,21 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                                         price: String(i.discountedPrice ?? i.price),
                                                         priceCurrency: 'LYD',
                                                 },
+                                                // r138 (F10): التقييم الحقيقي للصنف يُصدَّر — كان
+                                                // avgRating/ratingCount محمّلين في الصفحة نفسها
+                                                // (يغذّيان نجوم البطاقة) دون أن يريهما الآلة. الخط
+                                                // الأحمر الثابت: لا يُشتق تقييم المطعم من تقييمات
+                                                // الأصناف (self-serving = spam policy) — التصدير
+                                                // داخل MenuItem فقط، وبعدّ تقييمات حقيقي ≥1.
+                                                ...(i.avgRating != null && i.ratingCount != null && i.ratingCount > 0 ? {
+                                                        aggregateRating: {
+                                                                '@type': 'AggregateRating',
+                                                                ratingValue: Number(i.avgRating),
+                                                                ratingCount: i.ratingCount,
+                                                                bestRating: 5,
+                                                                worstRating: 1,
+                                                        },
+                                                } : {}),
                                         })),
                         })),
                 },
@@ -393,6 +447,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                         slug,
                                         logo: restaurant.logo,
                                         whatsapp: restaurant.whatsapp,
+                                        /* r138-exec-2 (J1): هاتف المطعم لرسالة بوابة
+                                           الواتساب في الإضافة السريعة (بديل تواصل). */
+                                        phone: restaurant.phone,
                                         /* r137: رسوم التوصيل تعبر كرقم (تسمية خيار التوصيل في
                                            OrderDialog) — null = الميزة مطفأة. */
                                         deliveryFee:

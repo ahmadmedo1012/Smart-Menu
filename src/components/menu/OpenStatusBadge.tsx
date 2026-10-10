@@ -23,50 +23,52 @@ import { cn } from '@/lib/utils';
 type BadgeState = { isOpen: boolean; text: string } | null;
 
 export function OpenStatusBadge({ hours }: { hours?: OpeningHoursRow[] | null }) {
-	const [badge, setBadge] = useState<BadgeState>(null);
+        const [badge, setBadge] = useState<BadgeState>(null);
 
-	useEffect(() => {
-		if (!hours || hours.length === 0) return;
-		const recompute = () => {
-			const status = computeOpenStatus(hours, tripoliWallClock());
-			if (!status) {
-				setBadge(null);
-				return;
-			}
-			setBadge(
-				status.isOpen
-					? { isOpen: true, text: `مفتوح الآن · يغلق ${status.closesAtLabel}` }
-					: {
-							isOpen: false,
-							text: status.nextOpenLabel ? `مغلق حاليًا · ${status.nextOpenLabel}` : 'مغلق حاليًا',
-						},
-			);
-		};
-		recompute();
-		// 60 ثانية: دقة الحدّ الأدنى الصادقة للدقيقة (الحدود دقيقة-إلى-دقيقة)
-		const timer = setInterval(recompute, 60_000);
-		return () => clearInterval(timer);
-	}, [hours]);
+        useEffect(() => {
+                if (!hours || hours.length === 0) return;
+                const recompute = () => {
+                        const status = computeOpenStatus(hours, tripoliWallClock());
+                        if (!status) {
+                                setBadge(null);
+                                return;
+                        }
+                        setBadge(
+                                status.isOpen
+                                        ? { isOpen: true, text: `مفتوح الآن · يغلق ${status.closesAtLabel}` }
+                                        : {
+                                                        isOpen: false,
+                                                        text: status.nextOpenLabel ? `مغلق حاليًا · ${status.nextOpenLabel}` : 'مغلق حاليًا',
+                                                },
+                        );
+                };
+                recompute();
+                // 60 ثانية: دقة الحدّ الأدنى الصادقة للدقيقة (الحدود دقيقة-إلى-دقيقة)
+                const timer = setInterval(recompute, 60_000);
+                return () => clearInterval(timer);
+        }, [hours]);
 
-	if (!badge) return null;
+        if (!badge) return null;
 
-	return (
-		<p
-			aria-live="polite"
-			dir="rtl"
-			className={cn(
-				'inline-flex items-center gap-1.5 mt-1 px-3.5 py-1.5 rounded-full text-xs font-medium',
-				'border backdrop-blur-md',
-				badge.isOpen
-					? 'bg-success/10 border-success/30 text-success'
-					: 'bg-glass-bg/30 border-glass-border text-muted-foreground',
-			)}
-		>
-			<span
-				aria-hidden="true"
-				className={cn('size-1.5 rounded-full', badge.isOpen ? 'bg-success' : 'bg-muted-foreground/60')}
-			/>
-			{badge.text}
-		</p>
-	);
+        return (
+                <p
+                        aria-live="polite"
+                        dir="rtl"
+                        className={cn(
+                                'inline-flex items-center gap-1.5 mt-1 px-3.5 py-1.5 rounded-full text-xs font-medium',
+                                'border backdrop-blur-md',
+                                badge.isOpen
+                                        /* r138 (P1-1): حبر «مفتوح الآن» في الفاتح — success-ink
+                                           9.1:1 (كان 2.87:1)؛ الداكن كما هو. */
+                                        ? 'bg-success/10 border-success/30 text-success-ink'
+                                        : 'bg-glass-bg/30 border-glass-border text-muted-foreground',
+                        )}
+                >
+                        <span
+                                aria-hidden="true"
+                                className={cn('size-1.5 rounded-full', badge.isOpen ? 'bg-success' : 'bg-muted-foreground/60')}
+                        />
+                        {badge.text}
+                </p>
+        );
 }

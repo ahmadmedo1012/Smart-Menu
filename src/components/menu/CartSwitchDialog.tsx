@@ -3,6 +3,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+/* r138-exec-2 (J4): جمع عربي سليم لعدد الأصناف المهددة بالإفراغ — كانت
+   «‎${itemCount} أصناف‎» الثابتة تنكسر عند 11+ (الصحيح «صنفًا»). */
+import { getArabicPlural } from '@/lib/arabic-plural';
+import { toArabicNumber } from '@/lib/format';
 
 /**
  * r110-F11 — تأكيد قبل استبدال سلة مطعم آخر.
@@ -47,6 +51,22 @@ export function willReplaceOtherRestaurantCart(
         );
 }
 
+/**
+ * r138-exec-2 (J4): عبارة عدد الأصناف المهددة بالإفراغ — على أداة الجمع
+ * المكتبية getArabicPlural (لا منطق حدود جديد) بنمط مساعدات r92-A9/r93-W2a.
+ * المعدود مفعول به بعد «تحتوي» فصيغه منصوبة (صنفًا واحدًا/صنفين) — نفس
+ * سابقة acceptedOrdersPhrase («تم قبول طلبين» — منصوب بعد الفعل).
+ */
+function switchItemsPhrase(count: number): string {
+        const noun = getArabicPlural(count, 'صنف', {
+                one: 'صنفًا واحدًا',
+                two: 'صنفين',
+                few: 'أصناف',
+                many: 'صنفًا',
+        });
+        return count < 3 ? noun : `${toArabicNumber(count)} ${noun}`;
+}
+
 export function CartSwitchDialog({
         pending,
         onConfirm,
@@ -65,8 +85,10 @@ export function CartSwitchDialog({
                                         </div>
                                         <DialogTitle className="text-center">تغيير المطعم؟</DialogTitle>
                                         <DialogDescription className="text-center leading-relaxed">
+                                                {/* r138-exec-2 (J4): العبارة عبر switchItemsPhrase — كان «N أصناف»
+            الثابت يكسر الجمع عند 11+ ويحذف صيغة الواحد/المثنى. */}
                                                 {pending
-                                                        ? `سلتك الحالية تحتوي ${pending.itemCount === 1 ? 'صنفًا واحدًا' : `${pending.itemCount} أصناف`} من «${pending.fromRestaurantName}». إضافة صنف من «${pending.toRestaurantName}» ستفرغ السلة الحالية وتبدأ سلة جديدة لهذا المنيو.`
+                                                        ? `سلتك الحالية تحتوي ${switchItemsPhrase(pending.itemCount)} من «${pending.fromRestaurantName}». إضافة صنف من «${pending.toRestaurantName}» ستفرغ السلة الحالية وتبدأ سلة جديدة لهذا المنيو.`
                                                         : ''}
                                         </DialogDescription>
                                 </DialogHeader>

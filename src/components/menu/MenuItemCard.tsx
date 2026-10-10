@@ -172,6 +172,10 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         aspectRatio="auto"
                                                         className="size-full rounded-none"
                                                         priority={eager}
+                                                        /* r138: Next 16 لا يصدّر fetchpriority من priority وحده
+                                                           (يصدّر preload+loading فقط — مؤكد من مصدر get-img-props)
+                                                           — التمرير الصريح هو ما يفعّل الأولوية العليا فعلياً. */
+                                                        fetchPriority={eager ? 'high' : undefined}
                                                         sizes={imageSizes}
                                                         skeleton
                                                         /* r95: أيقونة البديل — عائلة اللهب الأسطع بذات العتامة الزخرفية */
@@ -290,13 +294,16 @@ const MenuItemCard = memo(function MenuItemCard({
                                 ) : null}
 
                                 {/* Dietary tags + allergens — glass pills */}
+                                {/* r138 (P1-1): أحبار الرقائق النصية في الفاتح — basil-ink
+                                   8.6:1 و warning-ink 7.3:1 (كانت 2.72/2.13:1)؛
+                                   الداكن كما هو (8-11:1). */}
                                 {((item.dietaryTags && item.dietaryTags.length > 0) ||
                                         (item.allergens && item.allergens.length > 0)) && (
                                         <div className="flex flex-wrap gap-1.5">
                                                 {item.dietaryTags?.map((tag) => (
                                                         <span
                                                                 key={tag}
-                                                                className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-2xs text-basil"
+                                                                className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-2xs text-basil-ink"
                                                         >
                                                                 {/* r96-W4b: أيقونة lucide SVG بدل الإيموجي (قاعدة SmartBot
                                                                    «لا إيموجي كأيقونات») — مفتاح غير مخطط يسقط على Leaf
@@ -308,9 +315,9 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 {item.allergens?.map((tag) => (
                                                         <span
                                                                 key={tag}
-                                                                className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-2xs text-warning"
+                                                                className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-2xs text-warning-ink"
                                                         >
-                                                                <AlertTriangle className="size-3 text-warning" /> {ALLERGEN_LABELS[tag] || tag}
+                                                                <AlertTriangle className="size-3 text-warning-ink" /> {ALLERGEN_LABELS[tag] || tag}
                                                         </span>
                                                 ))}
                                         </div>
@@ -318,13 +325,15 @@ const MenuItemCard = memo(function MenuItemCard({
 
                                 {/* Price row — round80: discounted price carries the unified savings
                                  * semantic (text-success, identical to FeaturedShowcase); full price
-                                 * keeps the brand primary ink with the warm hover. */}
+                                 * keeps the brand primary ink with the warm hover.
+                                 * r138 (P1-1): الحبر النصي — success-ink في الفاتح 9.5:1
+                                 *   على أبيض البطاقة (كان 3.0:1)؛ الداكن كما هو. */}
                                 <div className="flex items-center gap-2 flex-wrap">
                                         <span
                                                 className={cn(
                                                         'text-xl font-bold transition-colors duration-base tabular-nums',
                                                         hasDiscount
-                                                                ? 'text-success'
+                                                                ? 'text-success-ink'
                                                                 /* r95: حبر السعر — accent-foreground (#df5a00) 5.42:1 على
                                                                    البطاقة الداكنة بدرجة واحدة AA في الثيمين. */
                                                                 // a11y(round84): --primary (#c53c00) is

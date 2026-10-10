@@ -39,7 +39,9 @@ export function PickupTypeSelector({
                                 <button
                                         type="button"
                                         onClick={onRetry}
-                                        className="mb-4 w-full rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+                                        /* r138 (P1-1): danger-ink — كان destructive
+                                           2.77:1 على destructive/10 في الفاتح. */
+                                        className="mb-4 w-full rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-danger-ink flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
                                 >
                                         تعذّر تحميل خيارات الطلب — انقر لإعادة المحاولة
                                 </button>

@@ -42,6 +42,11 @@ vi.mock('@/lib/menu-queries', () => ({
                 whatsapp: '0911111111',
                 slug: 'waha',
                 address: 'طرابلس',
+                // r138: city + hours ينتميان للإسقاط العام الحقيقي (العلاقة دائمًا
+                // مصفوفة من Prisma) — التجهيعة كانت تُغفلهما فانفجر تصدير JSON-LD
+                // الجديد (openingHoursSpecification/PostalAddress) على undefined.
+                city: 'طرابلس',
+                hours: [],
                 workingHours: '9-9',
                 gallery: [],
                 email: null,

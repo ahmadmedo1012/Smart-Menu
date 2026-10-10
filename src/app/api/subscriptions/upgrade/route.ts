@@ -9,14 +9,14 @@ import { broadcastPaymentKeyboard } from '@/lib/telegram-broadcast';
 import { error as logError } from '@/lib/logger';
 import { z } from 'zod';
 import { getClientIp } from '@/lib/client-ip';
+// (r138 — اتساق بوابة الدفع): حقل الهاتف من المصدر المشترك — كانت نسخة
+// يدوية بلا تطبيع الأرقام الشرقية أصلًا (انحراف وثّقه r121-C-api).
+import { paymentPhoneField } from '@/lib/payment-schema';
 
 const upgradeSchema = z
         .object({
                 planId: z.number().int().positive(),
-                phone: z
-                        .string()
-                        .regex(/^09\d{8}$/, 'رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09')
-                        .optional(),
+                phone: paymentPhoneField,
                 provider: z.enum(['libyana', 'madar', 'bank']),
                 amount: z.number().positive(),
                 upgradeRestaurantId: z.number().int().positive(),

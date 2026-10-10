@@ -252,3 +252,46 @@ describe('r121 Q-1 — analytics script only loads on Vercel', () => {
                 expect(layout).not.toMatch(/<Analytics\s*\/>/);
         });
 });
+
+// ── r138-exec-3 (J9): quick notes never leave a hanging «،» ──────────────
+
+describe('r138 J9 — quick-note toggle composes cleanly (no dangling comma)', () => {
+        it('every add/remove path via the real toggleQuickNoteValue (r138-a finding #9)', async () => {
+                // Dynamic import (route-test pattern): keeps a hypothetical import
+                // hiccup scoped to this test, not the whole r121 pin file.
+                const { toggleQuickNoteValue } = await import('@/components/menu/OrderDialog');
+
+                // add onto an empty field
+                expect(toggleQuickNoteValue('', 'حار')).toBe('حار');
+                // add onto an existing value → exactly one «، » separator
+                expect(toggleQuickNoteValue('بدون سكر', 'حار')).toBe('بدون سكر، حار');
+                // remove the LAST note → no TRAILING comma (the old replace() left «بدون سكر،»)
+                expect(toggleQuickNoteValue('بدون سكر، حار', 'حار')).toBe('بدون سكر');
+                // remove the FIRST note → no LEADING comma (the old path left «، حار»)
+                expect(toggleQuickNoteValue('بدون سكر، حار', 'بدون سكر')).toBe('حار');
+                // remove the ONLY note → the field empties completely
+                expect(toggleQuickNoteValue('حار', 'حار')).toBe('');
+                // re-adding heals a legacy value that still carries a hanging comma
+                expect(toggleQuickNoteValue('بدون سكر،', 'بارد')).toBe('بدون سكر، بارد');
+                // a free-text segment is never gutted by an unrelated toggle
+                expect(toggleQuickNoteValue('حار', 'بدون سكر')).toBe('حار، بدون سكر');
+        });
+
+        it('the old substring-replace composition is gone from the component', () => {
+                const s = src('src/components/menu/OrderDialog.tsx');
+                expect(s).not.toContain('prev.replace(note');
+                expect(s).toContain("prev.split('،')");
+        });
+});
+
+// ── r138-exec-3 (J13): header title is one clamped line ──────────────────
+
+describe('r138 J13 — OrderDialog image-header item name is a single clamped line', () => {
+        it('the header h3 carries line-clamp-1 + title (MenuItemCard name pattern)', () => {
+                const s = src('src/components/menu/OrderDialog.tsx');
+                expect(s).toContain('text-xl drop-shadow-lg line-clamp-1');
+                expect(s).toContain('title={displayName}');
+                // the r121 Q-3 mobile-header pin stays intact (height unchanged)
+                expect(s).toContain('h-28 sm:h-52');
+        });
+});

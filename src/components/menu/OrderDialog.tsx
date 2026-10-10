@@ -16,6 +16,8 @@ import { DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
 import { DietaryIcon } from './dietary-icons';
 import { contentLang } from '@/lib/format';
 import { normalizeCustomerPhone } from '@/lib/phone';
+/* r138-exec-2 (J1): مسند صلاحية الواتساب الموحّد — انظر التعليق عند waValid. */
+import { normalizeWaNumber } from '@/lib/whatsapp';
 import {
         type ModifierSelection,
         toggleModifierOption,
@@ -56,6 +58,28 @@ type OrderDialogProps = {
 const QUICK_NOTES = ['بدون سكر', 'سكر زيادة', 'بدون ثلج', 'حار', 'بارد', 'بدون بصل'];
 /* r135-B: سقف الملاحظات — مصدر واحد للعداد وmaxLength (500 أصلاً) */
 const NOTES_MAX = 500;
+
+/**
+ * (r138 — J9 من تدقيق r138-a): تركيب قيمة حقل الملاحظات عند تبديل شريحة
+ * ملاحظة سريعة. كان الحذف يستبدل نص الشريحة فقط فيترك الفاصلة العربية
+ * معلقة («بدون سكر،» أو «، سكر زيادة») — والنص يسافر هكذا إلى فاتورة
+ * واتساب. الآن: تفكيك على الفاصلة، إسقاط الجزء المطابق تمامًا (لا
+ * تمزيق لنص حر كتبه الزبون)، ثم لصق بفاصلة+مسافة واحدة — لا فاصلة بلا
+ * نص بعدها أبدًا، والتقسيم يشفي أي فاصلة معلقة متبقية من قيمة قديمة.
+ * مُصدَّرة ليثبتها الاختبار (سابقة peakOrdersPhrase وcartCountPhrase).
+ */
+export function toggleQuickNoteValue(prev: string, note: string): string {
+        const parts = prev.split('،').map((p) => p.trim()).filter(Boolean);
+        const without = parts.filter((p) => p !== note);
+        if (without.length !== parts.length) return without.join('، ');
+        return parts.length > 0 ? `${parts.join('، ')}، ${note}` : note;
+}
+
+/** (r138 — J9): هل الملاحظة مفعّلة كجزء كامل؟ — نفس مسند الإزالة أعلاه
+ *  (وإلا أضاءت الشريحة لنص حر يحوي الملاحظة جزءًا بينما الضغطة تُلحقها). */
+function isQuickNoteApplied(prev: string, note: string): boolean {
+        return prev.split('،').some((p) => p.trim() === note);
+}
 
 export function OrderDialog({
         item,
@@ -125,7 +149,10 @@ export function OrderDialog({
 
         const handleConfirm = useCallback(() => {
                 if (!item) return null;
-                if (!restaurantWhatsapp) return;
+                /* r138-exec-2 (J1): كان الفحص خامًا truthy فقط — قيمة موجودة لكن
+                   غير صالحة كانت تعبر فتصطدم بجدار صفحة السلة. المسند نفسه
+                   الموحّد الآن (normalizeWaNumber). */
+                if (!normalizeWaNumber(restaurantWhatsapp)) return;
                 // r134-W2 (#2): swallow the second tap of a double-tap before any
                 // validation/store work — the lock is taken below on the real add
                 // path and released after 400ms (MenuPageClient H1 pattern).
@@ -275,14 +302,19 @@ export function OrderDialog({
         ]);
 
         const toggleQuickNote = (note: string) => {
-                setNotes((prev) => {
-                        if (prev.includes(note)) return prev.replace(note, '').replace(/\s+/g, ' ').trim();
-                        return prev ? `${prev}، ${note}` : note;
-                });
+                /* (r138 — J9): المنطق النقي في toggleQuickNoteValue أعلى الملف —
+                   لا فاصلة معلقة عند أي مسار إضافة/إزالة. */
+                setNotes((prev) => toggleQuickNoteValue(prev, note));
         };
 
         if (!item) return null;
 
+        /* r138-exec-2 (J1): توحيد مسند بوابة الواتساب مع جدار صفحة السلة
+           (cart/page.tsx: normalizeWaNumber) والإضافة السريعة (MenuPageClient
+           handleQuickAdd) — كان الزر يُفعّل لمجرد وجود نص خام غير صالح فيبني
+           الزبون السلة من النافذة ثم يصطدم بالجدار ولا يُحفظ الطلب أبدًا
+           (البوابة المبكرة كانت تعمل فقط عند الغياب الكامل). */
+        const waValid = normalizeWaNumber(restaurantWhatsapp);
         const displayName = item.nameAr || item.name;
         /* r135-B: الوصف الكامل + علم وجود شرائح الحمية/الحساسية — تُعرض أعلى
          * المحتوى (انظر أسفل)؛ نافذة الطلب هي المكان الوحيد الذي يجب أن يُقرأ
@@ -333,13 +365,26 @@ export function OrderDialog({
                                         <button
                                                 type="button"
                                                 onClick={() => onOpenChange(false)}
-                                                className="absolute top-3 start-3 size-11 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                /* r138 (P2): الخلفية أسود/45 بدل /30 — الأيقونة
+                                                   البيضاء فوق صورة فاتحة كانت 2.10:1 (1.4.11
+                                                   للرسوميات) والآن 3.36:1 في أسوأ حالة. */
+                                                className="absolute top-3 start-3 size-11 rounded-lg bg-black/45 text-white hover:bg-black/65 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 aria-label="إغلاق"
                                         >
                                                 <AnimatedX className="size-4" />
                                         </button>
                                         <div className="absolute bottom-4 end-4 start-16">
-                                                <h3 lang={contentLang(item.nameAr)} className="text-white font-bold text-xl drop-shadow-lg">{displayName}</h3>
+                                                {/* (r138 — J13 من تدقيق r138-a): الاسم الطويل كان يلتف
+                                                    ويلتصق بالحافة السفلية لرأس h-28 القصير على الجوال —
+                                                    سطر واحد مقصوص (نفس نمط اسم الصنف في MenuItemCard) مع
+                                                    title ليقرأ الزبون الاسم كاملًا عند الوقوف عليه. */}
+                                                <h3
+                                                        lang={contentLang(item.nameAr)}
+                                                        title={displayName}
+                                                        className="text-white font-bold text-xl drop-shadow-lg line-clamp-1"
+                                                >
+                                                        {displayName}
+                                                </h3>
                                         </div>
                                 </div>
                         )}
@@ -386,11 +431,14 @@ export function OrderDialog({
                                                                 </p>
                                                         )}
                                                         {hasDietaryInfo && (
+                                                                /* r138 (P1-1): أحبار الرقائق النصية في الفاتح —
+                                                                   basil-ink/warning-ink ≥4.5:1 (كانت 2.6-2.7:1)
+                                                                   والداكن كما هو (8-11:1). */
                                                                 <div className="flex flex-wrap gap-1.5">
                                                                         {item.dietaryTags?.map((tag) => (
                                                                                 <span
                                                                                         key={tag}
-                                                                                        className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-2xs text-basil"
+                                                                                        className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-2xs text-basil-ink"
                                                                                 >
                                                                                         <DietaryIcon tag={tag} className="size-3 shrink-0" />
                                                                                         {DIETARY_LABELS[tag] || tag}
@@ -399,10 +447,10 @@ export function OrderDialog({
                                                                         {item.allergens?.map((tag) => (
                                                                                 <span
                                                                                         key={tag}
-                                                                                        className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-2xs text-warning"
+                                                                                        className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-2xs text-warning-ink"
                                                                                 >
                                                                                         <AlertTriangle
-                                                                                                className="size-3 text-warning"
+                                                                                                className="size-3 text-warning-ink"
                                                                                                 aria-hidden="true"
                                                                                         />{' '}
                                                                                         {ALLERGEN_LABELS[tag] || tag}
@@ -436,8 +484,10 @@ export function OrderDialog({
                                                 </div>
                                                 {hasDiscount && (
                                                         /* round80: unified savings semantic — success family (matches
-                                                           MenuItemCard's discount badge), destructive stays for errors. */
-                                                        <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full">
+                                                           MenuItemCard's discount badge), destructive stays for errors.
+                                                           r138 (P1-1): الحبر النصي في الفاتح — success-ink 8.3:1
+                                                           على success/10 (كان 2.63:1)؛ الداكن كما هو. */
+                                                        <span className="text-xs bg-success/10 text-success-ink px-2 py-0.5 rounded-full">
                                                                 -{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
                                                         </span>
                                                 )}
@@ -524,7 +574,9 @@ export function OrderDialog({
                                                                                                                         <span
                                                                                                                                 className={cn(
                                                                                                                                         'ms-1.5 tabular-nums font-bold',
-                                                                                                                                        o.priceDelta > 0 ? 'text-accent-foreground' : 'text-success'
+                                                                                                                                        /* r138 (P1-1): دلتا سالبة — success-ink
+                                                                                                                                           في الفاتح 9.1:1 (كان 2.87:1). */
+                                                                                                                                        o.priceDelta > 0 ? 'text-accent-foreground' : 'text-success-ink'
                                                                                                                                 )}
                                                                                                                         >
                                                                                                                                 {o.priceDelta > 0
@@ -538,7 +590,9 @@ export function OrderDialog({
                                                                                 </div>
                                                                                 {/* F1-6: required-group blocker — role=alert so SR users hear it */}
                                                                                 {groupError && (
-                                                                                        <p role="alert" className="text-2xs font-medium text-destructive mt-2.5">
+                                                                                        /* r138 (P1-1): danger-ink في الفاتح 10.75:1
+                                                                                           (كان destructive 3.06:1) — الداكن كما هو. */
+                                                                                        <p role="alert" className="text-2xs font-medium text-danger-ink mt-2.5">
                                                                                                 {groupError}
                                                                                         </p>
                                                                                 )}
@@ -681,23 +735,30 @@ export function OrderDialog({
                                         <div>
                                                 <label className="text-sm font-medium mb-2 block">إضافات</label>
                                                 <div className="flex flex-wrap gap-1.5">
-                                                        {QUICK_NOTES.map((note) => (
-                                                                <button
-                                                                        key={note}
-                                                                        type="button"
-                                                                        aria-pressed={notes.includes(note)}
-                                                                        onClick={() => toggleQuickNote(note)}
-                                                                        className={cn(
-                                                                                'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                                notes.includes(note)
-                                                                                        /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
+                                                        {QUICK_NOTES.map((note) => {
+                                                                /* (r138 — J9): حالة «مفعّلة» = جزء مطابق تمامًا
+                                                                   (نفس مسند الإزالة) — كانت includes جزئية فتضيء
+                                                                   الشريحة لنص حر يحوي الملاحظة جزءًا بينما الضغطة
+                                                                   تُلحقها من جديد؛ الآن الضوء والفعل متطابقان. */
+                                                                const applied = isQuickNoteApplied(notes, note);
+                                                                return (
+                                                        <button
+                                                                key={note}
+                                                                type="button"
+                                                                aria-pressed={applied}
+                                                                onClick={() => toggleQuickNote(note)}
+                                                                className={cn(
+                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                        applied
+                                                                                /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
                                                                                 ? 'bg-orange/10 border-orange/30 text-accent-foreground'
-                                                                                        : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground'
-                                                                        )}
+                                                                                : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground'
+                                                                )}
                                                                 >
                                                                         {note}
                                                                 </button>
-                                                        ))}
+                                                                );
+                                                        })}
                                                 </div>
                                         </div>
 
@@ -751,15 +812,18 @@ export function OrderDialog({
                                                         type="button"
                                                         className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] shadow-[var(--shadow-card-premium)] text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,box-shadow] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         onClick={handleConfirm}
-                                                        disabled={!restaurantWhatsapp}
+                                                        /* r138-exec-2 (J1): waValid — مسند موحّد، انظر التعليق عند تعريفه. */
+                                                        disabled={!waValid}
                                                 >
                                                         {/* r134-W2 (#2): the synchronous submitting spinner branch is
                                                             retired (it could never render — the flag flipped within one
                                                             tick); the addLockRef guard above owns double-tap protection. */}
                                                         <AnimatedMessageCircle className="size-5 text-whatsapp-ink" /> أضف إلى السلة
                                                 </button>
-                                                {!restaurantWhatsapp && (
-                                                        <p className="text-2xs text-center text-destructive">
+                                                {!waValid && (
+                                                        /* r138 (P1-1): danger-ink — كان destructive 3.06:1
+                                                           على كريم الفاتح. */
+                                                        <p className="text-2xs text-center text-danger-ink">
                                                                 لم يتم إعداد واتساب بعد للمطعم. يُرجى التواصل مع المطعم مباشرة.
                                                         </p>
                                                 )}

@@ -99,6 +99,13 @@ export default async function RootLayout({
            fallback faces were deleted — /fonts/fonts.css ships Plex only). */
         preload('/fonts/plex-sans-arabic-400-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/plex-sans-arabic-700-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
+        /* r138-d (F5): اللاتيني 400+700 يُسبق جلبه هو الآخر — كل أسعار القائمة
+           أرقام غربية (سياسة أرقام المنصة r135) تُرسم بأول لقطة، والعائلة
+           العربية لا تغطي المحارف اللاتينية (قسيم منفصل بـunicode-range)،
+           فبدون الجلب المسبق يكتشف المتصفح القسيم اللاتيني بعد تحليل CSS
+           فقط = وميض متأخر للأسعار على الشبكات البطيئة (~40KB إضافيان). */
+        preload('/fonts/plex-sans-arabic-400-normal-latin.woff2', { as: 'font', type: 'font/woff2' });
+        preload('/fonts/plex-sans-arabic-700-normal-latin.woff2', { as: 'font', type: 'font/woff2' });
         const nonce = '';
         // r119-S5-P1-3: <html>/<head>/<body> now come from the ROOT layout —
         // the multiple-root-layouts pattern left every 404 rendering in Next's
@@ -136,21 +143,11 @@ export default async function RootLayout({
                         <script
                                 dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
                         />
-                        <script
-                                type="application/ld+json"
-                                nonce={nonce}
-                                dangerouslySetInnerHTML={{
-                                        __html: JSON.stringify({
-                                                '@context': 'https://schema.org',
-                                                '@type': 'SoftwareApplication',
-                                                name: 'الربط الذكي | Smart Menu',
-                                                description: 'منيو رقمي ذكي للمطاعم والمقاهي',
-                                                applicationCategory: 'BusinessApplication',
-                                                operatingSystem: 'Web',
-                                                offers: { '@type': 'Offer', price: '0', priceCurrency: 'LYD' },
-                                        }),
-                                }}
-                        />
+                        {/* r138 (F9): كتلة SoftwareApplication انتقلت إلى الصفحة الرئيسية
+                            وحدها (src/app/(public)/page.tsx) — كانت تُبثّ من التخطيط فتظهر
+                            فوق كيان المطعم في كل صفحات /menu/[slug] بلا @graph: كيانان
+                            متزاحمان على «الصفحة عن ماذا؟» عند المحرك، وكرر ُيصدَّر مع
+                            كل مطعم. التخطيط العام لا يحمل JSON-LD خاصًا بكيان بعينه. */}
                         {/* r96-W4a: توأم SmartBot — توهج الصفحة الشعاعي العلوي.
                             r119: كان على <body> عبر style inline — انتقل إلى طبقة ثابتة
                             خلف المحتوى (نفس الأثر البصري، body لم يعد ملكنا من الجذر). */}

@@ -63,11 +63,11 @@ export const nameOptional = nameField.optional();
 
 /**
  * Canonical menu-slug charset: lowercase latin, digits, hyphens.
- * Same regex the slug routes have always enforced inline (restaurants,
- * subscriptions/validate, restaurants/[id], settings, payment-schema) —
- * now exported from one place.
+ * (r138): داخلي فقط — كل مسارات الرابط تعبر slugField/slugOptional أدناه
+ * (آخر نسخة inline عاشت في api/settings — وحّدتها r138 على slugField)،
+ * فلم يبقَ للـregex مُستورد خارجي يبرر تصديره.
  */
-export const SLUG_RE = /^[a-z0-9-]+$/;
+const SLUG_RE = /^[a-z0-9-]+$/;
 
 /**
  * Normalize an incoming slug: trims surrounding whitespace ONLY.

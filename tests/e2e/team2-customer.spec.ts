@@ -30,8 +30,9 @@ test("menu: category filter shows only that category", async ({ page }) => {
     // round92-C6: settle → conditional wait — the result banner renders only
     // with an active category, proving the list re-rendered before the
     // negative text assertions below (guarded flow → tolerant).
+    // r138-exec-2: «عُثر على» — the counter copy changed from «تم العثور على».
     await page
-      .getByText(/تم العثور على|لا توجد نتائج/)
+      .getByText(/عُثر على|لا توجد نتائج/)
       .first()
       .waitFor({ state: "visible", timeout: 5000 })
       .catch(() => {});

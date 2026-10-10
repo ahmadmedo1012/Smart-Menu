@@ -76,18 +76,21 @@ describe('U2 — peakOrdersPhrase (OwnerCharts: ساعة الذروة)', () => {
     });
 });
 
-describe('U2 — foundItemsPhrase (MenuPageClient: «تم العثور على …»)', () => {
+describe('U2 — foundItemsPhrase (MenuPageClient: «عُثر على …»)', () => {
     it('1/2/5/12', () => {
         expect(foundItemsPhrase(1)).toBe('صنف واحد');
-        expect(foundItemsPhrase(2)).toBe('صنفان');
+        // r138-exec-2 (J4): المثنى مجرور بعد «عُثر على» — كان «صنفان» (مرفوع)
+        expect(foundItemsPhrase(2)).toBe('صنفين');
         expect(foundItemsPhrase(5)).toBe('5 أصناف');
         expect(foundItemsPhrase(12)).toBe('12 صنفًا');
     });
 
     it('حارس التوصيل: القالب الثابت زال والمساعد مستخدم', () => {
         const s = src('src/components/menu/MenuPageClient.tsx');
-        expect(s).toContain('تم العثور على ${foundItemsPhrase(filteredItems.length)}');
+        // r138-exec-2 (J4): «عُثر على» (مبني للمجهول) بدل «تم العثور على»
+        expect(s).toContain('عُثر على ${foundItemsPhrase(filteredItems.length)}');
         expect(s).not.toContain('تم العثور على ${toArabicNumber(filteredItems.length)} صنف');
+        expect(s).not.toContain('تم العثور على ${foundItemsPhrase');
     });
 });
 

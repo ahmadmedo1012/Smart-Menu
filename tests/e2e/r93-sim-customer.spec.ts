@@ -3,7 +3,8 @@
  *
  * رحلة واقعية متصلة لزبون يدخل منيو مقهى الواحة (al-waha-cafe) ويطلب فعلًا:
  *   دخول المنيو (SSR عربي RTL + رابط واتساب wa.me) → تصفية بفئة → بحث
- *   (جمع عربي: صنف واحد/صنفان — إصلاحات r93-U2) → فتح صنف بخيارات →
+ *   (جمع عربي: صنف واحد/صنفين — إصلاحات r93-U2، وجرّ المثنى بعد «عُثر
+ *   على» + المبني للمجهول في r138-exec-2) → فتح صنف بخيارات →
  *   تحقق بوابة الخيار الإلزامي → اختيار خيارات وكمية → إضافة للسلة →
  *   تعديل الكمية في السلة → إتمام الطلب (الاسم/الهاتف) → POST /api/orders
  *   201 → رسالة النجاح ورقم الطلب → لوحة الولاء بعد الطلب → رابط الإحالة.
@@ -106,7 +107,8 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
 
     await catGroup.locator('button:has-text("المشروبات الساخنة")').first().click();
     // عدّاد النتائج الحي (r93-U2): 3 → صيغة الجمع «أصناف» بالرقم الغربي
-    await expect(page.getByText("تم العثور على 3 أصناف")).toBeVisible({ timeout: 10000 });
+    // (r138-exec-2: «عُثر على» بدل «تم العثور على»)
+    await expect(page.getByText("عُثر على 3 أصناف")).toBeVisible({ timeout: 10000 });
     // عناصر الأصناف في شبكة القائمة (h2) — والعرض المميز المستقل عن التصفية لا يحسب
     await expect(gridItem(page, "لاتيه كراميل")).toBeVisible();
     // المشروبات الباردة اختفت من الشبكة (فلترة فعلًا لا إخفاء بصري)
@@ -117,12 +119,12 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
 
     // إعادة «الكل» تُرجع القائمة كاملة ويختفي عدّاد التصفية
     await catGroup.locator('button:has-text("الكل")').first().click();
-    await expect(page.getByText("تم العثور على")).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText("عُثر على")).toBeHidden({ timeout: 10000 });
     await expect(gridItem(page, "عصير مانجو")).toBeVisible();
   });
 
-  /* ── 3. البحث: جمع «صنفان» ثم «صنف واحد» (إصلاحات r93) ── */
-  test("البحث: «مشوي» → صنفان، «لاتيه» → صنف واحد", async () => {
+  /* ── 3. البحث: جمع «صنفين» ثم «صنف واحد» (إصلاحات r93 + r138) ── */
+  test("البحث: «مشوي» → صنفين، «لاتيه» → صنف واحد", async () => {
     /* r135 (إصلاح CI): كان الاختبار يمسك صندوق البحث عبر getByPlaceholder
        بالنص «ابحث في القائمة...» بثلاث نقاط ASCII — وواجهة المنيو تكتب
        الحرف المطبعي «…» (U+2026) منذ r133 فصار المطابقة الحرفية تفشل
@@ -132,25 +134,26 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     const search = page.getByLabel("ابحث في القائمة");
     await expect(search).toBeVisible({ timeout: 10000 });
 
-    // كلمتان تصيبان وصفَي برجر الواحة وباستا الدجاج فقط → «صنفان» بلا رقم
+    // كلمتان تصيبان وصفَي برجر الواحة وباستا الدجاج فقط → «صنفين» بلا رقم
+    // (r138-exec-2: جرّ المثنى بعد «عُثر على» — كان «صنفان» مرفوعًا)
     await search.fill("مشوي");
-    await expect(page.getByText("تم العثور على صنفان")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("عُثر على صنفين")).toBeVisible({ timeout: 10000 });
     await expect(gridItem(page, "برجر الواحة")).toBeVisible();
     await expect(gridItem(page, "باستا الدجاج")).toBeVisible();
     await expect(gridItem(page, "لاتيه كراميل")).toBeHidden();
 
     await page.getByLabel("مسح البحث").click();
-    await expect(page.getByText("تم العثور على")).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText("عُثر على")).toBeHidden({ timeout: 10000 });
 
     // كلمة واحدة تصيب اسم الصنف فقط → «صنف واحد» (العدد يحمله الاسم نحويًا)
     await search.fill("لاتيه");
-    await expect(page.getByText("تم العثور على صنف واحد")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("عُثر على صنف واحد")).toBeVisible({ timeout: 10000 });
     await expect(gridItem(page, "لاتيه كراميل")).toBeVisible();
 
     await page.screenshot({ path: `${SHOTS}/sim-customer-03-search-plural.png` });
 
     await page.getByLabel("مسح البحث").click();
-    await expect(page.getByText("تم العثور على")).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText("عُثر على")).toBeHidden({ timeout: 10000 });
   });
 
   /* ── 4. صنف بخيارات: بوابة الإلزامي ثم الحجم والإضافات والكمية ── */

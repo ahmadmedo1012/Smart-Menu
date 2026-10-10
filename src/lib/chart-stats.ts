@@ -8,13 +8,15 @@ export function parseAnalyticsRange(raw: string | null | undefined): AnalyticsRa
         return 'week';
 }
 
-export function startOfDay(d: Date): Date {
+/* (r138): الدوال الثلاث داخلية — تستهلكها rangeBounds وeachDateKey
+   وfillDailySeries/fillRevenueSeries في نفس الملف. */
+function startOfDay(d: Date): Date {
         const x = new Date(d);
         x.setHours(0, 0, 0, 0);
         return x;
 }
 
-export function addDays(d: Date, n: number): Date {
+function addDays(d: Date, n: number): Date {
         const x = new Date(d);
         x.setDate(x.getDate() + n);
         return x;
@@ -77,7 +79,7 @@ export function fillHours(
         return Array.from({ length: 24 }, (_, hour) => ({ hour, count: map.get(hour) ?? 0 }));
 }
 
-export function eachDateKey(start: Date, end: Date): string[] {
+function eachDateKey(start: Date, end: Date): string[] {
         const keys: string[] = [];
         const cursor = startOfDay(start);
         const last = startOfDay(end);
