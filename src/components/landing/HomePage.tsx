@@ -12,7 +12,10 @@ import '../../app/landing.css';
 import { LandingHeader } from './LandingHeader';
 import { HeroDepthLayer } from './HeroDepthLayer';
 import { OrbitScene } from './OrbitScene';
+import { HeroPlate } from './HeroPlate';
 import { MagneticGoldLink } from './MagneticGoldLink';
+import { MenuShowcaseSection } from './MenuShowcaseSection';
+import { AmbienceSection } from './AmbienceSection';
 import { LandingMarquee } from './LandingMarquee';
 import { CategoriesSection } from './CategoriesSection';
 import { JourneySection } from './JourneySection';
@@ -231,6 +234,13 @@ export function HomePage({
                                                 </RevealCssClass>
                                         </div>
 
+                                        {/* r141 (task 2-a): الطبق السينمائي — the culinary plate
+                                            claims the copy-free sky side (OrbitScene keeps playing
+                                            behind it; both hero mounts stay for the parity pins).
+                                            ≤1024px it demotes to an in-flow block UNDER the copy —
+                                            the text column and LCP story stay first on phones. */}
+                                        <HeroPlate />
+
                                         {/* scroll invitation */}
                                         <a href="#trust" className="ln-hero-scroll" aria-label="تابع الرحلة">
                                                 <span className="ln-mono">تابع الرحلة</span>
@@ -264,6 +274,12 @@ export function HomePage({
                                 {/* ═══ الفصل ٢ — مدار فئات المنيو ═══ */}
                                 <CategoriesSection />
 
+                                {/* ═══ الفصل ٠١+ — التذوّق: من المنيو (r141 task 2-a) ═══
+                                    the interactive showcase — honest demo dishes over the
+                                    REAL default category registry, LYD prices, crossfade
+                                    stage + warm glass card. */}
+                                <MenuShowcaseSection />
+
                                 {/* ═══ الفصل ٣ — كيف يعمل الربط الذكي ═══ */}
                                 <JourneySection />
 
@@ -275,6 +291,11 @@ export function HomePage({
 
                                 {/* ═══ الفصل ٦ — الأدوار ═══ */}
                                 <RolesSection />
+
+                                {/* ═══ الفصل ٠٥+ — الأجواء (r141 task 2-a) ═══
+                                    the editorial ambience band — the menu carries the
+                                    restaurant's atmosphere as it is. */}
+                                <AmbienceSection />
 
                                 {/* ═══ الفصل ٧ — نقطة البداية ═══ */}
                                 <FinaleCta />

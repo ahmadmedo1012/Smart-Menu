@@ -1897,3 +1897,494 @@ body:has(> .landing) > a[href="#main-content"] {
   transition-duration: var(--motion-duration-page);
   transition-delay: calc(var(--ln-wi, 0) * 40ms);
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   r141 · TASK 2-a — the culinary identity layer («الشغف الطهوي»)
+   ────────────────────────────────────────────────────────────────────
+   Smart-Menu's own personality on top of the shared Orbit-Ink stage:
+   a cinematic hero-plate composition on the copy-free side of the hero,
+   the interactive «من المنيو» showcase (honest demo items, LYD prices)
+   and the editorial ambience band.
+
+   Discipline (kit §7 + parity pins — unchanged):
+     · Everything scoped under `.landing`; the §1 token block above is
+       VERBATIM — this layer adds NEW token names only (--ln-ember*),
+       never redefines an existing one.
+     · ZERO new gradient sites: the ember glow is a blurred solid
+       circle (filter: blur), images melt into the ink ground through
+       inset box-shadow veils, the showcase crossfade is plain opacity
+       — the parity gradient allowlist stays untouched.
+     · Motion rides the --ln-t-* alias chain; float / steam / crossfade
+       / card-in all die in the RM block closing this section (§28).
+     · Warm glass (chips + info card) is the ONE deliberate divergence
+       from the flat-ground grammar — the culinary layer's own voice,
+       kept at low alphas so the hairlines still read.
+     · Logical properties only; LCP text untouched; images ride
+       next/image with real sizes (hero plate priority — above fold).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── r141 · 23 · culinary tokens (new names, AA on the ink ground) ── */
+.landing {
+  --ln-ember:        #E8B06A;                   /* warm amber — headings/prices on ink · 7.3:1 */
+  --ln-ember-bright: #F2C48D;                   /* lighter amber — small ember text · 9.1:1 */
+  --ln-ember-deep:   #2E2114;                   /* deep warm brown — warm glass panels */
+  --ln-ember-soft:   rgb(232 176 106 / 0.14);   /* warm tint wash */
+  --ln-ember-glow:   rgb(232 176 106 / 0.16);   /* the plate glow fill (blur circle) */
+  --ln-ember-line:   rgb(232 176 106 / 0.28);   /* warm hairline */
+}
+
+/* ── r141 · 24 · hero — the cinematic plate («الطبق») ───────────────
+   Desktop: an absolute composition on the inline-end side (the sky side,
+   opposite the 46vw copy column); OrbitScene keeps playing behind it.
+   ≤1024px: it demotes to an in-flow block UNDER the copy (the hero grid
+   gains a second row) — the value story stays first on phones. */
+.landing .ln-hero-visual {
+  position: relative;
+  z-index: 0;
+  inline-size: 100%;
+  max-inline-size: 520px;
+  margin-block-start: var(--sp-8);
+  margin-inline: auto;
+  pointer-events: none;
+}
+.landing .ln-hero-plate-wrap {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 7 / 4; /* hero-dish is 1344×768 */
+}
+/* the ember glow — one blurred solid circle, no gradient site */
+.landing .ln-hero-plate-glow {
+  position: absolute;
+  inline-size: 74%;
+  aspect-ratio: 1;
+  border-radius: var(--r-full);
+  background: var(--ln-ember-glow);
+  filter: blur(72px);
+  inset-block-start: -8%;
+  inset-inline-start: -8%;
+  z-index: 0;
+}
+/* the organic pill arc — a warm hairline peeking from behind the plate
+   (radius ladder only: --r-full) */
+.landing .ln-hero-plate-arc {
+  position: absolute;
+  inset-inline-end: -4%;
+  inset-block-end: -8%;
+  inline-size: 60%;
+  block-size: 36%;
+  border: 1px solid var(--ln-ember-line);
+  border-radius: var(--r-full);
+  z-index: 0;
+}
+.landing .ln-hero-plate-media {
+  position: relative;
+  z-index: 1;
+  inline-size: 100%;
+  block-size: 100%;
+  border-radius: var(--r-3xl);
+  overflow: hidden;
+  border: 1px solid var(--ln-line);
+  background: var(--ln-ink-2);
+}
+/* melt into the ink ground — inset shadow veils (no gradient site) */
+.landing .ln-hero-plate-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 -92px 70px -42px var(--ln-ink), inset 0 36px 58px -46px var(--ln-ink);
+  pointer-events: none;
+  z-index: 2;
+}
+.landing .ln-hero-plate-img { object-fit: cover; }
+
+/* steam — two slow blurred wisps rising off the dish (RM: gone) */
+.landing .ln-steam {
+  position: absolute;
+  inline-size: 92px;
+  block-size: 150px;
+  border-radius: var(--r-full);
+  background: rgb(245 243 231 / 0.06);
+  filter: blur(16px);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  animation: ln-steam-rise 12s var(--ln-ease-linear) infinite;
+}
+.landing .ln-steam.s1 { inset-inline-start: 30%; bottom: 30%; }
+.landing .ln-steam.s2 {
+  inset-inline-start: 54%;
+  bottom: 24%;
+  inline-size: 68px;
+  block-size: 118px;
+  animation-duration: 15s;
+  animation-delay: 3.5s;
+}
+@keyframes ln-steam-rise {
+  0% { transform: translateY(24%) scale(0.92); opacity: 0; }
+  30% { opacity: 0.6; }
+  70% { opacity: 0.35; }
+  100% { transform: translateY(-130%) scale(1.12); opacity: 0; }
+}
+
+/* floating section chips — warm glass pills bobbing around the plate */
+.landing .ln-hero-chips {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  z-index: 3;
+}
+.landing .ln-hero-chip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--r-full);
+  background: rgb(28 32 50 / 0.78);
+  border: 1px solid var(--ln-ember-line);
+  color: var(--ln-cream);
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
+  animation: ln-float 9s var(--ln-ease-soft) infinite;
+}
+.landing .ln-hero-chip-dot {
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: var(--r-full);
+  background: var(--ln-ember);
+  flex-shrink: 0;
+}
+.landing .ln-hero-chip:nth-child(1) { inset-inline-start: -5%; top: 10%; }
+.landing .ln-hero-chip:nth-child(2) { inset-inline-end: -4%; top: 42%; animation-delay: 1.4s; }
+.landing .ln-hero-chip:nth-child(3) { inset-inline-start: 6%; bottom: 6%; animation-delay: 2.8s; }
+@keyframes ln-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
+/* ≥1025: the plate claims the sky side, vertically centered */
+@media (min-width: 1025px) {
+  .landing .ln-hero-visual {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: max(4vw, 16px);
+    translate: 0 -50%;
+    inline-size: clamp(380px, 38vw, 600px);
+    max-inline-size: none;
+    margin: 0;
+  }
+}
+
+/* ── r141 · 25 · «من المنيو» — the interactive showcase ───────────── */
+.landing .ln-menu-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-block-end: var(--sp-7);
+}
+.landing .ln-menu-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-block-size: 46px;
+  padding: 12px 22px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--ln-line);
+  background: transparent;
+  color: var(--ln-cream-dim);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition:
+    color var(--ln-t-fast) var(--ln-ease),
+    border-color var(--ln-t-fast) var(--ln-ease),
+    background var(--ln-t-fast) var(--ln-ease);
+}
+.landing .ln-menu-tab:hover { color: var(--ln-cream); border-color: var(--ln-ember-line); }
+.landing .ln-menu-tab-dot {
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: var(--r-full);
+  background: var(--ln-line);
+  transition: background var(--ln-t-fast) var(--ln-ease);
+}
+/* the selected tab is the warm one — ink on amber (7.3:1) */
+.landing .ln-menu-tab[aria-selected='true'] {
+  background: var(--ln-ember);
+  border-color: var(--ln-ember);
+  color: var(--ln-ink);
+}
+.landing .ln-menu-tab[aria-selected='true'] .ln-menu-tab-dot { background: var(--ln-ink-2); }
+
+.landing .ln-menu-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.92fr);
+  gap: var(--sp-7);
+  align-items: start;
+}
+.landing .ln-menu-stage {
+  position: relative;
+  z-index: 0;
+}
+.landing .ln-menu-stage-media {
+  position: relative;
+  aspect-ratio: 1 / 1; /* the category plates are 1024×1024 */
+  border-radius: var(--r-3xl);
+  overflow: hidden;
+  border: 1px solid var(--ln-line);
+  background: var(--ln-ink-2);
+}
+/* the plate melts into the ground on its lower edge */
+.landing .ln-menu-stage-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 -110px 84px -48px var(--ln-ink);
+  pointer-events: none;
+  z-index: 2;
+}
+/* crossfade slides — plain opacity, both layers ride the same ease */
+.landing .ln-menu-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--ln-t-slow) var(--ln-ease-soft);
+}
+.landing .ln-menu-slide.is-active { opacity: 1; }
+.landing .ln-menu-slide-img { object-fit: cover; }
+.landing .ln-menu-stage-tag {
+  position: absolute;
+  inset-block-start: var(--sp-4);
+  inset-inline-start: var(--sp-4);
+  z-index: 3;
+  padding: 8px 14px;
+  border-radius: var(--r-full);
+  background: rgb(28 32 50 / 0.78);
+  border: 1px solid var(--ln-ember-line);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* the warm glass info card — pulled onto the plate's edge (≥1025) */
+.landing .ln-menu-card {
+  position: relative;
+  z-index: 1;
+  border-radius: var(--r-2xl);
+  border: 1px solid var(--ln-ember-line);
+  background: rgb(46 33 20 / 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.24);
+}
+.landing .ln-menu-card-inner {
+  padding: var(--sp-7);
+  animation: ln-card-in var(--ln-t-slow) var(--ln-ease-out);
+}
+@keyframes ln-card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.landing .ln-menu-kicker {
+  display: block;
+  margin-block-end: var(--sp-4);
+  color: var(--ln-ember-bright);
+}
+.landing .ln-menu-item-name {
+  margin: 0 0 var(--sp-3);
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  line-height: 1.25;
+  font-weight: var(--fw-bold);
+  color: var(--ln-ember);
+}
+.landing .ln-menu-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-block-end: var(--sp-4);
+}
+.landing .ln-menu-price {
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: var(--fw-bold);
+  color: var(--ln-cream);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.landing .ln-menu-currency { color: var(--ln-cream-dim); font-size: 14px; font-weight: var(--fw-medium); }
+.landing .ln-menu-desc {
+  margin: 0 0 var(--sp-5);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ln-cream-dim);
+}
+.landing .ln-menu-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 var(--sp-5);
+  padding-block-start: var(--sp-4);
+  border-block-start: 1px solid rgb(232 176 106 / 0.16);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ln-cream-dim);
+}
+.landing .ln-menu-note svg { flex-shrink: 0; margin-block-start: 2px; color: var(--ln-ember); }
+.landing .ln-menu-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+/* the warm CTA — ember family, lime stays exclusive to hero/finale */
+.landing .ln-menu-cta-warm {
+  color: var(--ln-ember-bright);
+  border-color: var(--ln-ember-line);
+  background: var(--ln-ember-soft);
+}
+.landing .ln-menu-cta-warm:hover {
+  color: var(--ln-cream);
+  border-color: var(--ln-ember);
+  background: rgb(232 176 106 / 0.2);
+}
+/* desktop: the card leans onto the plate (editorial overlap) */
+@media (min-width: 1025px) {
+  .landing .ln-menu-card {
+    margin-inline-start: calc(var(--sp-9) * -1);
+    margin-block-start: var(--sp-12);
+  }
+}
+
+/* ── r141 · 26 · «الأجواء» — the editorial ambience band ──────────── */
+.landing .ln-amb-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+.landing .ln-amb-media {
+  position: relative;
+  border-radius: var(--r-3xl);
+  overflow: hidden;
+  border: 1px solid var(--ln-line);
+  background: var(--ln-ink-2);
+}
+.landing .ln-amb-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 -84px 64px -40px var(--ln-ink);
+  pointer-events: none;
+  z-index: 2;
+}
+.landing .ln-amb-media-lead {
+  grid-row: 1 / 3;
+  min-block-size: 380px;
+}
+.landing .ln-amb-media-side {
+  aspect-ratio: 4 / 3;
+  margin-block-start: var(--sp-10); /* the editorial stagger */
+}
+.landing .ln-amb-img { object-fit: cover; }
+.landing .ln-amb-tag {
+  position: absolute;
+  inset-block-end: var(--sp-4);
+  inset-inline-start: var(--sp-4);
+  z-index: 3;
+  padding: 8px 14px;
+  border-radius: var(--r-full);
+  background: rgb(28 32 50 / 0.78);
+  border: 1px solid var(--ln-ember-line);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.landing .ln-amb-copy {
+  padding-block-start: var(--sp-5);
+  display: grid;
+  gap: var(--sp-4);
+}
+.landing .ln-amb-kicker { color: var(--ln-ember-bright); }
+.landing .ln-amb-line {
+  margin: 0;
+  font-size: clamp(17px, 1.6vw, 19px);
+  line-height: 1.7;
+  color: var(--ln-cream);
+  max-inline-size: 42ch;
+}
+.landing .ln-amb-sub {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--ln-cream-dim);
+  max-inline-size: 48ch;
+}
+.landing .ln-amb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  inline-size: fit-content;
+  margin-block-start: var(--sp-2);
+  padding-block: 6px;
+  color: var(--ln-ember-bright);
+  font-size: 14.5px;
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  border-block-end: 1px solid transparent;
+  transition: color var(--ln-t-fast) var(--ln-ease), border-color var(--ln-t-fast) var(--ln-ease);
+}
+.landing .ln-amb-link:hover { color: var(--ln-cream); border-block-end-color: var(--ln-ember-line); }
+.landing .ln-amb-link svg { transition: transform var(--ln-t-fast) var(--ln-ease); }
+.landing .ln-amb-link:hover svg { transform: translateX(-4px); }
+
+/* ── r141 · 27 · culinary mobile demotion (320px+, no overflow) ───── */
+@media (max-width: 1024px) {
+  /* chips leave the plate and wrap under it */
+  .landing .ln-hero-chips {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--sp-3);
+    margin-block-start: var(--sp-5);
+  }
+  .landing .ln-hero-chip { position: static; }
+  /* the showcase overlap demotes to a clean stack */
+  .landing .ln-menu-grid { grid-template-columns: 1fr; gap: var(--sp-6); }
+  .landing .ln-menu-card { margin: 0; }
+  .landing .ln-menu-stage-media { aspect-ratio: 4 / 3; }
+  /* the ambience band stacks, stagger released */
+  .landing .ln-amb-grid { grid-template-columns: 1fr; gap: var(--sp-5); }
+  .landing .ln-amb-media-lead { grid-row: auto; min-block-size: 0; aspect-ratio: 7 / 4; }
+  .landing .ln-amb-media-side { margin-block-start: 0; }
+}
+@media (max-width: 560px) {
+  .landing .ln-hero-visual { max-inline-size: none; }
+  .landing .ln-menu-card-inner { padding: var(--sp-5); }
+  .landing .ln-menu-tab { padding: 10px 16px; font-size: 13px; }
+  .landing .ln-menu-card-actions .ln-btn-ghost { inline-size: 100%; justify-content: center; }
+}
+
+/* ── r141 · 28 · reduced motion — every culinary verb dies ────────── */
+@media (prefers-reduced-motion: reduce) {
+  .landing .ln-hero-chip { animation: none; }
+  .landing .ln-steam { animation: none; opacity: 0; }
+  .landing .ln-menu-slide { transition: none; }
+  .landing .ln-menu-card-inner { animation: none; }
+  .landing .ln-menu-tab,
+  .landing .ln-menu-tab-dot,
+  .landing .ln-menu-cta-warm,
+  .landing .ln-amb-link,
+  .landing .ln-amb-link svg { transition: none; }
+  .landing .ln-amb-link:hover svg { transform: none; }
+}
+
+/* landscape phones — the fold belongs to the value story alone */
+@media (max-height: 560px) and (orientation: landscape) {
+  .landing .ln-hero-visual { display: none; }
+}
