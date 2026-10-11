@@ -2243,17 +2243,18 @@ describe('r137 parity — structured opening hours + delivery fee/min-order (Lib
     expect(s).toContain('minOrderMessage(deliveryMeta.minOrder!)');
   });
 
-  it('S7: خيار التوصيل يعلن رسومه — OrderDialog + صفحة السلة (r139 J7: التسمية المضغوطة داخل المقسّمات الضيقة)', () => {
+  it('S7: خيار التوصيل يعلن رسومه — OrderDialog + صفحة السلة (r139 J7: الصيغة المضغوطة الوحيدة الحية)', () => {
     const od = cc('src/components/menu/OrderDialog.tsx');
     expect(od).toContain('deliveryFeeLabelCompact(deliveryFee)');
     const cart = cc('src/app/(protected)/cart/page.tsx');
     expect(cart).toContain('deliveryFeeLabelCompact(deliveryMeta.fee!)');
     expect(cart).toContain('import {');
-    // التسمية الكاملة ما زالت معرّفة ومسحوبة في الاختبارات — الملخص والمراجعة
-    // يحملان الدلالة الكاملة (سطر الرسوم المستقل، S8)
+    // r139 anti-bloat: التسمية الكاملة حُذفت مع آخر مستخدم إنتاجي — لا دالة
+    // تسمية ميتة تُبقيها الاختبارات حية؛ الدلالة الكاملة تعيش في سطر
+    // «رسوم التوصيل» المستقل (الملخص/المراجعة/الورقة — S8)
     const libCc = cc('src/lib/delivery-meta.ts');
-    expect(libCc).toContain('التوصيل (${formatPrice(fee)} رسومًا)');
     expect(libCc).toContain('توصيل +${formatPrice(fee)}');
+    expect(libCc).not.toContain('رسومًا)');
   });
 
   it('S8: فصل الرسوم الصادق — سطر مستقل في الملخص والمراجعة والفاتورة، لا ذوبان في المجموع', () => {

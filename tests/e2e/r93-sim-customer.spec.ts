@@ -218,8 +218,10 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     // التحويل التلقائي إلى صفحة السلة الموحدة
     await page.waitForURL(/\/cart/, { timeout: 20000 });
 
-    // سطر واحد بكمية 2 — ترويسة السلة تجمعها «صنف» مفردًا (r92-A9)
-    await expect(page.getByText("1 صنف", { exact: true })).toBeVisible({ timeout: 15000 });
+    // سطر واحد بكمية 2 — الرأس يعدّ بالوحدات (Σ الكميات = 2) بجمع عربي
+    // سليم: «صنفان» (r138-exec-2 J4: cartCountPhrase بدل «1 صنف» بالأسطر —
+    // المسمار فات تحديثه في r138 ففشل CI فيها، يُغلق هنا r139)
+    await expect(page.getByText("صنفان", { exact: true })).toBeVisible({ timeout: 15000 });
     // اسم الصنف يظهر في السلة (الترويسة + سطر السلة — نكتفي بأول ظهور)
     await expect(page.getByText("لاتيه كراميل").first()).toBeVisible();
     /* r135 (إصلاح CI): «المجموع الإجمالي» يظهر مرتين منذ r133 (بطاقة الملخص
