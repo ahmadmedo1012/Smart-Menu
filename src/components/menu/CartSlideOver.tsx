@@ -175,7 +175,7 @@ export function CartSlideOver() {
                                                 /* r131 (A2 P1-1/P1-2): الظلّ الملوّن shadow-2xl/orange/30 أُزيل —
                                                    زوج الظلّ الحيادي الممتاز + رفع −2px بدل التكبير، وسجلّ الضغط
                                                    الموحّد 0.97@80ms بدل scale-95. */
-                                                'shadow-[var(--shadow-card-premium)] ring-1 ring-white/10',
+                                                'shadow-[var(--shadow-card-premium)] ring-1 ring-border/20',
                                                 'hover:shadow-[var(--shadow-card-premium-h)] hover:-translate-y-[2px]',
                                                 'active:scale-[0.97] active:duration-[var(--t-micro,80ms)] transition-[box-shadow,transform] duration-[var(--t-base,240ms)] ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))]',
                                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
@@ -274,7 +274,7 @@ export function CartSlideOver() {
                                                                         {formatPrice(item.price)}
                                                                 </p>
                                                                 <div className="flex items-center gap-2 mt-2">
-                                                                        <div className="flex items-center rounded-md overflow-hidden border border-white/10 bg-background/30">
+                                                                        <div className="flex items-center rounded-md overflow-hidden border border-border/20 bg-background/30">
                                                                                 <button
                                                                                         type="button"
                                                                                         onClick={() => {
@@ -289,7 +289,7 @@ export function CartSlideOver() {
                                                                                         aria-label={`إنقاص كمية ${item.name}`}
                                                                                         /* r97-X1: ring-inset — الأب overflow-hidden يقصّ أي حلقة خارجية،
                                                                                            فالحلقة الداخلية هي المؤشر المرئي الوحيد الممكن */
-                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                                                        className="size-11 flex items-center justify-center hover:bg-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                                                 >
                                                                                         <MotionMinus className="size-4" />
                                                                                 </button>
@@ -301,7 +301,7 @@ export function CartSlideOver() {
                                                                                         disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                                                         /* r135-C: الاسم داخل الملصق — نفس مسوّغ زر الإنقاص. */
                                                                                         aria-label={`زيادة كمية ${item.name}`}
-                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                                                        className="size-11 flex items-center justify-center hover:bg-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                                                 >
                                                                                         <MotionPlus className="size-4" />
                                                                                 </button>
@@ -379,7 +379,10 @@ export function CartSlideOver() {
                                             صفرية/مطفأة = لا شيء يُعرض (سياسة الغياب الصادق). */}
                                         {pickupType === 'delivery' &&
                                                 slideOverFee === 0 &&
-                                                (feeStatus === 'pending' || feeStatus === 'unknown') && (
+                                                /* r140 (A140-SM #6): idle تنضم للسطر الصادق — تأثير الجلب يخرج
+                                                   مبكرًا حين !cartRestaurantId (سلال localStorage قديمة الشكل)
+                                                   فتبقى الحالة idle ولا يُعرض السطر رغم أن الطلب توصيل. */
+                                                (feeStatus === 'pending' || feeStatus === 'unknown' || feeStatus === 'idle') && (
                                                         <p className="text-2xs text-muted-foreground text-end">
                                                                 + رسوم توصيل (تُحدَّد عند إتمام الطلب)
                                                         </p>

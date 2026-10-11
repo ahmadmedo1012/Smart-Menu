@@ -104,15 +104,17 @@ const MenuItemCard = memo(function MenuItemCard({
 
         const isFeatured = variant === 'featured';
 
-        /* round88-A2: the grid lives in the max-w-4xl (896px) menu container:
-         * 1 col below sm / 2 cols 640-1024 / 3 cols ≥1024, and the featured
-         * variant spans md:col-span-2 (full row 768-1024, 2 of 3 cols ≥1024).
-         * Card ≈ (container − gaps)/cols → 288px at ≥1024, 576px featured.
-         * The old generic 100vw/50vw/33vw overfetched ~2× on wide screens and
-         * underfetched (blur) every featured card. Eager rows (LCP) above. */
+        /* round88-A2 + r140 (A140-SM #3): the grid lives in the max-w-4xl
+         * (896px) menu container: 1 col below sm / 2 cols 640-1024 / 3 cols
+         * 1024-1280 / 4 cols ≥1280 (xl:grid-cols-4 منذ r120 U9-P3 — معادلة
+         * round88 ظلت تفترض 3 أعمدة فجلبت 288px لبطاقة عرضها الفعلي 212px
+         * عند ≥1280 = +36% overfetch و576 بدل 424 على DPR2). Card ≈
+         * (container − gaps)/cols → 288px at 1024-1280, 212px at ≥1280;
+         * featured spans md:col-span-2 (full row 768-1024, 2 of 3 cols
+         * ≥1024 = 576px, 2 of 4 cols ≥1280 = 440px). Eager rows (LCP) above. */
         const imageSizes = isFeatured
-                ? '(max-width: 640px) calc(100vw - 32px), (max-width: 768px) calc(50vw - 24px), (max-width: 1024px) calc(100vw - 32px), 576px'
-                : '(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(50vw - 24px), 288px';
+                ? '(max-width: 640px) calc(100vw - 32px), (max-width: 768px) calc(50vw - 24px), (max-width: 1024px) calc(100vw - 32px), (max-width: 1280px) 576px, 440px'
+                : '(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(50vw - 24px), (max-width: 1280px) 288px, 212px';
 
         return (
                 <m.div
@@ -266,7 +268,14 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         onReview?.(item);
                                                 }}
                                                 aria-disabled={soldOut || undefined}
-                                                aria-label={`تقييم ${displayName}`}
+                                                /* r140 (A140-SM #1 — WCAG 2.5.3 Label in Name، الرصد الحي الوحيد
+                                                   لـaxe على الأسطح الستة): النص المرئي «4.5» كان خارج الاسم
+                                                   المُتاح — الاسم الآن يحوي المرئي كاملًا (البادئة «تقييم»
+                                                   محفوظة فمسامير e2e البادئية تخضر). الحالة غير المُقيَّمة
+                                                   («قيّم») مجموعها الفرعي من «تقييم» فيمر كما كان. */
+                                                aria-label={hasRating
+                                                        ? `تقييم ${displayName} — ${toArabicNumber(item.avgRating!.toFixed(1))} من 5`
+                                                        : `تقييم ${displayName}`}
                                                 className={cn(
                                                         'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-base',
                                                         'border-border/60 bg-muted/60 shadow-none',

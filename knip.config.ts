@@ -76,8 +76,31 @@ const config = {
                 // مستعمل» إيجابية كاذبة في كل تقرير).
                 'scripts/archive/r96-test-migration.mjs',
                 'scripts/archive/r96-test-migration-prod-sim.mjs',
+                // r140 (A140-SM §2 الفئة ب — خيار مُسند): عدة shadcn الأساسية
+                // تُعلن entry بدلالة «مكتبة عدة» لا كود تطبيق (DESIGN.md:
+                // «never re-implement a primitive» — vendored من سجل shadcn
+                // فالحذف يخلق انحرافًا عن المنبع عند أي add/تحديث مستقبلي،
+                // وtree-shaking يسقطها من حزم الإنتاج فصفر وزن تشغيلي).
+                'src/components/ui/**/*.{ts,tsx}',
         ],
         project: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}', 'scripts/**/*.{mjs,ts}'],
+        /* r140 (قرار knip المسنود — A140-SM §2، يحسم المعلق من r139):
+           ignoreExportsUsedInFile يصفّي الفئة أ (12 عنصرًا «غير مستوردة»
+           وهي مستخدمة داخل ملفها نفسه: badgeVariants داخل Badge،
+           DialogOverlay/Portal داخل DialogContent، SelectScroll*
+           داخل SelectContent، useDebouncedCallback داخل MenuToolbar،
+           OwnerSessionContext داخل OwnerShell، AccessGateMeContext
+           داخل useAccessGate، DIETARY_LUCIDE وFALLBACK_DIETARY_ICON داخل
+           DietaryIcon، stepIndex داخل StepIndicator، migrationDirs
+           داخل deploy-heal). التصنيف الفعلي للـ26: 12 فئة أ (هذه)
+           + 13 عدة shadcn بلا مستهلك (سياسة DESIGN.md «never
+           re-implement a primitive» — tree-shaken فصفر وزن تشغيلي،
+           وسابقتا favicon/requireAdmin تمنعان الحذف بلا حارس)
+           + 1 صُنّف ميتًا ثم صحّح: useReveal «صفر مستورد» كان ادعاء
+           تدقيق لا نتائج بحث — RevealCssClass في نفس الملف يستدعيه
+           (سطر 292) فالحذف كان سيكسر الصفحة الرئيسية (درس r139-fix1
+           يتكرر حرفيًا: كل حذف يمرّ على حرس الاستخدام الفعلي). */
+        ignoreExportsUsedInFile: true,
         ignore: [
                 // كود مولّد من Prisma ( يُحلل كاستهلاك فقط)
                 'src/generated/**',

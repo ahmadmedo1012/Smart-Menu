@@ -31,13 +31,19 @@
            --font-cairo shim in /fonts/fonts.css stays as the safety net. */
         /* r133 (A3 N4): the never-registered "Tajawal" fallback name was deleted
            (it could never load — no @font-face ever declared it). */
-        --font-sans: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        /* r140 (A140-SM #2 — CLS): «Plex Fallback» طبقة مدخلة بعد العائلة —
+           وجه محلي بمقاييس Plex (fonts.css: ascent 108.5%/descent 41.5%/
+           gap 0) يمنع إزاحة الطية عند تبديل الأوزان 500/600 غير المسبقة.
+           انحراف مقصود عن السلسلة الكنونية الحرفية (tokens.css:47-50)
+           موثق هنا وفي مسمار parity — ومرشح لتبنّي أسطولي في جولة كنون
+           قادمة (نفس الصنف في SL/SO/SB). */
+        --font-sans: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
-        --font-arabic: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --font-arabic: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         /* r93-W2a (U1) + r129: --font-display (canonical name) and the
-           --font-heading bridge — Madarek tokens.css:47-49 verbatim. */
-        --font-display: "IBM Plex Sans Arabic", system-ui, sans-serif;
-        --font-heading: "IBM Plex Sans Arabic", system-ui, sans-serif;
+           --font-heading bridge — Madarek tokens.css:47-49 + طبقة r140. */
+        --font-display: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
+        --font-heading: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
 
         /* ── Theme colors ── */
         --color-background: var(--background);
@@ -269,12 +275,13 @@
 
         /* ── Fonts — r129 token-matrix fix: the canonical Madarek stacks
            (tokens.css:47-50), with the --font-cairo shim (fonts.css) kept
-           as the safety net for any legacy var(--font-cairo) consumer. */
-        --font-arabic: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+           as the safety net for any legacy var(--font-cairo) consumer.
+           r140: طبقة «Plex Fallback» المدخلة (موثقة أعلاه في @theme). */
+        --font-arabic: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --font-sans: var(--font-arabic);
-        --font-display: "IBM Plex Sans Arabic", system-ui, sans-serif;
+        --font-display: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
         /* r93-W2a (U1) — same value as --font-display (the bridge name). */
-        --font-heading: "IBM Plex Sans Arabic", system-ui, sans-serif;
+        --font-heading: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
 
         /* ── Font weights — Madarek reality: Plex Sans Arabic ships 400-700
            only; --fw-black resolves to 700 (no synthetic 800 exists). ── */
@@ -683,7 +690,7 @@
            register — --glass-blur for glass surfaces, --scrim-blur for
            dimming scrims (the six ad-hoc blur values collapse onto them). */
         --glass-bg: rgba(11, 16, 32, 0.78);
-        --glass-bg-strong: rgba(11, 16, 32, 0.90);
+        --glass-bg-strong: rgba(11, 16, 32, 0.92);
         --glass-blur: 16px;
         --scrim-blur: 4px;
         --glass-border: rgba(142, 151, 184, 0.12);
@@ -936,7 +943,7 @@
         /* Glass — Madarek light (§1.8): cream 78% + warm hairline.
            r129 (missing tokens, canonical light tokens.css:794/796). */
         --glass-bg: rgba(251, 250, 249, 0.78);
-        --glass-bg-strong: rgba(251, 250, 249, 0.90);
+        --glass-bg-strong: rgba(251, 250, 249, 0.92);
         --glass-blur: 16px;
         --scrim-blur: 4px;
         --glass-border: rgba(25, 25, 24, 0.06);
@@ -1446,8 +1453,12 @@ textarea:autofill {
 }
 .glass-strong {
         background: var(--glass-bg-strong);
-        backdrop-filter: blur(20px) saturate(1.2);
-        -webkit-backdrop-filter: blur(20px) saturate(1.2);
+        /* r140 (قرار الكنون الموحد للزجاج القوي): 16px لا 20 — مدارك تبنّى
+           الطبقة القوية (r140: 79b5bf9d) بالقيم --glass-bg-strong: 0.92 +
+           --glass-blur-strong: 16px؛ القيمة 20px كانت على قائمة تقاعد
+           زوج التصدير («canonical is 16px»). */
+        backdrop-filter: blur(16px) saturate(1.2);
+        -webkit-backdrop-filter: blur(16px) saturate(1.2);
         border: 1px solid var(--glass-border-strong);
         box-shadow: var(--glass-shadow-lg);
 }
@@ -1607,12 +1618,13 @@ textarea:autofill {
                 box-shadow var(--t-base, 240ms) var(--ease),
                 transform var(--t-micro, 80ms) var(--ease);
 }
-/* Madarek §4.5/§5.4: hover lift (-2px) + border-strong + card-h shadow,
+/* Madarek §3 (components.css:75 — سجل الرفعة الكنسي): hover lift (-1px — كانت
+   -2px، r140 A140-MK P-SM-3) + border-strong + card-h shadow,
    ONLY on real pointers; press = var(--state-card-pressed-scale) (0.99)
    with micro snap-back (r130 W2-3: unified on the canonical 0.99). */
 @media (hover: hover) and (pointer: fine) {
         .card-premium:hover {
-                transform: translateY(-2px);
+                transform: translateY(-1px);
                 box-shadow:
                         var(--shadow-card-h),
                         0 8px 24px color-mix(in srgb, var(--orange) 14%, transparent);

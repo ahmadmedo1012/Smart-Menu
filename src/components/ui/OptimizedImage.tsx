@@ -97,6 +97,14 @@ const OptimizedImage = memo(function OptimizedImage({
           src={src}
           alt={alt}
           fill
+          /* r140 (A140-SM #9 — حزام img.complete): الصورة الكسولة المخبأة قد
+             تكتمل (من كاش المتصفح) قبل أن يعلّق React مستمع onLoad بعد
+             الترطيب — فيبقى الشيمر معلقًا إلى الأبد والصورة opacity-0 رغم
+             وجودها كاملة. فحص الاكتمال داخل ref-callback (يعمل بعد كل
+             تركيب) يغلق الحالة النظرية بلا حالة إضافية ولا إعادة رسم. */
+          ref={(node) => {
+            if (node?.complete && status === "loading") setStatus("loaded");
+          }}
           className={cn(
             "object-cover transition-opacity duration-slower",
             status === "loaded" ? "opacity-100" : "opacity-0",

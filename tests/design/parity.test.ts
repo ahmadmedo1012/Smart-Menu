@@ -370,11 +370,18 @@ const THEME_FONTS: Record<string, string> = {
   // as its bridge twin; --font-mono is the canonical mono stack (the
   // mixed-script Sans-Arabic mono fallback lives only in the landing
   // layer's --ln-mono, byte-equal to Madarek landing.css:54).
-  '--font-sans': '"IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  //
+  // r140 (A140-SM #2 — CLS الحي 0.077): طبقة «Plex Fallback» المدخلة بعد
+  // العائلة في السلاسل الأربعة — وجه محلي بمقاييس Plex (fonts.css:
+  // ascent-override 108.5% / descent-override 41.5% / line-gap 0) يمنع
+  // انزياح الطية عند تبديل الأوزان 500/600 غير المسبقة (h1 الهيرو =
+  // 600). انحراف مقصود وموثق عن الكنون الحرفي — مرشح لتبنّي أسطولي
+  // (SL/SO/SB يحملون نفس الصنف)؛ المسمار يثبت الطبقة فلا تسقط بصمت.
+  '--font-sans': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   '--font-mono': '"IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace',
-  '--font-arabic': '"IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-  '--font-display': '"IBM Plex Sans Arabic", system-ui, sans-serif',
-  '--font-heading': '"IBM Plex Sans Arabic", system-ui, sans-serif',
+  '--font-arabic': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  '--font-display': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif',
+  '--font-heading': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif',
 };
 
 describe('r126 parity — @theme bridges (what Tailwind utilities resolve to)', () => {

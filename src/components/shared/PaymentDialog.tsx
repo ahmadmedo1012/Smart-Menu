@@ -329,12 +329,16 @@ export function PaymentDialog({
                                                                                         onChange={(e) => setPhone(e.target.value)}
                                                                                         placeholder="09XXXXXXXX"
                                                                                         inputMode="numeric"
-                                                                                        maxLength={10}
+                                                                                        /* r140 (نفس صنف إصلاح r138 في SmartBot/SO): السقف 10 كان
+                                                                                           يقص «+218 91 234 5678» عند المحرف العاشر قبل أن يصل التطبيع
+                                                                                           الخادمي (r140 طبَّع +218/00218/الشرقية/الفواصل/الجذع)؛ 16
+                                                                                           يسع كل صيغ الإدخال المعقولة والخادم يوحد التخزين. */
+                                                                                        maxLength={16}
                                                                                         className="h-11 rounded-xl mt-1.5 text-left font-mono"
                                                                                         dir="ltr"
                                                                                 />
                                                                                 <p className="text-2xs text-muted-foreground mt-1">
-                                                                                        10 أرقام تبدأ بـ 09 — حتى نتمكن من التأكد من استلام التحويل
+                                                                                        رقم محمول ليبي يبدأ بـ 09 (9 أو 10 خانات) — حتى نتمكن من التأكد من استلام التحويل
                                                                                 </p>
                                                                         </div>
                                                                 </>

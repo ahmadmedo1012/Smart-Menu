@@ -127,7 +127,11 @@ export default async function RootLayout({
                         <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
                         <meta name="mobile-web-app-capable" content="yes" />
                         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-                        <meta name="apple-mobile-web-app-title" content="Smart Menu" />
+                        {/* r140 (A140-SM #7 — توحيد الرمز اللفظي r127-F3): كان
+                           «Smart Menu» الإنجليزي وحيدًا خارج القرار الذي وحّد
+                           «الربط الذكي» في كل سطح آخر (قالب العناوين/og/wordmark) —
+                           مساحة الشاشة الرئيسية تستوع العشر حروفًا بأمان. */}
+                        <meta name="apple-mobile-web-app-title" content="الربط الذكي" />
                         {/* eslint-disable-next-line @next/next/no-css-tags */}
                         <link rel="stylesheet" href="/fonts/fonts.css" />
                         {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes

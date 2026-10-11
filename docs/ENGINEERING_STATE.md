@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **r139 queue-completion round — local verification green (tsc 0 · lint 0-10w · unit 2523/2523 · parity 237 tests · build 85/85 routes) — e2e gate delegated to CI on push (no local Postgres in sandbox; CI runs the full matrix). r137/r138 documented in commit messages; see r139 entry** |
+| Last verified commit | **r139 queue-completion round — local verification green (tsc 0 · lint 0-10w · unit 2523/2523 · parity 237 tests · build 85/85 routes) — e2e gate delegated to CI on push (no local Postgres in sandbox; CI runs the full matrix). r137/r138/r139 documented in commit messages; see r139 + r140 entries (r140: عقد هاتف الدفع الموحد + CLS الخطوط + WCAG 2.5.3 + كنون الزجاج/الرفعة)** |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
-| Unit tests | **2523/2523** (r139: +25 net — delivery compact label, J5 named-unavailable envelope ×3, parity pins ×9, seed-route test rework after requireAdmin deletion; −12 requireAdmin unit tests retired with the symbol) · parity 237 tests (r139 +9: J5/J6/J7/J17, inks, audible states, housekeeping) · e2e matrix incl. qa-teams deep journeys (CI) |
+| Unit tests | **2537/2537** (r140: +15 عقد هاتف الدفع الأسطولي الموحد — قبول/رفض/تطبيع ×15؛ r139: +25 net) · parity 237 tests (r140: مسامير السلاسل الخطية حُدّثت لطبقة «Plex Fallback» — نفس العدد، قيم أحدث) · e2e matrix incl. qa-teams deep journeys (CI) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -206,7 +206,7 @@
 7. ~~Web QR via `api.qrserver.com`~~ **RETIRED (r109/N2 — see the fixed-forever list above)**: the shared `<SelfHostedQR>` renders data-URL QRs locally; the old ledger line above this one was stale and contradicted the r109 record.
 8. Remaining mobile advisories: `image-size` (2 high, metro build-time, **no patched version exists** — unfixable until metro bumps), `uuid` 7.0.3 (moderate, iOS xcode build-time only; overriding broadly risks breaking metro consumers).
 9. Mobile full menu CRUD / branches / reviews management / loyalty detail / admin screens remain web-first by design (documented parity gap, not a defect).
-10. `text-[10px]` micro-typography (×92 sites) + container-token polish — unclaimed.
+10. ~~`text-[10px]` micro-typography (×92 sites)~~ **RETIRED (r140 — A140-SM #10 تصحيح سجل)**: مسح فعلي = صفر مواقع `text-[10px/11px/12px]` في src — موجة r127-F4 كسحت التسعة والتسعين ولم يُشطب البند من السجل (شبح يطارد جولة مستقبلية).
 11. Dep upgrades deliberately deferred: TS 7 (native rewrite), eslint 10 (flat-only), motion 13, knip 6 (documented pins), expo SDK 53→54+ migration, coordinated zod 4.3.6→4.6 web+mobile.
 12. owner/reviews caps at `pageSize=100` with no pagination UI (comment claims it covers the tenant set; >100 reviews would truncate — fine for current data volumes).
 13. `/api/upload` chunked-body bypass (no content-length) — Vercel's ~4.5MB platform cap covers production; a self-hosted Docker deployment would need a stream limit.

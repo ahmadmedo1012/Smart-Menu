@@ -189,6 +189,10 @@ export function MenuHero({
                                     href={`https://wa.me/${wa}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    /* r140 (A140-SM #4): عزل bidi للرقم الخام — قانون DESIGN.md
+                                       «المحتوى الرقمي يحصل على dir=ltr أو عزل bdi»؛ توأم
+                                       رابط tel المجاور الذي يحملها منذ البداية. */
+                                    dir="ltr"
                                     /* r138 (P1-1): حبر رقم واتساب في الفاتح — success-ink
                                        ≈9.1:1 على الزجاج فوق تدرّج الهيرو (كان 2.87:1)؛ الداكن كما هو. */
                                     className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-success/15 transition-colors duration-base backdrop-blur-md border border-success/30 text-success-ink shadow-lg shadow-success/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
