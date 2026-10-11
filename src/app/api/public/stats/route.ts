@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
+import { countPublicStats } from "@/lib/stats-queries";
 
 // Landing page hits this on every visit — cached at most every 60s.
 export const revalidate = 60;
@@ -9,10 +9,9 @@ export const revalidate = 60;
 // shape for every client that expects { success, data }).
 export async function GET() {
   try {
-    const [totalRestaurants, totalUsers] = await Promise.all([
-      prisma.restaurant.count(),
-      prisma.user.count(),
-    ]);
+    // r143 (Phase-4 W1 D6): عدّادات صادقة (isActive:true + role:owner) عبر
+    // countPublicStats — كان العدّ الخام يرفع الرقمين بمطاعم مطفأة وحسابات إدارة.
+    const { totalRestaurants, totalUsers } = await countPublicStats();
 
     return success({ totalRestaurants, totalUsers });
   } catch (e) {

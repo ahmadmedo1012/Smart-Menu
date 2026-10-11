@@ -116,18 +116,19 @@ export function HomePage({
                 return () => controller.abort();
         }, [retryKey, stats]);
 
-        /* Trust-line cells — the two REAL live figures (مطعم مسجل / حساب
-            نشط — the public stats surface's entire payload). When the live
-            payload is unavailable the cells degrade honestly to "—" with the
-            retry affordance; NEVER a fabricated figure (r82). */
+        /* Trust-line cells — the two REAL live figures (مطعم مسجل / صاحب
+            مطعم — the public stats surface's entire payload, r143 D6: الاسم
+            الثاني صار «صاحب مطعم» مطابقًا لتعريف العدّ role:owner). When the
+            live payload is unavailable the cells degrade honestly to "—" with
+            the retry affordance; NEVER a fabricated figure (r82). */
         const trustCells = stats
                 ? [
                           { value: `+${stats.totalRestaurants}`, label: 'مطعم مسجل' },
-                          { value: `+${stats.totalUsers}`, label: 'حساب نشط' },
+                          { value: `+${stats.totalUsers}`, label: 'صاحب مطعم' },
                   ]
                 : [
                           { value: '—', label: 'مطعم مسجل' },
-                          { value: '—', label: 'حساب نشط' },
+                          { value: '—', label: 'صاحب مطعم' },
                   ];
 
         return (
@@ -218,12 +219,17 @@ export function HomePage({
                                                                 </span>
                                                         </Fragment>
                                                 ))}
-                                                {statsFailed && (
-                                                        <button type="button" className="ln-btn-ghost" onClick={retry}>
-                                                                <AnimatedRefreshCw className="size-3.5" aria-hidden="true" />
-                                                                إعادة المحاولة
-                                                        </button>
-                                                )}
+                                                {/* r143 (Phase-4 W1، فجوة a11y من W1-SM §4.5): ظهور/اختفاء
+                                                    زر «إعادة المحاولة» كان صامتًا لقارئات الشاشة — role=status
+                                                    تعلن المنطقة عند تغيّرها (ظهور الزر = إعلان الفشل والإتاحة). */}
+                                                <div role="status">
+                                                        {statsFailed && (
+                                                                <button type="button" className="ln-btn-ghost" onClick={retry}>
+                                                                        <AnimatedRefreshCw className="size-3.5" aria-hidden="true" />
+                                                                        إعادة المحاولة
+                                                                </button>
+                                                        )}
+                                                </div>
                                         </div>
                                 </section>
 

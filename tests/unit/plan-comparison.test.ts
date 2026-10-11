@@ -30,13 +30,13 @@ const PLAN = (
 });
 
 describe("formatCap", () => {
-  it("returns 'غير محدود' for the unlimited sentinels", () => {
+  it("r143 D10: names the enforced number for the sentinel caps (r92 truth law — no «غير محدود»)", () => {
     // Arrange
     const menusUnlimited = formatCap(9999, "منيو", "منيوهات");
     const ordersUnlimited = formatCap(99999, "طلب", "طلبات");
     // Act + Assert
-    expect(menusUnlimited).toBe("غير محدود");
-    expect(ordersUnlimited).toBe("غير محدود");
+    expect(menusUnlimited).toBe("حتى 9999 منيو");
+    expect(ordersUnlimited).toBe("حتى 99999 طلب");
   });
 
   it("uses correct Arabic plural forms per count state", () => {
@@ -76,9 +76,9 @@ describe("capRows", () => {
       "الطلبات الشهرية",
     ]);
     expect(rows[0].values.length).toBe(2);
-    // Free: 1 menu → dual; Premium: unlimited sentinel
+    // Free: 1 menu → dual; Premium: the sentinel names its enforced number
     expect(rows[0].values[0]).toContain("منيو واحد");
-    expect(rows[0].values[1]).toBe("غير محدود");
+    expect(rows[0].values[1]).toBe("حتى 9999 منيو");
   });
 });
 
@@ -133,6 +133,6 @@ describe("itemsPhrase", () => {
     // Act + Assert
     expect(itemsPhrase(free)).toContain("10 أصناف");
     expect(itemsPhrase(pro)).toContain("1000 صنف");
-    expect(itemsPhrase(ent)).toBe("أصناف غير محدودة");
+    expect(itemsPhrase(ent)).toBe("حتى 9999 صنف");
   });
 });

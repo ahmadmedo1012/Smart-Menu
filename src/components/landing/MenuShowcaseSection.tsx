@@ -142,10 +142,10 @@ export function MenuShowcaseSection() {
                 {cat.icon} {cat.label}
               </p>
               <h3 className="ln-menu-item-name">{item.name}</h3>
+              {/* r143 (Phase-4 W1 D8): bidi موحّد — إسقاط dir=ltr يسلّم الترتيب
+                  للقاعدة RTL (الرقم يمينًا ثم العملة) مطابقًا للديمو وكل الأسطح */}
               <p className="ln-menu-price-row">
-                <span className="ln-menu-price" dir="ltr">
-                  {item.price.toFixed(2)}
-                </span>
+                <span className="ln-menu-price">{item.price.toFixed(2)}</span>
                 <span className="ln-menu-currency">د.ل</span>
               </p>
               <p className="ln-menu-note">
@@ -181,9 +181,7 @@ export function MenuShowcaseSection() {
                     <span className="ln-menu-row-dot" aria-hidden="true" />
                     <span className="ln-menu-row-name">{it.name}</span>
                     <span className="ln-menu-row-leader" aria-hidden="true" />
-                    <span className="ln-menu-row-price" dir="ltr">
-                      {it.price.toFixed(2)} د.ل
-                    </span>
+                    <span className="ln-menu-row-price">{it.price.toFixed(2)} د.ل</span>
                   </button>
                 </li>
               ))}

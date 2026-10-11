@@ -25,8 +25,10 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
                         className={cn(
                                 /* r121 (J-1): كانت z-[60] فوق نطاق النوافذ المنبثقة (z-40/50)
                                    فتطفو فوق كل حوار مفتوح وتخطف نقرات أزرار الطلب.
-                                   z-30 يبقيها فوق المحتوى العادي وتحت النوافذ. */
-                                "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-30",
+                                   z-30 يبقيها فوق المحتوى العادي وتحت النوافذ.
+                           r143: الدرجة نفسها صارت توكن سلّم Madarek (--z-float) —
+                           القيمة 30 نفسها فصفر انحدار بصري. */
+                                "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-(--z-float)",
                                 "size-14 rounded-full bg-whatsapp text-orange-foreground",
                                 "flex items-center justify-center",
                                 "shadow-xl shadow-black/25",

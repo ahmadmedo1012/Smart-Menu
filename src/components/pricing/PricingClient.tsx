@@ -153,13 +153,16 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
 
                                 <div className="space-y-2 mb-6">
                                         {/* r128-F5 (§4): CountUp على حدود الخطط المعروضة (نمط
-                                           الثقة في المدارك) — الأرقام غربية بخط mono جدولي،
-                                           والقيم غير الرقمية («غير محدود») تُعرض كما هي
-                                           (CountUp لا يحرّك ما لا يحتوي أرقاماً). */}
+                                           الثقة في المدارك) — الأرقام غربية بخط mono جدولي.
+                                           r143 (Phase-4 W1 D10): قانون صدق r92 «TEXT follows
+                                           ENFORCEMENT» يمتد لصفوف الحدود — كانت 9999/99999
+                                           تُعرض «غير محدود» بينما الحارس يرفض الصنف 9999
+                                           (PlanLimitError) وخصائص الخطة نفسها تقول
+                                           «أصناف حتى 9999» — كذب داخل بطاقة واحدة. */}
                                         {[
-                                                ['المنيو', plan.maxMenus === 9999 ? 'غير محدود' : String(plan.maxMenus)],
-                                                ['الأصناف', plan.maxItems === 9999 ? 'غير محدود' : `حتى ${plan.maxItems}`],
-                                                ['الطلبات', plan.maxOrders === 99999 ? 'غير محدود' : `حتى ${plan.maxOrders}`],
+                                                ['المنيو', `حتى ${plan.maxMenus}`],
+                                                ['الأصناف', `حتى ${plan.maxItems}`],
+                                                ['الطلبات', `حتى ${plan.maxOrders}`],
                                         ].map(([label, val]) => (
                                                 <div
                                                         key={label as string}

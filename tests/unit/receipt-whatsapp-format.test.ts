@@ -4,6 +4,8 @@
  * receipt/share-text builders, and the timing-safe bearer comparison.
  */
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 // ── format.ts ───────────────────────────────────────────────────────────
 import { formatPrice, toArabicNumber, formatDate, normalizeArabic } from '@/lib/format';
@@ -217,6 +219,66 @@ describe('buildOrderShareText', () => {
                 const out = buildOrderShareText({ ...order, customerPhone: null });
                 expect(out).toContain('سارة | ');
                 expect(out).not.toContain('null');
+        });
+});
+
+
+// ── r143 (Phase-4 W1 D4) — نص الفاتورة خالٍ من U+FFFD ────────────────────
+// الرصد الحي (QA D4): نص wa.me لكل طلب حقيقي افتتح بـ %EF%BF%BD مكان
+// الإيموجي. الحرس هنا مزدوج:
+//  1) المخرَج الفعلي للبنائين لا يحمل U+FFFD أبدًا (مهما اكتملت المدخلات)؛
+//  2) المصدر يحمل الإيموجي هروبات \u{...} لا حروف خام — فئة تلف إعادة
+//     الترميز (أي تمريرة بترميز غير UTF-8) تصطدم بحرف ASCII لا شيء يُفسد.
+describe('r143 — invoice text hygiene (no U+FFFD, escape-encoded emoji)', () => {
+        const full = {
+                restaurantName: 'مقهى الواحة',
+                items: [
+                        { name: 'لاتيه', qty: 2, price: 8.5, notes: 'بدون سكر' },
+                        { name: 'كرواسون', qty: 1, price: 6 },
+                ],
+                totalPrice: 23,
+                deliveryFee: 2,
+                notes: 'الرجاء التوصيل سريعًا',
+                customerName: 'أحمد',
+                customerPhone: '0912345678',
+                pickupType: 'delivery',
+                orderNo: 'ORD-HYG1',
+                menuUrl: 'https://menu.smart-link.ly/al-waha-cafe',
+        };
+
+        it('buildReceiptMessage output never contains U+FFFD', () => {
+                const out = buildReceiptMessage(full);
+                expect(out.length).toBeGreaterThan(0);
+                expect(out).not.toContain('\uFFFD');
+        });
+
+        it('buildOrderShareText output never contains U+FFFD', () => {
+                const out = buildOrderShareText({
+                        orderNo: 'ORD-HYG2',
+                        customerName: 'سارة',
+                        customerPhone: '0911111111',
+                        pickupType: 'takeaway',
+                        total: 57.5,
+                        items: [{ item: { nameAr: 'شاي', name: 'Tea' }, quantity: 1, price: 3 }],
+                });
+                expect(out.length).toBeGreaterThan(0);
+                expect(out).not.toContain('\uFFFD');
+        });
+
+        it('emoji survive as the intended codepoints (escapes decode identically)', () => {
+                const out = buildReceiptMessage(full);
+                expect(out).toContain('\u{1F3EA}'); // 🏪
+                expect(out).toContain('\u{1F4CB}'); // 📋
+                expect(out).toContain('\u{1F4B5}'); // 💵
+        });
+
+        it('the source keeps the escape-encoded emoji law (no raw astral literals)', () => {
+                for (const f of ['src/lib/receipt.ts', 'src/app/api/whatsapp/generate/route.ts']) {
+                        const src = readFileSync(fileURLToPath(new URL(`../../${f}`, import.meta.url)), 'utf8');
+                        // أي حرف > U+2FFF (نطاق الإيموجي المستخدم في الفواتير) حاضر = انكسار القانون
+                        const raw = [...src].filter((c) => c.codePointAt(0)! > 0x2fff);
+                        expect(`${f}: ${raw.join('')}`).toBe(`${f}: `);
+                }
         });
 });
 

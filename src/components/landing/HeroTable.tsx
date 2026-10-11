@@ -60,7 +60,13 @@ export function HeroTable() {
                   <span aria-hidden="true">{cat.icon}</span> {item.name}
                 </span>
                 <span className="ln-hero-card-leader" aria-hidden="true" />
-                <span className="ln-hero-card-price" dir="ltr">
+                {/* r143 (Phase-4 W1 D8): الاتساق الثنائي — كان dir="ltr" يجعل
+                    العملة تُقرأ أولًا («3.00 د.ل» بصريًا LTR) بينما المنتج كله
+                    RTL-أصيل (الديمو: الرقم يمينًا والعملة يسارًا). إسقاط dir
+                    يُسلّم الترتيب للقاعدة RTL فيقرأه العربي: الرقم أولًا.
+                    القانون: الأرقام منفصلة LTR، وموضع العملة موحّد على كل
+                    الأسطح (DESIGN.md §bidi). */}
+                <span className="ln-hero-card-price">
                   {item.price.toFixed(2)} <i>د.ل</i>
                 </span>
               </li>

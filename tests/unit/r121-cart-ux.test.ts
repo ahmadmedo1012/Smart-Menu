@@ -41,10 +41,14 @@ const line = (over: Partial<CartItem>): CartItem =>
 // ── J-1: floating z-band below the modal band ────────────────────────────
 
 describe('r121 J-1 — floats sit below the modal band (z 40/50)', () => {
-        it('FloatingWhatsApp is z-30, not the old z-[60]', () => {
+        it('FloatingWhatsApp rides the --z-float rung (=30), not the old z-[60]', () => {
                 const s = src('src/components/shared/FloatingWhatsApp.tsx');
-                expect(s).toContain('end-4 sm:end-6 z-30');
+                // r143: الدرجة صارت توكن سلّم Madarek (--z-float = 30) — نفس
+                // القيمة التي ثبّتها J-1، والمسمار يواصل حرس طبقة الطفو
+                // (تحت الحوارات z-40/50) على مصدر الحقيقة الجديد.
+                expect(s).toContain('end-4 sm:end-6 z-(--z-float)');
                 expect(s).not.toContain('sm:end-6 z-[60]');
+                expect(s).not.toContain('sm:end-6 z-9999');
         });
 
         it('ScrollToTop is z-31, not the old z-[61]', () => {

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { HomePage } from '@/components/landing/HomePage';
-import { prisma } from '@/lib/db';
 import type { PublicStats } from '@/components/landing/landing-data';
+import { countPublicStats } from '@/lib/stats-queries';
+import { FAQS } from '@/components/landing/LandingFaq';
 import { SITE_ORIGIN } from '@/lib/seo';
 
 // round85-B2: landing stats rendered SERVER-side and baked into the ISR
@@ -20,11 +21,9 @@ export const metadata: Metadata = {
 
 async function getPublicStats(): Promise<PublicStats | null> {
         try {
-                const [totalRestaurants, totalUsers] = await Promise.all([
-                        prisma.restaurant.count(),
-                        prisma.user.count(),
-                ]);
-                return { totalRestaurants, totalUsers };
+                // r143 (Phase-4 W1 D6): العدّادات الصادقة الموحدة (isActive:true +
+                // role:owner عبر countPublicStats) — كانت النسخة المحلية تعدّ كل صف.
+                return await countPublicStats();
         } catch {
                 // keep the client-side fallback path alive
                 return null;
@@ -57,6 +56,24 @@ export default async function Home() {
                                                 url: SITE_ORIGIN,
                                                 inLanguage: 'ar',
                                                 offers: { '@type': 'Offer', price: '0', priceCurrency: 'LYD' },
+                                        }).replace(/</g, '\\u003c'),
+                                }}
+                        />
+                        {/* r143 (Phase-4 W1 #9, inventory §4.7): FAQPage JSON-LD —
+                            التوأم الزاحف المرئي لأسئلة details/summary المصيّرة
+                            (LandingFaq FAQS — المصدر الواحد فلا يمكن أن ينفصلا). */}
+                        <script
+                                type="application/ld+json"
+                                dangerouslySetInnerHTML={{
+                                        __html: JSON.stringify({
+                                                '@context': 'https://schema.org',
+                                                '@type': 'FAQPage',
+                                                inLanguage: 'ar',
+                                                mainEntity: FAQS.map((f) => ({
+                                                        '@type': 'Question',
+                                                        name: f.q,
+                                                        acceptedAnswer: { '@type': 'Answer', text: f.a },
+                                                })),
                                         }).replace(/</g, '\\u003c'),
                                 }}
                         />

@@ -211,3 +211,32 @@ export function revenueAggregate(opts: {
         };
         return args;
 }
+
+/* ---------- r143 (Phase-4 W1 D6): العدّادات العامة الصادقة ---------- */
+
+export interface PublicStatsCount {
+        totalRestaurants: number;
+        totalUsers: number;
+}
+
+/**
+ * صندوق الحقيقة الوحيد لعدّادَي الهبوط العلنيين («مطعم مسجل» / «صاحب مطعم») —
+ * كان كل مستدعى يعدّه بنفسه (public/stats + page.tsx) وبكذبة القياس نفسها:
+ * Restaurant.count() كان يحتسب حتى المطاعم المطفأة (isActive:false) و
+ * User.count() كان يحتسب مدراء المنصة وحسابات USER على أنها «حساب نشط».
+ *
+ * التعريف الصادق:
+ *  - مطعم مسجل  = Restaurant.isActive:true (المطفأ خارج المنصة عمليًا).
+ *  - صاحب مطعم = User.role:'owner' — أصحاب المطاعم فقط؛ مدراء المنصة
+ *    (admin/sub_admin/super_admin) وحسابات الزوار (USER) ليست «حسابات
+ *    مطاعم» ولا تدخل الوعد التسويقي.
+ * (التسمية «حساب نشط» استُبدلت بـ«صاحب مطعم» — العدد الفعلي لما يُحتسب.)
+ * المستهلكان: /api/public/stats و (public)/page.tsx (ISR 60s).
+ */
+export async function countPublicStats(): Promise<PublicStatsCount> {
+        const [totalRestaurants, totalUsers] = await Promise.all([
+                prisma.restaurant.count({ where: { isActive: true } }),
+                prisma.user.count({ where: { role: 'owner' } }),
+        ]);
+        return { totalRestaurants, totalUsers };
+}

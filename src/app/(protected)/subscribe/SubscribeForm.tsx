@@ -262,9 +262,10 @@ export function SubscribeForm({
                                                         <p className="text-xs text-muted-foreground">
                                                                 {Number(currentPlan.price) === 0 ? 'مجاني' : formatPrice(currentPlan.price, { suffix: ' د.ل/شهر' })}
                                                                 {' • '}
-                                                                {currentPlan.maxItems === 9999
-                                                                        ? 'أصناف غير محدودة'
-                                                                        : `حتى ${toArabicNumber(currentPlan.maxItems)} صنف`}
+                                                                {/* r143 (Phase-4 W1 D10): صدق الحدود — 9999 يُذكر بعدده
+                                                                    (r92: TEXT follows ENFORCEMENT؛ الحارس يرفض الصنف
+                                                                    9999 فلا وعد «غير محدود») */}
+                                                                {`حتى ${toArabicNumber(currentPlan.maxItems)} صنف`}
                                                         </p>
                                                 </div>
                                         </div>
@@ -290,11 +291,10 @@ export function SubscribeForm({
                                                                 <div>
                                                                         <h3 className="font-bold text-base">بيانات المنيوهات</h3>
                                                                         <p className="text-xs text-muted-foreground mt-0.5">
-                                                                                {maxMenus === 9999
-                                                                                        ? 'خطتك تدعم منيوهات غير محدودة — أضف ما تشاء الآن أو لاحقاً'
-                                                                                        : maxMenus > 1
-                                                                                                ? `خطتك تدعم حتى ${menusLimitPhrase(maxMenus)}`
-                                                                                                : 'خطتك تتضمن منيو واحد'}
+                                                                                {/* r143 D10: 9999 يذكر حدّه («حتى 9999 منيوًا») بدل «غير محدودة» */}
+                                                                                {maxMenus > 1
+                                                                                        ? `خطتك تدعم حتى ${menusLimitPhrase(maxMenus)}`
+                                                                                        : 'خطتك تتضمن منيو واحد'}
                                                                         </p>
                                                                 </div>
                                                                 {canAddMenu && (
@@ -547,21 +547,15 @@ export function SubscribeForm({
                                                                         </div>
                                                                         <div className="flex justify-between">
                                                                                 <span className="text-muted-foreground">المنيوهات</span>
-                                                                                <span className="font-medium">
-                                                                                        {currentPlan.maxMenus === 9999 ? 'غير محدودة' : `حتى ${toArabicNumber(currentPlan.maxMenus)}`}
-                                                                                </span>
+                                                                                <span className="font-medium">{`حتى ${toArabicNumber(currentPlan.maxMenus)}`}</span>
                                                                         </div>
                                                                         <div className="flex justify-between">
                                                                                 <span className="text-muted-foreground">الحد الأقصى للأصناف</span>
-                                                                                <span className="font-medium">
-                                                                                        {currentPlan.maxItems === 9999 ? 'غير محدود' : toArabicNumber(currentPlan.maxItems)}
-                                                                                </span>
+                                                                                <span className="font-medium">{`حتى ${toArabicNumber(currentPlan.maxItems)}`}</span>
                                                                         </div>
                                                                         <div className="flex justify-between">
                                                                                 <span className="text-muted-foreground">الطلبات</span>
-                                                                                <span className="font-medium">
-                                                                                        {currentPlan.maxOrders === 99999 ? 'غير محدودة' : `حتى ${toArabicNumber(currentPlan.maxOrders)}`}
-                                                                                </span>
+                                                                                <span className="font-medium">{`حتى ${toArabicNumber(currentPlan.maxOrders)}`}</span>
                                                                         </div>
                                                                 </div>
                                                         </div>

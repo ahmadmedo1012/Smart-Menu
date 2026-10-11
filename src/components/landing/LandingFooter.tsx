@@ -6,6 +6,16 @@ import Link from "next/link"
  * own routes (pricing, login, subscribe — the pages this app actually
  * ships), and the legal routes. Bottom bar signs with the brand + year. */
 
+/* (Phase-4 W1, QA §9/D5) — عمود «منظومة الربط الذكي»: القائمة كانت تعيش
+ * معزولة عن أخوتها رغم أنها جزء من منظومة واحدة (نفس النمط الذي أضافه
+ * Smart-Order في r144/86fb698). ثلاثة أهداف حقيقية فقط — الأوصاف من هوية
+ * كل منتج نفسها لا من الخيال (المائدة نفسها = هذه الصفحة فلا تُذكر). */
+const ECOSYSTEM = [
+  { href: "https://smart-link.ly", label: "الربط الذكي — منصة الأعمال المتكاملة" },
+  { href: "https://bot.smart-link.ly", label: "سمارت بوت — منصة إدارة فيسبوك الذكية" },
+  { href: "https://order.smart-link.ly", label: "سمارت أوردر — منصة الطلبات الرقمية" },
+]
+
 export function LandingFooter() {
   const year = new Date().getFullYear()
 
@@ -45,6 +55,20 @@ export function LandingFooter() {
             <div className="landing-footer-heading">المؤسسة</div>
             <Link href="/privacy" prefetch={false} className="landing-footer-link">سياسة الخصوصية</Link>
             <Link href="/terms" prefetch={false} className="landing-footer-link">شروط الاستخدام</Link>
+          </div>
+          <div className="landing-footer-col">
+            <div className="landing-footer-heading">منظومة الربط الذكي</div>
+            {ECOSYSTEM.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="landing-footer-link"
+              >
+                {l.label}
+              </a>
+            ))}
           </div>
         </div>
         <div className="landing-footer-bottom">

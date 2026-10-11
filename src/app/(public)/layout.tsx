@@ -187,7 +187,6 @@ export default async function RootLayout({
                                                 }
                                         />
                                         <ServiceWorkerInit />
-                                        <InstallPrompt />
                                         <CartHydrator />
                                         <MotionProvider>
                                                 {/* a11y(round84): fixed floating controls (scroll-to-top + WhatsApp)
@@ -199,6 +198,9 @@ export default async function RootLayout({
                                                                 on reconnect) — full-width fixed strip at the overlay band. */}
                                                         <ConnectivityBanner />
                                                         {children}
+                                                        {/* r143 (Phase-4 W1 D7): حبة التثبيت انتقلت داخل landmark الـmain
+                                                           (قاعدة round84 — كانت آخر عنصر عائم خارجها) */}
+                                                        <InstallPrompt />
                                                         <FloatingWhatsApp />
                                                 </main>
                                         </MotionProvider>

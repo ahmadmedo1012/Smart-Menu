@@ -469,6 +469,12 @@ describe('r126 parity — focus-ring contract (§1.9, both themes)', () => {
 
 const Z_LADDER: Record<string, string> = {
   '--z-base': '0',
+  // r143 (Phase-4 W1 D7): درجة العناصر العائمة الثابتة — الجلسة الجديدة في
+  // السلّم (كانت InstallPrompt تطفو بـ 9999 فوق كل شيء). تحت نطاق الحوارات
+  // الخام z-40/50 عمدًا (قانون J-1: العناصر العائمة لا تغطي النوافذ أبدًا) —
+  // لذلك ليست --z-toast (500) فوقها. FloatingWhatsApp/InstallPrompt تركبها
+  // الآن؛ ScrollToTop يبقى z-31 الخام في نفس النطاق (عقد r121 المثبّت).
+  '--z-float': '30',
   '--z-dropdown': '100',
   '--z-popover': '200',
   '--z-tooltip': '250',
@@ -479,7 +485,7 @@ const Z_LADDER: Record<string, string> = {
 };
 
 describe('r126 parity — z-order ladder (§1.11, theme-independent :root)', () => {
-  it('8 rungs 0/100/200/250/300/400/500/600 in both cascades (floats never cover modals)', () => {
+  it('9 rungs 0/30/100/200/250/300/400/500/600 in both cascades (floats never cover modals)', () => {
     for (const [token, value] of Object.entries(Z_LADDER)) pin(dark, 'z-ladder', token, value);
     for (const [token, value] of Object.entries(Z_LADDER)) pin(light, 'z-ladder', token, value);
   });
@@ -1296,7 +1302,7 @@ describe('r142 parity — المائدة structure: hero card · المنيو ا
     expect(homePageRaw).not.toContain('HeroPlate');
   });
 
-  it('the hero leans a REAL menu card: HeroTable picks one row per REAL category, dotted leaders, LTR money', () => {
+  it('the hero leans a REAL menu card: HeroTable picks one row per REAL category, dotted leaders, RTL-native money (r143 D8)', () => {
     expect(heroTableRaw).toContain("from './landing-data'");
     expect(heroTableRaw).toContain('DEMO_MENU.map((c) => ({ cat: c, item: c.items[0]! }))');
     expect(heroTableRaw).toContain('ln-hero-card-leader');
@@ -1335,9 +1341,13 @@ describe('r142 parity — المائدة structure: hero card · المنيو ا
     // the board opens the REAL live demo menu
     expect(dataRaw).toContain("export const DEMO_MENU_URL = '/menu/al-waha-cafe'");
     expect(menuShowcaseRaw).toContain('DEMO_MENU_URL');
-    // prices render in the platform money pattern (number first, LTR)
+    // prices render in the platform money pattern (r143 D8: RTL-native —
+    // the number leads logically, the currency lands to its visual LEFT in
+    // the RTL base, matching the demo menu and every other surface; the
+    // old dir="ltr" islands made the landing the ONLY currency-right
+    // surface in the product)
     expect(menuShowcaseRaw).toContain('item.price.toFixed(2)');
-    expect(menuShowcaseRaw).toContain('dir="ltr"');
+    expect(menuShowcaseRaw).not.toContain('dir="ltr"');
     // the honesty note says the rows come from the live demo menu
     expect(menuShowcaseRaw).toContain('منسوخة حرفياً من منيو مقهى الواحة');
   });

@@ -502,6 +502,11 @@
            on raw values until the select-portal coupling is reworked —
            floats NEVER cover modals (r121 J-1 lesson). ── */
         --z-base: 0;
+        /* r143 (Phase-4 W1 D7): درجة العناصر العائمة الثابتة — نفس نطاق
+           z-30/31/33 الذي سكنته J-1 (FloatingWhatsApp) وسابقاتها؛ كل عنصر
+           fixed عائم يركبها بدل الأرقام الخام فلا يطفو فوق حوارات z-40/50
+           أبدًا (InstallPrompt كانت 9999 = أعلى طبقة في المنتج). */
+        --z-float: 30;
         --z-dropdown: 100;
         --z-popover: 200;
         --z-tooltip: 250;

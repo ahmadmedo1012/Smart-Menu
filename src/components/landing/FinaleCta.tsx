@@ -35,8 +35,11 @@ export function FinaleCta({ stats }: { stats: { totalRestaurants: number; totalU
           <Link href="/pricing" className="ln-btn-ghost xl">الباقات والأسعار</Link>
         </RevealCssClass>
         <RevealCssClass as="p" className="ln-cta-stats ln-mono" delay={4}>
+          {/* r143 (Phase-4 W1 D6): «حساب نشط» → «صاحب مطعم» — العدّ صار
+              role:owner (stats-queries.countPublicStats) فالتسمية تتبع
+              ما يُحتسب فعلًا (نفس توحيد شريط الثقة في HomePage). */}
           {stats
-            ? `+${stats.totalRestaurants} مطعم مسجل · +${stats.totalUsers} حساب نشط على المنصة`
+            ? `+${stats.totalRestaurants} مطعم مسجل · +${stats.totalUsers} صاحب مطعم على المنصة`
             : "أرقام المنصّة تُجلب الآن من قاعدة البيانات…"}
         </RevealCssClass>
         <RevealCssClass as="p" className="ln-cta-meta ln-mono" delay={5}>

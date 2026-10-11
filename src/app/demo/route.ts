@@ -3,6 +3,9 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/db';
 import { createSession } from '@/lib/session';
 import { hashPassword } from '@/lib/hash';
+// r143 (Phase-4 W1 D1): الروابط تُخزَّن عارية بلا بارامترات تصغير مسبقة —
+// المُحسِّن يملك w/q وحده؛ الازدواج كان يكسر «شاي» (HTTP 400) ويتمطط البقية.
+import { stripRemoteImageQuery } from '@/lib/image-url';
 
 export async function GET() {
         // Block demo route in production — always. The demo session is a real PAID owner
@@ -70,112 +73,112 @@ export async function GET() {
                                         price: 3,
                                         categoryId: hot.id,
                                         sortOrder: 1,
-                                        image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1509042239860-f550ce710b93'),
                                 },
                                 {
                                         name: 'إسبريسو',
                                         price: 4,
                                         categoryId: hot.id,
                                         sortOrder: 2,
-                                        image: 'https://images.unsplash.com/photo-1504630083234-14187a9df0f5?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1504630083234-14187a9df0f5'),
                                 },
                                 {
                                         name: 'كابتشينو',
                                         price: 5,
                                         categoryId: hot.id,
                                         sortOrder: 3,
-                                        image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085'),
                                 },
                                 {
                                         name: 'شاي',
                                         price: 2,
                                         categoryId: hot.id,
                                         sortOrder: 4,
-                                        image: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1571934811356-5cc061b6821f'),
                                 },
                                 {
                                         name: 'ليموناضة',
                                         price: 4,
                                         categoryId: cold.id,
                                         sortOrder: 1,
-                                        image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1544145945-f90425340c7e'),
                                 },
                                 {
                                         name: 'سموثي',
                                         price: 6,
                                         categoryId: cold.id,
                                         sortOrder: 2,
-                                        image: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba'),
                                 },
                                 {
                                         name: 'موهيتو',
                                         price: 5,
                                         categoryId: cold.id,
                                         sortOrder: 3,
-                                        image: 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1505252585461-04db1eb84625'),
                                 },
                                 {
                                         name: 'آيس كوفي',
                                         price: 5,
                                         categoryId: cold.id,
                                         sortOrder: 4,
-                                        image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1461023058943-07fcbe16d735'),
                                 },
                                 {
                                         name: 'تشيز كيك',
                                         price: 7,
                                         categoryId: sweets.id,
                                         sortOrder: 1,
-                                        image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1551024601-bec78aea704b'),
                                 },
                                 {
                                         name: 'كنافة',
                                         price: 6,
                                         categoryId: sweets.id,
                                         sortOrder: 2,
-                                        image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445'),
                                 },
                                 {
                                         name: 'كريب',
                                         price: 5,
                                         categoryId: sweets.id,
                                         sortOrder: 3,
-                                        image: 'https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1509365465985-25d11c17e812'),
                                 },
                                 {
                                         name: 'بسبوسة',
                                         price: 4,
                                         categoryId: sweets.id,
                                         sortOrder: 4,
-                                        image: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1482049016688-2d3e1b311543'),
                                 },
                                 {
                                         name: 'ساندويتش',
                                         price: 5,
                                         categoryId: snacks.id,
                                         sortOrder: 1,
-                                        image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1528735602780-2552fd46c7af'),
                                 },
                                 {
                                         name: 'بطاطس مقلية',
                                         price: 3,
                                         categoryId: snacks.id,
                                         sortOrder: 2,
-                                        image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1573080496219-bb080dd4f877'),
                                 },
                                 {
                                         name: 'سلطة',
                                         price: 4,
                                         categoryId: snacks.id,
                                         sortOrder: 3,
-                                        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1512621776951-a57141f2eefd'),
                                 },
                                 {
                                         name: 'برجر',
                                         price: 7,
                                         categoryId: snacks.id,
                                         sortOrder: 4,
-                                        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=85',
+                                        image: stripRemoteImageQuery('https://images.unsplash.com/photo-1568901346375-23c9450c58cd'),
                                 },
                         ],
                 });
@@ -187,30 +190,30 @@ export async function GET() {
         });
         if (itemsNoImg.length > 0) {
                 // ponytail: named map covers the 16 known demo items; default fallback for any extras
-                const DEFAULT_IMG = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=85';
+                const DEFAULT_IMG = stripRemoteImageQuery('https://images.unsplash.com/photo-1504674900247-0877df9cc836');
                 const imageMap: Record<string, string> = {
-                        'قهوة تركي': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=85',
-                        إسبريسو: 'https://images.unsplash.com/photo-1504630083234-14187a9df0f5?w=400&q=85',
-                        كابتشينو: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=85',
-                        شاي: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&q=85',
-                        ليموناضة: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=85',
-                        سموثي: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&q=85',
-                        موهيتو: 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400&q=85',
-                        'آيس كوفي': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=85',
-                        'تشيز كيك': 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=85',
-                        كنافة: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=85',
-                        كريب: 'https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400&q=85',
-                        بسبوسة: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=85',
-                        ساندويتش: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&q=85',
-                        'بطاطس مقلية': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=85',
-                        سلطة: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=85',
-                        برجر: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=85',
+                        'قهوة تركي': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93',
+                        إسبريسو: 'https://images.unsplash.com/photo-1504630083234-14187a9df0f5',
+                        كابتشينو: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085',
+                        شاي: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f',
+                        ليموناضة: 'https://images.unsplash.com/photo-1544145945-f90425340c7e',
+                        سموثي: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba',
+                        موهيتو: 'https://images.unsplash.com/photo-1505252585461-04db1eb84625',
+                        'آيس كوفي': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735',
+                        'تشيز كيك': 'https://images.unsplash.com/photo-1551024601-bec78aea704b',
+                        كنافة: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445',
+                        كريب: 'https://images.unsplash.com/photo-1509365465985-25d11c17e812',
+                        بسبوسة: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543',
+                        ساندويتش: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af',
+                        'بطاطس مقلية': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877',
+                        سلطة: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd',
+                        برجر: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd',
                 };
                 await prisma.$transaction(
                         itemsNoImg.map((item) =>
                                 prisma.menuItem.update({
                                         where: { id: item.id },
-                                        data: { image: imageMap[item.name] || DEFAULT_IMG },
+                                        data: { image: stripRemoteImageQuery(imageMap[item.name] || DEFAULT_IMG) },
                                 })
                         )
                 );

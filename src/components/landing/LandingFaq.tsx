@@ -5,11 +5,16 @@ import { RevealCssClass } from "@/hooks/useReveal"
  * into the finale spread (the الختام chapter continues on paper after the
  * espresso back-cover). Same four REAL Q&As, verbatim from the shipped
  * home copy — the interaction stays native <details>/<summary>: zero JS,
- * keyboard-native, reduced-motion-safe. No FAQPage JSON-LD — this surface
- * never shipped one (nothing to preserve, nothing invented). */
+ * keyboard-native, reduced-motion-safe.
+ * r143 (Phase-4 W1 #9): the four Q&As are now exported and mirrored as a
+ * FAQPage JSON-LD on / (page.tsx) — the crawler-visible twin of this
+ * details/summary surface (inventory §4.7). Also: «أصناف غير محدودة» in
+ * the free-plan answer joined the r92 truth law — every cap names its
+ * enforced number (TEXT follows ENFORCEMENT), so the benefit reads
+ * «أصناف أكثر». */
 
-const FAQS = [
-  { q: "هل موقع المنيو الرقمي مجاني؟", a: "نعم، توجد خطة مجانية للأبد مع ميزات أساسية. يمكنك الترقية إلى خطة مدفوعة للحصول على ميزات إضافية مثل أصناف غير محدودة وإحصائيات متقدمة." },
+export const FAQS = [
+  { q: "هل موقع المنيو الرقمي مجاني؟", a: "نعم، توجد خطة مجانية للأبد مع ميزات أساسية. يمكنك الترقية إلى خطة مدفوعة للحصول على ميزات إضافية مثل أصناف أكثر وإحصائيات متقدمة." },
   { q: "كيف يصلني الطلب من العميل؟", a: "الطلب يصل مباشرة على واتساب مطعمك مع تفاصيل الصنف والكمية واسم العميل. لا تحتاج لتطبيقات إضافية." },
   { q: "هل يمكنني تعديل المنيو بنفسي؟", a: "نعم، لوحة التحكم بالكامل بالعربية. يمكنك إضافة وتعديل وحذف الأصناف والأقسام والصورة في أي وقت بدون مساعدة فنية." },
   { q: "ماذا لو احتجت مساعدة؟", a: "فريق الدعم الفني متواجد طوال أيام العمل. نوفر لك تعليمات مصورة ودعماً مباشراً عبر واتساب." },

@@ -111,12 +111,15 @@ export async function POST(request: NextRequest) {
       parsedModifiers.set(oi.id, mods);
     }
 
+    // r143 (Phase-4 W1 D4): نفس قانون receipt.ts — الإيموجي هروبات \u{...}
+    // لا حروف خام (فئة تلف U+FFFD المرصودة حيًا في نص wa.me) — السلسلة
+    // الناتجة مطابقة بايت-بايت لما قبل الهروب.
     const lines: string[] = [];
-    lines.push(`🧾 *${order.restaurant.name}*`);
-    lines.push(`📋 طلب رقم: ${order.orderNo}`);
-    lines.push(`👤 العميل: ${order.customerName || "غير محدد"}`);
-    lines.push(`📞 الهاتف: ${order.customerPhone || "غير محدد"}`);
-    lines.push(`📍 نوع الطلب: ${order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المحل"}`);
+    lines.push(`\u{1F9FE} *${order.restaurant.name}*`);
+    lines.push(`\u{1F4CB} طلب رقم: ${order.orderNo}`);
+    lines.push(`\u{1F464} العميل: ${order.customerName || "غير محدد"}`);
+    lines.push(`\u{1F4DE} الهاتف: ${order.customerPhone || "غير محدد"}`);
+    lines.push(`\u{1F4CD} نوع الطلب: ${order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المحل"}`);
     lines.push("");
     lines.push("*الطلبات:*");
     for (const oi of order.items) {
@@ -148,12 +151,12 @@ export async function POST(request: NextRequest) {
       if (oi.notes) lines.push(`    ملاحظات: ${oi.notes}`);
     }
     lines.push("");
-    lines.push(`💰 المجموع: ${formatPrice(Number(order.total), { decimals: 2 })}`);
-    if (Number(order.discount) > 0) lines.push(`🔖 الخصم: ${formatPrice(Number(order.discount), { decimals: 2 })}`);
+    lines.push(`\u{1F4B0} المجموع: ${formatPrice(Number(order.total), { decimals: 2 })}`);
+    if (Number(order.discount) > 0) lines.push(`\u{1F516} الخصم: ${formatPrice(Number(order.discount), { decimals: 2 })}`);
     // r133-A12 M2: formatDate reads the server's local clock — UTC on Vercel,
     // 2-3h behind Libya. formatDateTripoli pins this one server-side site to
     // Africa/Tripoli (every other formatDate consumer is client-side).
-    lines.push(`📅 ${formatDateTripoli(order.createdAt)}`);
+    lines.push(`\u{1F4C5} ${formatDateTripoli(order.createdAt)}`);
 
     const message = lines.join("\n");
 

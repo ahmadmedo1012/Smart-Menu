@@ -290,7 +290,10 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                 dir="rtl"
                                                 role="dialog"
                                                 aria-modal="true"
-                                                aria-label={menuItemName}
+                                                /* r143 (Phase-4 W1, QA D11): الاسم المتاح من العنوان المرئي
+                                                   (aria-labelledby) بدل aria-label المختصر — القارئ يعلن
+                                                   «تقييمات {الصنف}» نفس ما يرى المستخدم */
+                                                aria-labelledby="review-sheet-title"
                                                 onKeyDown={(e) => e.key === 'Escape' && onOpenChange(false)}
                                         >
                                                 {/* Handle */}
@@ -301,7 +304,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                 {/* Header */}
                                                 <div className="flex items-center justify-between px-5 pb-3 border-b border-border/20">
                                                         <div>
-                                                                <h3 className="text-base font-bold">تقييمات {menuItemName}</h3>
+                                                                <h3 id="review-sheet-title" className="text-base font-bold">تقييمات {menuItemName}</h3>
                                                                 {stats.totalCount > 0 && (
                                                                         <p className="text-xs text-muted-foreground mt-0.5">
                                                                                 <span className="text-ember dark:text-saffron font-bold">

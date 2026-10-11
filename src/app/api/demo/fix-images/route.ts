@@ -72,7 +72,7 @@ export async function POST() {
 				try {
 					await prisma.menuItem.update({
 						where: { id: item.id },
-						data: { image: img + '?w=400&q=85' },
+						data: { image: img }, // r143: بلا بارامترات تصغير مسبقة — المُحسِّن يملك w/q
 					});
 					updated++;
 				} catch {
@@ -91,7 +91,7 @@ export async function POST() {
 				try {
 					await prisma.menuItem.update({
 						where: { id: item.id },
-						data: { image: fallback + '?w=400&q=85' },
+						data: { image: fallback }, // r143: بلا بارامترات تصغير مسبقة
 					});
 					skipped++;
 				} catch {

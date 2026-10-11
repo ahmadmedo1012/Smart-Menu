@@ -4,6 +4,7 @@ import { useState, memo, type ReactNode } from "react";
 import { m, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { stripRemoteImageQuery } from "@/lib/image-url";
 import { UtensilsCrossed } from "lucide-react";
 
 type AspectRatio = "auto" | "square" | "video";
@@ -63,6 +64,13 @@ const OptimizedImage = memo(function OptimizedImage({
     priority || fetchPriority === "high"
   ) ? "loaded" : "loading");
 
+  /* r143 (Phase-4 W1 D1/D3): الرابط المخزّن قد يحمل بارامترات تصغير مسبقة
+     (‎?w=&q=‎ من بذرة الديمو أو لصق يدوي) — مُحسِّن next/image يضيف فوقها
+     ‎&w=&q=‎ الخاصة به فيصير الازدواج: بعض الصور ترجع 400 (تبقى opacity-0
+     إلى الأبد) والباقي مصدر 190-220px لمربع 268-478px (التمطيط المقيس).
+     الحارس هنا = نقطة الاختناق الوحيدة التي تشفي كل الصفوف المخزنة بلا لمس DB. */
+  const optimizerSrc = stripRemoteImageQuery(src);
+
   return (
     <div
       className={cn(
@@ -94,7 +102,7 @@ const OptimizedImage = memo(function OptimizedImage({
       {/* Image */}
       {status !== "error" ? (
         <Image
-          src={src}
+          src={optimizerSrc}
           alt={alt}
           fill
           /* r140 (A140-SM #9 — حزام img.complete): الصورة الكسولة المخبأة قد

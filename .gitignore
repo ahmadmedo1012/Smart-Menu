@@ -7,6 +7,11 @@ test-screenshots/
 # pnpm-only repo — pnpm-lock.yaml is the single source of truth; a stray
 # `git add -A` would commit a second lockfile and confuse tooling/CI.
 bun.lock
+
+# r143 (Phase-4 W1 #8): نفس فئة round92-D5 — package-lock.json (10954 سطرًا)
+# كان متتبعًا بجوار pnpm-lock.yaml بينما packageManager = pnpm@11.9.0؛
+# أي npm install يبني شجرة عتيقة. pnpm-lock.yaml هو القاضي الوحيد.
+package-lock.json
 # round92-D5: db/ holds local embedded-postgres data dirs (custom.db etc.)
 # — never commit a local database into the repo.
 db/
