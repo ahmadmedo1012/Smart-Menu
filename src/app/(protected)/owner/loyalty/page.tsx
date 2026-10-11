@@ -443,7 +443,7 @@ export default function OwnerLoyaltyPage() {
                         label: 'إجمالي الإحالات',
                         value: stats?.totalReferrals ?? 0,
                         icon: Gift,
-                        color: 'text-success',
+                        color: 'text-success-ink',
                         bg: 'bg-success/10',
                 },
                 {

@@ -221,6 +221,78 @@ describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
                 expect(txMock.order.create).not.toHaveBeenCalled();
         });
 
+        /* r139 (J5) — الرفض يسمّي الأصناف ويحمل الـids كي تسم الواجهة الأسطر:
+           سلة ١٥ سطرًا كانت تعني رحلة صيد مع الرسالة العامة وحدها. */
+        it('r139 (J5): named unavailable items + unavailableItemIds in the envelope, zero writes', async () => {
+                // النداء الأول: استعلام التسعير (متاح فقط) — النداء الثاني: الأسماء (بلا فلتر حالة)
+                mockMenuItemFindMany
+                        .mockResolvedValueOnce([{ id: 1, price: 10, discountedPrice: null }])
+                        .mockResolvedValueOnce([
+                                { id: 7, nameAr: 'اسبريسو', name: 'Espresso' },
+                                { id: 9, nameAr: 'شاي بالنعنع', name: 'Mint Tea' },
+                        ]);
+
+                const res = await callPost({
+                        subtotal: 1,
+                        total: 1,
+                        restaurantId: 5,
+                        items: [
+                                { itemId: 1, quantity: 1, price: 10 },
+                                { itemId: 7, quantity: 2, price: 0.01 },
+                                { itemId: 9, quantity: 1, price: 0.01 },
+                        ],
+                });
+
+                expect(res.status).toBe(400);
+                const json = await res.json();
+                expect(json.error).toContain('اسبريسو');
+                expect(json.error).toContain('شاي بالنعنع');
+                expect(json.error).toContain('لم تعد متوفرة');
+                // الـids تُعاد مُنقّحة (سطران مكرران للصنف نفسه = id واحد)
+                expect(json.unavailableItemIds).toEqual([7, 9]);
+                expect(mockTransaction).not.toHaveBeenCalled();
+        });
+
+        it('r139 (J5): أكثر من ٣ أصناف نافدة → أول ثلاثة تُسمّى ثم «وغيرها»', async () => {
+                mockMenuItemFindMany
+                        .mockResolvedValueOnce([])
+                        .mockResolvedValueOnce([
+                                { id: 1, nameAr: 'كبسة لحم', name: 'A' },
+                                { id: 2, nameAr: 'مكرونة', name: 'B' },
+                                { id: 3, nameAr: 'شوربة عدس', name: 'C' },
+                                { id: 4, nameAr: 'سلطة خضراء', name: 'D' },
+                        ]);
+
+                const res = await callPost({
+                        subtotal: 1,
+                        total: 1,
+                        restaurantId: 5,
+                        items: [1, 2, 3, 4].map((id) => ({ itemId: id, quantity: 1, price: 1 })),
+                });
+
+                expect(res.status).toBe(400);
+                const json = await res.json();
+                expect(json.error).toContain('وغيرها');
+                // الثلاثة الأوائل مُسمّاة والرابع مُختزل (لا يسافر كاملًا في التوست)
+                expect(json.error).toContain('كبسة لحم');
+                expect(json.error).toContain('مكرونة');
+                expect(json.error).toContain('شوربة عدس');
+                expect(json.error).not.toContain('سلطة خضراء');
+                expect(json.unavailableItemIds).toEqual([1, 2, 3, 4]);
+        });
+
+        it('r139 (J5): صفوف بلا أسماء → الرسالة العامة (توافق الاختبار القائم)', async () => {
+                mockMenuItemFindMany.mockResolvedValue([]);
+
+                const res = await callPost(tamperedBody);
+
+                expect(res.status).toBe(400);
+                const json = await res.json();
+                expect(json.error).toBe('أحد الأصناف في سلتك لم يعد متوفراً — حدّث السلة وحاول مجدداً');
+                // الـids تبقى حاضرة حتى بلا أسماء — الواجهة تسم الأسطر بالـid لا بالاسم
+                expect(json.unavailableItemIds).toEqual([1]);
+        });
+
         it('modifier option belonging to a DIFFERENT item → 400, zero writes', async () => {
                 mockModifierOptionFindMany.mockResolvedValue([
                         { id: 99, priceDelta: 2, group: { menuItemId: 2 } },

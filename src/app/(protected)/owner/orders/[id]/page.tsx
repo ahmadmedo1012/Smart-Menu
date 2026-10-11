@@ -147,7 +147,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                                                 isCurrent
                                                                                         ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground border-orange shadow-lg shadow-orange/25 scale-110'
                                                                                         : isActive
-                                                                                                ? 'bg-success/15 text-success border-success/30'
+                                                                                                ? 'bg-success/15 text-success-ink border-success/30'
                                                                                                 : 'bg-muted/30 text-muted-foreground/30 border-border/20'
                                                                         )}
                                                                 >
@@ -163,7 +163,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                                                 isCurrent
                                                                                         ? 'text-foreground'
                                                                                         : isActive
-                                                                                                ? 'text-success'
+                                                                                                ? 'text-success-ink'
                                                                                                 /* r127-F4: /40 → /60 — وسم حالة الخط الزمني نص مقروء */
                                                                                                 : 'text-muted-foreground/60'
                                                                         )}
@@ -282,7 +282,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                 الأصناف ({toArabicNumber(order.items.length)})
                                         </h2>
                                         <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="gap-1">
-                                                {copied ? <MotionCheck className="size-3.5 text-success" /> : <AnimatedCopy className="size-3.5" />}
+                                                {copied ? <MotionCheck className="size-3.5 text-success-ink" /> : <AnimatedCopy className="size-3.5" />}
                                                 نسخ للواتساب
                                         </Button>
                                 </div>
@@ -322,7 +322,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                         variant="outline"
                                         size="lg"
                                         onClick={copyAsWhatsApp}
-                                        className="text-success border-success/25 hover:bg-success/10 hover:text-success"
+                                        className="text-success-ink border-success/25 hover:bg-success/10 hover:text-success-ink"
                                 >
                                         <AnimatedMessageCircle className="size-4" />
                                         نسخ نص الطلب

@@ -110,7 +110,10 @@ export function PickupTypeSelector({
                                                                 <circle cx="18.5" cy="18.5" r="2.5" />
                                                         </svg>
                                                 )}
-                                                <span>{opt.label}</span>
+                                                {/* r139 (J7): nowrap — تسمية «توصيل +5 د.ل» المضغوطة
+                                                    تبقى سطرًا واحدًا بدل التفاف 2-3 أسطر يكسر تساوي
+                                                    ارتفاع الحبّات على 360px (px-1 يسمح بأوسع نص ممكن). */}
+                                                <span className="whitespace-nowrap">{opt.label}</span>
                                         </button>
                                 ))}
                         </div>

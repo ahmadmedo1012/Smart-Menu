@@ -6,6 +6,9 @@ import { toArabicNumber, formatPrice } from '@/lib/format';
 import { getPickupTypeMeta } from '@/lib/order-status';
 import { Button } from '@/components/ui/button';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+/* r139 (P2-8 من تدقيق r138-a، 4.1.3): «جارٍ…» كان نصًا يتغير بلا
+   إعلان لقارئ الشاشة — نفس مكون المنصة المعتمد (نمط r138 P1-3). */
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import {
         Dialog,
         DialogContent,
@@ -183,10 +186,18 @@ export function ReviewDialog({
                                         <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
                                                 تعديل
                                         </Button>
+                                        {/* r139 (P2-8، 4.1.3): بثّ «جارٍ إرسال الطلب» (بلا
+                                            اكتمال — النجاح يغلق الحوار ويوجّه لصفحة التأكيد،
+                                            والفشل له توست — لا كذب على قارئ الشاشة). */}
+                                        <LoadingAnnouncer
+                                                loading={isSubmitting}
+                                                message="جارٍ إرسال الطلب إلى المطعم"
+                                                completedMessage=""
+                                        />
                                         <Button className="flex-1 gap-2" onClick={onCheckout} disabled={isSubmitting}>
                                                 {isSubmitting ? (
                                                         <>
-                                                                <Loader2 className="size-4 animate-spin" /> جارٍ…
+                                                                <Loader2 className="size-4 animate-spin" aria-hidden="true" /> <span className="sr-only">جارٍ إرسال الطلب</span>
                                                         </>
                                                 ) : (
                                                         <>

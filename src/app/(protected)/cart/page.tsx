@@ -36,7 +36,7 @@ import { PICKUP_TYPE_META } from '@/lib/order-status';
 // r137: رسوم التوصيل/الحد الأدنى — الحقيقة المالية الواحدة للواجهة والخادم
 import {
         deliveryFeeFor,
-        deliveryFeeLabel,
+        deliveryFeeLabelCompact,
         hasDeliveryFee,
         isBelowMinOrder,
         minOrderMessage,
@@ -98,6 +98,11 @@ export default function CartPage() {
         /* r137: رسوم التوصيل/الحد الأدنى للمطعم (من نفس جلب أنواع الطلب —
            GET /api/restaurants/[id] العام). null = الميزة مطفأة. */
         const [deliveryMeta, setDeliveryMeta] = useState<DeliveryMeta>({ fee: null, minOrder: null });
+        /* r139 (J5): الأصناف التي رفضها الخادم عند الإرسال (نافدة/مخفية) —
+           تُوسَم أسطرها بشارة «لم يعد متوفرًا» بدل رحلة صيد في سلة كبيرة.
+           حالة عرض عابرة (لا تُحفظ في المتجر): تُصفّى في العرض إلى ما بقي
+           في السلة، وتُمسح عند نجاح الإرسال. */
+        const [unavailableIds, setUnavailableIds] = useState<number[]>([]);
         const submittingRef = useRef(false);
         // r106-N1 (Next-actions #6, mirroring mobile N4 with a stronger lifecycle):
         // idempotency key for POST /api/orders. Minted once per checkout attempt
@@ -171,10 +176,12 @@ export default function CartPage() {
                 (o) => supportedPickupTypes.length === 0 || supportedPickupTypes.includes(o.value)
         ).map((o) => ({
                 ...o,
-                /* r137: خيار التوصيل يعلن رسومه الصريحة — «التوصيل (5 د.ل رسومًا)» */
+                /* r137: خيار التوصيل يعلن رسومه الصريحة — «التوصيل (5 د.ل رسومًا)».
+                   r139 (J7): الصيغة المضغوطة «توصيل +5 د.ل» داخل الحبة الضيقة —
+                   الكاملة كانت تكسر تخطيط 360px؛ الكاملة في ملخص السلة والمراجعة. */
                 label:
                         o.value === 'delivery' && hasDeliveryFee(deliveryMeta)
-                                ? deliveryFeeLabel(deliveryMeta.fee!)
+                                ? deliveryFeeLabelCompact(deliveryMeta.fee!)
                                 : o.label,
         }));
 
@@ -335,8 +342,23 @@ export default function CartPage() {
                                 // rate-limit (429) customers, where retrying can never succeed.
                                 let serverError: unknown;
                                 try {
-                                        const body = (await res.json()) as { error?: unknown };
+                                        const body = (await res.json()) as {
+                                                error?: unknown;
+                                                unavailableItemIds?: unknown;
+                                        };
                                         serverError = body?.error;
+                                        /* r139 (J5): رفض الأصناف النافدة يحمل الـids — وسّم
+                                           الأسطر المخالفة فورًا (الشارة تعيش حتى يزيلها
+                                           الزبون أو يُعاد الإرسال بنجاح). */
+                                        if (
+                                                res.status === 400 &&
+                                                Array.isArray(body?.unavailableItemIds)
+                                        ) {
+                                                const ids = body.unavailableItemIds.filter(
+                                                        (v): v is number => typeof v === 'number'
+                                                );
+                                                if (ids.length > 0) setUnavailableIds(ids);
+                                        }
                                 } catch {
                                         /* non-JSON body (e.g. proxy 403) — status mapping still applies */
                                 }
@@ -447,6 +469,8 @@ export default function CartPage() {
                 }
                 // H4 fix: clear cart immediately after successful order (prevents double-submit on popup-block)
                 clearCart();
+                /* r139 (J5): وسم النافدين انتهى دوره — الطلب نجح والسلة أُفرغت. */
+                setUnavailableIds([]);
                 // round97-X3: shared wa.me builder (encodes internally; waNumber is
                 // guaranteed non-null here — the checkout guard returned early above).
                 window.open(buildWhatsAppShareUrl(receipt, waNumber), '_blank');
@@ -554,6 +578,9 @@ export default function CartPage() {
                                                         item={item}
                                                         index={idx}
                                                         animateItems={animateItems}
+                                                        /* r139 (J5): وسم السطر النافد من الخادم — يُصفّى إلى ما
+                                                           بقي في السلة (حذف السطر يُخفي الشارة تلقائيًا). */
+                                                        unavailable={unavailableIds.includes(item.itemId)}
                                                         onUpdateQuantity={updateQuantity}
                                                         onRemove={removeItem}
                                                         onUpdateNotes={updateNotes}

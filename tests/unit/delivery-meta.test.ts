@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest';
 import {
 	deliveryFeeFor,
 	deliveryFeeLabel,
+	deliveryFeeLabelCompact,
 	hasDeliveryFee,
 	isBelowMinOrder,
 	minOrderMessage,
@@ -59,6 +60,14 @@ describe('النصوص العربية — نفس العبارات في الوا�
 	it('deliveryFeeLabel: «التوصيل (5 د.ل رسومًا)» — الكسر يبقى كسرًا', () => {
 		expect(deliveryFeeLabel(5)).toBe('التوصيل (5 د.ل رسومًا)');
 		expect(deliveryFeeLabel(5.5)).toBe('التوصيل (5.5 د.ل رسومًا)');
+	});
+
+	/* r139 (J7): الصيغة المضغوطة داخل المقسّمات الضيقة — تحمل الإعلان
+	   الصريح للرسوم بنصف عرض الكاملة (لا كسر تخطيط 360px). */
+	it('deliveryFeeLabelCompact: «توصيل +5 د.ل» — رقم غربي وكسر محفوظ', () => {
+		expect(deliveryFeeLabelCompact(5)).toBe('توصيل +5 د.ل');
+		expect(deliveryFeeLabelCompact(5.5)).toBe('توصيل +5.5 د.ل');
+		expect(deliveryFeeLabelCompact(12.25)).toBe('توصيل +12.25 د.ل');
 	});
 
 	it('hasDeliveryFee: القيمة السالبة/الصفرية/المفقودة = لا عرض', () => {

@@ -221,7 +221,7 @@ export default function AdminOrdersPage() {
         subtitle={`${toArabicNumber(totalCount)} طلب — كل مطاعم الشبكة`}
         actions={
           <Badge variant="outline" className="gap-1.5 bg-success/10">
-            <Activity className="size-3.5 text-success animate-pulse" />
+            <Activity className="size-3.5 text-success-ink animate-pulse" />
             تحديث تلقائي
           </Badge>
         }
@@ -234,16 +234,16 @@ export default function AdminOrdersPage() {
           <p className="text-2xl font-bold mt-1">{toArabicNumber(orders.length)}</p>
         </div>
         <div className="rounded-xl bg-warning/15 border border-warning/25 p-4 shadow-sm">
-          <p className="text-xs text-warning">جديد</p>
-          <p className="text-2xl font-bold mt-1 text-warning">{toArabicNumber(totalNew)}</p>
+          <p className="text-xs text-warning-ink">جديد</p>
+          <p className="text-2xl font-bold mt-1 text-warning-ink">{toArabicNumber(totalNew)}</p>
         </div>
         <div className="rounded-xl bg-info/15 border border-info/25 p-4 shadow-sm">
-          <p className="text-xs text-info">قيد التحضير</p>
-          <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(totalPreparing)}</p>
+          <p className="text-xs text-info-ink">قيد التحضير</p>
+          <p className="text-2xl font-bold mt-1 text-info-ink">{toArabicNumber(totalPreparing)}</p>
         </div>
         <div className="rounded-xl bg-success/10 border border-success/20 p-4 shadow-sm">
-          <p className="text-xs text-success">جاهز</p>
-          <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(totalReady)}</p>
+          <p className="text-xs text-success-ink">جاهز</p>
+          <p className="text-2xl font-bold mt-1 text-success-ink">{toArabicNumber(totalReady)}</p>
         </div>
       </div>
 
@@ -252,7 +252,7 @@ export default function AdminOrdersPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="rounded-xl bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <AnimatedBarChart3 className="size-4 text-success" />
+              <AnimatedBarChart3 className="size-4 text-success-ink" />
               <h2 className="text-sm font-semibold">المطاعم الأكثر طلبات</h2>
             </div>
             <div className="space-y-2">
@@ -372,9 +372,9 @@ export default function AdminOrdersPage() {
                         // r121-A-3/I-1: same advance-button language as the owner
                         // table (OrdersTable) — info for "قيد التحضير", success for
                         // the terminal steps; was orange for preparing+completed.
-                        next === "preparing" && "border-info/30 text-info hover:bg-info/10",
-                        next === "ready" && "border-success/25 text-success hover:bg-success/10",
-                        next === "completed" && "border-success/25 text-success hover:bg-success/10",
+                        next === "preparing" && "border-info/30 text-info-ink hover:bg-info/10",
+                        next === "ready" && "border-success/25 text-success-ink hover:bg-success/10",
+                        next === "completed" && "border-success/25 text-success-ink hover:bg-success/10",
                       )}>
                       ← {getOrderStatusMeta(next).label}
                     </button>

@@ -53,8 +53,17 @@ interface MenuToolbarProps {
         onSearchChange: (value: string) => void;
         sort: string;
         onSortChange: (value: string) => void;
-        /** Raw items for suggestion dropdown — always pass, dropdown manages visibility */
-        items?: { id: number; name: string; nameAr?: string | null; price: number; image?: string }[];
+        /** Raw items for suggestion dropdown — always pass, dropdown manages visibility.
+         * r139 (J6): discountedPrice ينضم للنوع — البطاقة تحت الاقتراح تعرض
+         * المخفّض فكان سعران متناقضان للصنف نفسه على الشاشة نفسها. */
+        items?: {
+                id: number;
+                name: string;
+                nameAr?: string | null;
+                price: number;
+                discountedPrice?: number | null;
+                image?: string;
+        }[];
         onSuggestionClick?: (id: number) => void;
         /** Short menus (<8 items) don't need search — hide to reclaim the fold */
         hideSearch?: boolean;
@@ -305,9 +314,25 @@ export function MenuToolbar({
                                                                                 </div>
                                                                         )}
                                                                         <span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
-                                                                        <span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
-                                                                                {formatPrice(s.price)}
-                                                                        </span>
+                                                                        {/* r139 (J6): السعر المعروض = المخفّض إن وُجد (نفس دلالة
+                                                                           البطاقة: حبر success للموفِر + شطب الأصلي) — كان
+                                                                           الاقتراح يعرض الأساسي بينما البطاقة تحته تعرض
+                                                                           المخفّض؛ «موفِر حقيقي» = مخفّض غير صفري وأدنى من
+                                                                           الأصلي (نفس شرط hasDiscount في MenuItemCard). */}
+                                                                        {s.discountedPrice != null && s.discountedPrice < s.price ? (
+                                                                                <span className="flex items-baseline gap-1.5 shrink-0">
+                                                                                        <span className="text-xs font-semibold tabular-nums text-success-ink">
+                                                                                                {formatPrice(s.discountedPrice)}
+                                                                                        </span>
+                                                                                        <span className="text-2xs text-muted-foreground line-through tabular-nums">
+                                                                                                {formatPrice(s.price, { suffix: '' })}
+                                                                                        </span>
+                                                                                </span>
+                                                                        ) : (
+                                                                                <span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
+                                                                                        {formatPrice(s.price)}
+                                                                                </span>
+                                                                        )}
                                                                 </button>
                                                         </li>
                                                 ))}

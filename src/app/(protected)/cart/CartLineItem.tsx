@@ -13,6 +13,9 @@ interface CartLineItemProps {
         /** Position in the list — drives the staggered entrance delay. */
         index: number;
         animateItems: boolean;
+        /* r139 (J5): الخادم رفض الصنف عند الإرسال (نافد/مخفية) — شارة حمراء
+           وتعطيل عناصر التحكم وإبقاء الحذف: الفعل الوحيد المتبقي للسطر. */
+        unavailable?: boolean;
         onUpdateQuantity: (id: string, qty: number) => void;
         onRemove: (id: string) => void;
         onUpdateNotes: (id: string, notes: string) => void;
@@ -23,6 +26,7 @@ export function CartLineItem({
         item,
         index,
         animateItems,
+        unavailable = false,
         onUpdateQuantity,
         onRemove,
         onUpdateNotes,
@@ -31,19 +35,37 @@ export function CartLineItem({
                 <div
                         className={cn(
                                 'rounded-md bg-card/60 border border-border/30 p-4 transition-[opacity,transform,translate,scale,rotate,box-shadow,border-color] duration-slower hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5',
-                                animateItems ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                                animateItems ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
+                                /* r139 (J5): السطر الموسوم من الخادم — إطار خطر واضح
+                                   (لا يعتمد على اللون وحده: الشارة النصية معه). */
+                                unavailable && 'border-destructive/50 bg-destructive/5 hover:border-destructive/50'
                         )}
                         style={{ transitionDelay: `${index * 80}ms` }}
                 >
                         <div className="flex items-center justify-between mb-3 gap-2">
                                 <div className="flex-1 min-w-0 flex items-center gap-3">
-                                        <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center shrink-0">
+                                        <div
+                                                className={cn(
+                                                        'size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center shrink-0',
+                                                        /* r139 (J5): عدّاد الكمية يخفت مع وسم السطر — */
+                                                        unavailable && 'opacity-50'
+                                                )}
+                                        >
                                                 <span className="text-sm font-bold text-primary tabular-nums">
                                                         {toArabicNumber(item.quantity)}
                                                 </span>
                                         </div>
-                                        <div>
-                                                <h3 className="font-semibold truncate">{item.name}</h3>
+                                        <div className="min-w-0">
+                                                <div className="flex items-center gap-1.5">
+                                                        <h3 className="font-semibold truncate">{item.name}</h3>
+                                                        {/* r139 (J5): شارة الرفض الخادمي — توست الرسالة يسمّي
+                                                           الأصناف، والشارة تجد السطر في السلة بلا صيد. */}
+                                                        {unavailable && (
+                                                                <span className="inline-flex items-center rounded-md bg-destructive/10 border border-destructive/30 px-1.5 py-0.5 text-2xs font-bold text-danger-ink shrink-0">
+                                                                        لم يعد متوفرًا
+                                                                </span>
+                                                        )}
+                                                </div>
                                                 {/* w3-f1: chosen modifier summary for this line */}
                                                 {item.modifiersSummary && (
                                                         <p className="text-2xs text-muted-foreground mt-0.5 line-clamp-2">
@@ -62,6 +84,9 @@ export function CartLineItem({
                                            (كان scale-90 على الثلاثة)؛ قائمة الانتقال محدّدة. */}
                                         <button
                                                 type="button"
+                                                /* r139 (J5): السطر النافد لا يُعدَّل — تعديل كمية صنف
+                                                   رفضه الخادم ضجيج؛ الحذف هو الفعل الوحيد. */
+                                                disabled={unavailable || item.quantity <= 0}
                                                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
                                                 className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,background-color,border-color] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label={`إنقاص كمية ${item.name}`}
@@ -73,7 +98,7 @@ export function CartLineItem({
                                         </span>
                                         <button
                                                 type="button"
-                                                disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                                                disabled={unavailable || item.quantity >= MAX_ITEM_QUANTITY} onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                                                 className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,background-color,border-color] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label={`زيادة كمية ${item.name}`}
                                         >
@@ -98,6 +123,8 @@ export function CartLineItem({
                                 aria-label={`ملاحظات للصنف ${item.name}`}
                                 value={item.notes}
                                 maxLength={500}
+                                /* r139 (J5): ملاحظات صنف نافد لن تُرسل أبدًا. */
+                                disabled={unavailable}
                                 onChange={(e) => onUpdateNotes(item.id, e.target.value)}
                                 className="w-full h-11 rounded-md border border-input bg-transparent px-3 text-[16px] placeholder:text-placeholder-text outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]"
                         />

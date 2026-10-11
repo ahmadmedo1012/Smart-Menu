@@ -25,8 +25,9 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+/* r139 (housekeeping): requireAdmin حُذف — البذرة على requireAuth مع فحص
+   الدور الصريح داخل المسار (نفس دلالة البوابة القديمة). */
 vi.mock('@/lib/auth', () => ({
-        requireAdmin: vi.fn(async () => ({ authorized: true, role: 'admin', userId: 1 })),
         requireAuth: vi.fn(async () => ({ authorized: true, role: 'admin', userId: 1 })),
 }));
 vi.mock('@/lib/hash', () => ({ hashPassword: () => 'hashed' }));
@@ -54,11 +55,9 @@ describe('POST /api/seed — envelope + no internal leak (round89-A4)', () => {
         });
 
         it('unauthenticated caller → 401 envelope, zero writes', async () => {
-                const { requireAdmin } = await import('@/lib/auth');
-                vi.mocked(requireAdmin).mockResolvedValueOnce({
+                const { requireAuth } = await import('@/lib/auth');
+                vi.mocked(requireAuth).mockResolvedValueOnce({
                         authorized: false,
-                        status: 401,
-                        error: 'غير مصرح',
                 } as never);
 
                 const { POST } = await import('@/app/api/seed/route');
@@ -72,11 +71,14 @@ describe('POST /api/seed — envelope + no internal leak (round89-A4)', () => {
         });
 
         it('round91-F-B (D2-#3): logged-in wrong-role caller → 403 (401 is no-session-only now)', async () => {
-                const { requireAdmin } = await import('@/lib/auth');
-                vi.mocked(requireAdmin).mockResolvedValueOnce({
-                        authorized: false,
-                        status: 403,
-                        error: 'لا تملك الصلاحية',
+                /* r139: الجلسة صالحة لكن الدور غير إداري — requireAuth يمرّره
+                   وفحص الدور الصريح في المسار يرفضه (العقد نفسه بعد حذف
+                   requireAdmin). */
+                const { requireAuth } = await import('@/lib/auth');
+                vi.mocked(requireAuth).mockResolvedValueOnce({
+                        authorized: true,
+                        role: 'USER',
+                        userId: 77,
                 } as never);
 
                 const { POST } = await import('@/app/api/seed/route');

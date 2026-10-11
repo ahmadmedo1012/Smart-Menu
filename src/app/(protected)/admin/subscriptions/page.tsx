@@ -52,11 +52,11 @@ interface Payment {
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
         pending: {
                 label: 'قيد الانتظار',
-                color: 'bg-warning/15 text-warning border-warning/25',
+                color: 'bg-warning/15 text-warning-ink border-warning/25',
         },
         verified: {
                 label: 'تم التحقق',
-                color: 'bg-success/15 text-success dark:bg-success/25',
+                color: 'bg-success/15 text-success-ink dark:bg-success/25',
         },
         cancelled: {
                 label: 'ملغي',
@@ -191,14 +191,14 @@ export default function AdminSubscriptionsPage() {
                                 {/* r121-A-3/I-1: pending tile re-mapped to the warning family
                                         (was brand-orange) to match the semantic status language */}
                                 <div className="rounded-xl bg-warning/15 border border-warning/25 p-4">
-                                        <p className="text-xs text-warning">قيد الانتظار</p>
-                                        <p className="text-2xl font-bold mt-1 text-warning">
+                                        <p className="text-xs text-warning-ink">قيد الانتظار</p>
+                                        <p className="text-2xl font-bold mt-1 text-warning-ink">
                                                 {toArabicNumber(payments.filter((p) => p.status === 'pending').length)}
                                         </p>
                                 </div>
                                 <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
-                                        <p className="text-xs text-success">تم التحقق</p>
-                                        <p className="text-2xl font-bold mt-1 text-success">
+                                        <p className="text-xs text-success-ink">تم التحقق</p>
+                                        <p className="text-2xl font-bold mt-1 text-success-ink">
                                                 {toArabicNumber(payments.filter((p) => p.status === 'verified').length)}
                                         </p>
                                 </div>
@@ -336,7 +336,7 @@ export default function AdminSubscriptionsPage() {
                                                                                                         title="تأكيد الدفع"
                                                                                                         aria-label="تأكيد الدفع"
                                                                                                 >
-                                                                                                        <MotionCheck className="size-4 text-success" />
+                                                                                                        <MotionCheck className="size-4 text-success-ink" />
                                                                                                 </button>
                                                                                                 <button
                                                                                                         type="button"

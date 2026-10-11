@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **r136 Libya-first round — local verification green (tsc 0 · lint 0-10w · unit 2441/2441 · parity 481 web) — push pending at doc-write time**. Rounds r128–r135 lived in commit messages only; documented here + CHANGELOG at r136. See r136 entry |
+| Last verified commit | **r139 queue-completion round — local verification green (tsc 0 · lint 0-10w · unit 2523/2523 · parity 237 tests · build 85/85 routes) — e2e gate delegated to CI on push (no local Postgres in sandbox; CI runs the full matrix). r137/r138 documented in commit messages; see r139 entry** |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
-| Unit tests | **2441/2441** (r135 world-class customer menu batch + r136: +9 Libyan-phone normalization pins, A12-N7 JSON-LD pin updated to discount-aware expression) · parity web 481 expects / mobile parity 89 checks · e2e matrix incl. qa-teams deep journeys (CI) |
+| Unit tests | **2523/2523** (r139: +25 net — delivery compact label, J5 named-unavailable envelope ×3, parity pins ×9, seed-route test rework after requireAdmin deletion; −12 requireAdmin unit tests retired with the symbol) · parity 237 tests (r139 +9: J5/J6/J7/J17, inks, audible states, housekeeping) · e2e matrix incl. qa-teams deep journeys (CI) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -28,6 +28,17 @@
 - **Ops**: `docs/ops-runbook.md` (PITR/rollback/incidents).
 
 ## Round history (recent, newest first)
+
+## r139 (2026-10-11) — r138 queue completion: the sold-out hunt ends, honest money rows, admin inks, housekeeping
+- **J5 (medium→done)**: server rejects unavailable items as a batch WITH names («هذه الأصناف لم تعد متوفرة: …» — ≤3 then «وغيرها») + `unavailableItemIds` in the envelope; the cart page marks those lines (danger border + «لم يعد متوفرًا» badge + delete-only controls; badge lives until removal/success; cleared on confirmed submit). Unit ×3 (named/multiple/bare) + parity pin.
+- **J6**: search suggestions show `discountedPrice ?? price` (real-discount rule = card's `hasDiscount`), success-ink + struck-through original — no more two prices for one item on one screen.
+- **J7**: `deliveryFeeLabelCompact` («توصيل +5 د.ل») in both segmented controls (OrderDialog radio + PickupTypeSelector pills) with `whitespace-nowrap`; full label stays in CartSummaryCard/ReviewDialog/slide-over fee row. 360px layout intact.
+- **J17**: CartSlideOver fee state machine ('idle'|'pending'|'known'|'unknown') — honest «+ رسوم توصيل (تُحدَّد عند إتمام الطلب)» line during fetch/failure (was: silently lower total); new restaurant resets the meta (no cross-restaurant fee inheritance mid-fetch).
+- **Inks sweep (r138-b leftover)**: 62 `text-success/warning/info` → `-ink` twins across 19 admin/owner/login/order-confirmed files + **new `--color-info-ink` bridge** (sky-deep 10.57:1; text-info was 3.21:1). mint 2.88:1 / yellow 2.21:1 failed even the 3:1 graphics floor. Dark theme: ink===base → zero visual change.
+- **P2-8/P3 (r138-a leftovers)**: submit spinner + «عرض المزيد» + ReviewDialog «جارٍ…» now announce via LoadingAnnouncer (completedMessage="" — success has its toast, failure has visible error text; never lie to screen readers) + sr-only labels on spinners; GalleryCarousel strip `role="group"`→`role="button"` (4.1.2 — Enter/Space were already wired).
+- **Housekeeping (r138-e decisions, corrected)**: `requireAdmin` DELETED — the r138-e claim "zero production callers" was WRONG (audit missed `audit-logs` + `seed`; caught by the check-api-auth guard failing post-deletion). Both migrated to `requireAuth` + explicit role checks (byte-equivalent semantics: 401 no-session / 403 wrong-role; audit-logs super_admin-only, seed three admin roles) — pins already lived in rbac-matrix (guest 401 / roles 403 / super 200) + demo-seed-envelope reworked. knip: `scripts/archive/**` ignored (29 false positives gone), `sharp` ignoreDependencies entry dropped (stale), `ignoreBinaries: expo/expo-doctor` (workspace-scope artifact).
+- **Gates**: unit 2523/2523 · parity 237/237 · tsc 0 · lint 0 errors (10 pre-existing e2e warnings) · build 85/85 (standalone, shape-valid .env, `env -u DATABASE_URL` — sandbox has no Postgres; migrate-deploy runs on Vercel) · check-api-auth PASS.
+- **Next recommended**: (1) openingHoursSpecification still data-pending for the demo restaurant (owner hasn't filled the r137 week editor — export covered by 8 contract tests), (2) Smart-Link's pricing-page SO card wording drift check (fleet sibling), (3) the 26 knip "unused exports" advisory (shadcn primitive kit decision pending).
 
 ## r133–r136 (2026-10-09 → 2026-10-10) — LIBYA-FIRST + docs catch-up (r128–r135 were commit-message-only; this entry back-fills the ledger)
 - **r133**: WEB money-path MUSTs — wa.me Eastern-digit fold (٠٩١٢… links were dead) + Africa/Tripoli WhatsApp receipt times + ar-LY price grouping (groupDots, hydration-safe hand-rolled).

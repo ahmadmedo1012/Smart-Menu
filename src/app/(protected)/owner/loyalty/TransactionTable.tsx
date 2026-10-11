@@ -40,7 +40,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                 </p>
               </div>
             </div>
-            <span className={cn("text-sm font-semibold tabular-nums", isEarn ? "text-success" : "text-destructive")}>
+            <span className={cn("text-sm font-semibold tabular-nums", isEarn ? "text-success-ink" : "text-destructive")}>
               {isEarn ? "+" : "-"}{toArabicNumber(tx.points)}
             </span>
           </div>

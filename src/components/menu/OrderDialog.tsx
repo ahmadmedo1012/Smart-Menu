@@ -33,7 +33,7 @@ import {
 } from './menu-types';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 // r137: تسمية خيار التوصيل مع الرسوم («التوصيل (5 د.ل رسومًا)»)
-import { deliveryFeeLabel } from '@/lib/delivery-meta';
+import { deliveryFeeLabelCompact } from '@/lib/delivery-meta';
 // r121-O-1: canonical pickup labels for the order-type segmented control
 import { getPickupTypeMeta } from '@/lib/order-status';
 import { cn } from '@/lib/utils';
@@ -714,7 +714,7 @@ export function OrderDialog({
                                                                 tabIndex={orderType === type ? 0 : -1}
                                                                 onClick={() => setOrderType(type)}
                                                                 className={cn(
-                                                                        'flex-1 min-h-11 inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[color,background-color]',
+                                                                        'flex-1 min-h-11 inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[color,background-color] whitespace-nowrap px-1',
                                                                         orderType === type
                                                                                 ? 'bg-orange text-orange-foreground shadow-md'
                                                                                 : 'text-muted-foreground hover:text-foreground'
@@ -723,9 +723,12 @@ export function OrderDialog({
                                                                 {/* r137: خيار التوصيل يعلن رسومه الصريحة — «التوصيل
                                                                    (5 د.ل رسومًا)» (لا مفاجآت عند الدفع؛ الرسوم
                                                                    تُفرض خادميًا في POST /api/orders). بلا رسوم /
-                                                                   ميزة مطفأة: التسمية القانونية كما هي. */}
+                                                                   ميزة مطفأة: التسمية القانونية كما هي.
+                                                                   r139 (J7): الصيغة المضغوطة «توصيل +5 د.ل» داخل
+                                                                   المقسّم — الكاملة كانت تكسر تخطيط 360px (التفاف
+                                                                   2-3 أسطر)؛ التسمية الكاملة في الملخص والمراجعة. */}
                                                                 {type === 'delivery' && deliveryFee != null && deliveryFee > 0
-                                                                        ? deliveryFeeLabel(deliveryFee)
+                                                                        ? deliveryFeeLabelCompact(deliveryFee)
                                                                         : getPickupTypeMeta(type).label}
                                                         </button>
                                                 ))}

@@ -38,23 +38,11 @@ export async function requireAuth(opts?: { requireRestaurant?: boolean }): Promi
   return { authorized: false } as const;
 }
 
-/** @deprecated Use requirePermission() with specific permission instead */
-export async function requireAdmin(): Promise<
-  AuthResult | { authorized: false; error: string; status: number }
-> {
-  // round91-F-B (D2-#3): 401 ONLY for no-session — a logged-in wrong-role
-  // caller now gets 403 + Arabic error (mirrors the orders/[id] pattern of
-  // the R90-F3 unification; requireAuth used to conflate the two cases so
-  // /api/seed + /api/admin/audit-logs answered 401 to an authenticated
-  // owner/USER).
-  const r = await requireAuth();
-  if (!r.authorized) return { authorized: false, error: "غير مصرح", status: 401 };
-  if (r.role !== "super_admin" && r.role !== "sub_admin" && r.role !== "admin") {
-    return { authorized: false, error: "لا تملك الصلاحية", status: 403 };
-  }
-  return r;
-}
-
+/* r139 (housekeeping — قرار r138-e بعد تصحيحه): requireAdmin حُذف — كان
+   @deprecated ومستدعاه الإنتاجي الوحيد (audit-logs + seed) رُحِّل إلى
+   requireAuth مع فحص الدور الصريح في موقعه (صون الدلالات حرفيًا — لا
+   بوابة وسيطة بين الجلسة والعقد). المسارات الإدارية الأخرى كلها على
+   requirePermission بصلاحيات محددة منذ R90-F3. */
 export async function requirePermission(
   permission: string,
   opts?: { requireRestaurant?: boolean }

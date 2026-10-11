@@ -240,7 +240,7 @@ export function CategoriesList({
                                                                                                                         // aria-label already carry the availability state;
                                                                                                                         // the w-14 word was eating 56px of the ≤390px row.
                                                                                                                         'text-xs w-14 hidden sm:inline',
-                                                                                                                        item.status === 'available' ? 'text-success' : 'text-destructive'
+                                                                                                                        item.status === 'available' ? 'text-success-ink' : 'text-destructive'
                                                                                                                 )}
                                                                                                         >
                                                                                                                 {item.status === 'available' ? 'متوفر' : 'غير متوفر'}

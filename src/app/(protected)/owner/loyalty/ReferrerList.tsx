@@ -20,7 +20,7 @@ interface ReferralRow {
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
     pending: { label: "معلق", classes: "bg-orange/10 text-accent-foreground dark:bg-orange/10 dark:text-accent-foreground" },
-    converted: { label: "تم التحويل", classes: "bg-success/15 text-success" },
+    converted: { label: "تم التحويل", classes: "bg-success/15 text-success-ink" },
     expired: { label: "منتهي", classes: "bg-muted text-muted-foreground" },
   }
   const m = map[status] ?? { label: status, classes: "bg-muted text-muted-foreground" }
@@ -93,7 +93,7 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
                   {formatDateShort(new Date(r.createdAt))}
                 </span>
                 {r.status === "converted" && (
-                  <span className="text-xs font-medium text-success tabular-nums">+{r.discountPercent}%</span>
+                  <span className="text-xs font-medium text-success-ink tabular-nums">+{r.discountPercent}%</span>
                 )}
               </div>
             </div>

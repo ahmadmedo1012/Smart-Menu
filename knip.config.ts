@@ -70,9 +70,10 @@ const config = {
                 'scripts/r96-convert-demo-images.mjs',
                 'scripts/r97-db-check.mjs',
                 'scripts/r97-admin-pass.mjs',
-                // r121-R-1: the two r96 one-off migration harnesses moved to
-                // scripts/archive/ (git mv) — entries kept with the new paths so knip
-                // still recognizes them as intentional audit-trail entry points.
+                // r121-R-1 + r139 (housekeeping): أدوات الجولات لمرة واحدة تُحفظ
+                // كأثر تدوين مقصود (audit trail) في scripts/archive/ — المجلد
+                // كله خارج نطاق التحليل بدل تعداد ملفاته (كانت 29 «ملفًا غير
+                // مستعمل» إيجابية كاذبة في كل تقرير).
                 'scripts/archive/r96-test-migration.mjs',
                 'scripts/archive/r96-test-migration-prod-sim.mjs',
         ],
@@ -85,18 +86,27 @@ const config = {
                 'test-results/**',
                 'playwright-report/**',
                 '.next/**',
+                // r139 (housekeeping): أثر التدوين المقصود — أدوات الجولات
+                // الأرشيفية ليست كودًا حيًا ولا يُراد تحليله (كانت 29 ملفًا
+                // «غير مستعمل» في كل تقرير — ضجيج يحجب الإشارات الحقيقية)
+                'scripts/archive/**',
         ],
         ignoreDependencies: [
                 // استهلاك runtime/CSS/peer لا يظهر في imports (موثق health-devex §1):
                 // Prisma client runtime تستهلكه شيفرة src/generated المولّدة،
-                // sharp تستهلكها تحسينات صور Next، tw-animate-css/tailwindcss
-                // تُستورد من CSS/PostCSS، axe-core تُحمَّل داخل اختبارات Playwright.
+                // tw-animate-css/tailwindcss تُستورد من CSS/PostCSS،
+                // axe-core تُحمَّل داخل اختبارات Playwright.
+                // r139 (housekeeping): سقط إدخال sharp — knip صار يتعرف على
+                // استهلاكه عبر next/image فلم يعد الإدخال لازمًا (تقرير r138-e).
                 '@prisma/client',
-                'sharp',
                 'tw-animate-css',
                 'tailwindcss',
                 'axe-core',
         ],
+        // r139 (housekeeping): ثنائيات expo يستدعيها ci.yml داخل مساحة عمل
+        // mobile (expo في mobile/package.json) — knip لا يفهم مساحات العمل
+        // فأدرجها كـ«غير مدرجة»؛ إيجابية كاذبة موثقة (تقرير r138-e).
+        ignoreBinaries: ['expo', 'expo-doctor'],
 };
 
 export default config;

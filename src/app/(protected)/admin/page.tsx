@@ -185,7 +185,7 @@ export default function AdminDashboard() {
                                                         <AnimatedRefreshCw className="size-4" aria-hidden="true" />
                                                 </Button>
                                                 <Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15">
-                                                        <Activity className="size-3.5 text-success" aria-hidden="true" />
+                                                        <Activity className="size-3.5 text-success-ink" aria-hidden="true" />
                                                         مباشر
                                                 </Badge>
                                         </>
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
                                         value={stats.totalUsers}
                                         icon={Users}
                                         iconBg="bg-info/10 dark:bg-info/15"
-                                        iconColor="text-info"
+                                        iconColor="text-info-ink"
                                         trend={stats.userGrowthPct}
                                         href="/admin/users"
                                 />
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
                                         value={stats.monthlyRevenue}
                                         icon={DollarSign}
                                         iconBg="bg-success/10"
-                                        iconColor="text-success"
+                                        iconColor="text-success-ink"
                                         suffix=" د.ل"
                                 />
                                 <KpiCard
@@ -325,8 +325,8 @@ export default function AdminDashboard() {
                                                         <p className="text-2xs text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
                                                 </div>
                                                 <div className="rounded-md bg-success/10 dark:bg-success/15 p-4">
-                                                        <p className="text-xs text-success">مدفوع</p>
-                                                        <p className="text-2xl font-bold mt-1 text-success tabular-nums">
+                                                        <p className="text-xs text-success-ink">مدفوع</p>
+                                                        <p className="text-2xl font-bold mt-1 text-success-ink tabular-nums">
                                                                 {toArabicNumber(stats.paidPlanCount)}
                                                         </p>
                                                         <p className="text-2xs text-muted-foreground mt-0.5">اشتراك مدفوع</p>
@@ -414,7 +414,7 @@ export default function AdminDashboard() {
                                                                                         className="size-9 rounded-xl bg-info/10 dark:bg-info/15 flex items-center justify-center"
                                                                                         aria-hidden="true"
                                                                                 >
-                                                                                        <Users className="size-4 text-info" />
+                                                                                        <Users className="size-4 text-info-ink" />
                                                                                 </div>
                                                                                 <div>
                                                                                         <p className="text-sm font-medium">{u.name}</p>
@@ -469,12 +469,12 @@ export default function AdminDashboard() {
                                         {[
                                                 { label: 'إضافة مطعم', href: '/admin/restaurants', icon: Store, color: 'text-orange' },
                                                 { label: 'الطلبات', href: '/admin/orders', icon: ShoppingCart, color: 'text-orange' },
-                                                { label: 'المستخدمين', href: '/admin/users', icon: Users, color: 'text-info' },
+                                                { label: 'المستخدمين', href: '/admin/users', icon: Users, color: 'text-info-ink' },
                                                 {
                                                         label: 'سجل التدقيق',
                                                         href: '/admin/audit-logs',
                                                         icon: Activity,
-                                                        color: 'text-success',
+                                                        color: 'text-success-ink',
                                                 },
                                         ].map((item, i) => {
                                                 const Icon = item.icon;

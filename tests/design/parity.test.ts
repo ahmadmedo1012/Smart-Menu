@@ -1977,8 +1977,10 @@ describe('r133 parity — finest details: money seam, focus grammar, microcopy s
     const menuPageCc = cc('src/components/menu/MenuPageClient.tsx');
     expect(menuPageCc).toContain('hover:bg-orange/95 transition-[background-color]');
     // segmented pickup radio: transition list only (no ring utilities)
+    // r139 (J7): whitespace-nowrap + px-1 ينضمان للقائمة — التسمية المضغوطة
+    // «توصيل +5 د.ل» لا تكسر 360px (لا حلقات تركيز هنا كالمعتاد)
     const orderDialogCc = cc('src/components/menu/OrderDialog.tsx');
-    expect(orderDialogCc).toContain("justify-center rounded-lg text-sm font-medium transition-[color,background-color]'");
+    expect(orderDialogCc).toContain("justify-center rounded-lg text-sm font-medium transition-[color,background-color] whitespace-nowrap px-1'");
     // new-orders bar dismiss: hover grammar only
     const newOrdersBarCc = cc('src/components/orders/NewOrdersBar.tsx');
     expect(newOrdersBarCc).toContain('hover:bg-muted hover:text-foreground"');
@@ -2241,12 +2243,17 @@ describe('r137 parity — structured opening hours + delivery fee/min-order (Lib
     expect(s).toContain('minOrderMessage(deliveryMeta.minOrder!)');
   });
 
-  it('S7: خيار التوصيل يعلن رسومه — OrderDialog + صفحة السلة (تسمية المشترك deliveryFeeLabel)', () => {
+  it('S7: خيار التوصيل يعلن رسومه — OrderDialog + صفحة السلة (r139 J7: التسمية المضغوطة داخل المقسّمات الضيقة)', () => {
     const od = cc('src/components/menu/OrderDialog.tsx');
-    expect(od).toContain('deliveryFeeLabel(deliveryFee)');
+    expect(od).toContain('deliveryFeeLabelCompact(deliveryFee)');
     const cart = cc('src/app/(protected)/cart/page.tsx');
-    expect(cart).toContain('deliveryFeeLabel(deliveryMeta.fee!)');
+    expect(cart).toContain('deliveryFeeLabelCompact(deliveryMeta.fee!)');
     expect(cart).toContain('import {');
+    // التسمية الكاملة ما زالت معرّفة ومسحوبة في الاختبارات — الملخص والمراجعة
+    // يحملان الدلالة الكاملة (سطر الرسوم المستقل، S8)
+    const libCc = cc('src/lib/delivery-meta.ts');
+    expect(libCc).toContain('التوصيل (${formatPrice(fee)} رسومًا)');
+    expect(libCc).toContain('توصيل +${formatPrice(fee)}');
   });
 
   it('S8: فصل الرسوم الصادق — سطر مستقل في الملخص والمراجعة والفاتورة، لا ذوبان في المجموع', () => {
@@ -2294,5 +2301,123 @@ describe('r137 parity — structured opening hours + delivery fee/min-order (Lib
     expect(printCc).toContain('formatHoursForPrint(restaurant.hours)');
     // السطر يعتمد المكتبة المشتركة (لا منطق دوام منفصل في الورقة)
     expect(printCc).toContain("import { formatHoursForPrint } from '@/lib/opening-hours'");
+  });
+});
+
+describe('r139 — طابور r138 المكتمل: وسم النافد، سعر الاقتراح، تخطيط 360px، صدق الرسوم', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('r139-J5: الرفض الخادمي يسمّي الأصناف ويحمل الـids — الواجهة تسم الأسطر لا تصطادها', () => {
+    const s = cc('src/app/api/orders/route.ts');
+    // الظرف: الأسماء في الرسالة + unavailableItemIds للوسم الآلي
+    expect(s).toContain('unavailableItemIds');
+    expect(s).toContain('هذه الأصناف لم تعد متوفرة');
+    expect(s).toContain('وغيرها'); // أكثر من ٣ → أول ثلاثة + «وغيرها»
+    // الواجهة: القراءة → الحالة → التمرير للسطر
+    const cart = cc('src/app/(protected)/cart/page.tsx');
+    expect(cart).toContain('unavailableItemIds');
+    expect(cart).toContain('unavailableIds.includes(item.itemId)');
+    expect(cart).toContain('setUnavailableIds([])'); // النجاح يمسح الوسم
+    // السطر: الشارة النصية (لا لونًا وحده) + تعطيل التعديل وإبقاء الحذف
+    const line = cc('src/app/(protected)/cart/CartLineItem.tsx');
+    expect(line).toContain('لم يعد متوفرًا');
+    expect(line).toContain('unavailable || item.quantity <= 0');
+    expect(line).toContain('disabled={unavailable}'); // الملاحظات
+  });
+
+  it('r139-J6: اقتراح البحث يعرض المخفّض — لا سعران متناقضان على الشاشة نفسها', () => {
+    const t = cc('src/components/menu/MenuToolbar.tsx');
+    // النوع يحمل المخفّض + العرض بشروط البطاقة (مخفّض حقيقي < الأصلي)
+    expect(t).toContain('discountedPrice?: number | null');
+    expect(t).toContain('s.discountedPrice < s.price');
+    expect(t).toContain('text-success-ink'); // نفس دلالة الموفِر في البطاقة
+    expect(t).toContain('line-through'); // والأصلي مشطوب كما في البطاقة
+  });
+
+  it('r139-J7: المقسّمات لا تنكسر على 360px — الصيغة المضغوطة + سطر واحد', () => {
+    const od = cc('src/components/menu/OrderDialog.tsx');
+    expect(od).toContain('whitespace-nowrap');
+    const sel = cc('src/app/(protected)/cart/PickupTypeSelector.tsx');
+    expect(sel).toContain('whitespace-nowrap');
+    // والتسمية الكاملة تعيش حيث يتسع الفراغ (S8 أعلاه: الملخص/المراجعة)
+    expect(cc('src/app/(protected)/cart/CartSummaryCard.tsx')).toContain('رسوم التوصيل');
+  });
+
+  it('r139-J17: رسوم التوصيل في الورقة الجانبية — لا إجمالي أنقص بصت', () => {
+    const s = cc('src/components/menu/CartSlideOver.tsx');
+    // حالة الجلب معلنة، والسطر الصادق يظهر عند المجهولية (جارٍ أو فاشل)
+    expect(s).toContain("'idle' | 'pending' | 'known' | 'unknown'");
+    expect(s).toContain('رسوم توصيل (تُحدَّد عند إتمام الطلب)');
+    expect(s).toContain("feeStatus === 'pending' || feeStatus === 'unknown'");
+    // مطعم جديد = وصف مجهول (لا تُورّث رسوم المطعم السابق أثناء الجلب)
+    expect(s).toContain('setDeliveryMeta({ fee: null, minOrder: null })');
+  });
+});
+
+describe('r139 — أحبار الحالة في الأسطح الإدارية + حالات مسموعة + housekeeping', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('r139-أحبار: توأمات -ink تحل محل أحبار التعبئة كنص في admin/owner/login — والداكن لا يتغير', () => {
+    // الجسر الرابع المفقود: info-ink (sky-deep في الفاتح 10.57:1 —
+    // text-info كان 3.21:1 = يفشل 4.5:1 للنص)
+    expect(cc('src/app/globals.css')).toContain('--color-info-ink: var(--info-ink);');
+    // عينة من الأسطح المُكنّسة: الأرقام الكبيرة والشارات في admin/owner
+    const adminOrders = cc('src/app/(protected)/admin/orders/page.tsx');
+    expect(adminOrders).toContain('text-success-ink');
+    expect(adminOrders).toContain('text-warning-ink');
+    expect(adminOrders).toContain('text-info-ink');
+    expect(adminOrders).not.toMatch(/(?<!dark:)text-success(?![-\w])/);
+    const subs = cc('src/app/(protected)/admin/subscriptions/page.tsx');
+    expect(subs).toContain('text-success-ink');
+    const login = cc('src/app/(protected)/login/LoginForm.tsx');
+    expect(login).toContain('text-success-ink');
+    // الداكن: ink === base (وثيقة العائلة في globals — صفر تغيير عرضي)
+    const g = raw('src/app/globals.css');
+    expect(g).toMatch(/--success-ink:\s+var\(--c-mint-ink\);/);
+  });
+
+  it('r139-P2-8: حالات الإرسال/الجلب مسموعة — سبينر بلا نص لا يوجد بعد الآن', () => {
+    const rs = cc('src/components/menu/ReviewSheet.tsx');
+    expect(rs).toContain('جارٍ إرسال التقييم');
+    expect(rs).toContain('جارٍ تحميل المزيد من التقييمات');
+    // النجاح له توست والفشل له نص خطأ — لا رسالة اكتمال تكذب على قارئ الشاشة
+    expect(rs).toContain('completedMessage=""');
+    const rd = cc('src/app/(protected)/cart/ReviewDialog.tsx');
+    expect(rd).toContain('جارٍ إرسال الطلب إلى المطعم');
+    expect(rd).toContain('جارٍ إرسال الطلب</span>');
+  });
+
+  it('r139-P3-10: شريحة المعرض التفاعلية تعلن دورها — role=button (4.1.2)', () => {
+    const g = cc('src/components/menu/GalleryCarousel.tsx');
+    expect(g).toContain('role="button"');
+    expect(g).toContain('aria-roledescription="شريحة"');
+    // «group» غادر الملف كله — لا دور غامض لشريحة تُفعَّل بـEnter/Space
+    expect(g).not.toContain('role="group"');
+  });
+
+  it('r139-housekeeping: requireAdmin حُذف وعقده انتقل صريحًا إلى مساريه', () => {
+    // الرمز ذهب…
+    const auth = cc('src/lib/auth.ts');
+    expect(auth).not.toContain('export async function requireAdmin');
+    // …وعقد 401/403 حي في المسارين (audit-logs: super فقط؛ seed: الأدوار الثلاثة)
+    const audit = cc('src/app/api/admin/audit-logs/route.ts');
+    expect(audit).toContain("requireAuth");
+    expect(audit).toContain("auth.role !== 'super_admin'");
+    const seed = cc('src/app/api/seed/route.ts');
+    expect(seed).toContain('auth.role !== "admin" && auth.role !== "sub_admin" && auth.role !== "super_admin"');
+    // وحارس المسارات تابع بالعلامتين الحيتين
+    const guard = raw('scripts/check-api-auth.mjs');
+    expect(guard).not.toContain('"requireAdmin("');
+  });
+
+  it('r139-knip: أثر التدوين خارج التحليل والإيجابيات الكاذبة الثلاث مغلقة', () => {
+    const k = raw('knip.config.ts');
+    expect(k).toContain("'scripts/archive/**'");
+    expect(k).not.toMatch(/'sharp',/);
+    expect(k).toContain("ignoreBinaries: ['expo', 'expo-doctor']");
   });
 });

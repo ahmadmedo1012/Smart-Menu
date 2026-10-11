@@ -208,16 +208,16 @@ export default function AdminAdminsPage() {
           <p className="text-2xl font-bold mt-1">{toArabicNumber(admins.length)}</p>
         </div>
         <div className="rounded-xl bg-info/10 dark:bg-info/15 border border-info/20 p-4">
-          <p className="text-xs text-info">مدير عام</p>
-          <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(superAdmins.length)}</p>
+          <p className="text-xs text-info-ink">مدير عام</p>
+          <p className="text-2xl font-bold mt-1 text-info-ink">{toArabicNumber(superAdmins.length)}</p>
         </div>
         <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-accent-foreground">مسؤول</p>
           <p className="text-2xl font-bold mt-1 text-accent-foreground">{toArabicNumber(subAdmins.length)}</p>
         </div>
         <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
-          <p className="text-xs text-success">نشط اليوم</p>
-          <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(admins.filter(a => {
+          <p className="text-xs text-success-ink">نشط اليوم</p>
+          <p className="text-2xl font-bold mt-1 text-success-ink">{toArabicNumber(admins.filter(a => {
             if (!a.lastLoginAt) return false
             return new Date(a.lastLoginAt).getTime() > todayMs - 86400000
           }).length)}</p>
@@ -227,7 +227,7 @@ export default function AdminAdminsPage() {
       {/* Super Admins Section */}
       <section>
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Shield className="size-5 text-info" />
+          <Shield className="size-5 text-info-ink" />
           المدراء العامون
         </h2>
         {superAdmins.length === 0 ? (
@@ -242,14 +242,14 @@ export default function AdminAdminsPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="size-11 rounded-xl bg-info/10 dark:bg-info/15 flex items-center justify-center">
-                      <Shield className="size-5 text-info" />
+                      <Shield className="size-5 text-info-ink" />
                     </div>
                     <div>
                       <p className="font-bold">{admin.name}</p>
                       <p className="text-xs text-muted-foreground">@{admin.username}</p>
                     </div>
                   </div>
-                  <Badge className="bg-info/15 text-info dark:bg-info/25 text-3xs">
+                  <Badge className="bg-info/15 text-info-ink dark:bg-info/25 text-3xs">
                     مدير عام
                   </Badge>
                 </div>

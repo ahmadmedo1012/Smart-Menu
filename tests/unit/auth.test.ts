@@ -104,13 +104,13 @@ describe('hash.ts', () => {
 });
 
 // ════════════════════════════════════════════════════════════════════
-// 2. auth.ts — requireAuth / requireAdmin / requirePermission
+// 2. auth.ts — requireAuth / requirePermission (r139: requireAdmin حُذف — عقده انتقل صريحًا إلى مساريه)
 // ════════════════════════════════════════════════════════════════════
 
 vi.mock('@/lib/session', () => ({ validateSession: vi.fn() }));
 vi.mock('@/lib/db', () => ({ getUserById: vi.fn() }));
 
-import { requireAuth, requireAdmin, requirePermission } from '@/lib/auth';
+import { requireAuth, requirePermission } from '@/lib/auth';
 import * as session from '@/lib/session';
 import * as db from '@/lib/db';
 import type { Role, Permission, SubscriptionStatus } from '@/generated/prisma/enums';
@@ -210,64 +210,10 @@ describe('auth.ts', () => {
                 });
         });
 
-        describe('requireAdmin', () => {
-                it('admin role → authorized', async () => {
-                        vi.mocked(session.validateSession).mockResolvedValue(validSession);
-                        vi.mocked(db.getUserById).mockResolvedValue(adminRow);
-                        const r = await requireAdmin();
-                        expect(r.authorized).toBe(true);
-                });
-
-                it('super_admin role → authorized', async () => {
-                        vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 2 });
-                        vi.mocked(db.getUserById).mockResolvedValue(superAdminRow);
-                        const r = await requireAdmin();
-                        expect(r.authorized).toBe(true);
-                });
-
-                it('sub_admin role → authorized', async () => {
-                        vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 3 });
-                        vi.mocked(db.getUserById).mockResolvedValue(subAdminRow);
-                        const r = await requireAdmin();
-                        expect(r.authorized).toBe(true);
-                });
-
-                it('member role → {authorized:false}', async () => {
-                        vi.mocked(session.validateSession).mockResolvedValue(validSession);
-                        vi.mocked(db.getUserById).mockResolvedValue(memberRow);
-                        const r = await requireAdmin();
-                        expect(r.authorized).toBe(false);
-                });
-
-                it('unauthenticated → {authorized:false}', async () => {
-                        vi.mocked(session.validateSession).mockResolvedValue(badSession);
-                        const r = await requireAdmin();
-                        expect(r.authorized).toBe(false);
-                });
-
-                // round91-F-B (D2-#3): the failure arm carries the split status —
-                // 401 ONLY for no-session, 403 + Arabic error for wrong-role.
-                it('logged-in wrong-role (member) → 403 + «لا تملك الصلاحية»', async () => {
-                        vi.mocked(session.validateSession).mockResolvedValue(validSession);
-                        vi.mocked(db.getUserById).mockResolvedValue(memberRow);
-                        const r = await requireAdmin();
-                        expect(r.authorized).toBe(false);
-                        if (!r.authorized) {
-                                expect(r.status).toBe(403);
-                                expect(r.error).toBe('لا تملك الصلاحية');
-                        }
-                });
-
-                it('no session → 401 + «غير مصرح»', async () => {
-                        vi.mocked(session.validateSession).mockResolvedValue(badSession);
-                        const r = await requireAdmin();
-                        expect(r.authorized).toBe(false);
-                        if (!r.authorized) {
-                                expect(r.status).toBe(401);
-                                expect(r.error).toBe('غير مصرح');
-                        }
-                });
-        });
+        /* r139 (housekeeping): اختبارات requireAdmin السبعة حُذفت مع الرمز
+           (قرار r138-e المصحوب بترحيل مستدعيه) — انقسام 401/403 بقي حيًا
+           كعقد صريح داخل المسارين (audit-logs/seed) وعقود requireAuth/
+           requirePermission أدناه تغطي البنية. */
 
         describe('requirePermission', () => {
                 it('unauthenticated → 401', async () => {

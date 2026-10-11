@@ -4,7 +4,7 @@
  *
  * Every EXPORTED HTTP handler (GET/POST/PUT/PATCH/DELETE) in every route.ts
  * under src/app/api must, within its own function body, either:
- *   1. call requireAuth / requirePermission / requireAdmin (session-gated), OR
+ *   1. call requireAuth / requirePermission (session-gated), OR
  *   2. belong to a file in PUBLIC_ALLOWLIST below (deliberately unauthenticated
  *      endpoints — each with its own protection: rate limits, server-side
  *      price recalc, secrets, or public-by-design data), OR
@@ -40,7 +40,9 @@ import { pathToFileURL } from "node:url";
 const ROOT = new URL("..", import.meta.url).pathname;
 const API_DIR = join(ROOT, "src", "app", "api");
 
-const AUTH_MARKERS = ["requireAuth(", "requirePermission(", "requireAdmin("];
+// r139 (housekeeping): requireAdmin سُقط من العلامات — الرمز حُذف من auth.ts
+// (قرار r138-e: صفر مستدعٍ إنتاجي)؛ البوابتان الحيّتان تكفيان الحراسة.
+const AUTH_MARKERS = ["requireAuth(", "requirePermission("];
 const HANDLER_NAMES = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
 
 /** Deliberately public endpoints (unauthenticated by design — whole file). round92-B3: exported for unit tests. */

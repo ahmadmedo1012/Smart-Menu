@@ -495,6 +495,16 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 </p>
                                                         )}
                                                         {/* Submit */}
+                                                        {/* r139 (P2-8 من تدقيق r138-a، 4.1.3): السبينر
+                                                           وحده كان صامتًا لقارئات الشاشة — منطقة بثّ
+                                                           تُعلن «جارٍ إرسال التقييم» (بلا رسالة اكتمال:
+                                                           النجاح له توست والفشل له نص خطأ مرئي — لا
+                                                           كذب على قارئ الشاشة أبدًا). */}
+                                                        <LoadingAnnouncer
+                                                                loading={submitting}
+                                                                message="جارٍ إرسال التقييم"
+                                                                completedMessage=""
+                                                        />
                                                         <button
                                                                 onClick={handleSubmit}
                                                                 aria-label="إرسال التقييم"
@@ -507,7 +517,13 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 )}
                                                         >
                                                                 {submitting ? (
-                                                                        <div className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                                                        <>
+                                                                                <div
+                                                                                        className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin"
+                                                                                        aria-hidden="true"
+                                                                                />
+                                                                                <span className="sr-only">جارٍ إرسال التقييم</span>
+                                                                        </>
                                                                 ) : (
                                                                         <>
                                                                                 <AnimatedSend className="size-3.5" />
@@ -596,9 +612,18 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 ))
                                                         )}
                                                 {/* r135-C: «عرض المزيد» — يظهر فقط إذا أتت آخر صفحة ممتلئة (قد
-                                                    توجد المزيد)، يُعطَّل أثناء الجلب، ويختفي متى أتت صفحة ناقصة. */}
+                                                    توجد المزيد)، يُعطَّل أثناء الجلب، ويختفي متى أتت صفحة ناقصة.
+                                                    r139 (P2-8 من r138-a، 4.1.3): التعطيل الصامت أصبح
+                                                    معلنًا — منطقة بثّ تُعلن «جارٍ تحميل المزيد» (بلا
+                                                    اكتمال: ظهور المراجعات الجديدة هو الإشارة، والفشل
+                                                    له توست). */}
                                                 {!loading && !fetchError && reviews.length > 0 && hasMore && (
                                                         <div className="pt-1 text-center">
+                                                                <LoadingAnnouncer
+                                                                        loading={loadingMore}
+                                                                        message="جارٍ تحميل المزيد من التقييمات"
+                                                                        completedMessage=""
+                                                                />
                                                                 <button
                                                                         type="button"
                                                                         onClick={loadMoreReviews}

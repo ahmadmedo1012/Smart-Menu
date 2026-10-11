@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { success, error, handleError, parsePagination } from '@/lib/api-helpers';
-import { requireAdmin } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import type { Prisma } from '@/generated/prisma/client';
 import { AuditAction } from '@/generated/prisma/client';
 import { createDbRateLimiter } from '@/lib/rate-limit';
@@ -15,10 +15,13 @@ export async function GET(request: NextRequest) {
                 const { success: allowed } = await auditLogLimiter.check(`audit-logs:${ip}`);
                 if (!allowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
-                const auth = await requireAdmin();
-                // round91-F-B (D2-#3): propagate requireAdmin's 403 for a
-                // logged-in wrong-role caller (401 stays no-session-only).
-                if (!auth.authorized) return error(auth.error, auth.status);
+                /* r139 (housekeeping): requireAdmin حُذف من auth.ts — البوابة
+                   كانت تسمح بثلاثة أدوار ثم يرفض الفحص أدناه كل غير super_admin،
+                   فالفحص الصريح بعد requireAuth هو العقد نفسه بلا وسيط:
+                   401 بلا جلسة (round91-F-B — الفرع الفارغ لـrequireAuth لا
+                   يحمل status فيُصرَّح هنا) و403 للدور الخطأ. */
+                const auth = await requireAuth();
+                if (!auth.authorized) return error('غير مصرح', 401);
                 // Audit logs expose IPs + actions of ALL users — super_admin only.
                 if (auth.role !== 'super_admin') return error('لا تملك الصلاحية', 403);
 

@@ -231,8 +231,8 @@ export function DiagnosticsSection({
 							</div>
 							{diagnose.configExists && (
 								<div className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/20">
-									<CheckCircle2 className="size-4 shrink-0 text-success" />
-									<p className="text-sm text-success">اتصال API سليم — البوت يعمل بشكل صحيح</p>
+									<CheckCircle2 className="size-4 shrink-0 text-success-ink" />
+									<p className="text-sm text-success-ink">اتصال API سليم — البوت يعمل بشكل صحيح</p>
 								</div>
 							)}
 							{diagnose.broadcastTargets && diagnose.broadcastTargets.length > 0 && (

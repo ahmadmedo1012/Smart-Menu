@@ -1,6 +1,6 @@
 import { hashPassword } from "@/lib/hash";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth";
 import { success, error as apiError } from "@/lib/api-helpers";
 import { error as logError } from "@/lib/logger";
 // r93-N2 (F3/H-2): المصدر الوحيد لخطط البذرة — كان لهذا المسار نسخته
@@ -15,11 +15,15 @@ export async function POST() {
       // round89-A4: standard {success:false,error} envelope (was a bare {message})
       return apiError("غير متاح في الإنتاج", 404);
     }
-    const auth = await requireAdmin();
-    // round91-F-B (D2-#3): 401 only for no-session; a logged-in wrong-role
-    // caller now propagates requireAdmin's 403 (was a blanket 401). The
-    // production guard above stays FIRST — dev-bootstrap semantics preserved.
-    if (!auth.authorized) return apiError(auth.error, auth.status);
+    /* r139 (housekeeping): requireAdmin حُذف من auth.ts — فحص الأدوار
+       الإدارية الثلاثة صريح هنا (نفس دلالة البوابة القديمة حرفيًا:
+       admin/sub_admin/super_admin؛ 401 بلا جلسة — الفرع الفارغ لـrequireAuth
+       لا يحمل status فيُصرَّح هنا — و403 لغير الإداريين). */
+    const auth = await requireAuth();
+    if (!auth.authorized) return apiError('غير مصرح', 401);
+    if (auth.role !== "admin" && auth.role !== "sub_admin" && auth.role !== "super_admin") {
+      return apiError("لا تملك الصلاحية", 403);
+    }
 
     // Upsert each plan — corrects existing data (e.g. typos) without dropping tables
     for (const p of DEFAULT_PLANS) {

@@ -56,12 +56,22 @@ export function CartSlideOver() {
         const pickupType = useCart((s) => s.pickupType);
         const [deliveryMeta, setDeliveryMeta] = useState<DeliveryMeta>({ fee: null, minOrder: null });
         const feeFetchedFor = useRef<number | null>(null);
+        /* r139 (J17): حالة جلب الرسوم — «pending» أثناء الطيران و«unknown» عند
+           الفشل تعرضان سطرًا صادقًا «+ رسوم توصيل (تُحدَّد عند الإتمام)» بدل
+           إجمالي أنقص بصمت (صفحة السلة تعرض الرسوم بينما الورقة كانت تعرض
+           المجموع وحده أثناء الفشل/قبل اكتمال الجلب). المال محفوظ — الخادم
+           يعيد التسعير عند الدفع على أي حال. */
+        const [feeStatus, setFeeStatus] = useState<'idle' | 'pending' | 'known' | 'unknown'>('idle');
         useEffect(() => {
                 if (pickupType !== 'delivery' || !cartRestaurantId) return;
                 /* جلب واحد لكل مطعم (تغيّر السلة لمطعم آخر يعيد الجلب) — الإجمالي
                    الحقيقي يعيد الخادم تسعيره عند الدفع على أي حال. */
                 if (feeFetchedFor.current === cartRestaurantId) return;
                 feeFetchedFor.current = cartRestaurantId;
+                /* r139 (J17): مطعم جديد = وصف جديد مجهول — لا تُورَّث رسوم المطعم
+                   السابق أثناء الجلب (كانت تظهر رسوم مطعم أ على سلة مطعم ب). */
+                setDeliveryMeta({ fee: null, minOrder: null });
+                setFeeStatus('pending');
                 fetch(`/api/restaurants/${cartRestaurantId}`)
                         .then((r) => r.json())
                         .then((d) => {
@@ -69,10 +79,13 @@ export function CartSlideOver() {
                                         fee: typeof d.data?.deliveryFee === 'number' ? d.data.deliveryFee : null,
                                         minOrder: typeof d.data?.minOrder === 'number' ? d.data.minOrder : null,
                                 });
+                                setFeeStatus('known');
                         })
                         .catch(() => {
-                                /* فشل الجلب = لا سطر رسوم (عرض فقط — الخادم يفرض الحقيقة) */
+                                /* فشل الجلب = لا سطر رسوم معلوم — السطر الصادق يظهر
+                                   (feeStatus=unknown)؛ الخادم يفرض الحقيقة عند الدفع */
                                 feeFetchedFor.current = null;
+                                setFeeStatus('unknown');
                         });
         }, [pickupType, cartRestaurantId]);
         const slideOverFee = deliveryFeeFor(pickupType, deliveryMeta);
@@ -360,6 +373,17 @@ export function CartSlideOver() {
                                                         شامل رسوم توصيل {formatPrice(slideOverFee)}
                                                 </p>
                                         )}
+                                        {/* r139 (J17): الرسوم مجهولة (جلب جارٍ أو فاشل) عند التوصيل —
+                                            سطر صادق بدل إجمالي أنقص بصمت: الرسوم إن وُجدت تُضاف
+                                            عند الإتمام (الخادم يعيد التسعير). «known» مع رسوم
+                                            صفرية/مطفأة = لا شيء يُعرض (سياسة الغياب الصادق). */}
+                                        {pickupType === 'delivery' &&
+                                                slideOverFee === 0 &&
+                                                (feeStatus === 'pending' || feeStatus === 'unknown') && (
+                                                        <p className="text-2xs text-muted-foreground text-end">
+                                                                + رسوم توصيل (تُحدَّد عند إتمام الطلب)
+                                                        </p>
+                                                )}
                                         <Link
                                                 href="/cart"
                                                 onClick={() => setOpen(false)}

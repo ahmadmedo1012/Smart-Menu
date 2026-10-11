@@ -52,7 +52,7 @@ const CATEGORY_PILLS = [
 ];
 
 const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }> = {
-        create: { label: 'إنشاء', color: 'text-success', bg: 'bg-success/10' },
+        create: { label: 'إنشاء', color: 'text-success-ink', bg: 'bg-success/10' },
         update: { label: 'تحديث', color: 'text-accent-foreground', bg: 'bg-orange-muted' },
         delete: {
                 label: 'حذف',
@@ -60,7 +60,7 @@ const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }
                 bg: 'bg-destructive/10 dark:bg-destructive/20',
         },
         login: { label: 'دخول', color: 'text-accent-foreground', bg: 'bg-orange/10' },
-        export: { label: 'تصدير', color: 'text-info', bg: 'bg-info/10 dark:bg-info/20' },
+        export: { label: 'تصدير', color: 'text-info-ink', bg: 'bg-info/10 dark:bg-info/20' },
         other: { label: 'أخرى', color: 'text-muted-foreground', bg: 'bg-muted' },
 };
 

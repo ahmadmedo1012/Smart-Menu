@@ -25,7 +25,7 @@ const SEVERITY_ORDER: Severity[] = ['critical', 'error', 'warning', 'info'];
 const SEVERITY_STYLES: Record<Severity, { label: string; badge: string; dot: string; icon: typeof Info }> = {
         info: {
                 label: 'معلومة',
-                badge: 'bg-info/10 text-info dark:bg-info/20 border border-info/20',
+                badge: 'bg-info/10 text-info-ink dark:bg-info/20 border border-info/20',
                 dot: 'bg-info',
                 icon: Info,
         },

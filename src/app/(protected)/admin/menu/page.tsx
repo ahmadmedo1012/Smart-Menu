@@ -174,7 +174,7 @@ export default function AdminMenuPage() {
         subtitle={`${toArabicNumber(items.length)} صنف في ${toArabicNumber(totalRestaurants)} مطعم`}
         actions={
           <Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15">
-            <Activity className="size-3.5 text-success animate-pulse" />
+            <Activity className="size-3.5 text-success-ink animate-pulse" />
             تحديث تلقائي
           </Badge>
         }
@@ -201,7 +201,7 @@ export default function AdminMenuPage() {
           <p className="text-xs text-muted-foreground">إجمالي الأصناف</p>
         </div>
         <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
-          <p className="text-2xl font-bold text-success tabular-nums">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
+          <p className="text-2xl font-bold text-success-ink tabular-nums">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
           <p className="text-xs text-muted-foreground">متوفر</p>
         </div>
         <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">

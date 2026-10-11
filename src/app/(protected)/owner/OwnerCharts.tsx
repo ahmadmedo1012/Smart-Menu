@@ -231,7 +231,7 @@ export function AnalyticsTab({
                                         value={revenue7dTotal}
                                         icon={DollarSign}
                                         iconBg="bg-success/10"
-                                        iconColor="text-success"
+                                        iconColor="text-success-ink"
                                         suffix=" د.ل"
                                         trend={stats?.growthPct}
                                         sparklineData={revenueSparkline}
@@ -249,7 +249,7 @@ export function AnalyticsTab({
                                         value={aovAvg}
                                         icon={TrendingUp}
                                         iconBg="bg-info/15"
-                                        iconColor="text-info"
+                                        iconColor="text-info-ink"
                                         suffix=" د.ل"
                                 />
                                 <KpiCard
@@ -328,7 +328,7 @@ export function AnalyticsTab({
                                                                                 <span
                                                                                         className={cn(
                                                                                                 'font-medium',
-                                                                                                item.growth > 0 ? 'text-success' : 'text-destructive'
+                                                                                                item.growth > 0 ? 'text-success-ink' : 'text-destructive'
                                                                                         )}
                                                                                 >
                                                                                         {item.growth > 0 ? '↑' : '↓'}

@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError, paginated, parsePagination, isValidOrderStatusFilter } from '@/lib/api-helpers';
@@ -312,13 +312,43 @@ export async function POST(request: NextRequest) {
                 }
 
                 let recalcSubtotal = 0;
+                /* r139 (J5): الأصناف النافدة تُجمَع وتُسمّى دفعة واحدة — الرسالة
+                   العامة «أحد الأصناف…» كانت ترسل صاحب سلة ١٥ سطرًا في رحلة صيد.
+                   الظرف يحمل unavailableItemIds كي تسم الواجهة الأسطر المخالفة
+                   مباشرة بشارة «لم يعد متوفرًا»، والأسماء (≤3 ثم «وغيرها») تجعل
+                   التوست قابلاً للفعل بلا فتح السلة أصلًا. صفر صفوف → الرسالة
+                   العامة نفسها (توافق الاختبار القائم). */
+                const missingItems = body.items.filter((i) => !priceMap.has(i.itemId));
+                if (missingItems.length > 0) {
+                        const unavailableIds = [...new Set(missingItems.map((i) => i.itemId))];
+                        const namedRows = await prisma.menuItem.findMany({
+                                where: { id: { in: unavailableIds } },
+                                select: { id: true, nameAr: true, name: true },
+                        });
+                        const nameById = new Map(namedRows.map((n) => [n.id, n.nameAr || n.name]));
+                        const names = unavailableIds
+                                .map((id) => nameById.get(id))
+                                .filter((n): n is string => typeof n === 'string' && n.trim().length > 0);
+                        const listed =
+                                names.length > 3
+                                        ? `${names.slice(0, 3).join('، ')} وغيرها`
+                                        : names.join('، ');
+                        return NextResponse.json(
+                                {
+                                        success: false,
+                                        // r103-F12 family: actionable copy, not a DB id — now with names (r139 J5)
+                                        error: listed
+                                                ? `هذه الأصناف لم تعد متوفرة: ${listed} — أزلها من السلة ثم أعد المحاولة`
+                                                : 'أحد الأصناف في سلتك لم يعد متوفراً — حدّث السلة وحاول مجدداً',
+                                        unavailableItemIds: unavailableIds,
+                                },
+                                { status: 400 },
+                        );
+                }
                 for (const item of body.items) {
-                        const db = priceMap.get(item.itemId);
-                        if (!db) {
-                                // r103-F12: same family as the modifier error above — the
-                                // customer sees an actionable message, not a DB id.
-                                return apiError('أحد الأصناف في سلتك لم يعد متوفراً — حدّث السلة وحاول مجدداً', 400);
-                        }
+                        /* r139 (J5): حرز تعاقدي — كل صنف غائب عن priceMap رُفض
+                           أعلاه دفعة واحدة، فالبحث هنا يعود دائمًا بصف. */
+                        const db = priceMap.get(item.itemId)!;
                         // r118-A3-P2-3: nullish (not truthy) — discountedPrice = 0 is a
                         // stored 100%-free price and used to silently fall back to the
                         // FULL price, charging a free item.

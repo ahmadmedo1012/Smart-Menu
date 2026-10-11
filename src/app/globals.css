@@ -78,6 +78,12 @@
         --color-warning-ink: var(--warning-ink);
         --color-danger-ink: var(--danger-ink);
         --color-basil-ink: var(--c-basil-ink);
+        /* r139 (أحبار admin/owner): توأم الحبر النصي للعائلة الرابعة — sky.
+           الفاتح: text-info (#5C8FCE) على الكريمي 3.21:1 = يفشل 4.5:1 للنص
+           (يتجاوز 3:1 للرسوميات فقط)؛ info-ink (sky-deep #1F3D63) = 10.57:1.
+           التوكن معرّف أصلًا في كلا الثيمين (§1.6) — هنا فقط تصديره لأدوات
+           Tailwind (نفس نمط r138 P1-1). */
+        --color-info-ink: var(--info-ink);
         /* r121-I-6: the r96-W4a --color-*-soft tint twins were deleted — zero
            adoption in 25 rounds (surfaces use the ad-hoc bg-success/15 opacity
            utilities instead); values removed from :root/.light below too. */

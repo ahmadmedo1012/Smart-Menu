@@ -233,7 +233,14 @@ export function GalleryCarousel({
                                         {images.map((img, i) => (
                                                 <div
                                                         key={i}
-                                                        role="group"
+                                                        /* r139 (P3-10 من تدقيق r138-a، 4.1.2): الشريحة
+                                                           التفاعلية (tabIndex + Enter/Space يفتحان
+                                                           Lightbox) كانت بلا دور — قارئ الشاشة يعلن
+                                                           «group» لا زرًا قابلًا للتفعيل. role=button
+                                                           آمنة هنا: لا أزرار متداخلة داخل الشريحة،
+                                                           وaria-roledescription يبقي الهوية البصرية
+                                                           («شريحة، زر»). */
+                                                        role="button"
                                                         aria-roledescription="شريحة"
                                                         aria-label={`صورة ${i + 1} من ${images.length}`}
                                                         aria-hidden={i !== current}

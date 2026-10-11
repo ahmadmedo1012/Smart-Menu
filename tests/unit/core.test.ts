@@ -1,7 +1,7 @@
 // round92-C1: كان جزء منه مرآة — الآن يستورد الإنتاج الحقيقي.
 // التغييرات الموثّقة في هذه الجولة (الوكيل 3-a):
 //   1) قسم auth.ts: كان يحاكم mockRequireAuth/mockRequireAdmin/
-//      mockRequirePermission محلية — الآن يستورد requireAuth/requireAdmin/
+//      mockRequirePermission محلية — الآن يستورد requireAuth/
 //      requirePermission الحقيقية من src/lib/auth.ts بـmock للجلسة
 //      (validateSession) وgetUserById (نفس نمط auth.test.ts الناضج).
 //   2) قسم telegram-admin: كان mockًا محليًا (تغطية src/lib/telegram-admin.ts
@@ -61,7 +61,7 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 // ── استيراد الإنتاج الحقيقي (بعد vi.mock المرفوعة تلقائيًا) ───────────
-import { requireAuth, requireAdmin, requirePermission } from "@/lib/auth";
+import { requireAuth, requirePermission } from "@/lib/auth";
 import * as session from "@/lib/session";
 import { getUserById } from "@/lib/db";
 import type { Role, Permission, SubscriptionStatus } from "@/generated/prisma/enums";
@@ -218,11 +218,11 @@ describe("csrf-client.ts", () => {
 });
 
 // ═════════════════════════════════════════════════════════════════
-// 2. auth.ts — requireAuth / requireAdmin / requirePermission الحقيقية
+// 2. auth.ts — requireAuth / requirePermission الحقيقية (r139: requireAdmin حُذف)
 //    (src/lib/auth.ts) بـvalidateSession وgetUserById مزيّفين.
 // ═════════════════════════════════════════════════════════════════
 
-describe("auth.ts (real requireAuth/requireAdmin/requirePermission)", () => {
+describe("auth.ts (real requireAuth/requirePermission)", () => {
   describe("requireAuth", () => {
     it("invalid session -> unauthorized", async () => {
       vi.mocked(session.validateSession).mockResolvedValue(badSession);
@@ -267,42 +267,9 @@ describe("auth.ts (real requireAuth/requireAdmin/requirePermission)", () => {
     });
   });
 
-  describe("requireAdmin", () => {
-    it("admin role -> authorized", async () => {
-      vi.mocked(session.validateSession).mockResolvedValue(validSession);
-      vi.mocked(getUserById).mockResolvedValue(admin);
-      expect((await requireAdmin()).authorized).toBe(true);
-    });
-    it("super_admin role -> authorized", async () => {
-      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 2 });
-      vi.mocked(getUserById).mockResolvedValue(superAdmin);
-      expect((await requireAdmin()).authorized).toBe(true);
-    });
-    it("sub_admin role -> authorized", async () => {
-      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 3 });
-      vi.mocked(getUserById).mockResolvedValue(subYes);
-      expect((await requireAdmin()).authorized).toBe(true);
-    });
-    it("member role -> unauthorized (round91-F-B: 403 + Arabic error for wrong role)", async () => {
-      vi.mocked(session.validateSession).mockResolvedValue(validSession);
-      vi.mocked(getUserById).mockResolvedValue(member);
-      const r = await requireAdmin();
-      expect(r.authorized).toBe(false);
-      if (!r.authorized) {
-        expect(r.status).toBe(403);
-        expect(r.error).toBe("لا تملك الصلاحية");
-      }
-    });
-    it("unauthenticated -> unauthorized (401 + «غير مصرح»)", async () => {
-      vi.mocked(session.validateSession).mockResolvedValue(badSession);
-      const r = await requireAdmin();
-      expect(r.authorized).toBe(false);
-      if (!r.authorized) {
-        expect(r.status).toBe(401);
-        expect(r.error).toBe("غير مصرح");
-      }
-    });
-  });
+  /* r139 (housekeeping): اختبارات requireAdmin حُذفت مع الرمز نفسه
+     (قرار r138-e المُنفَّذ — صفر مستدعٍ إنتاجي). سلوك 401/403 محفوظ
+     بمساره الحي في اختبارات requireAuth/requirePermission أدناه. */
 
   describe("requirePermission", () => {
     it("unauthenticated -> 401", async () => {
