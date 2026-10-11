@@ -145,6 +145,8 @@ describe('U3 — شريط الثقة في HomePage: الأرقام الحية ب
         // نستهدف الاستدعاء البرمجي فقط (برنامج مسبوق بنقطة) — التعليقات التوثيقية
         // تذكر المنسّق القديم نصًا ولا تُعد كودًا
         expect(src('src/components/landing/HomePage.tsx')).not.toMatch(/\.toLocaleString\(/);
-        expect(src('src/components/landing/ProgressSection.tsx')).not.toMatch(/\.toLocaleString\(/);
+        /* r142: ProgressSection تقاعد بدمج شريط الثقة في HomePage —
+           الحارس يركب الأسطح الحية (HomePage + MenuShowcaseSection). */
+        expect(src('src/components/landing/MenuShowcaseSection.tsx')).not.toMatch(/\.toLocaleString\(/);
     });
 });

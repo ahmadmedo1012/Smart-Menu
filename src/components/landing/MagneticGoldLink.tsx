@@ -5,14 +5,13 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { useMagnetic } from "@/hooks/useMagnetic"
 
-/* r128 Stage B (F2b) — the gold conversion pill with the canonical
-   magnetic pull (PORT-KIT §4: hero/finale CTA strength 7). Client island
-   around the anchor so the surrounding page stays server-rendered;
-   useMagnetic writes --mag-x/--mag-y, the CSS in landing.css §0g
-   consumes them (R8).
-   r129 P2: next/link, not a plain <a> — the PRIMARY CTA must not do a
-   full MPA document navigation (canonical Madarek uses its SPA <Link>;
-   the header already rides next/link for the same route). */
+/* r142 (task 2-b) — the ember conversion pill with the canonical magnetic
+   pull (PORT-KIT §4: hero/finale CTA strength 7; r141-era name kept for
+   API stability, the paint is المائدة now). Client island around the
+   anchor so the surrounding page stays server-rendered; useMagnetic
+   writes --mag-x/--mag-y, the CSS in landing.css consumes them.
+   r129 P2 stands: next/link, not a plain <a> — the PRIMARY CTA must not
+   do a full MPA document navigation. */
 
 export function MagneticGoldLink({
   href,
@@ -36,7 +35,7 @@ export function MagneticGoldLink({
       ref={ref}
       href={href}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className={`ln-btn-gold${xl ? " xl" : ""}`}
+      className={`ln-btn-ember${xl ? " xl" : ""}`}
       aria-label={ariaLabel}
     >
       {children}

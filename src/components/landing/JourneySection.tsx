@@ -1,103 +1,96 @@
 "use client"
 
-import { UserPlus, UtensilsCrossed, QrCode, MessageCircle, Gift } from "lucide-react"
+import { QrCode, UtensilsCrossed, MessageCircle, Star } from "lucide-react"
 import { RevealCssClass } from "@/hooks/useReveal"
 import { useSectionProgress } from "@/hooks/useSectionProgress"
-import { JourneyLightPath } from "@/components/landing/JourneyLightPath"
 
-/* r128 Stage B (F1b) — Chapter 02 «الرحلة»: the 5-station journey, adapted
- * from the golden Smart-Link JourneySection (commit 7a1fac7) — the canonical
- * LandingPage.tsx:456-494 anatomy. The stations fold the home's REAL
- * how-it-works/FAQ/features content (3 steps + WhatsApp-order answer + QR
- * + loyalty feature) into Madarek's 5-station rhythm — every desc traces
- * to shipped copy, nothing invented (no kitchen-display or analytics
- * claims: the product ships WhatsApp orders + an Arabic dashboard +
- * loyalty). Client component: useSectionProgress writes --sp on the
- * section, JourneyLightPath's lit thread scrubs with it
- * (stroke-dashoffset: calc(1 - var(--sp))) — pure CSS scrub, native
- * scrolling, no hijacking. */
+/* r142 (task 2-b) — JourneySection «من الطاولة إلى المطبخ»: the radical
+ * rebuild of the 5-station Madarek journey into a horizontal cinematic
+ * strip of FOUR numbered editorial frames — the real diner's journey the
+ * product actually ships, one frame per shipped function:
+ *   01 امسح الرمز   — the custom QR (owner QR surface, printed on tables)
+ *   02 يتصفح ويطلب  — the public menu + cart (menu/[slug] + cart)
+ *   03 المطبخ يستقبل — the WhatsApp order message (item/qty/customer)
+ *   04 العميل يقيّم  — the post-order review (ReviewSheet → owner reviews)
+ * Nothing invented (r82): every frame's desc traces to a shipped surface.
+ *
+ * The ember thread: one SVG hairline across the frames' heads, scrubbed
+ * by the section's --sp (useSectionProgress — rAF-coalesced, RM snaps to
+ * 1, no scroll hijacking): stroke-dashoffset: calc(1 - var(--sp, 0)) on
+ * a pathLength=1 line, the same pure-CSS scrub grammar the retired light
+ * path used. ≤920px the strip stacks vertically and the thread hides —
+ * the frame numbers carry the order alone.
+ */
 
-const STATIONS: Array<{
+const FRAMES: Array<{
   n: string
-  icon: typeof UserPlus
+  icon: typeof QrCode
   title: string
   desc: string
-  tag: string
 }> = [
   {
-    n: "01", icon: UserPlus, title: "أنشئ حسابك المجاني",
-    desc: "أدخل بيانات مطعمك وأنشئ حساباً مجاناً بدون بطاقة ائتمان — دقائق معدودة تفصلك عن الانطلاق.",
-    tag: "مجاناً",
+    n: "01",
+    icon: QrCode,
+    title: "امسح الرمز",
+    desc: "QR كود مخصص بألوان مطعمك وشعاره على كل طاولة — العميل يفتح المنيو في متصفحه فوراً، بدون تطبيق وبدون تسجيل.",
   },
   {
-    n: "02", icon: UtensilsCrossed, title: "صمّم المنيو الخاص بك",
-    desc: "أضف الأصناف والفئات والأسعار والصور عبر لوحة تحكم عربية بالكامل — في أي وقت وبدون مساعدة فنية.",
-    tag: "الإعداد",
+    n: "02",
+    icon: UtensilsCrossed,
+    title: "يتصفح ويطلب",
+    desc: "الأصناف بصورها وأسعارها واضحة أمام العميل، والسلة تجمع الطلب وتُرسل بضغطة واحدة — داخل المكان أو سفري أو توصيل.",
   },
   {
-    n: "03", icon: QrCode, title: "شارك منيوك",
-    desc: "رابط واحد تشاركه أينما كان، وQR كود مخصص بألوان وشعار مطعمك على الطاولات — العميل يصل بنقرة.",
-    tag: "الانطلاق",
+    n: "03",
+    icon: MessageCircle,
+    title: "المطبخ يستقبل",
+    desc: "الطلب يصل على واتساب المطعم كاملاً: الصنف والكمية واسم العميل — جاهز للتحضير من اللحظة الأولى.",
   },
   {
-    n: "04", icon: MessageCircle, title: "استقبل الطلبات",
-    desc: "الطلب يصل مباشرة على واتساب مع تفاصيل الصنف والكمية واسم العميل — داخل المكان أو سفرياً أو توصيلاً.",
-    tag: "الطلب",
-  },
-  {
-    n: "05", icon: Gift, title: "كافئ زبائنك",
-    desc: "برنامج ولاء ومكافآت لعملائك الأوفياء، وأدوات تمنحك صورة أفضل عن عملك من لوحة واحدة.",
-    tag: "الولاء",
+    n: "04",
+    icon: Star,
+    title: "العميل يقيّم",
+    desc: "بعد الطلب يقيّم العميل تجربته من نفس الرابط، والتقييمات تُجمع في لوحتك لتصحّ قراراتك في المنيو والخدمة.",
   },
 ]
 
 export function JourneySection() {
-  /* --sp on this section scrubs the light path (JourneyLightPath's lit
-     thread). r129: the old comment also claimed a "chapter wash" — no
-     such rule ships in this port (kit §7 bans the gradient wash), so
-     the stale claim is removed. */
+  /* --sp on this section scrubs the ember thread. */
   const ref = useSectionProgress<HTMLElement>()
 
   return (
     <section id="journey" ref={ref} className="ln-chapter ln-journey">
       <div className="ln-chapter-head">
-        <span className="ln-label">{"02 — الرحلة"}</span>
+        <span className="ln-label">{"03 — الرحلة"}</span>
         <RevealCssClass as="h2" className="ln-chapter-title" delay={1}>
-          من مسح الرمز إلى الطلب — <em>خمس محطات</em>
+          من الطاولة <em>إلى المطبخ</em>
         </RevealCssClass>
         <RevealCssClass as="p" className="ln-chapter-lede" delay={2}>
-          خطّ ضوءٍ واحد يربط محطاتك؛ كل محطة تبني على ما قبلها.
+          أربع لحظات حقيقية يقطعها طلبك — كل إطار فيها مبنٍى على وظيفة تعمل
+          اليوم في المنتج، لا على قصة تسويقية.
         </RevealCssClass>
       </div>
 
-      <div className="ln-journey-stage">
-        {/* the light path — computed from the real station-node layout */}
-        <JourneyLightPath />
+      <RevealCssClass as="div" className="ln-journey-strip-wrap" delay={2}>
+        {/* the ember thread — one hairline across the four frames, scrubbed */}
+        <svg className="ln-journey-thread" viewBox="0 0 1000 4" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <line className="ln-journey-thread-base" x1="0" y1="2" x2="1000" y2="2" pathLength="1" />
+          <line className="ln-journey-thread-ink" x1="0" y1="2" x2="1000" y2="2" pathLength="1" />
+        </svg>
 
-        <ol className="ln-journey-stations">
-          {STATIONS.map((s, i) => (
-            <RevealCssClass
-              as="li"
-              key={s.n}
-              className={`ln-station${i % 2 === 0 ? " from-start" : " from-end"}`}
-              delay={(i + 1) as 1 | 2 | 3 | 4 | 5}
-            >
-              <article className="ln-station-card">
-                <span className="ln-station-node" aria-hidden="true">
-                  <span className="ln-station-node-core" />
-                </span>
-                <header className="ln-station-head">
-                  <span className="ln-mono ln-station-n">{s.n}</span>
-                  <span className="ln-station-ico" aria-hidden="true"><s.icon size={20} /></span>
-                  <span className="ln-station-tag">{s.tag}</span>
-                </header>
-                <h3 className="ln-station-title">{s.title}</h3>
-                <p className="ln-station-desc">{s.desc}</p>
-              </article>
-            </RevealCssClass>
+        <ol className="ln-journey-frames">
+          {FRAMES.map((f) => (
+            <li key={f.n} className="ln-frame">
+              <span className="ln-frame-n ln-mono" aria-hidden="true">{f.n}</span>
+              <span className="ln-frame-ico" aria-hidden="true">
+                <f.icon size={20} strokeWidth={1.8} />
+              </span>
+              <h3 className="ln-frame-title">{f.title}</h3>
+              <p className="ln-frame-desc">{f.desc}</p>
+            </li>
           ))}
         </ol>
-      </div>
+      </RevealCssClass>
     </section>
   )
 }

@@ -1,11 +1,10 @@
 import Link from "next/link"
 
-/* r128 Stage B (F1b) — the landing footer (canonical landing.css ground-
- * plate family), adapted from the golden Smart-Link LandingFooter (commit
- * 7a1fac7). Flat ink-2 plate, hairline seam, four columns of REAL
- * destinations only: journey anchors, the platform's own routes (pricing,
- * login, subscribe — the pages this app actually ships), and the legal
- * routes. Bottom bar signs with the brand + year. */
+/* r142 (task 2-b) — the landing footer, rebuilt for «المائدة»: a warm
+ * paper-2 ground plate (the menu's back matter), hairline seam, four
+ * columns of REAL destinations only: the المائدة anchors, the platform's
+ * own routes (pricing, login, subscribe — the pages this app actually
+ * ships), and the legal routes. Bottom bar signs with the brand + year. */
 
 export function LandingFooter() {
   const year = new Date().getFullYear()
@@ -19,27 +18,28 @@ export function LandingFooter() {
               <span className="landing-brand-mark" aria-hidden="true">م</span>
               <span className="landing-brand-text">
                 <span className="landing-brand-name">الربط الذكي</span>
-                <span className="landing-brand-sub">منيو رقمي للمطاعم</span>
+                <span className="landing-brand-sub">المائدة · منيو رقمي</span>
               </span>
             </Link>
             <p className="landing-footer-about">
-              منيو رقمي واضح لمطعمك، طلبات مباشرة على واتساب، ولوحة تحكم
-              عربية كاملة — من أول صنف حتى برنامج الولاء.
+              المائدة الرقمية لمطعمك: منيو يُقرأ بشهية بصور وأسعار واضحة،
+              طلبات مباشرة على واتساب، ولوحة تحكم عربية كاملة — من أول صنف
+              حتى برنامج الولاء.
             </p>
           </div>
           <div className="landing-footer-col">
-            <div className="landing-footer-heading">الرحلة</div>
-            <a href="#categories" className="landing-footer-link">فئات المنيو</a>
-            <a href="#journey" className="landing-footer-link">رحلة الطلب</a>
-            <a href="#progress" className="landing-footer-link">قصة التقدّم</a>
-            <a href="#restaurants" className="landing-footer-link">المطاعم</a>
+            <div className="landing-footer-heading">المائدة</div>
+            <a href="#menu" className="landing-footer-link">المنيو الحي</a>
+            <a href="#journey" className="landing-footer-link">من الطاولة إلى المطبخ</a>
+            <a href="#ambience" className="landing-footer-link">أجواء المكان</a>
+            <a href="#owner" className="landing-footer-link">لصاحب المطعم</a>
           </div>
           <div className="landing-footer-col">
             <div className="landing-footer-heading">المنصّة</div>
             <Link href="/subscribe" prefetch={false} className="landing-footer-link">ابدأ مجاناً</Link>
             <Link href="/pricing" prefetch={false} className="landing-footer-link">الباقات والأسعار</Link>
             <Link href="/login" prefetch={false} className="landing-footer-link">تسجيل الدخول</Link>
-            <a href="#roles" className="landing-footer-link">الأدوار</a>
+            <a href="/menu/al-waha-cafe" className="landing-footer-link">منيو تجريبي حي</a>
           </div>
           <div className="landing-footer-col">
             <div className="landing-footer-heading">المؤسسة</div>

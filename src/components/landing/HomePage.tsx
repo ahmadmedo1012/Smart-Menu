@@ -1,26 +1,22 @@
 'use client';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Check, Languages, Smartphone } from 'lucide-react';
-// r128-F1a: «Orbit Ink» landing layer — tokens (§1), marquee (§3), chrome
-// (§4), megamenu, button families, grain veil + the r128-F1b section
-// families (hero sky, trust, categories constellation, journey light path,
-// progress rings, restaurants ground plate, roles ledger, finale, faq,
-// footer). Ships with the landing route only; everything is scoped under
-// the `.landing` wrapper class below, so product tokens/pins in
-// globals.css are untouched (R4).
+// r142 (task 2-b) — «المائدة» landing layer: a warm editorial culinary
+// world (cream paper + ember + espresso ink) that replaces the Orbit-Ink
+// dark stage entirely. The page READS as a printed menu being flipped:
+// chapters carry course indexes, the hero leans a real menu card against
+// the dish, and the finale flips to the espresso back-cover. Tokens are
+// the --sm-* block in landing.css; everything is scoped under the
+// `.landing` wrapper class, so product tokens/pins in globals.css are
+// untouched (R4).
 import '../../app/landing.css';
 import { LandingHeader } from './LandingHeader';
-import { HeroDepthLayer } from './HeroDepthLayer';
-import { OrbitScene } from './OrbitScene';
-import { HeroPlate } from './HeroPlate';
+import { HeroTable } from './HeroTable';
 import { MagneticGoldLink } from './MagneticGoldLink';
 import { MenuShowcaseSection } from './MenuShowcaseSection';
 import { AmbienceSection } from './AmbienceSection';
 import { LandingMarquee } from './LandingMarquee';
-import { CategoriesSection } from './CategoriesSection';
 import { JourneySection } from './JourneySection';
-import { ProgressSection } from './ProgressSection';
-import { RestaurantsSection } from './RestaurantsSection';
 import { RolesSection } from './RolesSection';
 import { FinaleCta } from './FinaleCta';
 import { LandingFaq } from './LandingFaq';
@@ -29,7 +25,6 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { CountUp } from '@/components/ui/CountUp';
 import { RevealCssClass } from '@/hooks/useReveal';
 import { fetchPublicStats, type PublicStats } from './landing-data';
-import type { FeaturedRestaurant } from '@/lib/landing';
 
 /* Marquee vocabulary — the platform's real menu-domain names: the four
    default categories (the auto-seeded set every new menu starts with)
@@ -52,30 +47,28 @@ const MARQUEE_ITEMS = [
 
 export function HomePage({
         initialStats = null,
-        initialFeatured = null,
 }: {
-        // round85-B2: rendered server-side into the ISR page — with these present,
-        // the landing renders complete on first paint and the fetch effect is a
-        // no-op (fallback only).
+        // round85-B2: rendered server-side into the ISR page — with this
+        // present, the landing renders complete on first paint and the fetch
+        // effect is a no-op (fallback only). (r142: featured restaurants left
+        // the landing with the old «عالم المطاعم» chapter; the live stats
+        // line is the one honest data surface that stays.)
         initialStats?: PublicStats | null;
-        initialFeatured?: FeaturedRestaurant[] | null;
 }) {
         const [stats, setStats] = useState<PublicStats | null>(initialStats);
-        const [featured, setFeatured] = useState<FeaturedRestaurant[] | null>(initialFeatured);
-        // Bumped by the retry affordances to re-run the fetch effect without a
+        // Bumped by the retry affordance to re-run the fetch effect without a
         // page reload.
         const [retryKey, setRetryKey] = useState(0);
         // True only when a request actually failed (never on AbortError) — drives
-        // the retry affordances under the trust band / restaurants plate.
+        // the retry affordance under the trust line.
         const [statsFailed, setStatsFailed] = useState(false);
-        const [featuredFailed, setFeaturedFailed] = useState(false);
 
-        /* r129 (A3 B11, alongside the OrbitScene port): returning-visitor
-            calm — first session visit plays the full 380ms canvas entrance;
-            later visits this session set data-intro-seen on .landing and the
-            CSS drops the entrance to t-fast (160ms) with zero delay.
-            Product-scoped key (PORT-KIT §9.2 item 6: a shared-PC visit to a
-            sibling product must not silence this entrance). */
+        /* r129 returning-visitor calm, kept in r142: first session visit plays
+            the full hero-card entrance; later visits this session set
+            data-intro-seen on .landing and the CSS drops the entrance to
+            t-fast with zero delay. Product-scoped key (PORT-KIT §9.2 item 6:
+            a shared-PC visit to a sibling product must not silence this
+            entrance). */
         const [introSeen] = useState<boolean>(() => {
                 if (typeof window === 'undefined') return false;
                 try {
@@ -96,17 +89,15 @@ export function HomePage({
 
         const retry = useCallback(() => {
                 setStats(null);
-                setFeatured(null);
                 setStatsFailed(false);
-                setFeaturedFailed(false);
                 setRetryKey((k) => k + 1);
         }, []);
 
         useEffect(() => {
                 const controller = new AbortController();
                 // round85-B2: server-provided initial data skips the client fetch
-                // entirely; the retry affordances reset state to null and re-run
-                // this effect (the fetches below are the fallback path).
+                // entirely; the retry affordance resets state to null and re-runs
+                // this effect (the fetch below is the fallback path).
                 if (stats === null) {
                         fetchPublicStats()
                                 .then((s) => {
@@ -115,32 +106,17 @@ export function HomePage({
                                 })
                                 .catch((error) => {
                                         if (error instanceof DOMException && error.name === 'AbortError') return;
-                                        // Keep the section in its honest fallback state (null) instead of
-                                        // silently vanishing — a transient failure shouldn't wipe the stats
-                                        // cells for the visit.
+                                        // Keep the line in its honest fallback state (null) instead of
+                                        // silently vanishing — a transient failure shouldn't wipe the
+                                        // figures for the visit.
                                         setStats(null);
                                         setStatsFailed(true);
                                 });
                 }
-                if (featured === null) {
-                        fetch('/api/public/featured', { signal: controller.signal })
-                                .then((r) => {
-                                        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-                                        return r.json();
-                                })
-                                .then((d) => setFeatured(d.data ?? []))
-                                .catch((error) => {
-                                        if (error instanceof DOMException && error.name === 'AbortError') return;
-                                        // null keeps the honest loading state visible (with retry
-                                        // affordance); [] would blank the plate silently.
-                                        setFeatured(null);
-                                        setFeaturedFailed(true);
-                                });
-                }
                 return () => controller.abort();
-        }, [retryKey, stats, featured]);
+        }, [retryKey, stats]);
 
-        /* Trust-band cells — the two REAL live figures (مطعم مسجل / حساب
+        /* Trust-line cells — the two REAL live figures (مطعم مسجل / حساب
             نشط — the public stats surface's entire payload). When the live
             payload is unavailable the cells degrade honestly to "—" with the
             retry affordance; NEVER a fabricated figure (r82). */
@@ -155,19 +131,18 @@ export function HomePage({
                   ];
 
         return (
-                /* r128-F1b: `.landing` wrapper — the whole page is the Madarek
-                   journey now (PORT-KIT §5 anatomy, golden Smart-Link reference
-                   commit 7a1fac7): hero sky → domain marquee → trust → categories
-                   constellation → 5-station journey + light path --sp → progress
-                   story --sp → restaurants ground plate → roles → finale → faq.
-                   r129 P0: NO <main> element here — the (public) layout already owns the
-                   single main#main-content landmark; a second nested main was
-                   invalid HTML (axe landmark-no-duplicate-main) and made the
-                   skip-link target ambiguous. */
+                /* r142: `.landing` — the whole page is «المائدة» now: hero «أول
+                   لقمة» → vocabulary marquee → live stats line → المنيو الحي →
+                   من الطاولة إلى المطبخ → أجواء المكان → لصاحب المطعم →
+                   الختام (espresso back-cover) + FAQ. r129 P0 stands: NO <main>
+                   element here — the (public) layout already owns the single
+                   main#main-content landmark; a second nested main was invalid
+                   HTML (axe landmark-no-duplicate-main) and made the skip-link
+                   target ambiguous. */
                 <div className="landing" data-intro-seen={introSeen ? 'true' : undefined}>
-                        {/* in-world skip link (r129 P2) — lime pill above the grain,
-                            first Tab stop; the shell's orange pill is hidden while
-                            the landing is mounted (landing.css §18). */}
+                        {/* in-world skip link — ink pill above the grain, first Tab
+                            stop; the shell's orange pill is hidden while the landing
+                            is mounted (landing.css). */}
                         <a href="#main-content" className="ln-skip-link">
                                 تخطَّ إلى المحتوى
                         </a>
@@ -175,57 +150,39 @@ export function HomePage({
                         <LandingHeader />
 
                         <div className="ln-landing-body">
-                                {/* ═══ الفصل ٠ — المدار: the hero sky ═══ */}
+                                {/* ═══ الصفحة الأولى — «أول لقمة»: the hero spread ═══ */}
                                 <section className="ln-hero" aria-label="الربط الذكي — منيو رقمي لمطعمك">
-                                        {/* living sky (r129): starfield depth plane + the REAL
-                                            OrbitScene canvas engine — faithful port of Madarek's
-                                            «مدارات المعرفة» (fails safe to the CSS sky below);
-                                            the retired horizon span stays for anatomy parity. */}
-                                        <div className="ln-hero-sky" aria-hidden="true">
-                                                <HeroDepthLayer />
-                                                <OrbitScene className="ln-hero-canvas" biasX={-0.35} />
-                                                <span className="ln-hero-horizon" />
-                                        </div>
-
                                         <div className="ln-hero-content">
                                                 <RevealCssClass as="p" className="ln-hero-eyebrow">
-                                                        <span className="ln-mono">الربط الذكي · Smart Menu · منيو رقمي للمطاعم</span>
+                                                        <span className="ln-mono">أول لقمة · Smart Menu · منيو رقمي للمطاعم</span>
                                                 </RevealCssClass>
 
-                                                {/* r130 (W2-3, P0-2): the canonical
-                                                    per-word stagger — each line is a
-                                                    RevealCssClass .ln-hero-line (the observer
-                                                    writes .in-view on it) carrying .ln-w word
-                                                    spans; landing.css staggers them 85ms/word
-                                                    on the 720ms cinema transform. The hero is
-                                                    above the fold, so useReveal's mount check
-                                                    reveals the lines on the first effect tick
-                                                    (RM: instant via the CSS kill + observer). */}
+                                                {/* LCP doctrine (r92-A7, carried): the h1 paints
+                                                    server-rendered, instant — no reveal class, no
+                                                    entrance animation, no pre-hydration style. The
+                                                    hero is the menu's OPENING LINE, read at full
+                                                    appetite. */}
                                                 <h1 className="ln-hero-title">
-                                                        <RevealCssClass as="span" className="ln-hero-line">
-                                                                <span className="ln-w">منيو</span>{' '}
-                                                                <span className="ln-w">رقمي</span>{' '}
-                                                                <span className="ln-w"><em>لمطعمك</em></span>
-                                                        </RevealCssClass>
-                                                        <RevealCssClass as="span" className="ln-hero-line" delay={1}>
-                                                                <span className="ln-w">والطلبات</span>{' '}
-                                                                <span className="ln-w">تصلك</span>{' '}
-                                                                <span className="ln-w"><em className="ln-hero-gold">على واتساب</em></span>
-                                                        </RevealCssClass>
+                                                        <span className="ln-hero-line">منيوٌ يُقرأ بشهية،</span>
+                                                        <span className="ln-hero-line">
+                                                                والطلبات على <em className="ln-hero-ember">واتساب</em>
+                                                        </span>
                                                 </h1>
 
                                                 <p className="ln-hero-sub">
-                                                        أنشئ منيو واضحاً، استقبل الطلبات على واتساب، وتابع أداء مطعمك من لوحة واحدة.
+                                                        Smart Menu يحوّل منيو مطعمك إلى مائدة رقمية: أصنافك
+                                                        بصورها وأسعارها الواضحة، وطلب عميلك يصل مباشرة على
+                                                        واتساب — بلا تطبيق وبلا تعقيد.
                                                 </p>
 
-                                                <RevealCssClass as="div" className="ln-hero-actions" delay={3}>
+                                                <RevealCssClass as="div" className="ln-hero-actions" delay={2}>
                                                         <MagneticGoldLink href="/subscribe" withArrow ariaLabel="ابدأ مجاناً — إنشاء حساب">
                                                                 ابدأ مجاناً
                                                         </MagneticGoldLink>
-                                                        <a href="#categories" className="ln-btn-ghost">اكتشف الرحلة</a>
+                                                        <a href="#menu" className="ln-btn-ghost">اقرأ المنيو الحي</a>
                                                 </RevealCssClass>
 
-                                                <RevealCssClass as="ul" className="ln-hero-meta" delay={4}>
+                                                <RevealCssClass as="ul" className="ln-hero-meta" delay={3}>
                                                         <li><Check size={13} aria-hidden="true" /> بدون بطاقة ائتمان</li>
                                                         <li aria-hidden="true" className="ln-hero-meta-dot" />
                                                         <li><Languages size={13} aria-hidden="true" /> واجهة عربية بالكامل</li>
@@ -234,24 +191,23 @@ export function HomePage({
                                                 </RevealCssClass>
                                         </div>
 
-                                        {/* r141 (task 2-a): الطبق السينمائي — the culinary plate
-                                            claims the copy-free sky side (OrbitScene keeps playing
-                                            behind it; both hero mounts stay for the parity pins).
-                                            ≤1024px it demotes to an in-flow block UNDER the copy —
-                                            the text column and LCP story stay first on phones. */}
-                                        <HeroPlate />
+                                        {/* مائدة أول لقمة — the dish in its paper arch + the
+                                            leaning REAL menu card (r142 task 2-b). ≤1024px it
+                                            demotes to an in-flow block UNDER the copy — the
+                                            text column and LCP story stay first on phones. */}
+                                        <HeroTable />
 
                                         {/* scroll invitation */}
-                                        <a href="#trust" className="ln-hero-scroll" aria-label="تابع الرحلة">
-                                                <span className="ln-mono">تابع الرحلة</span>
+                                        <a href="#menu" className="ln-hero-scroll" aria-label="تابع القراءة">
+                                                <span className="ln-mono">اقلب الصفحة</span>
                                                 <span className="ln-hero-scroll-line" aria-hidden="true" />
                                         </a>
                                 </section>
 
-                                {/* ═══ شريط المنيو — مدار واحد تنتظم فيه الأسماء (marquee) ═══ */}
+                                {/* ═══ شريط المنيو — vocabulary ring (marquee) ═══ */}
                                 <LandingMarquee items={MARQUEE_ITEMS} />
 
-                                {/* ═══ الفصل ١ — الثقة (quiet mono DATA band, live figures) ═══ */}
+                                {/* ═══ سطر المائدة — quiet mono DATA line, live figures ═══ */}
                                 <section id="trust" className="ln-trust" aria-label="أرقام المنصّة">
                                         <div className="ln-trust-inner">
                                                 {trustCells.map((s, i) => (
@@ -271,42 +227,34 @@ export function HomePage({
                                         </div>
                                 </section>
 
-                                {/* ═══ الفصل ٢ — مدار فئات المنيو ═══ */}
-                                <CategoriesSection />
-
-                                {/* ═══ الفصل ٠١+ — التذوّق: من المنيو (r141 task 2-a) ═══
-                                    the interactive showcase — honest demo dishes over the
-                                    REAL default category registry, LYD prices, crossfade
-                                    stage + warm glass card. */}
+                                {/* ═══ الفصل ٠٢ — المنيو الحي: the REAL demo menu board ═══ */}
                                 <MenuShowcaseSection />
 
-                                {/* ═══ الفصل ٣ — كيف يعمل الربط الذكي ═══ */}
+                                {/* ═══ الفصل ٠٣ — من الطاولة إلى المطبخ: four numbered
+                                    editorial frames over the real order journey ═══ */}
                                 <JourneySection />
 
-                                {/* ═══ الفصل ٤ — قصّة التقدّم ═══ */}
-                                <ProgressSection stats={stats} />
-
-                                {/* ═══ الفصل ٥ — الأرض: عالم المطاعم ═══ */}
-                                <RestaurantsSection restaurants={featured} onRetry={featuredFailed ? retry : undefined} />
-
-                                {/* ═══ الفصل ٦ — الأدوار ═══ */}
-                                <RolesSection />
-
-                                {/* ═══ الفصل ٠٥+ — الأجواء (r141 task 2-a) ═══
-                                    the editorial ambience band — the menu carries the
-                                    restaurant's atmosphere as it is. */}
+                                {/* ═══ الفصل ٠٤ — أجواء المكان: the editorial ambience
+                                    band — the menu carries the restaurant's atmosphere
+                                    as it is. ═══ */}
                                 <AmbienceSection />
 
-                                {/* ═══ الفصل ٧ — نقطة البداية ═══ */}
-                                <FinaleCta />
+                                {/* ═══ الفصل ٠٥ — لصاحب المطعم: the asymmetric owner
+                                    split with the honest course list ═══ */}
+                                <RolesSection />
 
-                                {/* ═══ الأسئلة الشائعة — compact, ln-styled ═══ */}
+                                {/* ═══ الفصل ٠٦ — الختام: the espresso back-cover ═══ */}
+                                <FinaleCta stats={stats} />
+
+                                {/* ═══ الفصل ٠٧ — قبل أول طلب: the FAQ spread (merged
+                                    into the finale chapter) ═══ */}
                                 <LandingFaq />
                         </div>
 
                         <LandingFooter />
 
-                        {/* film-grain texture layer — last child, painted over the whole world */}
+                        {/* paper-grain texture layer — last child, painted over the
+                            whole world */}
                         <div className="ln-grain" aria-hidden="true" />
                 </div>
         );

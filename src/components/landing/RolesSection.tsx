@@ -1,67 +1,91 @@
-import { Store, ChefHat, User } from "lucide-react"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 import { RevealCssClass } from "@/hooks/useReveal"
 
-/* r128 Stage B (F1b) — Chapter 05 «المجتمع»: the roles ledger, adapted
- * from the golden Smart-Link RolesSection (commit 7a1fac7) — the canonical
- * LandingPage.tsx:616-676 anatomy, Smart-Menu slot mapping owner/staff/
- * diner. Desc + quote fold shipped copy (features grid, FAQ answers);
- * nothing invented — the staff row traces to the shipped WhatsApp-order
- * claim (الصنف والكمية واسم الزبون), the diner row to the
- * no-registration/no-install claims. */
+/* r142 (task 2-b) — RolesSection «لصاحب المطعم»: the radical rebuild of
+ * the three-role ledger into a single asymmetric editorial split aimed
+ * at the DECISION MAKER (the owner visiting the page). The start column
+ * argues; the end column is a «قائمة دورات» — a printed-menu style list
+ * where each benefit is a course with an ember index and dotted leaders.
+ *
+ * Honesty doctrine (r82): every course is a SHIPPED function —
+ *   01 طلبات واتساب      (orders arrive as WhatsApp messages: item/qty/customer)
+ *   02 QR كود مخصص       (owner QR surface — colors/logo, print-ready)
+ *   03 لوحة تحكم عربية   (full Arabic dashboard, items/prices/photos self-serve)
+ *   04 ولاء ومكافآت      (loyalty points program, real redemption flow)
+ * and the list says so in plain text. The only CTA pair: pricing (the
+ * honest «details live there» link) + the free start.
+ *
+ * Server component: pure markup.
+ */
 
-const ROLES = [
+const COURSES = [
   {
-    icon: Store, tone: "gold", name: "صاحب المطعم", index: "01",
-    desc: "منيو رقمي بصور وأسعار، لوحة تحكم عربية كاملة، والطلبات تصل مباشرة على واتساب.",
-    quote: "لوحة التحكم بالكامل بالعربية — أضف وعدّل واحذف الأصناف والأقسام والصور في أي وقت بدون مساعدة فنية.",
+    n: "01",
+    name: "طلبات على واتساب",
+    desc: "الطلب يصل كرسالة كاملة: الصنف والكمية واسم العميل ونوع التناول — من طاولتك أو من بعيد.",
   },
   {
-    icon: ChefHat, tone: "azure", name: "طاقم المطعم", index: "02",
-    desc: "طلبات منظمة تصل على واتساب لحظة إرسالها: الصنف، الكمية، واسم العميل — جاهزة للتحضير.",
-    quote: "الطلب يصل مباشرة على واتساب مع تفاصيل الصنف والكمية واسم العميل. لا تحتاج لتطبيقات إضافية.",
+    n: "02",
+    name: "QR كود مخصص",
+    desc: "بألوان مطعمك وشعاره، جاهز للطباعة على كل طاولة — العميل يفتح المنيو بلا تطبيق.",
   },
   {
-    icon: User, tone: "mist", name: "العميل", index: "03",
-    desc: "يطلب باسم ورقم الجوال فقط — بدون حسابات ولا خطوات إضافية، ويعمل المنيو من المتصفح.",
-    quote: "تجربة تصفح سريعة وسلسة على جميع الأجهزة — بدون تثبيت وبدون تسجيل.",
+    n: "03",
+    name: "لوحة تحكم عربية",
+    desc: "أضف وعدّل الأصناف والأسعار والصور والأقسام بنفسك، في أي وقت وبدون مساعدة فنية.",
   },
-]
+  {
+    n: "04",
+    name: "ولاء ومكافآت",
+    desc: "نقاط تُجمع لزبائنك الأوفياء مع كل طلب، وتعود إليك زيارات أكثر وطلب أكبر.",
+  },
+] as const
 
 export function RolesSection() {
   return (
-    <section id="roles" className="ln-chapter ln-roles">
-      <div className="ln-chapter-head">
-        <span className="ln-label">{"05 — المجتمع"}</span>
-        <RevealCssClass as="h2" className="ln-chapter-title" delay={1}>
-          ثلاثة أطراف <em>وتجربة واحدة</em>
-        </RevealCssClass>
-        <RevealCssClass as="p" className="ln-chapter-lede" delay={2}>
-          كل طرف يجد أدواته جاهزة بالعربية — من أول مسح للرمز حتى الطلب على واتساب.
+    <section id="owner" className="ln-chapter ln-owner" aria-label="لصاحب المطعم">
+      <div className="ln-owner-grid">
+        <div className="ln-owner-argue">
+          <span className="ln-label">{"05 — لصاحب المطعم"}</span>
+          <RevealCssClass as="h2" className="ln-chapter-title" delay={1}>
+            مطعمك يستحق <em>منيوًا يعمل</em>
+          </RevealCssClass>
+          <RevealCssClass as="p" className="ln-chapter-lede" delay={2}>
+            هذه ليست قائمة وعود — كل بند فيها وظيفة تعمل اليوم في المنتج،
+            من أول رمز يُطبع حتى نقطة الولاء تُحصى. ابدأ مجاناً واقرأ
+            منيوك كما سيقرؤه زبائنك.
+          </RevealCssClass>
+          <RevealCssClass as="div" className="ln-owner-actions" delay={3}>
+            <Link href="/pricing" className="ln-btn-ember">
+              الباقات والأسعار
+              <ArrowLeft size={15} aria-hidden="true" />
+            </Link>
+            <Link href="/subscribe" className="ln-btn-ghost">
+              ابدأ مجاناً
+            </Link>
+          </RevealCssClass>
+          <RevealCssClass as="p" className="ln-owner-foot ln-mono" delay={4}>
+            الخطة المجانية للأبد · بدون بطاقة ائتمان
+          </RevealCssClass>
+        </div>
+
+        {/* قائمة الدورات — the owner's benefits as a printed-menu course list */}
+        <RevealCssClass as="ol" className="ln-owner-list" delay={2}>
+          {COURSES.map((c) => (
+            <li key={c.n} className="ln-owner-course">
+              <span className="ln-owner-n ln-mono" aria-hidden="true">{c.n}</span>
+              <div className="ln-owner-course-body">
+                <h3 className="ln-owner-course-name">
+                  {c.name}
+                  <span className="ln-owner-leader" aria-hidden="true" />
+                </h3>
+                <p className="ln-owner-course-desc">{c.desc}</p>
+              </div>
+            </li>
+          ))}
         </RevealCssClass>
       </div>
-
-      <ul className="ln-roles-list">
-        {ROLES.map((r, i) => (
-          <RevealCssClass as="li" key={r.name} className="ln-role-row" delay={(i + 1) as 1 | 2 | 3}>
-            <span className="ln-role-key">
-              <span className={`ln-role-ico ${r.tone}`} aria-hidden="true">
-                <r.icon size={26} strokeWidth={1.7} />
-              </span>
-              <span className="ln-role-name">{r.name}</span>
-              <span className="ln-role-index ln-mono">{r.index}</span>
-            </span>
-            {/* r129 P2: canonical auto-placement — THREE direct children
-                (key / desc / quote) on the 2-col grid so the quote lands
-                row-2/col-1 under the key, exactly like Madarek's ledger
-                (the old desc+quote wrapper stacked both under the desc). */}
-            <p className="ln-role-desc">{r.desc}</p>
-            <blockquote className="ln-role-quote">
-              <span className="ln-role-quote-mark" aria-hidden="true">”</span>
-              {r.quote}
-            </blockquote>
-          </RevealCssClass>
-        ))}
-      </ul>
     </section>
   )
 }

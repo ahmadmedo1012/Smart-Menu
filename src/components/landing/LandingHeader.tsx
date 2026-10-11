@@ -2,42 +2,39 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { Menu, X, ChevronDown, ArrowLeft, UtensilsCrossed, Route, BarChart3, Store } from "lucide-react"
+import { Menu, X, ArrowLeft } from "lucide-react"
 
-/* r128 Stage B (F1b) — the landing header, ported from the golden Smart-Link
-   Stage B chrome (commit 7a1fac7) over the F1a foundation — the canonical
-   Madarek chrome (PORT-KIT §4):
-   · persistent sticky header — solid ink-2 @ 92% once scrolled, hairline
-     edge, NO glass blur anywhere;
-   · `.scrolled` + the top progress ribbon's `--p` are written
-     imperatively (one passive scroll listener → one rAF → DOM writes);
-     React NEVER re-renders for scrolling (zero setState);
-   · scroll-spy (r128 R2): IntersectionObserver thresholds [0,.35,.5,.65,1],
-     rootMargin -20% 0px -40% 0px, candidates ratio > .35, winner by most
-     viewport coverage → header.dataset.activeSection (the landing.css
-     rules read it there — ids re-anchored to THIS page's final anchors:
-     trust/categories/journey/progress/restaurants/roles, same commit);
-   · megamenu with tone-coded icon wells (Escape + onBlur close, focus
-     return to the trigger);
-   · burger + mobile drawer ≤1080px (r129: canonical breakpoint — the
-     1025–1080 band showed the burger where Madarek shows full nav).
-   The product Header keeps serving every non-landing surface. */
+/* r142 (task 2-b) — the landing header, rebuilt for «المائدة»: a warm
+ * paper rail instead of the Orbit-Ink chrome. The mechanics survive the
+ * redesign intact because they were right:
+ *   · persistent sticky header — solid paper @ 92% once scrolled
+ *     (`.scrolled`), hairline edge, NO glass blur anywhere;
+ *   · `.scrolled` + the top progress ribbon's `--p` are written
+ *     imperatively (one passive scroll listener → one rAF → DOM writes);
+ *     React NEVER re-renders for scrolling (zero setState);
+ *   · scroll-spy: IntersectionObserver thresholds [0,.35,.5,.65,1],
+ *     rootMargin -20% 0px -40% 0px, candidates ratio > .35, winner by
+ *     most viewport coverage → header.dataset.activeSection (landing.css
+ *     reads it there — ids are THIS page's final anchors: menu/journey/
+ *     ambience/owner);
+ *   · burger + mobile drawer ≤1080px (r129 canonical breakpoint kept),
+ *     with the safe-area inset on the drawer's bottom edge.
+ * The r141 megamenu is retired with the dark world — the المائدة
+ * narrative has exactly four anchors; a dropdown over four links is
+ * chrome for chrome's sake. */
 
-const SPY_SECTIONS = "#trust, #categories, #journey, #progress, #restaurants, #roles"
+const SPY_SECTIONS = "#menu, #journey, #ambience, #owner"
 
 export function LandingHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [megamenuOpen, setMegamenuOpen] = useState(false)
-  const megamenuTriggerRef = useRef<HTMLButtonElement>(null)
   /* Scroll chrome lives on refs and is written imperatively below — a React
      re-render per scroll event was the canonical round-3 regression. */
   const headerRef = useRef<HTMLElement>(null)
   const progressBarRef = useRef<HTMLDivElement>(null)
 
   /* Scroll-driven chrome with ZERO setState: coalesced to one rAF per frame
-     (pending-flag pattern, mirrors useSectionProgress) and written straight
-     to the DOM — the .scrolled class on the header and the --p var on the
-     top ribbon. */
+     (pending-flag pattern) and written straight to the DOM — the .scrolled
+     class on the header and the --p var on the top ribbon. */
   useEffect(() => {
     const header = headerRef.current
     const bar = progressBarRef.current
@@ -99,9 +96,6 @@ export function LandingHeader() {
     return () => observer.disconnect()
   }, [])
 
-  /* Megamenu: Escape closes with focus return; blur outside the group closes. */
-  const closeMegamenu = () => setMegamenuOpen(false)
-
   return (
     <>
       {/* Top scroll-progress bar — driven imperatively via --p */}
@@ -116,77 +110,20 @@ export function LandingHeader() {
             <span className="landing-brand-mark" aria-hidden="true">م</span>
             <span className="landing-brand-text">
               <span className="landing-brand-name">الربط الذكي</span>
-              <span className="landing-brand-sub">منيو رقمي للمطاعم</span>
+              <span className="landing-brand-sub">المائدة · منيو رقمي</span>
             </span>
           </Link>
 
-          <nav className="landing-nav-links" aria-label="أقسام الرحلة">
-            <div
-              className={`landing-nav-group${megamenuOpen ? " open" : ""}`}
-              onBlur={(e) => {
-                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-                  setMegamenuOpen(false)
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Escape" && megamenuOpen) {
-                  setMegamenuOpen(false)
-                  megamenuTriggerRef.current?.focus()
-                }
-              }}
-            >
-              <button
-                type="button"
-                className="landing-nav-link"
-                aria-haspopup="true"
-                aria-expanded={megamenuOpen}
-                ref={megamenuTriggerRef}
-                onClick={() => setMegamenuOpen((v) => !v)}
-              >
-                {/* r129 P2: «المنصّة» — distinct labels (the flat «الرحلة»
-                    link below was a duplicate of this trigger). */}
-                المنصّة
-                <ChevronDown size={14} aria-hidden="true" />
-              </button>
-              <div className="landing-megamenu" onClick={closeMegamenu}>
-                <a href="#categories" className="landing-megamenu-item">
-                  <span className="ln-menu-ico azure" aria-hidden="true"><UtensilsCrossed size={20} /></span>
-                  <span className="landing-megamenu-item-body">
-                    <span className="landing-megamenu-item-title">فئات المنيو</span>
-                    <span className="landing-megamenu-item-desc">مدار الفئات الأربع</span>
-                  </span>
-                </a>
-                <a href="#journey" className="landing-megamenu-item">
-                  <span className="ln-menu-ico gold" aria-hidden="true"><Route size={20} /></span>
-                  <span className="landing-megamenu-item-body">
-                    <span className="landing-megamenu-item-title">رحلة الطلب</span>
-                    <span className="landing-megamenu-item-desc">من الحساب إلى الولاء</span>
-                  </span>
-                </a>
-                <a href="#progress" className="landing-megamenu-item">
-                  <span className="ln-menu-ico mist" aria-hidden="true"><BarChart3 size={20} /></span>
-                  <span className="landing-megamenu-item-body">
-                    <span className="landing-megamenu-item-title">قصة التقدّم</span>
-                    <span className="landing-megamenu-item-desc">أرقام المنصّة الحقيقية</span>
-                  </span>
-                </a>
-                <a href="#restaurants" className="landing-megamenu-item">
-                  <span className="ln-menu-ico gold" aria-hidden="true"><Store size={20} /></span>
-                  <span className="landing-megamenu-item-body">
-                    <span className="landing-megamenu-item-title">المطاعم</span>
-                    <span className="landing-megamenu-item-desc">منيوهات حيّة من قاعدة البيانات</span>
-                  </span>
-                </a>
-              </div>
-            </div>
-            <a href="#categories" className="landing-nav-link">الفئات</a>
+          <nav className="landing-nav-links" aria-label="أقسام المائدة">
+            <a href="#menu" className="landing-nav-link">المنيو الحي</a>
             <a href="#journey" className="landing-nav-link">الرحلة</a>
-            <a href="#progress" className="landing-nav-link">النتائج</a>
+            <a href="#ambience" className="landing-nav-link">الأجواء</a>
+            <a href="#owner" className="landing-nav-link">لصاحب المطعم</a>
           </nav>
 
           <div className="landing-header-cta">
             <Link href="/pricing" className="ln-btn-ghost">الباقات</Link>
-            <Link href="/subscribe" className="ln-btn-gold">
+            <Link href="/subscribe" className="ln-btn-ember">
               ابدأ مجاناً
               <ArrowLeft size={14} aria-hidden="true" />
             </Link>
@@ -205,13 +142,12 @@ export function LandingHeader() {
 
         {menuOpen && (
           <nav className="landing-mobile-menu" aria-label="قائمة الجوال" onClick={() => setMenuOpen(false)}>
-            <a href="#categories" className="ln-btn-ghost">فئات المنيو</a>
-            <a href="#journey" className="ln-btn-ghost">رحلة الطلب</a>
-            <a href="#progress" className="ln-btn-ghost">النتائج</a>
-            <a href="#restaurants" className="ln-btn-ghost">المطاعم</a>
-            <a href="#roles" className="ln-btn-ghost">الأدوار</a>
+            <a href="#menu" className="ln-btn-ghost">المنيو الحي</a>
+            <a href="#journey" className="ln-btn-ghost">الرحلة</a>
+            <a href="#ambience" className="ln-btn-ghost">الأجواء</a>
+            <a href="#owner" className="ln-btn-ghost">لصاحب المطعم</a>
             <Link href="/pricing" className="ln-btn-ghost">الباقات</Link>
-            <Link href="/subscribe" className="ln-btn-gold">
+            <Link href="/subscribe" className="ln-btn-ember">
               ابدأ مجاناً
               <ArrowLeft size={16} aria-hidden="true" />
             </Link>

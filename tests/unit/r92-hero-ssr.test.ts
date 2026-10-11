@@ -28,10 +28,12 @@ describe('journey hero SSR — round92-A7 LCP visibility (r128-F1b)', () => {
     const html = renderToString(createElement(HomePage, {}));
 
     it('renders the LCP headline text in the server HTML', () => {
-        expect(html).toContain('منيو رقمي لمطعمك');
+        /* r142 «المائدة»: the hero copy became the menu's opening line —
+           the LCP doctrine is unchanged: h1 + sub paint server-side. */
+        expect(html).toContain('منيوٌ يُقرأ بشهية،');
         expect(html).toContain('على واتساب');
         // the sub paints inline too (no reveal gate on the LCP pair)
-        expect(html).toContain('أنشئ منيو واضحاً، استقبل الطلبات على واتساب، وتابع أداء مطعمك من لوحة واحدة');
+        expect(html).toContain('يحوّل منيو مطعمك إلى مائدة رقمية');
         // CTA buttons render server-side too (no hydration gate for CTAs)
         expect(html).toContain('ابدأ مجاناً');
     });

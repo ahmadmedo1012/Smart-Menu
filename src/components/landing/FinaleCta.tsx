@@ -1,34 +1,32 @@
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
 import { RevealCssClass } from "@/hooks/useReveal"
 import { MagneticGoldLink } from "@/components/landing/MagneticGoldLink"
 
-/* r128 Stage B (F1b) — Chapter 06 «الوصول»: the starting point, adapted
- * from the golden Smart-Link FinaleCta (commit 7a1fac7) — the canonical
- * LandingPage.tsx:698-727 anatomy. Converging orbit rings, magnetic gold
- * CTA (useMagnetic(7)) + ghost. Copy folds the home's shipped CTA section
- * (جهّز مطعمك للانطلاق الرقمي / استقبل الطلبات عبر واتساب وابدأ في
- * دقائق / ابدأ مجاناً → /subscribe). */
-
-export function FinaleCta() {
+/* r142 (task 2-b) — FinaleCta «الختام»: the back cover. The one inversion
+ * of the whole المائدة world — the final spread flips to deep espresso
+ * ink with paper text (every other chapter is cream paper), the way a
+ * printed menu closes. The huge line is the mandate's own: «اجعل منيوك
+ * يتحدث». The live stats line folds the platform's two REAL public
+ * figures (passed down from HomePage — same payload, same honest
+ * fallback: "—" when the live numbers are unavailable, never fabricated,
+ * r82). The FAQ spread follows immediately on paper (LandingFaq) — the
+ * two together read as the menu's last opened page.
+ *
+ * Server component: pure markup.
+ */
+export function FinaleCta({ stats }: { stats: { totalRestaurants: number; totalUsers: number } | null }) {
   const year = new Date().getFullYear()
 
   return (
-    <section className="ln-cta" aria-label="ابدأ رحلتك">
-      {/* converging orbits */}
-      <div className="ln-cta-orbits" aria-hidden="true">
-        <span className="ln-cta-orbit o0" />
-        <span className="ln-cta-orbit o1" />
-        <span className="ln-cta-orbit o2" />
-      </div>
+    <section className="ln-cta" aria-label="اجعل منيوك يتحدث">
       <div className="ln-cta-inner">
-        <span className="ln-label">{"06 — الوصول · ACCESS"}</span>
+        <span className="ln-label">{"06 — الختام"}</span>
         <RevealCssClass as="h2" className="ln-cta-title" delay={1}>
-          مطعمك يبدأ <em>من هنا</em>
+          اجعل منيوك <em>يتحدث</em>
         </RevealCssClass>
         <RevealCssClass as="p" className="ln-cta-lede" delay={2}>
-          جهّز مطعمك للانطلاق الرقمي — استقبل الطلبات عبر واتساب وابدأ في
-          دقائق، مجاناً وبدون بطاقة ائتمان.
+          أنشئ منيوك الرقمي اليوم — أصناف تُشرح بصورها وأسعارها، وطلبات
+          تصل على واتساب. ابدأ في دقائق، مجاناً وبدون بطاقة ائتمان.
         </RevealCssClass>
         <RevealCssClass as="div" className="ln-cta-actions" delay={3}>
           <MagneticGoldLink href="/subscribe" xl withArrow ariaLabel="ابدأ مجاناً — إنشاء حساب">
@@ -36,8 +34,12 @@ export function FinaleCta() {
           </MagneticGoldLink>
           <Link href="/pricing" className="ln-btn-ghost xl">الباقات والأسعار</Link>
         </RevealCssClass>
-        <RevealCssClass as="p" className="ln-cta-meta" delay={4}>
-          <Sparkles size={13} aria-hidden="true" />
+        <RevealCssClass as="p" className="ln-cta-stats ln-mono" delay={4}>
+          {stats
+            ? `+${stats.totalRestaurants} مطعم مسجل · +${stats.totalUsers} حساب نشط على المنصة`
+            : "أرقام المنصّة تُجلب الآن من قاعدة البيانات…"}
+        </RevealCssClass>
+        <RevealCssClass as="p" className="ln-cta-meta ln-mono" delay={5}>
           الربط الذكي · Smart Menu · {year}
         </RevealCssClass>
       </div>

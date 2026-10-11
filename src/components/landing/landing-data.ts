@@ -8,6 +8,83 @@
 // (their only consumer) folded into the 5-station JourneySection; every
 // station traces to shipped copy in that component now.
 
+// ── r142 «المائدة» — REAL demo-menu data ─────────────────────────────
+// The «المنيو الحي» chapter renders the platform's actual data shape
+// (category → items → price) with the REAL rows the self-healing demo
+// seed in src/app/demo/route.ts writes for مقهى الواحة — the live public
+// demo menu every landing link opens (/menu/al-waha-cafe). Names, order
+// and prices are copied VERBATIM from that seed — nothing invented (r82).
+// The imagery is the r141 local culinary set (now .webp, task 2-b).
+export type DemoMenuItem = { name: string; price: number };
+
+export type DemoMenuCategory = {
+  key: string;
+  label: string;
+  /** The emoji the demo seed stamps on the category record. */
+  icon: string;
+  img: string;
+  alt: string;
+  items: DemoMenuItem[];
+};
+
+export const DEMO_MENU: DemoMenuCategory[] = [
+  {
+    key: 'hot',
+    label: 'مشروبات ساخنة',
+    icon: '☕',
+    img: '/images/culinary/cat-hot.webp',
+    alt: 'قهوة عربية داكنة ببخار متصاعد في فنجان تقليدي',
+    items: [
+      { name: 'قهوة تركي', price: 3 },
+      { name: 'إسبريسو', price: 4 },
+      { name: 'كابتشينو', price: 5 },
+      { name: 'شاي', price: 2 },
+    ],
+  },
+  {
+    key: 'cold',
+    label: 'مشروبات باردة',
+    icon: '🧃',
+    img: '/images/culinary/cat-cold.webp',
+    alt: 'كأس ليموناضة بالنعنع والثلج المجروش',
+    items: [
+      { name: 'ليموناضة', price: 4 },
+      { name: 'سموثي', price: 6 },
+      { name: 'موهيتو', price: 5 },
+      { name: 'آيس كوفي', price: 5 },
+    ],
+  },
+  {
+    key: 'dessert',
+    label: 'حلويات',
+    icon: '🍰',
+    img: '/images/culinary/cat-dessert.webp',
+    alt: 'قطعة كنافة ذهبية مغطاة بالفستق الحلبي',
+    items: [
+      { name: 'تشيز كيك', price: 7 },
+      { name: 'كنافة', price: 6 },
+      { name: 'كريب', price: 5 },
+      { name: 'بسبوسة', price: 4 },
+    ],
+  },
+  {
+    key: 'snacks',
+    label: 'وجبات خفيفة',
+    icon: '🍔',
+    img: '/images/culinary/cat-snacks.webp',
+    alt: 'مقبلات متنوعة على صينية خشبية',
+    items: [
+      { name: 'ساندويتش', price: 5 },
+      { name: 'بطاطس مقلية', price: 3 },
+      { name: 'سلطة', price: 4 },
+      { name: 'برجر', price: 7 },
+    ],
+  },
+];
+
+/** The REAL demo menu the landing opens everywhere (live on the platform). */
+export const DEMO_MENU_URL = '/menu/al-waha-cafe';
+
 export type PublicStats = {
   totalRestaurants: number;
   totalUsers: number;

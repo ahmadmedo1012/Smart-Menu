@@ -1,13 +1,12 @@
 import { ChevronDown } from "lucide-react"
 import { RevealCssClass } from "@/hooks/useReveal"
 
-/* r128 Stage B (F1b) — the compact FAQ that follows the finale, ln-styled
- * per the task mandate, adapted from the golden Smart-Link LandingFaq
- * (commit 7a1fac7). The home's four REAL Q&As move here verbatim (folded
- * from sections/FaqSection.tsx); the interaction is native
- * <details>/<summary>: zero JS, keyboard-native, reduced-motion-safe.
- * No FAQPage JSON-LD — this surface never shipped one (nothing to
- * preserve, nothing invented). */
+/* r142 (task 2-b) — LandingFaq «قبل أول طلب»: the compact FAQ that merges
+ * into the finale spread (the الختام chapter continues on paper after the
+ * espresso back-cover). Same four REAL Q&As, verbatim from the shipped
+ * home copy — the interaction stays native <details>/<summary>: zero JS,
+ * keyboard-native, reduced-motion-safe. No FAQPage JSON-LD — this surface
+ * never shipped one (nothing to preserve, nothing invented). */
 
 const FAQS = [
   { q: "هل موقع المنيو الرقمي مجاني؟", a: "نعم، توجد خطة مجانية للأبد مع ميزات أساسية. يمكنك الترقية إلى خطة مدفوعة للحصول على ميزات إضافية مثل أصناف غير محدودة وإحصائيات متقدمة." },
@@ -20,12 +19,9 @@ export function LandingFaq() {
   return (
     <section className="ln-faq" aria-label="الأسئلة الشائعة">
       <div className="ln-faq-head">
-        <span className="ln-label">{"07 — الأسئلة الشائعة"}</span>
+        <span className="ln-label">{"07 — قبل أول طلب"}</span>
         <RevealCssClass as="h2" className="ln-chapter-title" delay={1}>
           الأسئلة <em>الشائعة</em>
-        </RevealCssClass>
-        <RevealCssClass as="p" className="ln-chapter-lede" delay={2}>
-          إجابات سريعة لأكثر الأسئلة تردداً.
         </RevealCssClass>
       </div>
       <div className="ln-faq-list">
