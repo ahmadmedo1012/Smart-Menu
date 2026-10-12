@@ -610,7 +610,12 @@ export function MenuPageClient({
                                                 <span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
                                                 <h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
                                         </div>
-                                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                        {/* r145 (15-SM P1): grid-cols-1 صريحة — بدونها يبقى العمود
+                                           الواحد تحت sm ضمنيًا بحجم auto فيتضخم إلى max-content
+                                           لأوسع بطاقة (وكان 480px من بديل عرض contain-intrinsic-size
+                                           للأصناف المتخطّاة) فيفيض العمود عن الحاوية 358px على 390.
+                                           minmax(0,1fr) الصريح يُلزِم العمود بعرض الحاوية. */}
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                                 {popularVisible.map((item, index) => (
                                                         <div
                                                                 key={item.id}
@@ -693,7 +698,11 @@ className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm 
                                         />
                                 </div>
                         ) : (
-                                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                /* r145 (15-SM P1): grid-cols-1 صريحة — نفس عقيدة الشبكة الشعبية
+                                   أعلاه: العمود الواحد تحت sm لا يُترك ضمنيًا (auto track يلتقط
+                                   أوسع max-content — 480px من بديل عرض contain-intrinsic-size —
+                                   فيفيض عن الحاوية 358px على 390). */
+                                <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                         {/* r120 (U9-P3): عمود رابع للشاشات الكبيرة (كانت 3 أعمدة
                                                 ثابتة من 1024 حتى 1920+ بهوامش ميتة). */}
                                         {normalItems.map((item, index) => (
@@ -706,11 +715,17 @@ className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm 
                                                            يمنع المتصفح من حساب رسم/تخطيط البطاقات خارج الشاشة،
                                                            وcontain-intrinsic-size يرسم عنصرًا بديلًا بارتفاع تقريبي
                                                            (auto = يتذكر المتصفح الارتفاع الحقيقي بعد أول رسم).
-                                                           من البطاقة 8 فصاعدًا فقط — ما فوقها مرشح LCP/أول لقطة. */
+                                                           من البطاقة 8 فصاعدًا فقط — ما فوقها مرشح LCP/أول لقطة.
+                                                           r145 (15-SM P1): البديل كان «auto 480px» بقيمتين — أي
+                                                           أن 480 كان يصف عرضًا وارتفاعًا معًا، وبديل العرض 480
+                                                           كان ينتفخ به العمود الضمني تحت sm (شبكة بلا قالب صريح
+                                                           كانت تحسب العمود من max-content). الآن العرض
+                                                           بديله 0 (المسار محسوم بـgrid-cols-1) والارتفاع وحده
+                                                           auto 480px كما كان. */
                                                         style={index >= 8 ? {
                                                                 animationDelay: `${(index % 6) * 60}ms`,
                                                                 contentVisibility: 'auto',
-                                                                containIntrinsicSize: 'auto 480px',
+                                                                containIntrinsicSize: '0 auto 480px',
                                                         } : { animationDelay: `${(index % 6) * 60}ms` }}
                                                 >
                                                         <MenuItemCard

@@ -70,8 +70,10 @@ export function MenuSkeleton() {
                                         <div className="h-11 w-24 rounded-full skeleton" />
                                 </div>
 
-                                {/* شبكة البطاقات — بنية MenuItemCard: صورة 4:3 + اسم + وصف + سعر + صف أزرار */}
-                                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {/* شبكة البطاقات — بنية MenuItemCard: صورة 4:3 + اسم + وصف + سعر + صف أزرار
+                                   r145 (15-SM P1): grid-cols-1 صريحة — نفس إصلاح شبكتي MenuPageClient:
+                                   العمود الضمني تحت sm بحجم auto كان يلتقط أوسع max-content فيفيض. */}
+                                <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                         {cards.map((i) => (
                                                 <div key={i} className="overflow-hidden rounded-2xl border border-border/50 bg-card animate-rise-in" style={{ animationDelay: `${180 + (i % 6) * 60}ms` }} aria-hidden="true">
                                                         {/* النمط المضمّن: ‎.skeleton (غير طبقي) يغلب أدوات tailwind —

@@ -104,17 +104,21 @@ const MenuItemCard = memo(function MenuItemCard({
 
         const isFeatured = variant === 'featured';
 
-        /* round88-A2 + r140 (A140-SM #3): the grid lives in the max-w-4xl
-         * (896px) menu container: 1 col below sm / 2 cols 640-1024 / 3 cols
-         * 1024-1280 / 4 cols ≥1280 (xl:grid-cols-4 منذ r120 U9-P3 — معادلة
-         * round88 ظلت تفترض 3 أعمدة فجلبت 288px لبطاقة عرضها الفعلي 212px
-         * عند ≥1280 = +36% overfetch و576 بدل 424 على DPR2). Card ≈
-         * (container − gaps)/cols → 288px at 1024-1280, 212px at ≥1280;
-         * featured spans md:col-span-2 (full row 768-1024, 2 of 3 cols
-         * ≥1024 = 576px, 2 of 4 cols ≥1280 = 440px). Eager rows (LCP) above. */
+        /* round88-A2 + r140 (A140-SM #3) + r145 (15-SM P2 — W1 P2-6): the grid
+         * lives in the r142 «المائدة» container max-w-4xl (896px) → xl:max-w-6xl
+         * (1152px) مع px-4 وفجوة 16px من sm: 1 col below sm / 2 cols 640-1024 /
+         * 3 cols 1024-1280 / 4 cols ≥1280 (xl:grid-cols-4 منذ r120 U9-P3).
+         * Card ≈ (container − 32 padding − gaps)/cols → 296-424px at 640-1024,
+         * 277px at 1024-1280 (يُجلب 288 المجاورة)، و 268px at ≥1280 (r142 كبّر
+         * الحاوية إلى 1152 — كانت المعادلة r140 تفترض 896 فجلبت 212px لبطاقة
+         * 266-268px = ترقية للصورة وضبابية حتى على DPR1، وعلى DPR2 424 مطلوب
+         * فتُجلب 384 = دون الكثافة الأصلية؛ الآن 268→384 على DPR1 و536→640 على
+         * DPR2 من مصدر 800px). Featured spans md:col-span-2 (full row 768-1024,
+         * 2 of 3 cols ≥1024 = 571px، 2 of 4 cols ≥1280 = 552px — كانت 440 على
+         * حاوية r140). Eager rows (LCP) above. */
         const imageSizes = isFeatured
-                ? '(max-width: 640px) calc(100vw - 32px), (max-width: 768px) calc(50vw - 24px), (max-width: 1024px) calc(100vw - 32px), (max-width: 1280px) 576px, 440px'
-                : '(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(50vw - 24px), (max-width: 1280px) 288px, 212px';
+                ? '(max-width: 640px) calc(100vw - 32px), (max-width: 768px) calc(50vw - 24px), (max-width: 1024px) calc(100vw - 32px), (max-width: 1280px) 576px, 552px'
+                : '(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(50vw - 24px), (max-width: 1280px) 288px, 268px';
 
         return (
                 <m.div
