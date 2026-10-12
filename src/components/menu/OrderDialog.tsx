@@ -1,63 +1,67 @@
 'use client';
 
+/**
+ * 17-DEBT-SM (r147) — خريطة التفكيك (موجة الديون الهندسية):
+ * نافذة الطلب كانت 872 سطرًا (أكبر ملف في المستودع). فُصلت الكتل العرضية
+ * الحرة إلى وحدات مركزة تحت order-dialog/ (نقل حرفي — لا سلوك جديد):
+ *   order-dialog/types.ts            — عقود الخصائص
+ *   order-dialog/constants.ts        — QUICK_NOTES/NOTES_MAX/glassPill*
+ *   order-dialog/confirmed-block.tsx — شاشة «تمت الإضافة إلى السلة»
+ *   order-dialog/item-summary.tsx    — العنوان بلا صورة + الوصف + الحمية
+ *   order-dialog/restaurant-bar.tsx  — شريط المطعم + شارة التوفير
+ *   order-dialog/modifier-groups.tsx — fieldsets الخيارات (w3-f1)
+ *   order-dialog/quantity-card.tsx   — السعر الحيّ + درجتا الكمية
+ *   order-dialog/quick-notes.tsx     — شرائح الملاحظات السريعة (r138-J9)
+ *   order-dialog/order-notes.tsx     — حقل الملاحظات + العدّاد
+ *   order-dialog/sticky-cta.tsx      — المجموع اللاصق + «أضف إلى السلة»
+ *
+ * جدار المسامير (يبقى هنا عمدًا — مسامير parity/unit تقرأ نص THIS الملف):
+ *   tests/design/parity.test.ts r134-W2 #2/#3/#12 → addLockRef/addLockTimerRef
+ *   داخل handleConfirm + عقد type/inputMode/autoComplete="tel" + تهيئة
+ *   isMobile عبر matchMedia؛ r137 S7 + r139-J7 → deliveryFeeLabelCompact +
+ *   whitespace-nowrap في مقسّم نوع الطلب؛ A10 → className زر المقسّم حرفيًا.
+ *   tests/unit/r121-cart-ux.test.ts → h-28 sm:h-52 + line-clamp-1/title في
+ *   رأس الصورة، قشرة 94dvh للورقة، غلاف p-4 sm:p-5، وجسم toggleQuickNoteValue
+ *   (prev.split('،') + تصديره من هذا المسار بالضبط).
+ * لذا تبقى هنا: كل منطق الحالة والتأثيرات وhandleConfirm، رأس الصورة، حقول
+ * الزبون، مقسّم نوع الطلب، وقشرتا Sheet/Dialog — التركيب والمصدر الوحيد للحالة.
+ */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, Store } from 'lucide-react';
-import { MotionMinus } from '@/components/ui/motion-icons';
-import { MotionPlus } from '@/components/ui/motion-icons';
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
-import { MotionCheck } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import type { MenuItemProp } from './MenuItemCard';
-/* r135-B: شرائح الحمية/الحساسية — نفس مصدر البطاقة الواحد (round85-C5) */
-import { DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
-import { DietaryIcon } from './dietary-icons';
 import { contentLang } from '@/lib/format';
 import { normalizeCustomerPhone } from '@/lib/phone';
 /* r138-exec-2 (J1): مسند صلاحية الواتساب الموحّد — انظر التعليق عند waValid. */
 import { normalizeWaNumber } from '@/lib/whatsapp';
 import {
         type ModifierSelection,
-        toggleModifierOption,
         validateModifierGroups,
         modifierDelta,
-        modifierGroupHint,
         visibleModifierGroups,
-        isOptionDisabled,
         unitPriceWithModifiers,
-        selectedCount,
         buildModifierPayload,
         defaultModifierSelection,
 } from './menu-types';
-import { formatPrice, toArabicNumber } from '@/lib/format';
 // r137: تسمية خيار التوصيل مع الرسوم («التوصيل (5 د.ل رسومًا)»)
 import { deliveryFeeLabelCompact } from '@/lib/delivery-meta';
 // r121-O-1: canonical pickup labels for the order-type segmented control
 import { getPickupTypeMeta } from '@/lib/order-status';
 import { cn } from '@/lib/utils';
 import { premiumToast } from '@/lib/premium-toast';
-import { MAX_ITEM_QUANTITY } from '@/lib/constants';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useCart } from '@/store/cart';
-
-type OrderDialogProps = {
-        item: MenuItemProp | null;
-        open: boolean;
-        onOpenChange: (open: boolean) => void;
-        restaurantWhatsapp?: string;
-        restaurantName?: string;
-        restaurantId: number;
-        restaurantLogo?: string;
-        /* r137: رسوم توصيل المطعم (رقم أو null — الميزة مطفأة) — تسمية
-           خيار التوصيل. */
-        deliveryFee?: number | null;
-};
-
-const QUICK_NOTES = ['بدون سكر', 'سكر زيادة', 'بدون ثلج', 'حار', 'بارد', 'بدون بصل'];
-/* r135-B: سقف الملاحظات — مصدر واحد للعداد وmaxLength (500 أصلاً) */
-const NOTES_MAX = 500;
+import type { OrderDialogProps } from './order-dialog/types';
+import { glassPillCard, glassPillInput } from './order-dialog/constants';
+import { ConfirmedBlock } from './order-dialog/confirmed-block';
+import { ItemSummary } from './order-dialog/item-summary';
+import { RestaurantBar } from './order-dialog/restaurant-bar';
+import { ModifierGroups } from './order-dialog/modifier-groups';
+import { QuantityCard } from './order-dialog/quantity-card';
+import { QuickNotes } from './order-dialog/quick-notes';
+import { OrderNotes } from './order-dialog/order-notes';
+import { StickyCta } from './order-dialog/sticky-cta';
 
 /**
  * (r138 — J9 من تدقيق r138-a): تركيب قيمة حقل الملاحظات عند تبديل شريحة
@@ -73,12 +77,6 @@ export function toggleQuickNoteValue(prev: string, note: string): string {
         const without = parts.filter((p) => p !== note);
         if (without.length !== parts.length) return without.join('، ');
         return parts.length > 0 ? `${parts.join('، ')}، ${note}` : note;
-}
-
-/** (r138 — J9): هل الملاحظة مفعّلة كجزء كامل؟ — نفس مسند الإزالة أعلاه
- *  (وإلا أضاءت الشريحة لنص حر يحوي الملاحظة جزءًا بينما الضغطة تُلحقها). */
-function isQuickNoteApplied(prev: string, note: string): boolean {
-        return prev.split('،').some((p) => p.trim() === note);
 }
 
 export function OrderDialog({
@@ -316,25 +314,12 @@ export function OrderDialog({
            (البوابة المبكرة كانت تعمل فقط عند الغياب الكامل). */
         const waValid = normalizeWaNumber(restaurantWhatsapp);
         const displayName = item.nameAr || item.name;
-        /* r135-B: الوصف الكامل + علم وجود شرائح الحمية/الحساسية — تُعرض أعلى
-         * المحتوى (انظر أسفل)؛ نافذة الطلب هي المكان الوحيد الذي يجب أن يُقرأ
-         * فيه النص الطويل دون قصّ (البطاقة تقصّه إلى سطرين). */
-        const displayDesc = (item.descriptionAr || item.description || '').trim();
-        const hasDietaryInfo =
-                (item.dietaryTags?.length ?? 0) > 0 || (item.allergens?.length ?? 0) > 0;
         /* w3-f1: the live per-unit estimate (base + Σ modifier deltas — mirrors
          * the server math; see the F1-5 comment in handleConfirm). */
         const modGroups = visibleModifierGroups(item.modifierGroups);
         const modDelta = modifierDelta(modGroups, modSelection);
         const unitPrice = unitPriceWithModifiers(item.price, item.discountedPrice, modDelta);
         const totalPrice = unitPrice * quantity;
-        const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
-
-        /* r131 (A2 P1-3): أرضية 16px (منع تكبير iOS) + هالة التركيز القانونية
-           3px/22% (‏--state-input-focus-halo) بدل ring-2/25؛ زجاج الحبّة كما هو. */
-        const glassPillInput =
-                'h-11 rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border px-4 text-[16px] placeholder:text-placeholder-text outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]';
-        const glassPillCard = 'rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border';
 
         const innerContent = (
                 <>
@@ -390,217 +375,27 @@ export function OrderDialog({
                         )}
 
                         {confirmed ? (
-                                /* r135-B: role=status + aria-live=polite — قارئات الشاشة
-                                 * تسمع «تمت الإضافة إلى السلة» في فترة الانتظار (~800ms)
-                                 * قبل التحويل إلى السلة. الحركة كانت animate-scale-in
-                                 * (520ms) — طُبّعت إلى 240ms (سقف الحركة 380ms). */
-                                <div
-                                        role="status"
-                                        aria-live="polite"
-                                        className="p-10 text-center animate-[scale-in_240ms_var(--ease-out-quart)_both]"
-                                >
-                                        <div className="size-20 rounded-2xl bg-glass-bg/60 backdrop-blur-sm border border-glass-border flex items-center justify-center mx-auto mb-4">
-                                                {/* decorative backdrop — checkmark lives in the orange circle only */}
-                                        </div>
-                                        <div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-[var(--shadow-card-premium)]">
-                                                <MotionCheck className="size-10 text-orange-foreground" />
-                                        </div>
-                                        <h3 className="text-xl font-bold mb-1">تمت الإضافة إلى السلة!</h3>
-                                        {/* r120 (U5-F-3): الكذبة القديمة «تم إرسال الطلب! جاري تحويلك
-                                            إلى واتساب…» كانت توحي بإتمام الطلب بينما الحقيقة إضافة
-                                            للسلة → مراجعة → إرسال. الصدق يمنع مغادرة العميل مبكرًا. */}
-                                        <p className="text-sm text-muted-foreground">جارٍ فتح السلة لمراجعة الطلب وإرساله عبر واتساب…</p>
-                                </div>
+                                <ConfirmedBlock />
                         ) : (
                                 <div className={cn('p-4 sm:p-5 space-y-3 sm:space-y-4', !item.image && 'pt-8')}>
-                                        {!item.image && (
-                                                <div className="text-center pb-2">
-                                                        <h3 lang={contentLang(item.nameAr)} className="text-xl font-bold mb-1">{displayName}</h3>
-                                                </div>
-                                        )}
-
-                                        {/* r135-B: وصف الصنف كاملًا (بلا قصّ) + شرائح الحمية
-                                                ومسببات الحساسية بنمط البطاقة نفسه — إظهار مسببات
-                                                الحساسية قبل الطلب ممارسة عالمية (EU-FIC) ولا مكان
-                                                أنسب من هنا حيث يُحسم القرار. */}
-                                        {(displayDesc || hasDietaryInfo) && (
-                                                <div className="space-y-2">
-                                                        {displayDesc && (
-                                                                <p lang={contentLang(item.descriptionAr)} className="text-sm leading-relaxed text-muted-foreground">
-                                                                        {displayDesc}
-                                                                </p>
-                                                        )}
-                                                        {hasDietaryInfo && (
-                                                                /* r138 (P1-1): أحبار الرقائق النصية في الفاتح —
-                                                                   basil-ink/warning-ink ≥4.5:1 (كانت 2.6-2.7:1)
-                                                                   والداكن كما هو (8-11:1). */
-                                                                <div className="flex flex-wrap gap-1.5">
-                                                                        {item.dietaryTags?.map((tag) => (
-                                                                                <span
-                                                                                        key={tag}
-                                                                                        className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-2xs text-basil-ink"
-                                                                                >
-                                                                                        <DietaryIcon tag={tag} className="size-3 shrink-0" />
-                                                                                        {DIETARY_LABELS[tag] || tag}
-                                                                                </span>
-                                                                        ))}
-                                                                        {item.allergens?.map((tag) => (
-                                                                                <span
-                                                                                        key={tag}
-                                                                                        className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-2xs text-warning-ink"
-                                                                                >
-                                                                                        <AlertTriangle
-                                                                                                className="size-3 text-warning-ink"
-                                                                                                aria-hidden="true"
-                                                                                        />{' '}
-                                                                                        {ALLERGEN_LABELS[tag] || tag}
-                                                                                </span>
-                                                                        ))}
-                                                                </div>
-                                                        )}
-                                                </div>
-                                        )}
+                                        <ItemSummary item={item} displayName={displayName} />
 
                                         {/* Restaurant info bar — glass-card */}
-                                        <div className="glass-card rounded-xl p-3 flex items-center gap-3">
-                                                <div className="size-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shrink-0 shadow-md">
-                                                        {restaurantLogo ? (
-                                                                /* round88-A2: box is size-12 (48px) */
-                                                                <OptimizedImage
-                                                                        src={restaurantLogo}
-                                                                        alt=""
-                                                                        className="size-full"
-                                                                        aspectRatio="square"
-                                                                        skeleton={false}
-                                                                        sizes="48px"
-                                                                />
-                                                        ) : (
-                                                                <Store className="size-6 text-orange-foreground" />
-                                                        )}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                        <p className="font-bold text-sm">{restaurantName || 'المطعم'}</p>
-                                                        <p className="text-xs text-muted-foreground">طلب جديد</p>
-                                                </div>
-                                                {hasDiscount && (
-                                                        /* round80: unified savings semantic — success family (matches
-                                                           MenuItemCard's discount badge), destructive stays for errors.
-                                                           r138 (P1-1): الحبر النصي في الفاتح — success-ink 8.3:1
-                                                           على success/10 (كان 2.63:1)؛ الداكن كما هو. */
-                                                        <span className="text-xs bg-success/10 text-success-ink px-2 py-0.5 rounded-full">
-                                                                -{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
-                                                        </span>
-                                                )}
-                                        </div>
+                                        <RestaurantBar
+                                                item={item}
+                                                restaurantName={restaurantName}
+                                                restaurantLogo={restaurantLogo}
+                                        />
 
-                                        {/* w3-f1 (F1-4/F1-9): modifier groups — rendered under the item's
-                                                restaurant bar, BEFORE customer data (choices configure the line;
-                                                quantity/notes operate on the configured line). Each group is a
-                                                real fieldset/legend; option chips are aria-pressed toggles; the
-                                                counter + price changes are announced via aria-live below. */}
-                                        {modGroups.length > 0 && (
-                                                <div className="space-y-3">
-                                                        {modGroups.map((g) => {
-                                                                const groupName = g.nameAr || g.name;
-                                                                const count = selectedCount(modSelection, g.id);
-                                                                const groupError = modError?.groupId === g.id ? modError.message : null;
-                                                                return (
-                                                                        <fieldset
-                                                                                key={g.id}
-                                                                                /* r135-B: مرساة التمرير — عند فشل التحقق يُمرَّر
-                                                                                   أول مجموعة ناقصة إلى منتصف الشاشة (handleConfirm) */
-                                                                                id={`mod-group-${g.id}`}
-                                                                                className={cn(glassPillCard, 'p-4')}
-                                                                                aria-label={groupName}
-                                                                        >
-                                                                                <div className="flex items-center justify-between gap-2 mb-2.5">
-                                                                                        <div className="min-w-0">
-                                                                                                <span className="text-sm font-bold">{groupName}</span>
-                                                                                                <span className="text-2xs text-muted-foreground ms-1.5">
-                                                                                                        {modifierGroupHint(g)}
-                                                                                                </span>
-                                                                                        </div>
-                                                                                        {/* «المحدد ١/٢» counter — Western digits per app convention */}
-                                                                                        {(g.maxSelect > 1 || g.minSelect > 0) && (
-                                                                                                <span
-                                                                                                        className="shrink-0 text-2xs font-medium tabular-nums text-muted-foreground bg-glass-bg/60 border border-glass-border rounded-full px-2 py-0.5"
-                                                                                                >
-                                                                                                        المحدد {toArabicNumber(count)}/{toArabicNumber(g.maxSelect)}
-                                                                                                </span>
-                                                                                        )}
-                                                                                </div>
-                                                                                <div className="flex flex-wrap gap-1.5">
-                                                                                        {g.options.map((o) => {
-                                                                                                const selected = modSelection[g.id]?.includes(o.id) ?? false;
-                                                                                                /* r135-B: الخيار النافذ (isAvailable=false) يُعرض معطّلًا لكنه
-                                                                                                   مرئيًا مشطوبًا مع تلميح «غير متوفر» — إضافة العميل المعتادة
-                                                                                                   يجب أن تبقى معروفة (نمط talabat/Deliveroo). الدالة النقية
-                                                                                                   toggleModifierOption ترفضه أصلًا — هذا إظهار بصري فقط. */
-                                                                                                const unavailable = !o.isAvailable;
-                                                                                                const disabled = unavailable || isOptionDisabled(g, modSelection, o.id);
-                                                                                                return (
-                                                                                                        <button
-                                                                                                                key={o.id}
-                                                                                                                type="button"
-                                                                                                                aria-pressed={selected}
-                                                                                                                disabled={disabled}
-                                                                                                                onClick={() => {
-                                                                                                                        setModError(null);
-                                                                                                                        setModSelection((prev) =>
-                                                                                                                                toggleModifierOption(modGroups, prev, g.id, o.id)
-                                                                                                                        );
-                                                                                                                }}
-                                                                                                                className={cn(
-                                                                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                                                                        unavailable
-                                                                                                                                ? 'bg-glass-bg/30 border-glass-border text-muted-foreground opacity-50 cursor-not-allowed'
-                                                                                                                                : selected
-                                                                                                                                  /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA 5.42:1) */
-                                                                                                                                        ? 'bg-orange/10 border-orange/40 text-accent-foreground'
-                                                                                                                                        : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground',
-                                                                                                                        // gentle maxSelect ceiling: not-selected options dim at capacity
-                                                                                                                        disabled && !unavailable && 'opacity-40 cursor-not-allowed'
-                                                                                                                )}
-                                                                                                        >
-                                                                                                                <span className="inline-flex items-center gap-1">
-                                                                                                                        <span className={cn(unavailable && 'line-through')}>{o.nameAr || o.name}</span>
-                                                                                                                        {unavailable && (
-                                                                                                                                <span className="text-2xs font-medium">غير متوفر</span>
-                                                                                                                        )}
-                                                                                                                </span>
-                                                                                                                {/* r121 (H-1): سحب decimals:1 من فروق الخيارات — «+2.0» صارت
-                                                                                                                    «+2» و«0.25» تبقى «0.25» بدل تدويرها إلى «0.3». */}
-                                                                                                                {o.priceDelta !== 0 && (
-                                                                                                                        <span
-                                                                                                                                className={cn(
-                                                                                                                                        'ms-1.5 tabular-nums font-bold',
-                                                                                                                                        /* r138 (P1-1): دلتا سالبة — success-ink
-                                                                                                                                           في الفاتح 9.1:1 (كان 2.87:1). */
-                                                                                                                                        o.priceDelta > 0 ? 'text-accent-foreground' : 'text-success-ink'
-                                                                                                                                )}
-                                                                                                                        >
-                                                                                                                                {o.priceDelta > 0
-                                                                                                                                        ? `+${formatPrice(o.priceDelta, { suffix: '' })}`
-                                                                                                                                        : formatPrice(o.priceDelta, { suffix: '' })}
-                                                                                                                        </span>
-                                                                                                                )}
-                                                                                                        </button>
-                                                                                                );
-                                                                                        })}
-                                                                                </div>
-                                                                                {/* F1-6: required-group blocker — role=alert so SR users hear it */}
-                                                                                {groupError && (
-                                                                                        /* r138 (P1-1): danger-ink في الفاتح 10.75:1
-                                                                                           (كان destructive 3.06:1) — الداكن كما هو. */
-                                                                                        <p role="alert" className="text-2xs font-medium text-danger-ink mt-2.5">
-                                                                                                {groupError}
-                                                                                        </p>
-                                                                                )}
-                                                                        </fieldset>
-                                                                );
-                                                        })}
-                                                </div>
-                                        )}
+                                        {/* w3-f1: مجموعات الخيارات — الحالة ملك الأب، والوحدة
+                                            تعرضها وتنقر عبر المُغيّرات نفسها (لا منطق جديد). */}
+                                        <ModifierGroups
+                                                modGroups={modGroups}
+                                                modSelection={modSelection}
+                                                modError={modError}
+                                                setModSelection={setModSelection}
+                                                setModError={setModError}
+                                        />
 
                                         {/* Customer info — glass-pill inputs */}
                                         <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
@@ -634,50 +429,12 @@ export function OrderDialog({
                                         </div>
 
                                         {/* Quantity selector — glass-card */}
-                                        <div className={cn(glassPillCard, 'flex items-center justify-between p-4')}>
-                                                <div>
-                                                        <span className="text-xs text-muted-foreground">السعر</span>
-                                                        <div className="flex items-baseline gap-1.5 mt-0.5">
-                                                                {/* w3-f1: unit price INCLUDING selected modifiers (live) */}
-                                                                {/* r95: حبر السعر — أسعار الأصناف بعائلة accent-foreground (#df5a00)
-                                                                   5.42:1 — كان text-primary (#bc4700) 3.9:1 بلا AA على الزجاج الداكن. */}
-                                                                <span className="font-bold text-xl text-accent-foreground tabular-nums">
-                                                                        {formatPrice(unitPrice, { suffix: '' })}
-                                                                </span>
-                                                                <span className="text-xs text-muted-foreground">د.ل</span>
-                                                        </div>
-                                                        {modDelta !== 0 && (
-                                                                <p className="text-3xs text-muted-foreground mt-0.5">
-                                                                        شامل الخيارات {modDelta > 0 ? '+' : ''}
-                                                                        {/* r121 (H-1): عيار العرض الذكي بدل decimals:1. */}
-                                                                        {formatPrice(modDelta, { suffix: '' })} د.ل
-                                                                </p>
-                                                        )}
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                        <button
-                                                                type="button"
-                                                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                                                disabled={quantity <= 1}
-                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                                                aria-label="إنقاص الكمية"
-                                                        >
-                                                                <MotionMinus className="size-4" />
-                                                        </button>
-                                                        <span className="font-bold text-xl min-w-[2.5ch] text-center tabular-nums">
-                                                                {toArabicNumber(quantity)}
-                                                        </span>
-                                                        <button
-                                                                type="button"
-                                                                onClick={() => setQuantity(Math.min(MAX_ITEM_QUANTITY, quantity + 1))}
-                                                                disabled={quantity >= MAX_ITEM_QUANTITY}
-                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                                                aria-label="زيادة الكمية"
-                                                        >
-                                                                <MotionPlus className="size-4" />
-                                                        </button>
-                                                </div>
-                                        </div>
+                                        <QuantityCard
+                                                unitPrice={unitPrice}
+                                                modDelta={modDelta}
+                                                quantity={quantity}
+                                                setQuantity={setQuantity}
+                                        />
 
                                         {/* Order type — segmented with bg-orange active (single-select → radio group).
                                                 a11y (APG radiogroup): roving tabindex + ArrowLeft/Right/Up/Down moves
@@ -735,105 +492,12 @@ export function OrderDialog({
                                         </div>
 
                                         {/* Quick notes — glass-pill chips (multi-select toggles → aria-pressed) */}
-                                        <div>
-                                                <label className="text-sm font-medium mb-2 block">إضافات</label>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                        {QUICK_NOTES.map((note) => {
-                                                                /* (r138 — J9): حالة «مفعّلة» = جزء مطابق تمامًا
-                                                                   (نفس مسند الإزالة) — كانت includes جزئية فتضيء
-                                                                   الشريحة لنص حر يحوي الملاحظة جزءًا بينما الضغطة
-                                                                   تُلحقها من جديد؛ الآن الضوء والفعل متطابقان. */
-                                                                const applied = isQuickNoteApplied(notes, note);
-                                                                return (
-                                                        <button
-                                                                key={note}
-                                                                type="button"
-                                                                aria-pressed={applied}
-                                                                onClick={() => toggleQuickNote(note)}
-                                                                className={cn(
-                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                        applied
-                                                                                /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
-                                                                                ? 'bg-orange/10 border-orange/30 text-accent-foreground'
-                                                                                : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground'
-                                                                )}
-                                                                >
-                                                                        {note}
-                                                                </button>
-                                                                );
-                                                        })}
-                                                </div>
-                                        </div>
+                                        <QuickNotes notes={notes} toggleQuickNote={toggleQuickNote} />
 
-                                        {/* Notes textarea — glass-pill
-                                            r135-B: عدّاد الأحرف (٥٠٠ سقف) يظهر فقط بعد
-                                            بدء الكتابة — يطمئن العميل أن ملاحظته تُحفظ. */}
-                                        <div>
-                                                <textarea
-                                                        id="order-notes"
-                                                        name="notes"
-                                                        value={notes}
-                                                        onChange={(e) => setNotes(e.target.value)}
-                                                        placeholder="ملاحظات إضافية للطلب…"
-                                                        rows={2}
-                                                        maxLength={NOTES_MAX}
-                                                        aria-label="ملاحظات إضافية"
-                                                        className={cn(glassPillInput, 'h-auto py-3 resize-none')}
-                                                />
-                                                {notes.length > 0 && (
-                                                        <p className="mt-1 text-end text-2xs tabular-nums text-muted-foreground">
-                                                                {toArabicNumber(notes.length)}/{toArabicNumber(NOTES_MAX)}
-                                                        </p>
-                                                )}
-                                        </div>
+                                        <OrderNotes notes={notes} setNotes={setNotes} />
 
-                                        {/* Total + WhatsApp — r121-ADV4-1: sticky footer. The whole
-                                            sheet scrolls (max-h 94dvh) so a plain CTA sat 44px below
-                                            the visible fold at 375×667 (measured). Pinning the money
-                                            block to the sheet's bottom edge keeps «أضف إلى السلة»
-                                            always visible; -mx/px matches the body padding. */}
-                                        <div className="sticky bottom-0 z-10 space-y-3 -mx-4 sm:-mx-5 px-4 sm:px-5 pt-3 pb-1 glass-strong border-t border-glass-border">
-                                                {/* round88-E1 pattern: polite live region announces price changes
-                                                        (modifier toggles + quantity) to screen readers */}
-                                                <div
-                                                        className="flex items-center justify-between pt-0"
-                                                        aria-live="polite"
-                                                >
-                                                        <span className="font-bold text-sm">المجموع</span>
-                                                        {/* r95: المجموع — accent-foreground الأسطع (#df5a00) 5.42:1 */}
-                                                        <span className="font-bold text-2xl text-accent-foreground tabular-nums">
-                                                                {formatPrice(totalPrice, { suffix: '' })}{' '}
-                                                                <span className="text-sm font-normal text-muted-foreground">د.ل</span>
-                                                        </span>
-                                                </div>
-                                                {/* r120 (U5-F-3 + U8-F-2): الزر يضيف للسلة (لا يرسل واتساب
-                                                    مباشرة) — النص الصادق «أضف إلى السلة». والنص الأبيض على
-                                                    أخضر واتساب كان 1.98:1 فقط؛ الأخضر الداكن يعطي 6.15:1.
-                                                    r131 (A2 P1-1/P1-2): الظلّ الملوّن → الزوج الحيادي الممتاز
-                                                    + رفع −2px، والضغط 0.97@80ms. */}
-                                                <button
-                                                        type="button"
-                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] shadow-[var(--shadow-card-premium)] text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,box-shadow] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                                        onClick={handleConfirm}
-                                                        /* r138-exec-2 (J1): waValid — مسند موحّد، انظر التعليق عند تعريفه. */
-                                                        disabled={!waValid}
-                                                >
-                                                        {/* r134-W2 (#2): the synchronous submitting spinner branch is
-                                                            retired (it could never render — the flag flipped within one
-                                                            tick); the addLockRef guard above owns double-tap protection. */}
-                                                        <AnimatedMessageCircle className="size-5 text-whatsapp-ink" /> أضف إلى السلة
-                                                </button>
-                                                {!waValid && (
-                                                        /* r138 (P1-1): danger-ink — كان destructive 3.06:1
-                                                           على كريم الفاتح. */
-                                                        <p className="text-2xs text-center text-danger-ink">
-                                                                لم يتم إعداد واتساب بعد للمطعم. يُرجى التواصل مع المطعم مباشرة.
-                                                        </p>
-                                                )}
-                                                <p className="text-2xs text-center text-muted-foreground">
-                                                        سيتم فتح السلة لمراجعة الطلب وإرساله عبر واتساب
-                                                </p>
-                                        </div>
+                                        {/* Total + WhatsApp — التذييل اللاصق للمال: وحدة sticky-cta */}
+                                        <StickyCta totalPrice={totalPrice} waValid={waValid} onConfirm={handleConfirm} />
                                 </div>
                         )}
                 </>
