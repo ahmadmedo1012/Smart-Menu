@@ -2,27 +2,48 @@
 
 import { useState, useRef, useCallback, useDeferredValue, useMemo, useEffect } from 'react';
 
-/** Pure debounce core — exported for unit testing without React. */
+/** Pure debounce core — exported for unit testing without React.
+ * 17-SM: flush() يُطلق آخر قيمة معلّقة فورًا (زر Enter = تصفية فورية
+ * دون انتظار انقضاء مهل 275ms) ويلغي المؤقت كي لا يتكرر الإطلاق. */
 export function createDebounced<A extends unknown[]>(fn: (...args: A) => void, delay = 275) {
         let timer: ReturnType<typeof setTimeout> | null = null;
+        let pending: { args: A } | null = null;
+        const clear = () => {
+                if (timer) clearTimeout(timer);
+                timer = null;
+        };
         return {
                 call: (...args: A) => {
-                        if (timer) clearTimeout(timer);
-                        timer = setTimeout(() => fn(...args), delay);
+                        clear();
+                        pending = { args };
+                        timer = setTimeout(() => {
+                                pending = null;
+                                fn(...args);
+                        }, delay);
+                },
+                flush: () => {
+                        if (!pending) return;
+                        const { args } = pending;
+                        clear();
+                        pending = null;
+                        fn(...args);
                 },
                 cancel: () => {
-                        if (timer) clearTimeout(timer);
-                        timer = null;
+                        clear();
+                        pending = null;
                 },
         };
 }
 
-/** Debounce a value change — returns a stable fn that fires `fn` 275ms after last call.
- *  `fn` is held in a ref so an unstable identity (inline closure per render) can't
- *  recreate the callback and cancel the pending timer on every keystroke. */
+/** Debounce a value change — returns a stable handle: `call` يحدد موعدًا بعد
+ *  275ms من آخر ضغطة، و`flush` يطلق آخر قيمة معلّقة فورًا (Enter)، و`cancel`
+ *  يُسقط المعلّق. `fn` is held in a ref so an unstable identity (inline closure
+ *  per render) can't recreate the callback and cancel the pending timer on
+ *  every keystroke. */
 export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
         const fnRef = useRef(fn);
         const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+        const pending = useRef<{ value: string } | null>(null);
         useEffect(() => {
                 fnRef.current = fn;
         });
@@ -33,9 +54,32 @@ export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
                 []
         );
         return useMemo(
-                () => (v: string) => {
-                        if (timer.current) clearTimeout(timer.current);
-                        timer.current = setTimeout(() => fnRef.current(v), delay);
+                () => {
+                        const clear = () => {
+                                if (timer.current) clearTimeout(timer.current);
+                                timer.current = null;
+                        };
+                        return {
+                                call: (v: string) => {
+                                        clear();
+                                        pending.current = { value: v };
+                                        timer.current = setTimeout(() => {
+                                                pending.current = null;
+                                                fnRef.current(v);
+                                        }, delay);
+                                },
+                                flush: () => {
+                                        if (!pending.current) return;
+                                        const { value } = pending.current;
+                                        clear();
+                                        pending.current = null;
+                                        fnRef.current(value);
+                                },
+                                cancel: () => {
+                                        clear();
+                                        pending.current = null;
+                                },
+                        };
                 },
                 [delay]
         );
@@ -169,9 +213,16 @@ export function MenuToolbar({
 
         /* a11y: keyboard walk of the suggestion listbox (ARIA combobox pattern).
            ArrowDown/ArrowUp move aria-activedescendant, Enter picks the active option,
-           Escape collapses. RTL note: Up/Down are direction-neutral so no mirroring needed. */
+           Escape collapses. RTL note: Up/Down are direction-neutral so no mirroring needed.
+           17-SM: التصفية حيّة أثناء الكتابة (مهلة 275ms عبر debouncedSearchChange.call)
+           وEnter يُطلق القيمة المعلّقة فورًا (flush) — نتيجة المطابقة نفسها
+           (normalizeArabic) بلا انتظار المهلة، ما لم يكن يختار اقتراحًا نشطًا. */
         const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (!dropdownVisible) {
+                        if (e.key === 'Enter') {
+                                debouncedSearchChange.flush();
+                                return;
+                        }
                         if (e.key === 'ArrowDown' && hasSuggestions) {
                                 e.preventDefault();
                                 setShowSuggestions(true);
@@ -190,6 +241,8 @@ export function MenuToolbar({
                         onSuggestionClick?.(suggestions[activeIdx].id);
                         setShowSuggestions(false);
                         setActiveIdx(-1);
+                } else if (e.key === 'Enter') {
+                        debouncedSearchChange.flush();
                 } else if (e.key === 'Escape') {
                         setShowSuggestions(false);
                         setActiveIdx(-1);
@@ -235,7 +288,10 @@ export function MenuToolbar({
                                                         value={inputValue}
                                                         onChange={(e) => {
                                                                 setInputValue(e.target.value);
-                                                                debouncedSearchChange(e.target.value);
+                                                                /* 17-SM: تصفية حيّة — كل ضغطة تجدول المطابقة
+                                                                   بعد مهلة 275ms (اخرها يفوز)؛ Enter يُلمحها
+                                                                   فورًا عبر flush في handleSearchKeyDown. */
+                                                                debouncedSearchChange.call(e.target.value);
                                                                 setShowSuggestions(true);
                                                         }}
                                                         onFocus={() => {
@@ -256,7 +312,11 @@ export function MenuToolbar({
                                                                 aria-label="مسح البحث"
                                                                 onClick={() => {
                                                                         setInputValue('');
-                                                                        debouncedSearchChange('');
+                                                                        /* 17-SM: المسح فوري — إسقاط المعلّق + تطبيق
+                                                                           مباشر بدل انتظار مهلة الكتابة على مسحٍ
+                                                                           نقرةً واحدة. */
+                                                                        debouncedSearchChange.cancel();
+                                                                        onSearchChange('');
                                                                         setShowSuggestions(false);
                                                                         inputRef.current?.focus();
                                                                 }}

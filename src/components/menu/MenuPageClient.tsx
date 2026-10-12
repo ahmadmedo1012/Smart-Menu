@@ -14,9 +14,23 @@ import { CartSwitchDialog, willReplaceOtherRestaurantCart, type CartSwitchInfo }
 import dynamic from 'next/dynamic';
 
 // round86-B8: 426 + 369 line dialogs load only when opened — they were
-// statically imported and shipped in the initial menu-page chunks
-const OrderDialog = dynamic(() => import('./OrderDialog').then((m) => ({ default: m.OrderDialog })), { ssr: false });
-const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default: m.ReviewSheet })), { ssr: false });
+// statically imported and shipped in the initial menu-page chunks.
+// 17-SM: قسمان متكاملان — (1) تركيب عند الفتح (أسفل) صار يجلب الشريحة لحظة
+// أول فتح فعلًا لا لحظة الترطيب: زبون QR الذي يتصفح بلا فتح حوار لا يجلب
+// كود الحوارين إطلاقًا. (2) حالة تحميل مصمّمة (DialogChunkFallback) تظهر
+// أثناء جولة الشريحة الباردة الأولى بدل «لا شيء يحدث» بعد النقر.
+// بلا إظهار قبل التركيب: الـHTML المخبز مطابق لسابقه (بلا قوالب انسحاب —
+// عقيدة r97-W6c/W6d) لأن البوابة نفسها لا تُرندر في الخادم.
+const OrderDialog = dynamic(() => import('./OrderDialog').then((m) => ({ default: m.OrderDialog })), {
+        ssr: false,
+        loading: () => <DialogChunkFallback />,
+});
+const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default: m.ReviewSheet })), {
+        ssr: false,
+        loading: () => <DialogChunkFallback />,
+});
+// حالة تحميل شرائح الحوارات — نفس وصفة الغطاء والقشرة في ui/dialog
+import { DialogChunkFallback } from './dialog-chunk-fallback';
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { normalizeWaNumber } from '@/lib/whatsapp';
@@ -146,6 +160,16 @@ export function MenuPageClient({
         const activeDietary = urlState.diet;
 
         const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
+        /* 17-SM: تركيب عند الفتح — الحوار الديناميكي لا يُرندر إلا بعد أول فتح
+         * حقيقي، فلا تُجلب شريحته مع الترطيب. يبقى مركّبًا بعد أول فتح عمدًا:
+         * الإغلاق يقلب open=false داخل المكوّن الباقي فتكتمل حركة الخروج
+         * (data-ending-style في ui/dialog) بدل بترها بإزالة الشجرة، وإعادة
+         * الفتح لاحقًا فورية (الشريحة مخبّأة). إعادة الضبط عند كل فتح من
+         * OrderDialog نفسه (useEffect على open). */
+        const [orderDialogMounted, setOrderDialogMounted] = useState(false);
+        useEffect(() => {
+                if (orderItem !== null) setOrderDialogMounted(true);
+        }, [orderItem]);
         /* r135-TABLE: رقم الطاولة من رابط QR لكل طاولة (‎?table=N‎). يُقرأ مرة
            واحدة (المعلم لا يدخل حالة التصفية) ويُخزّن في sessionStorage حتى
            ينجو من الانتقال إلى السلة، حيث يُلحق بملاحظات الطلب. الشريحة
@@ -156,8 +180,15 @@ export function MenuPageClient({
                 setTableNumber(captureTableFromUrl());
         }, []);
         /* a11y: one shared ReviewSheet instance (was mounted per-card — N dialogs in the DOM).
-                Fed by onReview from each card; keeps ReviewSheet's own focus trap/restore. */
+                Fed by onReview from each card; keeps ReviewSheet's own focus trap/restore.
+                17-SM: نفس بوابة «التركيب عند الفتح» (orderDialogMounted أعلاه) —
+                شريحة التقييمات ‎~649 سطرًا لا تُجلب إلا عند أول «قيّم»، مع بقاء
+                المكوّن بعد الإغلاق لتحية خروج AnimatePresence الخاصة به. */
         const [reviewItem, setReviewItem] = useState<{ id: number; name: string } | null>(null);
+        const [reviewSheetMounted, setReviewSheetMounted] = useState(false);
+        useEffect(() => {
+                if (reviewItem !== null) setReviewSheetMounted(true);
+        }, [reviewItem]);
         const cartItems = useCart((s) => s.items);
         const addItem = useCart((s) => s.addItem);
         const updateQuantity = useCart((s) => s.updateQuantity);
@@ -743,28 +774,34 @@ className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm 
                                 </div>
                         )}
 
-                        <OrderDialog
-                                item={orderItem}
-                                open={orderItem !== null}
-                                onOpenChange={(open) => {
-                                        if (!open) setOrderItem(null);
-                                }}
-                                restaurantWhatsapp={restaurantWhatsapp}
-                                restaurantName={restaurantName}
-                                restaurantId={restaurantId}
-                                restaurantLogo={restaurantLogo}
-                                deliveryFee={deliveryFee}
-                        />
+                        {/* 17-SM: بوابات التركيب عند الفتح — بلا بوابة كان الـdynamic
+                            يجلب الشريحتين عند الترطيب لأن المكوّن كان يُرندر دائمًا */}
+                        {orderDialogMounted && (
+                                <OrderDialog
+                                        item={orderItem}
+                                        open={orderItem !== null}
+                                        onOpenChange={(open) => {
+                                                if (!open) setOrderItem(null);
+                                        }}
+                                        restaurantWhatsapp={restaurantWhatsapp}
+                                        restaurantName={restaurantName}
+                                        restaurantId={restaurantId}
+                                        restaurantLogo={restaurantLogo}
+                                        deliveryFee={deliveryFee}
+                                />
+                        )}
 
                         {/* Shared reviews dialog — single instance for all cards (a11y + DOM size) */}
-                        <ReviewSheet
-                                menuItemId={reviewItem?.id ?? 0}
-                                menuItemName={reviewItem?.name ?? ''}
-                                open={reviewItem !== null}
-                                onOpenChange={(o) => {
-                                        if (!o) setReviewItem(null);
-                                }}
-                        />
+                        {reviewSheetMounted && (
+                                <ReviewSheet
+                                        menuItemId={reviewItem?.id ?? 0}
+                                        menuItemName={reviewItem?.name ?? ''}
+                                        open={reviewItem !== null}
+                                        onOpenChange={(o) => {
+                                                if (!o) setReviewItem(null);
+                                        }}
+                                />
+                        )}
 
                         {/* r110-F11: تأكيد صريح قبل إفراغ سلة مطعم آخر — انظر CartSwitchDialog */}
                         <CartSwitchDialog
