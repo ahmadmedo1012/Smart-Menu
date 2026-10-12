@@ -62,7 +62,7 @@ export function InstallPrompt() {
                         <button
                                 type="button"
                                 onClick={handleInstall}
-                                className="min-h-11 rounded-full px-3 text-base font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                className="min-h-11 rounded-full px-3 text-base font-semibold"
                         >
                                 تثبيت التطبيق
                         </button>
@@ -73,7 +73,7 @@ export function InstallPrompt() {
                                         setDeferredPrompt(null);
                                 }}
                                 aria-label="إخفاء زر تثبيت التطبيق لأسبوع"
-                                className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors duration-fast hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors duration-fast hover:bg-accent hover:text-accent-foreground"
                         >
                                 <X className="size-4" aria-hidden="true" />
                         </button>

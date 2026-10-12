@@ -45,7 +45,7 @@ export function StickyCta({
                             + رفع −2px، والضغط 0.97@80ms. */}
                         <button
                                 type="button"
-                                className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] shadow-[var(--shadow-card-premium)] text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,box-shadow] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] shadow-[var(--shadow-card-premium)] text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,box-shadow] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
                                 onClick={onConfirm}
                                 /* r138-exec-2 (J1): waValid — مسند موحّد، انظر التعليق عند تعريفه
                                    في OrderDialog.tsx. */

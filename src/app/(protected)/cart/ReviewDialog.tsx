@@ -171,7 +171,10 @@ export function ReviewDialog({
                                         )}
                                         <div className="flex justify-between font-bold text-lg">
                                                 <span>الإجمالي</span>
-                                                <span className="tabular-nums text-primary">
+                                                {/* r148 (CROSS R2): text-primary → accent-foreground — 18px
+                                                    bold تحت عتبة النص الكبير (18.66 bold)؛ الداكن نفس الذهب
+                                                    حرفيًا والفاتح نحاس عميق 10.29:1 بدل 3.75:1. */}
+                                                <span className="tabular-nums text-accent-foreground">
                                                         {formatPrice(total)}
                                                 </span>
                                         </div>

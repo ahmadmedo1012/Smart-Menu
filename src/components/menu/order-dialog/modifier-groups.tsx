@@ -93,7 +93,12 @@ export function ModifierGroups({
                                                                                         );
                                                                                 }}
                                                                                 className={cn(
-                                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                                        /* SM-D3 (19-AUDIT-SM): نصف القطر موحّد على الكانون الخاص
+                                                                                           بشرائح التبديل — rounded-full مثل الملاحظات السريعة
+                                                                                           ولغة شرائح المنيو (كانت rounded-xl تباينًا داخل نفس
+                                                                                           النافذة). SM-D6: بلا ring خاص — عقد :focus-visible
+                                                                                           العام (globals.css) هو المؤشر الوحيد. */
+                                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium border transition-[background-color,border-color,color,opacity]',
                                                                                         unavailable
                                                                                                 ? 'bg-glass-bg/30 border-glass-border text-muted-foreground opacity-50 cursor-not-allowed'
                                                                                                 : selected

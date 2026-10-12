@@ -617,9 +617,28 @@ export default function CartPage() {
                                         </div>
                                 )}
 
-                                {/* r131 (A2 P2-13 / A12): شريط الدفع السفلي اللاصق — نمط SO checkout:
-                                    mobile = fixed + safe-area + سطح ضبابي + حدّ علوي؛ md+ يعود
-                                    للسرد العادي. الحاشر يعوّض ارتفاع الشريط على الجوال فقط. */}
+                                <ReviewDialog
+                                        open={showPreview}
+                                        onOpenChange={setShowPreview}
+                                        items={items}
+                                        pickupType={pickupType}
+                                        notes={notes}
+                                        /* r138-exec-2 (J2): يُعرض سطر العنوان في الملخص عند التوصيل. */
+                                        deliveryAddress={deliveryAddress}
+                                        total={grandTotal}
+                                        deliveryFee={deliveryFeeAmount}
+                                        isSubmitting={isSubmitting}
+                                        onCheckout={handleCheckout}
+                                />
+                        </div>
+
+                        {/* SM-D1 (19-AUDIT-SM): شريط المال + حاشره خرجا من غلاف
+                            animate-fade-in — fill-mode: both كان يحتفظ بتحويل الهوية
+                            بعد انتهاء الحركة فيتحول الغلاف إلى containing block يحبس
+                            `fixed` (قياس حي: الشريط عند y≈1205 من المستند بدل قاع
+                            الشاشة، وCTA المال غير مرئي إلا بعد الوصول لآخر السلة).
+                            md+ يبقى ساكنًا بنفس الهندسة (نفس حاوية max-w-2xl px-4). */}
+                        <div className="max-w-2xl mx-auto px-4">
                                 <div className="h-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:hidden" aria-hidden="true" />
                                 <div
                                         className={cn(
@@ -653,20 +672,6 @@ export default function CartPage() {
                                                 </Button>
                                         </div>
                                 </div>
-
-                                <ReviewDialog
-                                        open={showPreview}
-                                        onOpenChange={setShowPreview}
-                                        items={items}
-                                        pickupType={pickupType}
-                                        notes={notes}
-                                        /* r138-exec-2 (J2): يُعرض سطر العنوان في الملخص عند التوصيل. */
-                                        deliveryAddress={deliveryAddress}
-                                        total={grandTotal}
-                                        deliveryFee={deliveryFeeAmount}
-                                        isSubmitting={isSubmitting}
-                                        onCheckout={handleCheckout}
-                                />
                         </div>
                 </>
         );

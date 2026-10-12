@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { CurrentYear } from "../current-year"
 
 /* r142 (task 2-b) — the landing footer, rebuilt for «المائدة»: a warm
  * paper-2 ground plate (the menu's back matter), hairline seam, four
@@ -17,7 +18,12 @@ const ECOSYSTEM = [
 ]
 
 export function LandingFooter() {
-  const year = new Date().getFullYear()
+  /* 19-AUDIT-CROSS R8 (r148): the © year was build-frozen (server eval at
+   * build → stale between deploys — the exact bug SL closed in r140). The
+   * CurrentYear island keeps the server-stamped buildYear for no-JS and
+   * patches the live year post-hydration. buildYear is still evaluated at
+   * module render on the server and passed as the snapshot seed. */
+  const buildYear = new Date().getFullYear()
 
   return (
     <footer className="landing-footer">
@@ -72,7 +78,7 @@ export function LandingFooter() {
           </div>
         </div>
         <div className="landing-footer-bottom">
-          <span>© {year} الربط الذكي | Smart Menu</span>
+          <span>© <CurrentYear buildYear={buildYear} /> الربط الذكي | Smart Menu</span>
           <span className="ln-footer-cluster">منيو رقمي · طلبات واتساب</span>
         </div>
       </div>

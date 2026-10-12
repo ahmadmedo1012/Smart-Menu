@@ -40,7 +40,7 @@ export function QuickNotes({
                                                         aria-pressed={applied}
                                                         onClick={() => toggleQuickNote(note)}
                                                         className={cn(
-                                                                'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border',
                                                                 applied
                                                                         /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
                                                                         ? 'bg-orange/10 border-orange/30 text-accent-foreground'

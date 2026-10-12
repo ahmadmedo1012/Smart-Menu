@@ -145,7 +145,9 @@ export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) 
     <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-base font-bold text-foreground">آخر الطلبات</h2>
-        <Link href="/owner/orders"><span className="text-xs text-primary font-medium">عرض الكل</span></Link>
+        {/* r148 (CROSS R2): text-primary → accent-foreground — نص 12px كان يهبط
+            مع النحاس الفاتح إلى 3.8:1؛ الداكن نفس الذهب حرفيًا (#E9B44C). */}
+        <Link href="/owner/orders"><span className="text-xs text-accent-foreground font-medium">عرض الكل</span></Link>
       </div>
       {orders && orders.length > 0 ? (
         <div className="space-y-0.5">
@@ -160,7 +162,7 @@ export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) 
           action={
             <Link
               href="/owner/qr"
-              className="text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 rounded-sm"
+              className="text-xs font-medium text-accent-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 rounded-sm"
             >
               احصل على رمز QR
             </Link>

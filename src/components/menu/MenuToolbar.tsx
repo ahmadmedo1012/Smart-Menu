@@ -320,7 +320,7 @@ export function MenuToolbar({
                                                                         setShowSuggestions(false);
                                                                         inputRef.current?.focus();
                                                                 }}
-                                                                className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted/80 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted/80 transition-colors hover:bg-muted"
                                                         >
                                                                 <AnimatedX className="size-3" aria-hidden="true" />
                                                         </button>

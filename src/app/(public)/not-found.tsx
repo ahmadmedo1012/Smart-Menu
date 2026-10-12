@@ -32,7 +32,7 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
 const SUGGESTIONS = [
 	{ href: "/", label: "الرئيسية", icon: Store },
-	{ href: "/pricing", label: "الخطط والأسعر", icon: Star },
+	{ href: "/pricing", label: "الخطط والأسعار", icon: Star },
 	{ href: "/login", label: "لوحة التحكم", icon: LayoutDashboard },
 	{ href: "/menu/al-waha-cafe-demo", label: "منيو تجريبي", icon: MessageCircle },
 ];

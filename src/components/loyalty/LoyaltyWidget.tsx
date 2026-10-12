@@ -3,19 +3,27 @@
 import { useState, useCallback } from 'react';
 import { m, useReducedMotion } from 'motion/react';
 import { toArabicNumber } from '@/lib/format';
-import { Phone, Award, Star, Sparkles, Medal, Gift, Stamp } from 'lucide-react';
+import { Award, Star, Sparkles, Medal, Gift, Stamp } from 'lucide-react';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { ReferralCard } from './ReferralCard';
 import { cn } from '@/lib/utils';
+/* SM-D2 (19-AUDIT-SM): الجزيرة كانت آخر مدخل خارج الكانون على مسار مال عام
+   (h-10/13px/بلا اسم متاح/ring-2/تدرجات خاصة) — تستهلك الآن ثابت كانون
+   مدخل حوار المنيو نفسه (h-11/16px/هالة --state-input-focus-halo) بدل
+   وصفة خاصة. المنطق التجاري كما هو حرفيًا. */
+import { glassPillInput } from '@/components/menu/order-dialog/constants';
 
+/* SM-D2: التدرجات الخاصة (from-orange to-orange/80) صارت توكنات صلبة —
+   نفس لغة الشارات الصلبة في الأسطول (r131-F4)؛ الفضي = الزوج الحيادي. */
 const TIER_CONFIG: Record<
         string,
-        { labelAr: string; gradient: string; icon: typeof Award; minPoints: number; color: string }
+        { labelAr: string; pill: string; fill: string; icon: typeof Award; minPoints: number; color: string }
 > = {
         bronze: {
                 labelAr: 'برونزي',
-                gradient: 'from-orange to-orange/80',
+                pill: 'bg-orange text-orange-foreground',
+                fill: 'bg-orange',
                 icon: Medal,
                 minPoints: 0,
                 /* r95: نص المستويات — accent-foreground الأسطع (AA) بدل الكهرمان القديم */
@@ -23,21 +31,24 @@ const TIER_CONFIG: Record<
         },
         silver: {
                 labelAr: 'فضي',
-                gradient: 'from-muted-foreground/40 to-muted-foreground/70',
+                pill: 'bg-muted text-muted-foreground border border-border',
+                fill: 'bg-muted-foreground/60',
                 icon: Award,
                 minPoints: 50,
                 color: 'text-muted-foreground',
         },
         gold: {
                 labelAr: 'ذهبي',
-                gradient: 'from-orange via-orange to-orange/80',
+                pill: 'bg-orange text-orange-foreground',
+                fill: 'bg-orange',
                 icon: Star,
                 minPoints: 150,
                 color: 'text-accent-foreground',
         },
         platinum: {
                 labelAr: 'بلاتيني',
-                gradient: 'from-orange to-orange/80',
+                pill: 'bg-orange text-orange-foreground',
+                fill: 'bg-orange',
                 icon: Sparkles,
                 minPoints: 400,
                 color: 'text-accent-foreground',
@@ -125,17 +136,17 @@ export function LoyaltyWidget({
 
         return (
                 <section className="max-w-4xl mx-auto px-4 mb-4 mt-8">
-                        <div className="rounded-md bg-gradient-to-br from-orange-muted/80 to-orange-muted/50 dark:from-orange-muted/20 dark:to-orange-muted/10 border border-orange/30 overflow-hidden">
+                        <div className="rounded-md bg-orange-muted/70 dark:bg-orange-muted/25 border border-orange/30 overflow-hidden">
                                 {/* Header */}
                                 <div className="flex items-center justify-between p-4">
                                         <div className="flex items-center gap-3">
-                                                <div className="size-10 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-md">
+                                                <div className="size-10 rounded-xl bg-orange flex items-center justify-center shadow-sm">
                                                         <Gift className="size-5 text-orange-foreground" />
                                                 </div>
                                                 <div>
                                                         <h2 className="text-sm font-bold flex items-center gap-2">
                                                                 برنامج الولاء
-                                                                <span className="bg-gradient-to-r from-orange to-orange/80 text-orange-foreground text-3xs font-bold px-2 py-0.5 rounded-full">
+                                                                <span className="bg-orange text-orange-foreground text-3xs font-bold px-2 py-0.5 rounded-full">
                                                                         جديد
                                                                 </span>
                                                         </h2>
@@ -145,8 +156,8 @@ export function LoyaltyWidget({
                                         {data && (
                                                 <div
                                                         className={cn(
-                                                                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r text-orange-foreground shadow-sm',
-                                                                tier.gradient
+                                                                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-sm',
+                                                                tier.pill
                                                         )}
                                                 >
                                                         <TierIcon className="size-3" /> {tier.labelAr}
@@ -158,26 +169,30 @@ export function LoyaltyWidget({
                                         /* Input form */
                                         <div className="px-4 pb-4">
                                                 <div className="flex gap-2">
-                                                        <div className="flex-1 relative rounded-xl border border-border/30 bg-white/70 dark:bg-card/70">
-                                                                <Phone className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-                                                                <input
-                                                                        id="loyalty-phone"
-                                                                        name="phone"
-                                                                        type="tel"
-                                                                        value={phone}
-                                                                        onChange={(e) => setPhone(e.target.value)}
-                                                                        onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
-                                                                        placeholder="رقم هاتفك للولاء"
-                                                                        className="w-full h-10 pe-10 px-3 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-ring/60"
-                                                                        dir="ltr"
-                                                                />
-                                                        </div>
+                                                        {/* SM-D2: نفس وصفة هاتف العميل في حوار الطلب — glassPillInput
+                                                            (h-11/rounded-xl/16px/placeholder-AA/hالة التركيز) + عقد tel
+                                                            الكامل (r134-W2 #3) + اسم متاح aria-label (كان placeholder وحيد)
+                                                            + بلا ring خاص (عقد :focus-visible العام هو المؤشر الوحيد). */}
+                                                        <input
+                                                                id="loyalty-phone"
+                                                                name="phone"
+                                                                type="tel"
+                                                                inputMode="tel"
+                                                                autoComplete="tel"
+                                                                value={phone}
+                                                                onChange={(e) => setPhone(e.target.value)}
+                                                                onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
+                                                                placeholder="رقم هاتفك للولاء"
+                                                                aria-label="رقم الهاتف للولاء"
+                                                                className={cn(glassPillInput, 'text-left flex-1 min-w-0')}
+                                                                dir="ltr"
+                                                        />
                                                         <button
                                                                 type="button"
                                                                 onClick={handleCheck}
                                                                 aria-label="تحقق"
                                                                 disabled={loading}
-                                                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-orange-foreground text-sm font-medium shadow-md transition-[box-shadow] outline-none hover:shadow-lg focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 disabled:opacity-50 shrink-0"
+                                                                className="min-h-11 px-4 rounded-xl bg-orange text-orange-foreground text-sm font-semibold shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] transition-[background-color,transform,box-shadow] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] disabled:opacity-55 disabled:pointer-events-none disabled:cursor-not-allowed shrink-0"
                                                         >
                                                                 {loading ? (
                                                                         <span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin block" />
@@ -187,8 +202,10 @@ export function LoyaltyWidget({
                                                         </button>
                                                 </div>
                                                 {notFound && (
-                                                        <p className="text-xs text-muted-foreground mt-2">
-                                                                👋 لم نجد بطاقة — سيتم إنشاء واحدة جديدة لك!
+                                                        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
+                                                                {/* SM-D2: الإيموجي 👋 → أيقونة lucide (لغة الأيقونات الموحدة) */}
+                                                                <Gift className="size-3.5 shrink-0 text-accent-foreground" aria-hidden="true" />
+                                                                لم نجد بطاقة — سيتم إنشاء واحدة جديدة لك!
                                                         </p>
                                                 )}
                                         </div>
@@ -284,7 +301,7 @@ export function LoyaltyWidget({
                                                                                                 initial={shouldReduceMotion ? false : { width: 0 }}
                                                                                                 animate={{ width: `${pct}%` }}
                                                                                                 transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, ease: 'easeOut' }}
-                                                                                                className={cn('h-full rounded-full', TIER_CONFIG[nextTier].gradient)}
+                                                                                                className={cn('h-full rounded-full', TIER_CONFIG[nextTier].fill)}
                                                                                         />
                                                                                 </div>
                                                                         </div>

@@ -390,7 +390,11 @@ export function CartSlideOver() {
                                         <Link
                                                 href="/cart"
                                                 onClick={() => setOpen(false)}
-                                                className={cn(buttonVariants({ variant: 'flame' }), 'w-full text-sm')}
+                                                /* SM-D4 (19-AUDIT-SM): CTA المال في السلة الجانبية كان
+                                                    بارتفاع default (40px) تحت حكم الأسطول ≥44 لمسار المال —
+                                                    size lg (h-12) على موضع الاستدعاء فقط؛ سلّم button.tsx
+                                                    المثبت (h-10/h-12/h-8) كما هو. */
+                                                className={cn(buttonVariants({ variant: 'flame', size: 'lg' }), 'w-full text-sm')}
                                         >
                                                 إتمام الطلب
                                         </Link>

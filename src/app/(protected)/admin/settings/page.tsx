@@ -315,7 +315,7 @@ export default function AdminSettingsPage() {
             {profile && (
               <>
                 <div className="flex items-center gap-4 pb-4 border-b border-border/20">
-                  <div className="size-12 rounded-full bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center text-lg font-bold text-primary">
+                  <div className="size-12 rounded-full bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center text-lg font-bold text-accent-foreground">
                     {profile.name.charAt(0)}
                   </div>
                   <div>

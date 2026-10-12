@@ -51,7 +51,11 @@ export function CartLineItem({
                                                         unavailable && 'opacity-50'
                                                 )}
                                         >
-                                                <span className="text-sm font-bold text-primary tabular-nums">
+                                                {/* r148 (CROSS R2): كان text-primary — في الفاتح صار نحاسًا
+                                                    3.8:1 على أرضية البطاقة البيضاء تحت سقف 4.5 للنص الصغير.
+                                                    accent-foreground = نفس الذهب الحرفي في الداكن (#E9B44C)
+                                                    والنحاس العميق 10.29:1 في الفاتح — صفر فرق داكنًا + AA فاتحًا. */}
+                                                <span className="text-sm font-bold text-accent-foreground tabular-nums">
                                                         {toArabicNumber(item.quantity)}
                                                 </span>
                                         </div>

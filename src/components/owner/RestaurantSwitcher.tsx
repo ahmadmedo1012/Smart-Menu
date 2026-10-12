@@ -95,8 +95,10 @@ export function RestaurantSwitcher() {
 							)}
 						>
 							<span className="flex-1 truncate">{r.name}</span>
+							{/* r148 (CROSS R2): شارة «الأساسي» كانت text-primary — 11px تحت سقف
+							   AA للنص الصغير في الفاتح مع النحاس؛ الداكن نفس الذهب حرفيًا. */}
 							{r.isPrimary && (
-								<span className="text-3xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0">
+								<span className="text-3xs bg-primary/10 text-accent-foreground px-1.5 py-0.5 rounded-full shrink-0">
 									الأساسي
 								</span>
 							)}
@@ -110,7 +112,7 @@ export function RestaurantSwitcher() {
 								setOpen(false);
 								router.push('/owner/restaurants');
 							}}
-							className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-primary hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+							className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-accent-foreground hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
 						>
 							<MotionPlus className="size-3.5" /> إدارة المنيوهات
 						</button>

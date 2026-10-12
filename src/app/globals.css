@@ -855,9 +855,13 @@
         --popover: #FFFFFF;
         --popover-foreground: #191918;
 
-        /* Madarek light: primary = the ink slab (#191918 + white) (§1.5) */
-        --primary: #191918;
-        --primary-foreground: #FFFFFF;
+        /* 19-AUDIT-CROSS R2 (r148): light primary تلتصق بقراءة الأسطول النحاسية —
+           كانون مدارك .btn.accent light (SL styles.css:476 · SO:552 · SB:599):
+           نحاس صلب #B57438 + حبر الفراغ #1A0F06 (4.95:1 AA). قراءة «الوحل
+           الحبري» كانت SM-محلية ولم يثبّتها اختبار parity أبدًا؛ المستهلكون
+           (bg-primary/text-primary في الفاتح) يصيرون نحاسيين كأخواتهم. */
+        --primary: #B57438;
+        --primary-foreground: #1A0F06;
         --secondary: #F7F6F3;
         --secondary-foreground: #4F4D48;
         --muted: #F7F6F3;

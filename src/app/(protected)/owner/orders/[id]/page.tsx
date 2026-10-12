@@ -229,7 +229,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                         <p className="text-xs text-muted-foreground">رقم الهاتف</p>
                                                         <a
                                                                 href={`tel:${order.customerPhone}`}
-                                                                className="font-medium text-primary hover:text-accent-foreground transition-colors flex items-center gap-1"
+                                                                className="font-medium text-accent-foreground hover:text-foreground transition-colors flex items-center gap-1"
                                                                 dir="ltr"
                                                         >
                                                                 <Phone className="size-3" />
@@ -266,7 +266,10 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                 <hr className="border-border/30" />
                                                 <div className="flex justify-between font-bold text-lg">
                                                         <span>الإجمالي</span>
-                                                        <span className="tabular-nums text-primary">
+                                                        {/* r148 (CROSS R2): text-primary → accent-foreground —
+                                                            18px bold تحت عتبة النص الكبير؛ الداكن نفس الذهب
+                                                            حرفيًا والفاتح نحاس عميق 10.29:1. */}
+                                                        <span className="tabular-nums text-accent-foreground">
                                                                 {formatPrice(order.total)}
                                                         </span>
                                                 </div>

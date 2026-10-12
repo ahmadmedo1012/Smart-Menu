@@ -313,7 +313,9 @@ export default function AdminSubscriptionsPage() {
                                                                                                                                         href={receiptUrl}
                                                                                                                                         target="_blank"
                                                                                                                                         rel="noopener noreferrer"
-                                                                                                                                        className="inline-flex items-center gap-1.5 text-primary hover:underline"
+                                                                                                                                        /* r148 (CROSS R2): text-primary → accent-foreground — نص
+                                                                                                                                            12px تحت سقف AA الصغير في الفاتح؛ الداكن نفس الذهب حرفيًا. */
+                                                                                                                                        className="inline-flex items-center gap-1.5 text-accent-foreground hover:underline"
                                                                                                                                 >
                                                                                                                                         <ImageIcon className="size-3.5" />
                                                                                                                                         عرض صورة التحويل

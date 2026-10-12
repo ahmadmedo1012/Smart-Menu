@@ -49,7 +49,7 @@ export function QuantityCard({
                                         type="button"
                                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                         disabled={quantity <= 1}
-                                        className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow]"
                                         aria-label="إنقاص الكمية"
                                 >
                                         <MotionMinus className="size-4" />
@@ -61,7 +61,7 @@ export function QuantityCard({
                                         type="button"
                                         onClick={() => setQuantity(Math.min(MAX_ITEM_QUANTITY, quantity + 1))}
                                         disabled={quantity >= MAX_ITEM_QUANTITY}
-                                        className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow]"
                                         aria-label="زيادة الكمية"
                                 >
                                         <MotionPlus className="size-4" />
