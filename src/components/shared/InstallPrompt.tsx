@@ -55,14 +55,14 @@ export function InstallPrompt() {
 
         return (
                 <div
-                        className="fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] left-1/2 -translate-x-1/2 z-(--z-float) flex items-center gap-1 rounded-full border border-border/50 bg-popover text-popover-foreground py-1 ps-2 pe-1 shadow-lg animate-fade-in"
+                        className="fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] left-1/2 -translate-x-1/2 z-(--z-float) flex items-center gap-1 rounded-(--r-full) border border-border/50 bg-popover text-popover-foreground py-1 ps-2 pe-1 shadow-lg animate-fade-in"
                         role="group"
                         aria-label="تثبيت التطبيق"
                 >
                         <button
                                 type="button"
                                 onClick={handleInstall}
-                                className="min-h-11 rounded-full px-3 text-base font-semibold"
+                                className="min-h-11 rounded-(--r-full) px-3 text-base font-semibold"
                         >
                                 تثبيت التطبيق
                         </button>
@@ -73,7 +73,7 @@ export function InstallPrompt() {
                                         setDeferredPrompt(null);
                                 }}
                                 aria-label="إخفاء زر تثبيت التطبيق لأسبوع"
-                                className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors duration-fast hover:bg-accent hover:text-accent-foreground"
+                                className="flex size-11 items-center justify-center rounded-(--r-full) text-muted-foreground transition-colors duration-fast hover:bg-accent hover:text-accent-foreground"
                         >
                                 <X className="size-4" aria-hidden="true" />
                         </button>

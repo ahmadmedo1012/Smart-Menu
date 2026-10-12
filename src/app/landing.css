@@ -308,12 +308,14 @@
     transform var(--sm-t-fast) var(--sm-ease-out);
 }
 
-/* the conversion pill — flat ember-deep, paper text, slim agency height
-   (~46px desktop). The ONE ember-filled surface on the page. */
+/* the conversion pill — flat ember-deep, paper text, the md rung of the
+   unified height ladder (r149 20-IDEAL C2: 44 header / 48 hero / 52 xl
+   finale — border-box EXACT equality with its ghost twin, no 46/46.8
+   split). The ONE ember-filled surface on the page. */
 .landing .ln-btn-ember {
   padding: 10px 26px;
   font-size: 15px;
-  min-block-size: 46px;
+  min-block-size: 48px;
   background: var(--sm-ember-deep);
   color: var(--sm-paper);
   border-radius: var(--sm-radius-pill);
@@ -330,14 +332,19 @@
   transform: translate(var(--mag-x, 0), var(--mag-y, 0)) scale(var(--press-scale, 0.97));
   transition-duration: var(--t-micro);
 }
-.landing .ln-btn-ember.xl { padding: 12px 34px; font-size: 16px; min-block-size: 48px; }
+/* r149 (C2): the lg rung — the finale pair sits EXACTLY on 52px
+   border-box (the ghost's 11px block padding compensates its 1px
+   borders so both twins measure identically). */
+.landing .ln-btn-ember.xl { padding: 12px 34px; font-size: 16px; min-block-size: 52px; }
 
 /* the outline pill — transparent, 1px espresso hairline; hover is a
-   quiet ink tint, never an ember fill (ember roster discipline) */
+   quiet ink tint, never an ember fill (ember roster discipline). Same
+   48px rung as its ember twin — the 1px border lives INSIDE the
+   border-box floor, so the pair measures identically. */
 .landing .ln-btn-ghost {
-  padding: 10px 24px;
+  padding: 9.4px 24px;
   font-size: 15px;
-  min-block-size: 46px;
+  min-block-size: 48px;
   letter-spacing: 0.01em;
   background: transparent;
   color: var(--sm-ink);
@@ -351,7 +358,7 @@
   border-color: rgb(43 32 20 / 0.52);
   box-shadow: 0 2px 8px rgb(43 32 20 / 0.08);
 }
-.landing .ln-btn-ghost.xl { padding: 12px 32px; font-size: 16px; min-block-size: 48px; }
+.landing .ln-btn-ghost.xl { padding: 11px 32px; font-size: 16px; min-block-size: 52px; }
 .landing .ln-btn-ghost:active {
   transform: scale(var(--press-scale, 0.97));
   transition-duration: var(--t-micro);
@@ -394,7 +401,17 @@
   gap: var(--sp-6);
 }
 
-.landing .landing-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+/* the 34px wordmark keeps its visual size — the touch zone reaches the
+   44px floor via symmetric padding cancelled by negative margins (the
+   fleet's C4 recipe, same as smart-link.ly; header + footer). */
+.landing .landing-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  padding-block: 5px;
+  margin-block: -5px;
+}
 .landing .landing-brand-mark {
   inline-size: 34px;
   block-size: 34px;
@@ -431,6 +448,11 @@
   align-items: center;
   gap: 6px;
   padding: 9px 14px;
+  /* r149 (C1/SM): the 41.1px pill was 3px shy of the 44px touch floor
+     (HIG/Material) — the fleet's unified `.landing-nav-link` recipe
+     (same as smart-link.ly). min-block-size lifts the hit zone without
+     touching the label rhythm — CSS only, DOM untouched. */
+  min-block-size: 44px;
   border-radius: var(--sm-radius-pill);
   color: var(--sm-ink-dim);
   font-size: 14px;
@@ -538,7 +560,14 @@
   max-inline-size: 14ch;
   text-wrap: balance;
 }
-.landing .ln-hero-line { display: block; }
+/* Each authored line is its own block, so the h1's balance never reaches
+   the line's INTERNAL wrap. With balance inherited, the 3-word line
+   «والطلبات على واتساب» balanced width-equal into the ORPHAN «والطلبات»
+   alone + «على واتساب» (the exact defect r149-SM2 measured live at
+   1440). Greedy wrap gives «والطلبات على» / «واتساب» — no lone word
+   except the ONE ember accent closing the line (live-verified both
+   splits at 1440/390). */
+.landing .ln-hero-line { display: block; text-wrap: wrap; }
 
 /* the ONE ember word — the accent stays single */
 .landing .ln-hero-title em {
@@ -833,8 +862,11 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-block-size: 46px;
-  padding: 12px 22px;
+  /* r149 (C2): the floor rides the unified ladder only — 46 was an
+     off-ladder artifact; r149: block padding 11.4 keeps the natural
+     body under the 48 floor — the row measures exactly 48 border-box. */
+  min-block-size: 48px;
+  padding: 11.4px 22px;
   border-radius: var(--sm-radius-pill);
   border: 1px solid var(--sm-line);
   background: transparent;
@@ -1025,7 +1057,7 @@
   transition: background var(--sm-t-fast) var(--sm-ease);
 }
 .landing .ln-menu-row:hover { background: rgb(43 32 20 / 0.04); }
-.landing .ln-menu-row:focus-visible { outline: 2px solid var(--sm-ink); outline-offset: 2px; }
+.landing .ln-menu-row:focus-visible { outline: 2px solid var(--sm-ink); outline-offset: 3px; }
 .landing .ln-menu-row-dot {
   flex-shrink: 0;
   inline-size: 8px;
@@ -1233,6 +1265,10 @@
   inline-size: fit-content;
   margin-block-start: var(--sp-2);
   padding-block: 6px;
+  /* r149 (SM1): «شاهد كيف تصل الأجواء…» measured 36.9px — 7px shy of
+     the 44px touch floor. min-block-size lifts the row without touching
+     the label/arrow rhythm. */
+  min-block-size: 44px;
   color: var(--sm-ember-ink);
   font-size: 14.5px;
   font-weight: var(--fw-semibold);
@@ -1628,12 +1664,14 @@
 }
 @media (max-width: 640px) {
   /* WCAG 2.5.5 Target Size (Minimum): 48px floor for landing-page
-     interactive elements on small screens. */
+     interactive elements on small screens. r149 (C2): the padding-block
+     override is GONE — it made the ember/ghost twins 48.75 vs 50.75
+     (border asymmetry, the exact split the fleet fixed in its mobile
+     drawer); with the floor alone both measure exactly 48px border-box. */
   .landing .ln-btn-ember,
   .landing .ln-btn-ghost,
   .landing .landing-nav-link {
     min-block-size: 48px;
-    padding-block: var(--sp-3);
   }
   .landing .landing-burger {
     inline-size: 48px;
@@ -1721,7 +1759,10 @@
 .landing .ln-skip-link:focus-visible {
   transform: translateY(0);
   opacity: 1;
-  outline: 2px solid var(--sm-ember);
+  /* r149 self-audit: was the lone --sm-ember ring — every other landing
+     ring is 2px --sm-ink @ offset 3px; the family is unified (the ink
+     ring sits on cream paper, fully visible). */
+  outline: 2px solid var(--sm-ink);
   outline-offset: 3px;
 }
 /* While the landing is mounted it owns the skip-link language: the
@@ -1733,6 +1774,30 @@
    The redesign ships the working form.) */
 body:has(.landing) > a[href="#main-content"] {
   display: none;
+}
+
+/* the landing is a warm paper world in BOTH themes, but the root
+   scrollbar rode the product theme's ink — by default the night slate
+   rgba(142,151,184,.2), a cool off-palette thumb on cream. Scope the
+   scrollbar inks to the paper family while the landing is mounted (the
+   same :has pattern the skip-link handover already uses); both product
+   themes keep their own values everywhere else. */
+html:has(.landing) {
+  --scrollbar-thumb: rgb(43 32 20 / 0.20);
+  --scrollbar-thumb-hover: rgb(43 32 20 / 0.34);
+}
+
+/* r149 (SM4): the floating family (WhatsApp bubble · scroll-to-top) rode
+   --orange, which turns #E9B44C gold under the default dark theme — a
+   second warm accent arguing with the page's ember roster. The landing
+   is the copper/cream world in BOTH themes (r148), so while it is
+   mounted the brand accent stays on the light-theme copper #B57438 with
+   its ink foreground (4.95:1 — AA; same values the :root already
+   defines, no invented color). Product pages keep each theme's own
+   --orange untouched. */
+html:has(.landing) {
+  --orange: #b57438;
+  --orange-foreground: #1a0f06;
 }
 
 /* hover micro-verbs — scroll-line grows, footer links underline */
@@ -1748,6 +1813,12 @@ body:has(.landing) > a[href="#main-content"] {
    ember surface stays on the hero/finale/owner CTAs) */
 .landing .landing-header-cta .ln-btn-ghost {
   min-block-size: 44px;
+  /* r149 (C2): twin-equality recipe — the ghost's 1px borders are
+     compensated by 1px less block padding than its ember twin, keeping
+     its natural body UNDER the 44px floor so BOTH pills measure
+     exactly 44px border-box (was 45 vs 47 — real Arabic line box is
+     26.8px, taller than the assumed 24.75). */
+  padding-block: 7.4px;
   border-color: var(--sm-line);
   box-shadow: none;
 }
@@ -1757,4 +1828,7 @@ body:has(.landing) > a[href="#main-content"] {
 }
 .landing .landing-header-cta .ln-btn-ember {
   min-block-size: 44px;
+  /* r149 (C2): 1.4px less block padding keeps the natural body under
+     the 44px floor so the header pair lands EXACTLY on 44 = 44. */
+  padding-block: 8.4px;
 }

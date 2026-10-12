@@ -29,11 +29,19 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
                            r143: الدرجة نفسها صارت توكن سلّم Madarek (--z-float) —
                            القيمة 30 نفسها فصفر انحدار بصري. */
                                 "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-(--z-float)",
-                                "size-14 rounded-full bg-whatsapp text-orange-foreground",
+                                /* r149 (SM4): كانت تبقى بأخضر واتساب الرسمي فتكسر لوحة
+                                   المائدة النحاسية الكريمية (تدقيق r149). الفقاعة هنا
+                                   ويدجت من الطرف الأول (هذا المكوّن نفسه، لا سكربت خارجي)
+                                   فلوّنها نحاس الأسطول عبر توكن العلامة --orange؛ وعلى
+                                   الهبوط تحديدًا يُثبّته landing.css على #B57438 في
+                                   الثيمين معاً (html:has(.landing)) — أيقونة الحبر
+                                   الداكن 4.95:1 على النحاس ✓. أزرار «اطلب عبر واتساب»
+                                   داخل المنيو تبقى بأخضر واتساب — إشارتها وظيفية للعميل. */
+                                "size-14 rounded-(--r-full) bg-orange text-orange-foreground",
                                 "flex items-center justify-center",
                                 "shadow-xl shadow-black/25",
-                                "hover:bg-whatsapp-deep hover:scale-105 hover:shadow-2xl hover:shadow-black/30",
-                                "transition-[background-color,transform,translate,scale,rotate,box-shadow] duration-base",
+                                "hover:brightness-95 hover:scale-105 hover:shadow-2xl hover:shadow-black/30",
+                                "transition-[background-color,transform,translate,scale,rotate,box-shadow,filter] duration-base",
                                 "animate-fade-in"
                         )}
                         aria-label="تواصل عبر واتساب"
