@@ -100,38 +100,48 @@ function OrderContent() {
                                         tabIndex={-1}
                                         className="min-h-screen bg-background flex flex-col focus:outline-none"
                                 >
-                                        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-                                                {/* r131 (A2 P3-7 — حكم 56px): بئر الحالة 56px r-xl
-                                                        (كان size-20/80px) — عيار بلاطات الحالة الموحّد. */}
-                                                <div className="size-14 rounded-xl bg-orange-muted flex items-center justify-center animate-scale-in">
-                                                        <CheckCircle className="size-7 text-orange" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                        <h1 className="text-2xl font-bold">تم إرسال طلب الاشتراك!</h1>
-                                                        <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
-                                                                شكراً لاشتراكك في <strong>الربط الذكي</strong>.
-                                                                <br />
-                                                                <br />
-                                                                {/* r121-P-4: كان الوعد زمنيًا محددًا بالساعات — لا توجد آلية
-                                                                    تُلزم الإدارة به. الوعد الصادق: سريعاً خلال أوقات
-                                                                    الدوام (الإشعار يصل الآن عبر لوحة التحكم بعد فرع
-                                                                    الموافقة في UserBannerNotifier). */}
-                                                                تم استلام طلب الدفع الخاص بك. ستقوم الإدارة بالتحقق من
-                                                                الدفع وتفعيل حسابك سريعاً خلال أوقات الدوام. سيتم إشعارك
-                                                                عند اكتمال التفعيل.
-                                                        </p>
-                                                </div>
-                                                <div className="flex flex-col gap-3 w-full max-w-xs">
-                                                        <Link href="/login">
-                                                                <Button className="w-full">تسجيل الدخول</Button>
-                                                        </Link>
-                                                        <Link href="/">
-                                                                <Button variant="outline" className="w-full">
-                                                                        {/* r121-J-2: سهم العودة في RTL يشير يميناً */}
-                                                                        <MotionArrowRight className="ms-2 size-4" />
-                                                                        العودة للرئيسية
-                                                                </Button>
-                                                        </Link>
+                                        <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 animate-fade-in">
+                                                {/* Phase 6 (r154): بطاقة الحالة المؤلَّفة — طبق 16 على
+                                                    بطل الحبيب الدافئ (إسبريسو ثابت عبر الوضعين كصور
+                                                    الطعام — عائلة warm-scrim نفسها). */}
+                                                <div className="relative w-full max-w-md overflow-hidden rounded-lg border border-border/50 bg-card text-center">
+                                                        <div className="relative isolate overflow-hidden bg-[var(--c-night)] px-6 pb-9 pt-10">
+                                                                <div className="absolute inset-0 warm-scrim" aria-hidden="true" />
+                                                                <div className="relative flex flex-col items-center gap-4">
+                                                                        {/* r131 (A2 P3-7 — حكم 56px): بئر الحالة 56px — طبق
+                                                                            تراكوتا صلب بحبر أبيض على البطل الإسبريسو. */}
+                                                                        <div className="size-14 rounded-full bg-orange flex items-center justify-center animate-scale-in">
+                                                                                <CheckCircle className="size-7 text-orange-foreground" />
+                                                                        </div>
+                                                                        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-[#FBF7F0]">تم إرسال طلب الاشتراك!</h1>
+                                                                </div>
+                                                        </div>
+                                                        <div className="px-6 pb-8 pt-6 space-y-6">
+                                                                <p className="text-muted-foreground text-sm max-w-sm leading-relaxed mx-auto">
+                                                                        شكراً لاشتراكك في <strong>الربط الذكي</strong>.
+                                                                        <br />
+                                                                        <br />
+                                                                        {/* r121-P-4: كان الوعد زمنيًا محددًا بالساعات — لا توجد آلية
+                                                                            تُلزم الإدارة به. الوعد الصادق: سريعاً خلال أوقات
+                                                                            الدوام (الإشعار يصل الآن عبر لوحة التحكم بعد فرع
+                                                                            الموافقة في UserBannerNotifier). */}
+                                                                        تم استلام طلب الدفع الخاص بك. ستقوم الإدارة بالتحقق من
+                                                                        الدفع وتفعيل حسابك سريعاً خلال أوقات الدوام. سيتم إشعارك
+                                                                        عند اكتمال التفعيل.
+                                                                </p>
+                                                                <div className="flex flex-col gap-3 w-full max-w-xs mx-auto">
+                                                                        <Link href="/login">
+                                                                                <Button className="w-full">تسجيل الدخول</Button>
+                                                                        </Link>
+                                                                        <Link href="/">
+                                                                                <Button variant="outline" className="w-full">
+                                                                                        {/* r121-J-2: سهم العودة في RTL يشير يميناً */}
+                                                                                        <MotionArrowRight className="ms-2 size-4" />
+                                                                                        العودة للرئيسية
+                                                                                </Button>
+                                                                        </Link>
+                                                                </div>
+                                                        </div>
                                                 </div>
                                         </div>
                                 </div>
@@ -146,62 +156,77 @@ function OrderContent() {
                                 <Confetti active={showConfetti} />
                         </Suspense>
                         <div id="main-content" tabIndex={-1} className="min-h-screen bg-background flex flex-col focus:outline-none">
-                                <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-                                        {/* r131 (A2 P3-7 — حكم 56px): بئر النجاح 56px r-xl. */}
-                                        <div className="size-14 rounded-xl bg-success/10 flex items-center justify-center animate-scale-in">
-                                                {/* r138 (P1-1): أيقونة البئر — success-ink في الفاتح
-                                                   8.3:1 كرسم (كان 2.6:1)؛ الداكن كما هو. */}
-                                                <CheckCircle className="size-7 text-success-ink" />
+                                <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 animate-fade-in">
+                                        {/* Phase 6 (r154): بطاقة النجاح المؤلَّفة — طبق 16 + بطل
+                                            الحبيب الدافئ + رقم الطلب على قائد النقاط المطبوع. */}
+                                        <div className="relative w-full max-w-md overflow-hidden rounded-lg border border-border/50 bg-card text-center">
+                                                <div className="relative isolate overflow-hidden bg-[var(--c-night)] px-6 pb-9 pt-10">
+                                                        <div className="absolute inset-0 warm-scrim" aria-hidden="true" />
+                                                        <div className="relative flex flex-col items-center gap-4">
+                                                                {/* r131 (A2 P3-7 — حكم 56px): بئر النجاح 56px — طبق نعناع
+                                                                    صلب بحبر إسبريسو على البطل (r138 P1-1: الأسطع درجة
+                                                                    أيقونة على الأرضية الداكنة). */}
+                                                                <div className="size-14 rounded-full bg-success flex items-center justify-center animate-scale-in">
+                                                                        <CheckCircle className="size-7 text-success-foreground" />
+                                                                </div>
+                                                                <h1 className="font-heading text-2xl sm:text-3xl font-bold text-[#FBF7F0]">تم تأكيد الطلب!</h1>
+                                                        </div>
+                                                </div>
+
+                                                <div className="px-6 pb-8 pt-6 space-y-5">
+                                                        {/* رقم الطلب — قائد النقاط المطبوع (نفس بصمة ملخص
+                                                            الطلب في لوحة المالك)؛ القيمة كبيرة واضحة بنهاية السطر. */}
+                                                        <div className="flex items-baseline gap-2 menu-leader text-sm">
+                                                                <span className="text-muted-foreground shrink-0">رقم الطلب</span>
+                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                <span className="text-2xl font-bold text-accent-foreground tabular-nums shrink-0">
+                                                                        <bdi dir="ltr">{displayOrderNo ?? '---'}</bdi>
+                                                                </span>
+                                                        </div>
+
+                                                        <button
+                                                                type="button"
+                                                                onClick={handleCopyOrderNo}
+                                                                /* r138 (P1-2): هدف لمس ≥24×24 (2.5.8) — الحشوة
+                                                                   ترفع منطقة النقر إلى ~36px بلا تغيير الشكل
+                                                                   الأنيق (كان ~16×90px — تدقيق r138-b). */
+                                                                className="inline-flex min-h-6 items-center justify-center rounded-sm px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+                                                        >
+                                                                {copiedOrderNo ? 'تم النسخ ✓' : 'نسخ رقم الطلب'}
+                                                        </button>
+
+                                                        <p className="text-muted-foreground text-sm max-w-xs leading-relaxed mx-auto">
+                                                                {/* r120 (U5-F-14): النص القديم وعد بإشعار لا يصل للزوار —
+                                                                    الوعود الصادقة تبني الثقة. */}
+                                                                أرسل الطلب عبر واتساب ليبدأ المطعم بالتجهيز، واحتفظ برقم الطلب عند الاستلام.
+                                                        </p>
+
+                                                        <div className="flex flex-col gap-3 w-full max-w-xs mx-auto">
+                                                                <Button className="w-full" onClick={handleWhatsApp}>
+                                                                        <AnimatedMessageCircle className="ms-2 size-4" />
+                                                                        إرسال عبر واتساب
+                                                                </Button>
+                                                                {/* r120 (U5-F-7): العودة إلى منيو المطعم الذي طُلب منه
+                                                                    (slug يصل عبر الرابط) — ليس إلى أول مطعم في قاعدة البيانات. */}
+                                                                {/* r121-J-2: سهم العودة في RTL يشير يميناً */}
+                                                                <Link href={referralRestaurantSlug ? `/menu/${referralRestaurantSlug}` : '/menu'}>
+                                                                        <Button variant="outline" className="w-full">
+                                                                                <MotionArrowRight className="ms-2 size-4" />
+                                                                                العودة إلى القائمة
+                                                                        </Button>
+                                                                </Link>
+                                                        </div>
+                                                </div>
                                         </div>
 
-                                        <div className="space-y-2">
-                                                <h1 className="text-2xl font-bold">تم تأكيد الطلب!</h1>
-                                                <p className="text-muted-foreground">رقم الطلب</p>
-                                                <p className="text-3xl font-bold text-accent-foreground tabular-nums">
-                                                        <bdi dir="ltr">{displayOrderNo ?? '---'}</bdi>
-                                                </p>
-                                                <button
-                                                        type="button"
-                                                        onClick={handleCopyOrderNo}
-                                                        /* r138 (P1-2): هدف لمس ≥24×24 (2.5.8) — الحشوة
-                                                           ترفع منطقة النقر إلى ~36px بلا تغيير الشكل
-                                                           الأنيق (كان ~16×90px — تدقيق r138-b). */
-                                                        className="inline-flex min-h-6 items-center justify-center rounded-sm px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
-                                                >
-                                                        {copiedOrderNo ? 'تم النسخ ✓' : 'نسخ رقم الطلب'}
-                                                </button>
-                                        </div>
-
-                                        <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
-                                                {/* r120 (U5-F-14): النص القديم وعد بإشعار لا يصل للزوار —
-                                                    الوعود الصادقة تبني الثقة. */}
-                                                أرسل الطلب عبر واتساب ليبدأ المطعم بالتجهيز، واحتفظ برقم الطلب عند الاستلام.
-                                        </p>
-
-                                        <div className="flex flex-col gap-3 w-full max-w-xs">
-                                                <Button className="w-full" onClick={handleWhatsApp}>
-                                                        <AnimatedMessageCircle className="ms-2 size-4" />
-                                                        إرسال عبر واتساب
-                                                </Button>
-                                                {/* r120 (U5-F-7): العودة إلى منيو المطعم الذي طُلب منه
-                                                    (slug يصل عبر الرابط) — ليس إلى أول مطعم في قاعدة البيانات. */}
-                                                {/* r121-J-2: سهم العودة في RTL يشير يميناً */}
-                                                <Link href={referralRestaurantSlug ? `/menu/${referralRestaurantSlug}` : '/menu'}>
-                                                        <Button variant="outline" className="w-full">
-                                                                <MotionArrowRight className="ms-2 size-4" />
-                                                                العودة إلى القائمة
-                                                        </Button>
-                                                </Link>
-                                        </div>
+                                        <ShareAfterOrder
+                                                orderNo={displayOrderNo ?? '---'}
+                                                open={showShare}
+                                                onOpenChange={setShowShare}
+                                                restaurantId={referralRestaurantId}
+                                                restaurantSlug={referralRestaurantSlug}
+                                        />
                                 </div>
-
-                                <ShareAfterOrder
-                                        orderNo={displayOrderNo ?? '---'}
-                                        open={showShare}
-                                        onOpenChange={setShowShare}
-                                        restaurantId={referralRestaurantId}
-                                        restaurantSlug={referralRestaurantSlug}
-                                />
                         </div>
                 </>
         );

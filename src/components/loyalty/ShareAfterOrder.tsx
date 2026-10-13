@@ -148,11 +148,13 @@ ${referralUrl}
 
         return (
                 <Dialog open={open} onOpenChange={onOpenChange}>
-                        <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-md">
+                        <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden">
                                 {/* Screen-reader name — base-ui warns and SR announces bare "dialog" without a Title */}
                                 <DialogTitle className="sr-only">مشاركة الطلب</DialogTitle>
-                                {/* Confetti header */}
-                                <div className="relative h-36 bg-gradient-to-br from-orange via-orange to-orange/80 overflow-hidden">
+                                {/* Confetti header — Phase 6 (r154): تراكوتا صلب بلا تدرّج
+                                    ولا توهّجات (منع التدرّجات r128-F5)؛ الزوايا من الطبق 16
+                                    الموروث من DialogContent (كان تجاوز rounded-md). */}
+                                <div className="relative h-36 bg-orange overflow-hidden">
                                         <Confetti
                                                 active
                                                 variant="rects"
@@ -161,10 +163,6 @@ ${referralUrl}
                                                 className="absolute inset-0 pointer-events-none overflow-hidden"
                                         />
 
-                                        {/* Decorative glow */}
-                                        <div className="absolute -top-10 -end-10 size-32 rounded-full bg-orange-foreground/10 blur-3xl" />
-                                        <div className="absolute -bottom-10 -start-10 size-32 rounded-full bg-orange-foreground/5 blur-3xl" />
-
                                         {/* Sparkle decoration */}
                                         <div className="absolute top-1/2 start-1/2 -translate-y-1/2 rtl:translate-x-1/2 ltr:-translate-x-1/2">
                                                 <AnimatedSparkles className="size-12 text-orange-foreground/20 animate-spin-slow" />
@@ -172,8 +170,8 @@ ${referralUrl}
 
                                         {/* Checkmark */}
                                         <div className="relative z-10 flex flex-col items-center justify-center h-full pt-4">
-                                                <div className="size-14 rounded-full bg-orange-foreground/15 backdrop-blur-sm flex items-center justify-center mb-1 shadow-lg">
-                                                        <CheckCircle className="size-8 text-orange-foreground drop-shadow-lg" />
+                                                <div className="size-14 rounded-full bg-white/15 flex items-center justify-center mb-1">
+                                                        <CheckCircle className="size-8 text-white" />
                                                 </div>
                                         </div>
                                 </div>
@@ -181,7 +179,7 @@ ${referralUrl}
                                 <div className="p-6 space-y-5">
                                         {/* Success title + order number */}
                                         <div className="text-center">
-                                                <h2 className="text-xl font-bold">تم طلبك بنجاح!</h2>
+                                                <h2 className="font-heading text-xl font-bold">تم طلبك بنجاح!</h2>
                                                 <p className="text-muted-foreground text-sm mt-1">
                                                         رقم الطلب:{' '}
                                                         <span className="font-bold text-foreground tabular-nums" dir="ltr">
@@ -195,7 +193,7 @@ ${referralUrl}
                                                 <>
                                                         {/* CTA */}
                                                         <div className="text-center">
-                                                                <div className="mx-auto mb-3 size-14 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
+                                                                <div className="mx-auto mb-3 size-14 rounded-full bg-orange flex items-center justify-center">
                                                                         <Gift className="size-7 text-orange-foreground" />
                                                                 </div>
                                                                 <p className="text-base font-semibold mb-1">ادع صديق وكل منكما يحصل على خصم 10%</p>
@@ -213,7 +211,7 @@ ${referralUrl}
                                                                         رقم الهاتف
                                                                 </label>
                                                                 <div className="flex gap-2">
-                                                                        <div className="flex-1 relative glow-within rounded-xl border border-border/40 bg-white/70 dark:bg-card/70 backdrop-blur-xl">
+                                                                        <div className="flex-1 relative rounded-md border border-border/40 bg-secondary/40">
                                                                                 <Phone className="absolute end-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                                                                                 <input
                                                                                         id="shareafter-phone"
@@ -222,7 +220,7 @@ ${referralUrl}
                                                                                         value={phone}
                                                                                         onChange={(e) => setPhone(e.target.value)}
                                                                                         placeholder="0912345678"
-                                                                                        className="w-full h-12 pe-10 px-4 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                                        className="w-full h-12 pe-10 px-4 bg-transparent text-sm outline-none rounded-md focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                         dir="ltr"
                                                                                 />
                                                                         </div>
@@ -231,7 +229,7 @@ ${referralUrl}
 
                                                         {/* Submit button */}
                                                         <Button
-                                                                className="w-full h-12 rounded-xl text-base gap-2"
+                                                                className="w-full h-12 text-base gap-2"
                                                                 onClick={handleGetReferralLink}
                                                                 disabled={loading || !phone.trim()}
                                                         >
@@ -274,7 +272,7 @@ ${referralUrl}
                                                                 </label>
                                                                 <div className="flex items-center gap-2">
                                                                         <div
-                                                                                className="flex-1 h-11 rounded-xl bg-muted/50 border border-border/40 flex items-center px-3 text-xs text-foreground truncate font-mono"
+                                                                                className="flex-1 h-11 rounded-md bg-muted/50 border border-border/40 flex items-center px-3 text-xs text-foreground truncate font-mono"
                                                                                 dir="ltr"
                                                                         >
                                                                                 {referralUrl}
@@ -283,7 +281,7 @@ ${referralUrl}
                                                                                 type="button"
                                                                                 onClick={handleCopyLink}
                                                                                 aria-label="نسخ رابط الإحالة"
-                                                                                className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-orange-foreground shadow-lg shadow-orange/25 hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
+                                                                                className="size-11 rounded-md bg-orange flex items-center justify-center text-orange-foreground hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
                                                                         >
                                                                                 {copied ? <MotionCheck className="size-4" /> : <AnimatedCopy className="size-4" />}
                                                                         </button>
@@ -295,7 +293,7 @@ ${referralUrl}
                                                                 <button
                                                                         type="button"
                                                                         onClick={handleShareWhatsApp}
-                                                                        className="h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep flex items-center justify-center gap-2 text-whatsapp-ink text-sm font-bold shadow-lg shadow-whatsapp/25 hover:shadow-xl hover:shadow-whatsapp/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-whatsapp/60 focus-visible:ring-offset-1 cursor-pointer"
+                                                                        className="h-12 rounded-md bg-whatsapp hover:bg-whatsapp-deep flex items-center justify-center gap-2 text-whatsapp-ink text-sm font-bold active:scale-[0.98] transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-whatsapp/60 focus-visible:ring-offset-1 cursor-pointer"
                                                                 >
                                                                         <AnimatedMessageCircle className="size-5" />
                                                                         واتساب
@@ -303,7 +301,7 @@ ${referralUrl}
                                                                 <button
                                                                         type="button"
                                                                         onClick={handleShareInstagram}
-                                                                        className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-orange-foreground text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 cursor-pointer"
+                                                                        className="h-12 rounded-md bg-orange flex items-center justify-center gap-2 text-orange-foreground text-sm font-medium active:scale-[0.98] transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 cursor-pointer"
                                                                 >
                                                                         <Camera className="size-5" />
                                                                         إنستغرام
@@ -313,7 +311,7 @@ ${referralUrl}
                                                         {/* Done */}
                                                         <Button
                                                                 variant="outline"
-                                                                className="w-full h-11 rounded-xl"
+                                                                className="w-full h-11"
                                                                 onClick={() => onOpenChange(false)}
                                                         >
                                                                 تم
