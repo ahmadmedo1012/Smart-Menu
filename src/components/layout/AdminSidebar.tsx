@@ -68,14 +68,19 @@ export function AdminSidebar({
     : allNavItems.filter((item) => hasItemPermission(item, role, permissions));
 
   return (
-    /* r131-F4 (A1 P2-3): night-shell rail — same SO port as OwnerShell
-        (dark night-sky gradient + constellation dots, light flat card,
-        border-e hairline on the content boundary, sticky full-height). */
-    <aside aria-label="شريط التنقل الجانبي" className="hidden lg:flex lg:flex-col w-60 xl:w-64 shrink-0 sticky top-0 h-screen border-e border-border/60 bg-card shadow-sm dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(233_180_76/0.06),transparent_72%),radial-gradient(280px_220px_at_-20%_108%,rgb(111_168_255/0.05),transparent_70%),linear-gradient(180deg,var(--muted)_0%,var(--background)_34%,var(--background)_100%)]">
-      {/* Constellation dots — paint-only, dark-only. */}
+    /* r131-F4 (A1 P2-3): night-shell rail — same SO port as OwnerShell.
+       Phase 6 (r154): the dark rail joins the «مطبخ ليلي دافئ» — the retired
+       night-sky gradient (gold aurora + indigo + sand constellation)
+       repaints to the warm night kitchen: terracotta ember glow
+       (E07856-family, NO indigo) + espresso-family constellation dots
+       (the #241811-tinted warm neutral ramp); light flat card,
+       border-e hairline on the content boundary, sticky full-height. */
+    <aside aria-label="شريط التنقل الجانبي" className="hidden lg:flex lg:flex-col w-60 xl:w-64 shrink-0 sticky top-0 h-screen border-e border-border/60 bg-card shadow-sm dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(224_120_86/0.08),transparent_72%),radial-gradient(280px_220px_at_-20%_108%,rgb(194_69_45/0.05),transparent_70%),linear-gradient(180deg,var(--muted)_0%,var(--background)_34%,var(--background)_100%)]">
+      {/* Constellation dots — paint-only, dark-only. Espresso-family warm
+          neutrals + terracotta ember sparks (the night kitchen's specks). */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden dark:block bg-no-repeat [background-image:radial-gradient(1.8px_1.8px_at_21%_12%,rgb(242_239_230/0.22),transparent_100%),radial-gradient(1px_1px_at_68%_7%,rgb(142_151_184/0.16),transparent_100%),radial-gradient(1.5px_1.5px_at_87%_21%,rgb(242_239_230/0.15),transparent_100%),radial-gradient(1px_1px_at_42%_30%,rgb(142_151_184/0.12),transparent_100%),radial-gradient(1.8px_1.8px_at_9%_44%,rgb(233_180_76/0.18),transparent_100%),radial-gradient(1px_1px_at_76%_58%,rgb(142_151_184/0.11),transparent_100%),radial-gradient(1.5px_1.5px_at_28%_74%,rgb(242_239_230/0.14),transparent_100%),radial-gradient(1.2px_1.2px_at_58%_88%,rgb(233_180_76/0.12),transparent_100%)]"
+        className="pointer-events-none absolute inset-0 hidden dark:block bg-no-repeat [background-image:radial-gradient(1.8px_1.8px_at_21%_12%,rgb(205_191_169/0.20),transparent_100%),radial-gradient(1px_1px_at_68%_7%,rgb(154_137_119/0.16),transparent_100%),radial-gradient(1.5px_1.5px_at_87%_21%,rgb(229_217_196/0.15),transparent_100%),radial-gradient(1px_1px_at_42%_30%,rgb(154_137_119/0.12),transparent_100%),radial-gradient(1.8px_1.8px_at_9%_44%,rgb(224_120_86/0.18),transparent_100%),radial-gradient(1px_1px_at_76%_58%,rgb(154_137_119/0.11),transparent_100%),radial-gradient(1.5px_1.5px_at_28%_74%,rgb(205_191_169/0.14),transparent_100%),radial-gradient(1.2px_1.2px_at_58%_88%,rgb(224_120_86/0.12),transparent_100%)]"
       />
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-5 py-5 min-h-[72px]">

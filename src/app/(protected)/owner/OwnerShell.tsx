@@ -209,26 +209,31 @@ export function OwnerShell({
                 <OwnerSessionContext.Provider value={sessionValue}>
                         <div className="flex min-h-dvh">
                                 {/* r131-F4 (A1 P2-3): night-shell rail — SO shell.tsx port
-                                    (Madarek layout.css v3 wave B): dark paints the night-sky
-                                    gradient (gold aurora + indigo + sky ladder) + constellation
-                                    dots; light stays the flat card ground. The hairline moves to
-                                    border-e (the content boundary — border-s painted the viewport
-                                    edge in RTL), and the rail is sticky full-height at
-                                    240/256px (w-60 xl:w-64). */}
+                                    (Madarek layout.css v3 wave B): light stays the flat card
+                                    ground. Phase 6 (r154): the dark rail joins the «مطبخ
+                                    ليلي دافئ» — the retired night-sky gradient (gold
+                                    aurora + indigo + sand constellation) repaints to the
+                                    warm night kitchen: terracotta ember glow (E07856-family
+                                    at low alpha — NO indigo) + espresso-family constellation
+                                    dots (the #241811-tinted warm neutral ramp). The hairline
+                                    stays border-e (the content boundary), and the rail is
+                                    sticky full-height at 240/256px (w-60 xl:w-64). */}
                                 <aside
                                         className={cn(
                                                 'relative hidden w-60 shrink-0 flex-col lg:flex xl:w-64 sticky top-0 h-screen',
                                                 'border-e border-border/60 bg-card',
-                                                'dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(233_180_76/0.06),transparent_72%),radial-gradient(280px_220px_at_-20%_108%,rgb(111_168_255/0.05),transparent_70%),linear-gradient(180deg,var(--muted)_0%,var(--background)_34%,var(--background)_100%)]',
+                                                'dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(224_120_86/0.08),transparent_72%),radial-gradient(280px_220px_at_-20%_108%,rgb(194_69_45/0.05),transparent_70%),linear-gradient(180deg,var(--muted)_0%,var(--background)_34%,var(--background)_100%)]',
                                                 'shadow-sm'
                                         )}
                                 >
                                         {/* Constellation dots — paint-only, dark-only, <=0.22a
                                             (never competing with labels); physical coords,
-                                            direction-agnostic. */}
+                                            direction-agnostic. Espresso-family warm neutrals
+                                            + terracotta ember sparks (the night kitchen's
+                                            specks of cream and ember). */}
                                         <span
                                                 aria-hidden="true"
-                                                className="pointer-events-none absolute inset-0 hidden dark:block bg-no-repeat [background-image:radial-gradient(1.8px_1.8px_at_21%_12%,rgb(242_239_230/0.22),transparent_100%),radial-gradient(1px_1px_at_68%_7%,rgb(142_151_184/0.16),transparent_100%),radial-gradient(1.5px_1.5px_at_87%_21%,rgb(242_239_230/0.15),transparent_100%),radial-gradient(1px_1px_at_42%_30%,rgb(142_151_184/0.12),transparent_100%),radial-gradient(1.8px_1.8px_at_9%_44%,rgb(233_180_76/0.18),transparent_100%),radial-gradient(1px_1px_at_76%_58%,rgb(142_151_184/0.11),transparent_100%),radial-gradient(1.5px_1.5px_at_28%_74%,rgb(242_239_230/0.14),transparent_100%),radial-gradient(1.2px_1.2px_at_58%_88%,rgb(233_180_76/0.12),transparent_100%)]"
+                                                className="pointer-events-none absolute inset-0 hidden dark:block bg-no-repeat [background-image:radial-gradient(1.8px_1.8px_at_21%_12%,rgb(205_191_169/0.20),transparent_100%),radial-gradient(1px_1px_at_68%_7%,rgb(154_137_119/0.16),transparent_100%),radial-gradient(1.5px_1.5px_at_87%_21%,rgb(229_217_196/0.15),transparent_100%),radial-gradient(1px_1px_at_42%_30%,rgb(154_137_119/0.12),transparent_100%),radial-gradient(1.8px_1.8px_at_9%_44%,rgb(224_120_86/0.18),transparent_100%),radial-gradient(1px_1px_at_76%_58%,rgb(154_137_119/0.11),transparent_100%),radial-gradient(1.5px_1.5px_at_28%_74%,rgb(205_191_169/0.14),transparent_100%),radial-gradient(1.2px_1.2px_at_58%_88%,rgb(224_120_86/0.12),transparent_100%)]"
                                         />
                                         <SidebarContent />
                                 </aside>

@@ -1979,9 +1979,14 @@ describe('r131-F4 parity — SM product primitives join the family', () => {
     expect(navCc).not.toContain('drop-shadow');
   });
 
-  it('night-shell gradient on both dashboard rails (SO shell.tsx port, A1 P2-3)', () => {
+  it('night-shell gradient on both dashboard rails (SO shell.tsx port, A1 P2-3 — Phase 6 r154: the warm night kitchen repaint)', () => {
     for (const shell of [cc('src/app/(protected)/owner/OwnerShell.tsx'), cc('src/components/layout/AdminSidebar.tsx')]) {
-      expect(shell).toContain('dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(233_180_76/0.06),transparent_72%)');
+      // r154: the retired gold/indigo/sand gradient re-pins to the terracotta
+      // ember glow + espresso ladder (the «مطبخ ليلي دافئ» contract).
+      expect(shell).toContain('dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(224_120_86/0.08),transparent_72%)');
+      expect(shell).toContain('rgb(224_120_86/0.08)');
+      expect(shell).not.toContain('rgb(233_180_76');
+      expect(shell).not.toContain('rgb(111_168_255');
       expect(shell).toContain('border-e border-border/60 bg-card');
       expect(shell).not.toContain('border-s border-border/50 bg-card/80');
       expect(shell).not.toContain('backdrop-blur-md');
@@ -2596,5 +2601,72 @@ describe('r139 — أحبار الحالة في الأسطح الإدارية + 
     expect(k).toContain("'scripts/archive/**'");
     expect(k).not.toMatch(/'sharp',/);
     expect(k).toContain("ignoreBinaries: ['expo', 'expo-doctor']");
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE 6 (r154) — Smart-Menu web deep completion pins
+   The Phase-5 token flip left the owner/admin surfaces TOKEN-ONLY with live
+   retired-Madarek paint in the dark rails and grey-tile state anatomy. These
+   pins lock the Phase-6 culinary completion: the night-kitchen rail repaint,
+   the warm state family, the dot-leader money surfaces, the plate geometry.
+   ═══════════════════════════════════════════════════════════════════════════ */
+describe('phase6 r154 — ليلة المطبخ: قتل أحرف مدارك المتقاعدة في السكك الداكنة', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('السكة الليلية للمالك والأدمن: توهّج جمرة التراكوتا + نقش كوكبات الإسبريسو — لا ذهب ولا نيلي', () => {
+    for (const rail of [
+      'src/app/(protected)/owner/OwnerShell.tsx',
+      'src/components/layout/AdminSidebar.tsx',
+    ]) {
+      const s = cc(rail);
+      // التوهّج: جمرة التراكوتا المضيئة (E07856) علوية + المكبوسة (C2452D) سفلية
+      expect(s).toContain('rgb(224_120_86/0.08)');
+      expect(s).toContain('rgb(194_69_45/0.05)');
+      // الكوكبات: رمح الإسبريسو الدافئ (سلّم 241811 المصبوغ) + شرارات جمرة
+      expect(s).toContain('rgb(205_191_169/0.20)');
+      expect(s).toContain('rgb(154_137_119/0.16)');
+      expect(s).toContain('rgb(229_217_196/0.15)');
+      // والأحرف المدركية المتقاعدة لم تعد حية في أي سكة
+      for (const retired of [
+        'rgb(233_180_76', 'rgb(111_168_255', 'rgb(242_239_230', 'rgb(142_151_184',
+      ]) {
+        expect(s).not.toContain(retired);
+      }
+    }
+  });
+
+  it('هالة التنقل النشط الداكنة: تراكوتا — لا توهج الذهب المدركي', () => {
+    const s = cc('src/components/shared/NavLink.tsx');
+    expect(s).toContain('dark:shadow-[0_0_18px_-4px_rgb(224_120_86/0.18),inset_0_0_0_1px_rgb(224_120_86/0.10)]');
+    expect(s).not.toContain('rgb(233_180_76');
+  });
+
+  it('صيد الأحرف: صفر أحرف مدارك متقاعدة حية عبر src/ (التعليقات الموثقة معفوّة)', () => {
+    // النسخة المنزوعة التعليقات: التعليقات التي توثّق التقاعد مسموحة،
+    // الأحرف الحية في القيم لا. (المرجع: قرار بوابة parity r152.)
+    const retiredLive = [
+      /#E9B44C/i, /#F5D48A/i, /#F2EFE6/i, /#070B16/i, /#0D1428/i,
+      /rgba?\(\s*233\s*,\s*180\s*,\s*76/i, /rgba?\(\s*111\s*,\s*168\s*,\s*255/i,
+      /rgba?\(\s*242\s*,\s*239\s*,\s*230/i, /rgba?\(\s*142\s*,\s*151\s*,\s*184/i,
+      /rgb\(\s*233_180_76/, /rgb\(\s*111_168_255/, /rgb\(\s*242_239_230/, /rgb\(\s*142_151_184/,
+      /#7A6BF2/i, /#C3C8DC/i,
+    ];
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir)) {
+        const full = `${dir}/${entry}`;
+        if (statSync(full).isDirectory()) { walk(full); continue; }
+        if (!/\.(tsx?|css|mjs)$/.test(entry)) continue;
+        const stripped = noCc(readFileSync(full, 'utf8'));
+        for (const rx of retiredLive) {
+          if (rx.test(stripped)) offenders.push(`${full}: ${rx}`);
+        }
+      }
+    };
+    walk('src');
+    expect(offenders).toEqual([]);
   });
 });
