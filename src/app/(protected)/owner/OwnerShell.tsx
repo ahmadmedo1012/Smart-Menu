@@ -75,7 +75,7 @@ function SubscriptionExpiryBanner({ days }: { days: number | null }) {
         return (
                 <div
                         className={cn(
-                                'mx-4 mt-4 rounded-xl border-2 p-4 backdrop-blur-sm',
+                                'mx-4 mt-4 rounded-lg border-2 p-4 backdrop-blur-sm',
                                 expired
                                         ? 'border-destructive/30 bg-gradient-to-r from-destructive/10 to-destructive/5 dark:from-destructive/20 dark:to-destructive/10'
                                         : 'border-orange/30 bg-gradient-to-r from-orange/10 to-orange/5 dark:from-orange/20 dark:to-orange/10'
@@ -181,7 +181,7 @@ function LogoutButton() {
         return (
                 <button
                         onClick={() => performLogout({ toast: 'owner' })}
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-[color,background-color] duration-base hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-[color,background-color] duration-base hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                 >
                         <AnimatedLogOut className="size-4" />
                         تسجيل الخروج

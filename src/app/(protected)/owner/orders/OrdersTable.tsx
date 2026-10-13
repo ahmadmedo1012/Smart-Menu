@@ -53,17 +53,18 @@ interface OrdersTableProps {
         onClearFilters: () => void;
 }
 
-/* Canonical table anatomy (r131-F5, A1 P1-1/P1-2 — Madarek .table):
- * 11px/600 muted headers on a surface-2 ground + hairline, 13px cells at
- * 12/16 padding, quiet surface-2 hover wash (no zebra, no elevation), the
- * 3px accent leading-edge bar on row hover, actions revealed on hover /
- * focus-within (always visible on touch). Mobile keeps the card feed —
- * the tbl-stack equivalent. */
+/* Canonical table anatomy (r131-F5, A1 P1-1/P1-2 — Madarek .table; Phase 6
+ * r154 joins the culinary system): 11px/600 Baloo headers (font-heading —
+ * the small-caps rhythm) on a surface-2 ground + hairline, 13px cells at
+ * 12/16 padding, the terracotta warm wash on row hover (no zebra, no
+ * elevation), the 3px accent leading-edge bar on row hover, actions
+ * revealed on hover / focus-within (always visible on touch). Mobile keeps
+ * the card feed — the tbl-stack equivalent. */
 const TH =
-        'h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border';
+        'h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border';
 const TD = 'px-4 py-3 align-middle text-sm';
 const ROW =
-        'group relative border-b border-border/40 transition-colors duration-fast hover:bg-muted';
+        'group relative border-b border-border/40 transition-colors duration-fast hover:bg-orange/5';
 
 /** Orders list (empty states, canonical md+ table / mobile card feed,
  * numbered pagination) — built on the round89-G2 extraction. */
@@ -125,7 +126,7 @@ export function OrdersTable({
                         ) : (
                                 <div className={cn('space-y-3', loadingMore && 'opacity-60 pointer-events-none')}>
                                         {/* md+ — canonical data table */}
-                                        <div className="hidden md:block overflow-x-auto rounded-xl border border-border/60 bg-card">
+                                        <div className="hidden md:block overflow-x-auto rounded-lg border border-border/60 bg-card">
                                                 <Table className="w-full">
                                                         <TableHeader>
                                                                 <TableRow className="hover:bg-transparent border-border">
@@ -191,8 +192,14 @@ export function OrdersTable({
                                                                                                 {toArabicNumber(order._count?.items ?? 0)}
                                                                                         </TableCell>
                                                                                         <TableCell className={cn(TD, 'font-semibold tabular-nums')}>
-                                                                                                {formatPrice(order.total, { suffix: '' })}
-                                                                                                <span className="text-2xs font-normal text-muted-foreground"> د.ل</span>
+                                                                                                {/* Phase 6 (r154): قائد النقاط —
+                                                                                                   المجموع على طراز المنيو المطبوع
+                                                                                                   (نفس بصمة بطاقة الصنف/سطر السلة). */}
+                                                                                                <span className="menu-leader">
+                                                                                                        <span>{formatPrice(order.total, { suffix: '' })}</span>
+                                                                                                        <i className="menu-leader-rule" aria-hidden="true" />
+                                                                                                        <span className="text-2xs font-normal text-muted-foreground">د.ل</span>
+                                                                                                </span>
                                                                                         </TableCell>
                                                                                         <TableCell className={cn(TD, 'text-muted-foreground')}>
                                                                                                 <time dateTime={createdIso} className="tabular-nums">
@@ -334,7 +341,7 @@ function OrderCard({
                         role="link"
                         tabIndex={0}
                         className={cn(
-                                'rounded-xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                'rounded-lg border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                 isBusy && 'opacity-80'
                         )}
                         onClick={onOpen}
@@ -349,7 +356,7 @@ function OrderCard({
                                 <div className="flex items-center gap-3 min-w-0">
                                         <div
                                                 className={cn(
-                                                        'size-11 rounded-xl flex items-center justify-center shrink-0',
+                                                        'size-11 rounded-full flex items-center justify-center shrink-0',
                                                         config.toneClassName
                                                 )}
                                         >
@@ -378,14 +385,16 @@ function OrderCard({
                                         </div>
                                 </div>
 
-                                <div className="text-end shrink-0">
-                                        <p className="font-bold text-lg tabular-nums">
-                                                {/* round97-X3: shared formatPrice (suffix '' — the د.ل
-                                                        line below stays separate for the compact layout).
-                                                        r121-H-1: smart default — was forced decimals:1 («12.0»). */}
+                                {/* Phase 6 (r154): قائد النقاط — الإجمالي على
+                                        * طراز المنيو المطبوع في بطاقة الجوال
+                                        * (round97-X3 formatPrice suffix '' — the د.ل
+                                        * joins the leader line; r121-H-1 smart default). */}
+                                <div className="text-end shrink-0 min-w-24 menu-leader">
+                                        <span className="text-2xs font-normal text-muted-foreground">د.ل</span>
+                                        <i className="menu-leader-rule flex-none w-4" aria-hidden="true" />
+                                        <span className="font-bold text-lg tabular-nums">
                                                 {formatPrice(order.total, { suffix: '' })}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">د.ل</p>
+                                        </span>
                                 </div>
                         </div>
 

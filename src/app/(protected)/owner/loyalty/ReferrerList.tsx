@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { SearchInput } from "@/components/ui/search-input"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Gift, FilterX } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDateShort } from '@/lib/format';
@@ -44,14 +45,16 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
   })
 
   if (referrals.length === 0) {
+    // Phase 6 (r154): the hand-rolled inline empty joins the warm plate
+    // family (amber well — the reward-adjacent tint).
     return (
-      <div className="flex flex-col items-center py-10 text-center">
-        <div className="mb-3 flex size-12 items-center justify-center rounded-md bg-orange/10">
-          <Gift className="size-6 text-orange" />
-        </div>
-        <p className="text-sm font-medium text-muted-foreground">لا توجد إحالات بعد</p>
-        <p className="text-xs text-muted-foreground/60 mt-1">شارك رابط الإحالة للبدء</p>
-      </div>
+      <EmptyState
+        icon={Gift}
+        title="لا توجد إحالات بعد"
+        description="شارك رابط الإحالة للبدء"
+        tone="amber"
+        className="py-10"
+      />
     )
   }
 
@@ -80,13 +83,15 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
           </div>
         ) : (
           filtered.map((r) => (
-            <div key={r.id} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/20">
+            <div key={r.id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-orange/5">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">{r.referredName || "Anonymous"}</p>
                   <p className="text-xs text-muted-foreground" dir="ltr">{r.referredPhone}</p>
                 </div>
               </div>
+              {/* Phase 6 (r154): قائد النقاط يربط الإحالة بحالتها. */}
+              <i className="menu-leader-rule" aria-hidden="true" />
               <div className="flex items-center gap-3 shrink-0">
                 <ReferralStatusBadge status={r.status} />
                 <span className="text-xs text-muted-foreground tabular-nums">

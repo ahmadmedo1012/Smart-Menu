@@ -81,7 +81,7 @@ export function CategoryDialog({
                                                                                 type="button"
                                                                                 onClick={() => onFormChange({ ...form, icon: iconName })}
                                                                                 className={cn(
-                                                                                        'size-10 rounded-lg flex items-center justify-center border transition-[border-color,background-color,transform,translate,scale,rotate] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                                        'size-10 rounded-full flex items-center justify-center border transition-[border-color,background-color,transform,translate,scale,rotate] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                         form.icon === iconName
                                                                                                 ? 'border-orange bg-orange-muted scale-110'
                                                                                                 : 'border-border/30 hover:border-orange/30'

@@ -147,8 +147,8 @@ export default function OwnerRestaurantsPage() {
                                 radius; the h-11/h-12 input overrides are gone (the Input
                                 primitive owns the 44px recipe now). */}
                         {showAdd && (
-                                <div className="rounded-xl border border-border/40 p-5 space-y-4 bg-card/50 animate-fade-in">
-                                        <h2 className="font-bold">منيو جديد</h2>
+                                <div className="rounded-lg border border-border/40 p-5 space-y-4 bg-card/50 animate-fade-in">
+                                        <h2 className="font-heading font-bold">منيو جديد</h2>
                                         <div className="grid sm:grid-cols-2 gap-4">
                                                 <div>
                                                         <Label htmlFor={`${lId}-name`}>اسم المطعم *</Label>
@@ -219,7 +219,7 @@ export default function OwnerRestaurantsPage() {
                                         {restaurants.map((r) => (
                                                 <div
                                                         key={r.id}
-                                                        className="rounded-xl border border-border/40 bg-card/60 p-5 space-y-3 hover:border-primary/30 transition-colors"
+                                                        className="rounded-lg border border-border/40 bg-card/60 p-5 space-y-3 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow]"
                                                 >
                                                         <div className="flex items-start justify-between gap-2">
                                                                 <div className="flex items-center gap-3 min-w-0">
@@ -227,7 +227,7 @@ export default function OwnerRestaurantsPage() {
                                                                                 <Store className="size-5 text-orange-foreground" />
                                                                         </div>
                                                                         <div className="min-w-0">
-                                                                                <h2 className="font-bold truncate">{r.name}</h2>
+                                                                                <h2 className="font-heading font-bold truncate">{r.name}</h2>
                                                                                 <p className="text-xs text-muted-foreground truncate" dir="ltr">
                                                                                         /menu/{r.slug}
                                                                                 </p>

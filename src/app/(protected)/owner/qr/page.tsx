@@ -137,10 +137,10 @@ export default function OwnerQRPage() {
 
                         {/* QR Card */}
                         {url && (
-                                <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
+                                <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
                                         {/* Restaurant info */}
                                         <div className="flex items-center gap-3 p-5 border-b border-border/20 bg-gradient-to-l from-orange-muted/30 to-transparent dark:from-orange-muted">
-                                                <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
+                                                <div className="size-10 rounded-full bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
                                                         <Store className="size-5 text-primary" />
                                                 </div>
                                                 <div>
@@ -166,7 +166,7 @@ export default function OwnerQRPage() {
                                                                         value={url}
                                                                         size={qrSize}
                                                                         alt={`QR Code - ${name}`}
-                                                                        className="rounded-xl shadow-lg transition-[transform,translate,scale,rotate,box-shadow] duration-base group-hover:shadow-xl group-hover:scale-[1.02] motion-reduce:transition-none"
+                                                                        className="rounded-lg shadow-lg transition-[transform,translate,scale,rotate,box-shadow] duration-base group-hover:shadow-xl group-hover:scale-[1.02] motion-reduce:transition-none"
                                                                         style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}
                                                                 />
                                                                 {/* Overlay with store icon */}
@@ -177,7 +177,7 @@ export default function OwnerQRPage() {
                                                                 </div>
                                                         </div>
                                                 ) : (
-                                                        <div className="size-48 rounded-xl bg-muted/50 animate-breath" />
+                                                        <div className="size-48 rounded-lg bg-muted/50 animate-breath" />
                                                 )}
                                         </div>
 
@@ -240,7 +240,7 @@ export default function OwnerQRPage() {
                                                         </Button>
                                                 </div>
 
-                                                <div className="flex items-center gap-2 p-4 rounded-xl bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20">
+                                                <div className="flex items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20">
                                                         <Printer className="size-4 text-primary shrink-0" />
                                                         <p className="text-xs text-muted-foreground leading-relaxed">
                                                                 اطبع رمز QR وضعه على الطاولات والفواتير والمواد الدعائية ليتمكن الزبائن من فتح

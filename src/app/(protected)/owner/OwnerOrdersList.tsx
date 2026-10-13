@@ -41,15 +41,18 @@ const OrderRow = memo(function OrderRow({ order }: { order: StatsData["recentOrd
   const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
   return (
     <Link href={`/owner/orders/${order.id}`}
-      className="flex items-center justify-between px-4 py-2.5 transition-colors hover:bg-muted/30 group rounded-sm -mx-1">
-      <div className="flex items-center gap-2.5">
+      className="flex items-center gap-2.5 px-4 py-2.5 transition-colors hover:bg-muted/30 group rounded-sm -mx-1">
+      <div className="flex items-center gap-2.5 min-w-0">
         <div className={cn("size-2 rounded-full shrink-0", config.indicator)} />
         <div>
           <p className="text-sm font-medium">{order.orderNo}</p>
           <p className="text-xs text-muted-foreground">{order.customerName || "دون اسم"}</p>
         </div>
       </div>
-      <div className="flex items-center gap-2.5">
+      {/* Phase 6 (r154): قائد النقاط — المبلغ على طراز المنيو المطبوع
+          * (نفس بصمة بطاقة الصنف/سطر السلة) يربط الطلب بمبلغه. */}
+      <i className="menu-leader-rule" aria-hidden="true" />
+      <div className="flex items-center gap-2.5 shrink-0">
         {/* r121-H-1: smart formatPrice default — was forced decimals:1 («12.0») */}
         <span className="text-sm font-semibold tabular-nums">{formatPrice(order.total)}</span>
         <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-2xs font-semibold tabular-nums", config.bg, config.color)}>
@@ -68,8 +71,8 @@ interface StatusSectionProps {
 export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
   const hasBreakdown = !!stats && Object.keys(stats.statusBreakdown).length > 0
   return (
-    <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-      <h2 className="text-base font-bold text-foreground mb-3">حالة الطلبات</h2>
+    <div className="h-full rounded-lg border border-border/60 bg-card p-4 shadow-sm">
+      <h2 className="font-heading text-base font-bold text-foreground mb-3">حالة الطلبات</h2>
       {hasBreakdown ? (
         <>
           <div className="h-2 rounded-full bg-muted overflow-hidden flex ring-1 ring-inset ring-border/40">
@@ -109,22 +112,24 @@ export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
 
 export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
   return (
-    <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-      <h2 className="text-base font-bold text-foreground mb-3">الأكثر طلباً</h2>
+    <div className="h-full rounded-lg border border-border/60 bg-card p-4 shadow-sm">
+      <h2 className="font-heading text-base font-bold text-foreground mb-3">الأكثر طلباً</h2>
       {items && items.length > 0 ? (
         <div className="space-y-1">
           {items.slice(0, 8).map((item, idx) => (
-            <div key={item.itemId} className="flex items-center justify-between py-1.5 px-1">
-              <div className="flex items-center gap-2">
+            <div key={item.itemId} className="flex items-center gap-2 py-1.5 px-1">
+              <div className="flex items-center gap-2 min-w-0">
                 <span className={cn(
                   "flex size-5 shrink-0 items-center justify-center rounded text-3xs font-bold",
                   idx === 0 ? "bg-orange text-orange-foreground" :
                   idx < 3 ? "bg-orange-muted text-accent-foreground" :
                   "bg-muted text-muted-foreground"
                 )}>{toArabicNumber(idx + 1)}</span>
-                <span className="text-sm">{item.name}</span>
+                <span className="text-sm truncate">{item.name}</span>
               </div>
-              <span className="text-2xs text-muted-foreground">{ordersWithCount(item.totalSold)}</span>
+              {/* Phase 6 (r154): قائد النقاط — عدد الطلبات على طراز المنيو المطبوع. */}
+              <i className="menu-leader-rule" aria-hidden="true" />
+              <span className="text-2xs text-muted-foreground shrink-0 tabular-nums">{ordersWithCount(item.totalSold)}</span>
             </div>
           ))}
         </div>
@@ -142,9 +147,9 @@ export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
 
 export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) {
   return (
-    <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
+    <div className="h-full rounded-lg border border-border/60 bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-bold text-foreground">آخر الطلبات</h2>
+        <h2 className="font-heading text-base font-bold text-foreground">آخر الطلبات</h2>
         {/* r148 (CROSS R2) → Phase 5 (r152): text-primary → accent-foreground — نص 12px كان يهبط
             مع النحاس الفاتح إلى 3.8:1؛ الداكن الآن التراكوتا المضيء #E07856 (6.03:1). */}
         <Link href="/owner/orders"><span className="text-xs text-accent-foreground font-medium">عرض الكل</span></Link>

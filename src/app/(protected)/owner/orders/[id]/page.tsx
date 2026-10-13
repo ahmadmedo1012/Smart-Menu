@@ -129,8 +129,8 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                         />
 
                         {/* Status Timeline */}
-                        <div className="rounded-xl bg-card/50 border border-border/30 p-6">
-                                <h2 className="text-base font-bold text-foreground mb-4">حالة الطلب</h2>
+                        <div className="rounded-lg bg-card/50 border border-border/30 p-6">
+                                <h2 className="font-heading text-base font-bold text-foreground mb-4">حالة الطلب</h2>
                                 <div className="flex items-center">
                                         {STATUS_FLOW.map((s, idx) => {
                                                 const StatusIcon = getOrderStatusMeta(s).icon;
@@ -143,7 +143,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                                         onClick={() => isActive && updateStatus(s)}
                                                                         disabled={!isActive || order.status === 'cancelled'}
                                                                         className={cn(
-                                                                                'size-10 rounded-xl flex items-center justify-center transition-[background-color,border-color,transform,translate,scale,rotate] duration-base border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                                'size-10 rounded-full flex items-center justify-center transition-[background-color,border-color,transform,translate,scale,rotate] duration-base border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                 isCurrent
                                                                                         ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground border-orange shadow-lg shadow-orange/25 scale-110'
                                                                                         : isActive
@@ -216,7 +216,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                         {/* Order info grid */}
                         <div className="grid gap-4 md:grid-cols-2">
                                 {/* Customer info */}
-                                <div className="rounded-xl bg-card/50 border border-border/30 p-5">
+                                <div className="rounded-lg bg-card/50 border border-border/30 p-5">
                                         <h2 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
                                                 <User className="size-4 text-accent-foreground" /> معلومات العميل
                                         </h2>
@@ -246,30 +246,36 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                 {order.notes && (
                                                         <div>
                                                                 <p className="text-xs text-muted-foreground">ملاحظات</p>
-                                                                <p className="text-sm bg-muted/30 rounded-xl p-3 mt-1">{order.notes}</p>
+                                                                <p className="text-sm bg-muted/30 rounded-lg p-3 mt-1">{order.notes}</p>
                                                         </div>
                                                 )}
                                         </div>
                                 </div>
 
                                 {/* Order summary */}
-                                <div className="rounded-xl bg-card/50 border border-border/30 p-5">
-                                        <h2 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
+                                <div className="rounded-lg bg-card/50 border border-border/30 p-5">
+                                        <h2 className="font-heading text-base font-bold text-foreground mb-4 flex items-center gap-2">
                                                 <AnimatedShoppingCart className="size-4 text-accent-foreground" /> ملخص الطلب
                                         </h2>
                                         <div className="space-y-3">
-                                                <div className="flex justify-between text-sm">
-                                                        <span className="text-muted-foreground">المجموع الفرعي</span>
-                                                        {/* r121-H-1: smart formatPrice default — was decimals:1 («12.0») */}
-                                                        <span className="tabular-nums">{formatPrice(order.subtotal)}</span>
+                                                <div className="flex items-baseline gap-2 text-sm menu-leader">
+                                                        <span className="text-muted-foreground shrink-0">المجموع الفرعي</span>
+                                                        {/* Phase 6 (r154): قائد النقاط — المبلغ على طراز
+                                                            المنيو المطبوع (r121-H-1 smart formatPrice). */}
+                                                        <i className="menu-leader-rule" aria-hidden="true" />
+                                                        <span className="tabular-nums shrink-0">{formatPrice(order.subtotal)}</span>
                                                 </div>
                                                 <hr className="border-border/30" />
-                                                <div className="flex justify-between font-bold text-lg">
-                                                        <span>الإجمالي</span>
+                                                <div className="flex items-baseline gap-2 font-bold text-lg menu-leader">
+                                                        <span className="shrink-0">الإجمالي</span>
+                                                        {/* Phase 6 (r154): قائد النقاط — صف الإجمالي يحمل
+                                                            القائد أيضًا (المجموع الفرعي + الإجمالي + سطور
+                                                            الأصناف = ثلاثة قادة كحد أدنى). */}
+                                                        <i className="menu-leader-rule" aria-hidden="true" />
                                                         {/* r148 (CROSS R2): text-primary → accent-foreground —
                                                             18px bold تحت عتبة النص الكبير؛ الداكن نفس الذهب
                                                             حرفيًا والفاتح نحاس عميق 10.29:1. */}
-                                                        <span className="tabular-nums text-accent-foreground">
+                                                        <span className="tabular-nums text-accent-foreground shrink-0">
                                                                 {formatPrice(order.total)}
                                                         </span>
                                                 </div>
@@ -278,9 +284,9 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                         </div>
 
                         {/* Items */}
-                        <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
+                        <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
                                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
-                                        <h2 className="font-semibold flex items-center gap-2">
+                                        <h2 className="font-heading font-semibold flex items-center gap-2">
                                                 <FileText className="size-4 text-muted-foreground" />
                                                 الأصناف ({toArabicNumber(order.items.length)})
                                         </h2>
@@ -293,15 +299,18 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                         {order.items.map((oi) => (
                                                 <div
                                                         key={oi.id}
-                                                        className="flex items-center justify-between px-5 py-3 hover:bg-muted/10 transition-colors"
+                                                        className="flex items-center gap-3 px-5 py-3 hover:bg-orange/5 transition-colors"
                                                 >
-                                                        <div className="flex items-center gap-3">
-                                                                <span className="size-7 rounded-lg bg-orange-muted text-accent-foreground/80 dark:text-accent-foreground text-xs font-bold flex items-center justify-center">
+                                                        <div className="flex items-center gap-3 min-w-0">
+                                                                <span className="size-7 rounded-full bg-orange-muted text-accent-foreground/80 dark:text-accent-foreground text-xs font-bold flex items-center justify-center shrink-0">
                                                                         {toArabicNumber(oi.quantity)}
                                                                 </span>
-                                                                <span className="font-medium">{oi.item.nameAr || oi.item.name}</span>
+                                                                <span className="font-medium truncate">{oi.item.nameAr || oi.item.name}</span>
                                                         </div>
-                                                        <span className="font-semibold tabular-nums">
+                                                        {/* Phase 6 (r154): قائد النقاط — سطر الصنف
+                                                            على طراز المنيو المطبوع. */}
+                                                        <i className="menu-leader-rule" aria-hidden="true" />
+                                                        <span className="font-semibold tabular-nums shrink-0">
                                                                 {/* r121-H-1: smart formatPrice default — was decimals:1 */}
                                                                 {formatPrice(oi.price * oi.quantity)}
                                                         </span>

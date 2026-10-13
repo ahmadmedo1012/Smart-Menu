@@ -111,7 +111,7 @@ export const KpiCard = memo(function KpiCard({
                 <>
                         <div className="flex items-start justify-between gap-4">
                                 <div className="space-y-1.5">
-                                        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+                                        <p className="font-heading text-xs font-semibold text-muted-foreground">{label}</p>
                                         <p className="text-3xl font-bold tracking-normal tabular-nums">
                                                 {animated ? <AnimatedCounter value={value} /> : <>{toArabicNumber(value)}{suffix}</>}
                                         </p>
@@ -139,11 +139,12 @@ export const KpiCard = memo(function KpiCard({
                                                 </div>
                                         )}
                                 </div>
-                                {/* 44px pastel well (p-3 + size-5) — r131-F5 (A1 P1-4):
-                                   r-lg 12px radius + the canonical 1.5px inset
-                                   role-accent 30% rim (Madarek .metric-icon).
-                                   Was rounded-xl with a neutral border rim. */}
-                                <div className={cn('rounded-lg p-3 ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 shrink-0', iconBg || 'bg-orange-muted')}>
+                                {/* 44px PLATE well (p-3 + size-5) — Phase 6 (r154):
+                                   the KPI icon well becomes a literal plate
+                                   (rounded-full) with the 1.5px inset terracotta
+                                   rim — the culinary composition. Was a
+                                   rounded-lg square tile. */}
+                                <div className={cn('rounded-full p-3 ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 shrink-0', iconBg || 'bg-orange-muted')}>
                                         <Icon className={cn('size-5', iconColor || 'text-orange')} aria-hidden="true" />
                                 </div>
                         </div>
@@ -167,7 +168,7 @@ export const KpiCard = memo(function KpiCard({
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={entranceTransition}
                                 className={cn(
-                                        'group relative rounded-xl border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-base',
+                                        'group relative rounded-lg border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-base',
                                         'hover:border-orange/40 hover:shadow-lg hover:shadow-orange/10 hover:-translate-y-1',
                                         /* hover edge-rail — signature #4: 2px accent bar on the
                                            leading edge, scaleY spring from the bottom. */
@@ -178,7 +179,7 @@ export const KpiCard = memo(function KpiCard({
                                 {/* stretched-link pattern: whole card is one link target */}
                                 <Link
                                         href={href}
-                                        className="absolute inset-0 z-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        className="absolute inset-0 z-10 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                         <span className="sr-only">{label}</span>
                                 </Link>
@@ -193,7 +194,7 @@ export const KpiCard = memo(function KpiCard({
                         animate={{ opacity: 1, scale: 1 }}
                         transition={entranceTransition}
                         className={cn(
-                                'group relative overflow-hidden rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-[border-color] duration-fast',
+                                'group relative overflow-hidden rounded-lg border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-[border-color] duration-fast',
                                 'hover:border-orange/40',
                                 'before:absolute before:inset-y-3 before:start-0 before:w-0.5 before:origin-bottom before:scale-y-0 before:rounded-e-full before:bg-[var(--accent-solid)] before:transition-transform before:duration-slower before:ease-[var(--ease-spring-soft,cubic-bezier(0.16,1,0.3,1))] hover:before:scale-y-100',
                                 'min-h-[132px]',

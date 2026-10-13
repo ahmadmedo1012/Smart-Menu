@@ -394,8 +394,8 @@ export function AnalyticsTab({
                                 />
                         </ChartCard>
 
-                        <div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
-                                <h2 className="mb-4 text-sm font-semibold">اتجاه الإيرادات (7 أيام)</h2>
+                        <div className="rounded-lg border border-border/60 bg-card p-5 shadow-sm">
+                                <h2 className="font-heading mb-4 text-sm font-semibold">اتجاه الإيرادات (7 أيام)</h2>
                                 {chartData.length > 0 && seriesHasData(chartData.map((d) => d.value)) ? (
                                         <AreaChart data={chartData} height={200} />
                                 ) : (

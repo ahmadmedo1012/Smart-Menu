@@ -27,7 +27,9 @@ function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
  * r131-F4 (A1 P0-10 — dialog canon): re-based on the SO r130 recipe
  * (Madarek components.css:1471-1516):
  *   · solid surface (bg-popover — the old /95 + backdrop-blur-md glass is
- *     retired), hairline border, r-xl 16px, --shadow-modal elevation.
+ *     retired), hairline border, --shadow-modal elevation.
+ *   · Phase 6 (r154): plate-round 16 (rounded-lg — the plate card rung;
+ *     was rounded-xl 20 off the plate canon).
  *   · width cap min(560px, 100% - 2rem) — was 384px (sm:max-w-sm).
  *   · the signature top-edge accent gradient hairline: a 3px
  *     transparent→accent→transparent band, inset-inline 30% (SO ships the
@@ -35,9 +37,9 @@ function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
  *     both repos ship, kept for family parity).
  *   · entrance translateY(8px) scale(.98) — was y-4/scale-95.
  *   · scrim dimming stays light: 4px blur (was blur-sm=8px in the v4 scale).
- * accent rides var(--accent-solid) (gold dark / copper light) — SM's light
- * --primary is the ink slab, which would paint the hairline ink instead of
- * the family copper.
+ * accent rides var(--accent-solid) (terracotta both themes — the warm
+ * night kitchen's luminous ember) — the terracotta hairline crowns every
+ * dialog.
  */
 function DialogOverlay({
   className,
@@ -73,7 +75,7 @@ function DialogContent({
         aria-modal="true"
         dir="rtl"
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto overscroll-contain -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-border bg-popover p-6 text-sm text-popover-foreground shadow-[var(--shadow-modal)] outline-none sm:max-w-[560px]",
+          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto overscroll-contain -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-border bg-popover p-6 text-sm text-popover-foreground shadow-[var(--shadow-modal)] outline-none sm:max-w-[560px]",
           "before:pointer-events-none before:absolute before:top-0 before:inset-x-[30%] before:z-[1] before:h-[3px] before:rounded-b-full before:bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]",
           "transition-[opacity,scale,translate,filter] duration-base ease-[cubic-bezier(0.16,1,0.3,1)] data-starting-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:translate-y-2",
           "data-ending-style:opacity-0 data-ending-style:scale-[0.98] data-ending-style:translate-y-2",

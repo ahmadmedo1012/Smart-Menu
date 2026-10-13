@@ -72,7 +72,7 @@ export function CategoriesList({
                                 {categories.map((cat) => (
                                         <div
                                                 key={cat.id}
-                                                className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/60"
+                                                className="rounded-lg border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/60"
                                         >
                                                 {/* r150 §8 (a11y): التوسيع صار قابلًا للتشغيل بلوحة المفاتيح —
                                                     role="button" + Enter/Space بدل <button> حقيقية لأن ترويسة
@@ -104,7 +104,7 @@ export function CategoriesList({
                                                                         <Package className="size-6 text-muted-foreground" />
                                                                 )}
                                                                 <div>
-                                                                        <span className="font-bold">{cat.name}</span>
+                                                                        <span className="font-heading font-bold">{cat.name}</span>
                                                                         {cat.nameAr && (
                                                                                 <span className="text-xs text-muted-foreground ms-2">{cat.nameAr}</span>
                                                                         )}
@@ -221,6 +221,10 @@ export function CategoriesList({
                                                                                                                 </p>
                                                                                                         )}
                                                                                                 </div>
+                                                                                                {/* Phase 6 (r154): قائد النقاط — سعر الصنف
+                                                                                                    على طراز المنيو المطبوع (md+ حيث يتنفس
+                                                                                                    الصف؛ الجوال يبقى مضغوطًا). */}
+                                                                                                <i className="menu-leader-rule hidden md:block" aria-hidden="true" />
                                                                                                 <div className="text-end shrink-0 tabular-nums whitespace-nowrap">
                                                                                                         <span
                                                                                                                 className={cn(

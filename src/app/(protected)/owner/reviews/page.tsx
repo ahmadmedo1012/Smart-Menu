@@ -118,17 +118,17 @@ export default function OwnerReviewsPage() {
 
       {/* Stats summary */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-md bg-card/60 border border-border/20 p-4">
+        <div className="rounded-lg bg-card/60 border border-border/20 p-4">
           <p className="text-sm text-muted-foreground">إجمالي التقييمات</p>
           <p className="text-3xl font-bold mt-1">{toArabicNumber(stats.total)}</p>
         </div>
-        <div className="rounded-md bg-card/60 border border-border/20 p-4">
+        <div className="rounded-lg bg-card/60 border border-border/20 p-4">
           <p className="text-sm text-muted-foreground">متوسط التقييم</p>
           <p className="text-3xl font-bold mt-1 text-ember dark:text-saffron">
             {stats.avg > 0 ? stats.avg.toFixed(1) : "---"}
           </p>
         </div>
-        <div className="rounded-md bg-card/60 border border-border/20 p-4 col-span-2">
+        <div className="rounded-lg bg-card/60 border border-border/20 p-4 col-span-2">
           <p className="text-sm text-muted-foreground mb-2">توزيع التقييمات</p>
           <div className="space-y-1.5">
             {stats.distribution.map((d) => (
@@ -198,7 +198,7 @@ export default function OwnerReviewsPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
-              className="rounded-md bg-card/50 border border-border/20 p-4 hover:bg-card/80 transition-colors"
+              className="rounded-lg bg-card/50 border border-border/20 p-4 hover:bg-card/80 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">

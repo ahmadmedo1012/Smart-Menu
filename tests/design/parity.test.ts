@@ -1915,8 +1915,8 @@ describe('r131-F4 parity — SM product primitives join the family', () => {
     expect(selectCc).not.toContain('min-h-[48px]');
   });
 
-  it('dialog canon: solid surface + r-xl 16 + 560px cap + top accent hairline (A1 P0-10)', () => {
-    expect(dialogCc).toContain('rounded-xl border border-border bg-popover');
+  it('dialog canon: solid surface + plate-round 16 + 560px cap + top accent hairline (A1 P0-10 — Phase 6 r154: the plate rung)', () => {
+    expect(dialogCc).toContain('rounded-lg border border-border bg-popover');
     expect(dialogCc).toContain('sm:max-w-[560px]');
     expect(dialogCc).toContain('shadow-[var(--shadow-modal)]');
     expect(dialogCc).toContain('before:bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]');
@@ -2712,5 +2712,83 @@ describe('phase6 r154 — عائلة الحالة: بئر الطبق الداف�
     expect(s).toContain('العودة للرئيسية');
     // the honest redirect contract is untouched (demo slug first, then first active)
     expect(s).toContain("const DEMO_SLUG = 'al-waha-cafe-demo'");
+  });
+});
+
+describe('phase6 r154 — أسطح المالك: القواعد الكاملة (قادة النقاط · أطباق · بالو للفقرات · غسل تراكوتا)', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('قادة النقاط على كل سطح مالي في لوحة المالك (آخر الطلبات · الأكثر طلباً · جدول الطلبات · تفاصيل الطلب · معاملات الولاء · صفوف المنيو)', () => {
+    expect(cc('src/app/(protected)/owner/OwnerOrdersList.tsx')).toContain('menu-leader-rule');
+    const ot = cc('src/app/(protected)/owner/orders/OrdersTable.tsx');
+    expect(ot).toContain('menu-leader-rule');
+    // the totals cell + the mobile card BOTH carry the leader
+    expect(ot.match(/menu-leader-rule/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+    const detail = cc('src/app/(protected)/owner/orders/[id]/page.tsx');
+    expect(detail).toContain('menu-leader');
+    // subtotal + total + item rows — at least three leaders
+    expect(detail.match(/menu-leader-rule/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(cc('src/app/(protected)/owner/loyalty/TransactionTable.tsx')).toContain('menu-leader-rule');
+    expect(cc('src/app/(protected)/owner/menu/CategoriesList.tsx')).toContain('menu-leader-rule');
+  });
+
+  it('بطاقة KPI: بئر الطبق الدائري بحافة تراكوتا + عنوان بالو + أرقام جدولية', () => {
+    const k = cc('src/components/shared/KpiCard.tsx');
+    expect(k).toContain("'rounded-full p-3 ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30");
+    expect(k).toContain('font-heading text-xs font-semibold');
+    expect(k).toContain('text-3xl font-bold tracking-normal tabular-nums');
+    expect(k).not.toContain('rounded-xl');
+  });
+
+  it('الجداول: ترويسة بالو صغيرة + غسل صف تراكوتا دافئ (الببدائية + جدول الطلبات)', () => {
+    const t = cc('src/components/ui/table.tsx');
+    expect(t).toContain('font-heading text-2xs font-semibold');
+    expect(t).toContain('hover:bg-orange/5');
+    const ot = cc('src/app/(protected)/owner/orders/OrdersTable.tsx');
+    expect(ot).toContain('font-heading text-2xs font-semibold');
+    expect(ot).toContain('hover:bg-orange/5');
+    expect(ot).toContain('rounded-lg border border-border/60 bg-card');
+  });
+
+  it('الفلترة: شرائح تراكوتا صلبة (لا تدرج لا توهج) + hover دافئ', () => {
+    const f = cc('src/app/(protected)/owner/orders/OrdersFilters.tsx');
+    expect(f).toContain("'bg-orange text-orange-foreground shadow-sm'");
+    expect(f).not.toContain('bg-gradient-to-r from-orange to-orange/80');
+    expect(f).not.toContain('shadow-lg shadow-orange/25');
+    expect(f).toContain('hover:border-orange/30 hover:bg-orange-muted/40');
+  });
+
+  it('الولاء: حالات فارغة على العائلة الدافئة (نعناع/عنبر) + رمز إحالة بحبر التراكوتا', () => {
+    const tx = cc('src/app/(protected)/owner/loyalty/TransactionTable.tsx');
+    expect(tx).toContain('tone="sage"');
+    expect(tx).not.toContain('rounded-md bg-muted/50');
+    const rl = cc('src/app/(protected)/owner/loyalty/ReferrerList.tsx');
+    expect(rl).toContain('tone="amber"');
+    const qr = cc('src/app/(protected)/owner/loyalty/ReferralQR.tsx');
+    expect(qr).toContain("dark: '#8A2B1D'");
+    expect(qr).not.toContain("dark: '#000'");
+  });
+
+  it('هندسة الطبق 16 على أصداف المالك — صفر rounded-xl حية على البطاقات', () => {
+    const files = [
+      'src/app/(protected)/owner/page.tsx',
+      'src/app/(protected)/owner/OwnerOrdersList.tsx',
+      'src/app/(protected)/owner/orders/OrdersTable.tsx',
+      'src/app/(protected)/owner/orders/[id]/page.tsx',
+      'src/app/(protected)/owner/menu/CategoriesList.tsx',
+      'src/app/(protected)/owner/restaurants/page.tsx',
+      'src/app/(protected)/owner/reviews/page.tsx',
+      'src/app/(protected)/owner/loyalty/page.tsx',
+      'src/app/(protected)/owner/loyalty/ReferralQR.tsx',
+      'src/app/(protected)/owner/qr/page.tsx',
+      'src/app/(protected)/owner/OwnerShell.tsx',
+      'src/app/(protected)/owner/settings/page.tsx',
+      'src/app/(protected)/owner/OwnerCharts.tsx',
+    ];
+    for (const f of files) {
+      expect(cc(f), f).not.toContain('rounded-xl');
+    }
   });
 });

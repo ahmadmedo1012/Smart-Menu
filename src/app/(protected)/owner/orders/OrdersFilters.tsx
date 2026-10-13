@@ -143,9 +143,12 @@ export function OrdersFilters({
                                         aria-pressed={filter === tab.value}
                                         className={cn(
                                                 'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color] duration-base flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                /* Phase 6 (r154): terracotta active state — solid
+                                                   editorial fill (the gradient wash + glow shadow
+                                                   retire; the warm hairline hover stays). */
                                                 filter === tab.value
-                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg shadow-orange/25'
-                                                        : 'bg-card/50 border border-border/30 hover:border-orange/30'
+                                                        ? 'bg-orange text-orange-foreground shadow-sm'
+                                                        : 'bg-card/50 border border-border/30 hover:border-orange/30 hover:bg-orange-muted/40'
                                         )}
                                 >
                                         {tab.label}

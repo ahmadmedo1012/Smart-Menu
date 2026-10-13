@@ -268,13 +268,13 @@ export default function OwnerSettingsPage() {
                         />
 
                         {/* Plan card */}
-                        <div className="rounded-xl bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
+                        <div className="rounded-lg bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
                                 <div className="p-5">
                                         <div className="flex items-start justify-between gap-3">
                                                 <div className="flex items-center gap-3">
                                                         <div
                                                                 className={cn(
-                                                                        'size-12 rounded-md bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0',
+                                                                        'size-12 rounded-full bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0',
                                                                         currentPlan?.name === 'Pro'
                                                                                 ? 'from-orange to-orange/80'
                                                                                 : currentPlan?.name === 'Enterprise'
@@ -302,8 +302,8 @@ export default function OwnerSettingsPage() {
                         </div>
 
                         {/* Logo section */}
-                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
-                                <h2 className="text-sm font-bold mb-4">الشعار</h2>
+                        <div className="rounded-lg bg-card/40 border border-border/20 p-5">
+                                <h2 className="font-heading text-sm font-bold mb-4">الشعار</h2>
                                 <div className="flex items-center gap-5">
                                         <div className="size-24 rounded-md overflow-hidden bg-muted/40 border border-border/20 flex items-center justify-center shrink-0 relative group">
                                                 {logo ? (
@@ -356,9 +356,9 @@ export default function OwnerSettingsPage() {
                         </div>
 
                         {/* Gallery section */}
-                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
+                        <div className="rounded-lg bg-card/40 border border-border/20 p-5">
                                 <div className="flex items-center justify-between mb-4">
-                                        <h2 className="text-sm font-bold">معرض الصور</h2>
+                                        <h2 className="font-heading text-sm font-bold">معرض الصور</h2>
                                         <input
                                                 ref={galleryInputRef}
                                                 type="file"
@@ -397,7 +397,7 @@ export default function OwnerSettingsPage() {
                                                 {gallery.map((url, i) => (
                                                         <div
                                                                 key={url}
-                                                                className="group relative aspect-square rounded-xl overflow-hidden bg-muted/20 border border-border/20"
+                                                                className="group relative aspect-square rounded-md overflow-hidden bg-muted/20 border border-border/20"
                                                         >
                                                                 {/* round88-A2: aspect-square tiles in a 2/3/4-col grid inside the
                                                                    max-w-2xl (672px) settings container → ~160px at md+ */}
@@ -443,8 +443,8 @@ export default function OwnerSettingsPage() {
                         </div>
 
                         {/* Pickup types */}
-                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
-                                <h2 className="text-sm font-bold mb-4">أنواع الطلبات المدعومة</h2>
+                        <div className="rounded-lg bg-card/40 border border-border/20 p-5">
+                                <h2 className="font-heading text-sm font-bold mb-4">أنواع الطلبات المدعومة</h2>
                                 <div className="space-y-2.5">
                                         {/* r121-O-1: labels derive from the canonical pickup map */}
                                         {([
@@ -530,8 +530,8 @@ export default function OwnerSettingsPage() {
                         {/* r137: ساعات الدوام المهيكلة — محرّر أسبوعي (السبت أولًا).
                             الشارة «مفتوح الآن» تُحسب عميليًا من هذه الصفوف؛ workingHours
                             النصي أعلاه يبقى «ملاحظات دوام إضافية» بجانبها. */}
-                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
-                                <h2 className="text-sm font-bold mb-1">ساعات الدوام (اختياري)</h2>
+                        <div className="rounded-lg bg-card/40 border border-border/20 p-5">
+                                <h2 className="font-heading text-sm font-bold mb-1">ساعات الدوام (اختياري)</h2>
                                 <p className="text-xs text-muted-foreground mb-4">
                                         عند تعبئتها تظهر شارة «مفتوح الآن · يغلق 23:00» في صفحة المنيو — فارغة تبقى مطفأة
                                 </p>
@@ -539,9 +539,9 @@ export default function OwnerSettingsPage() {
                         </div>
 
                         {/* Settings form */}
-                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
+                        <div className="rounded-lg bg-card/40 border border-border/20 p-5">
                                 <div className="flex items-center justify-between mb-4">
-                                        <h2 className="text-sm font-bold">بيانات المطعم</h2>
+                                        <h2 className="font-heading text-sm font-bold">بيانات المطعم</h2>
                                         <Button onClick={save} disabled={saving} className="gap-1.5 text-xs h-8">
                                                 <AnimatedSave className="size-3.5" />
                                                 {saving ? 'جارٍ الحفظ…' : 'حفظ'}
@@ -672,14 +672,14 @@ export default function OwnerSettingsPage() {
                         {/* Stats */}
                         {restaurant && (
                                 <div className="grid grid-cols-2 gap-3">
-                                        <div className="rounded-xl bg-card/40 border border-border/20 p-4">
+                                        <div className="rounded-lg bg-card/40 border border-border/20 p-4">
                                                 <div className="flex items-center gap-2 mb-1.5">
                                                         <AnimatedShoppingCart className="size-3.5 text-primary" />
                                                         <span className="text-2xs text-muted-foreground">إجمالي الطلبات</span>
                                                 </div>
                                                 <p className="text-xl font-bold">{toArabicNumber(restaurant._count?.orders ?? 0)}</p>
                                         </div>
-                                        <div className="rounded-xl bg-card/40 border border-border/20 p-4">
+                                        <div className="rounded-lg bg-card/40 border border-border/20 p-4">
                                                 <div className="flex items-center gap-2 mb-1.5">
                                                         <Package className="size-3.5 text-orange" />
                                                         <span className="text-2xs text-muted-foreground">الأقسام</span>

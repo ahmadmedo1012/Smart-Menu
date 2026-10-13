@@ -1,6 +1,7 @@
 "use client"
 
 import AnimatedClock from "@/components/ui/clock-icon"
+import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from '@/lib/format';
 
@@ -10,13 +11,15 @@ interface Transaction {
 
 export function TransactionTable({ transactions }: { transactions: Transaction[] }) {
   if (transactions.length === 0) {
+    // Phase 6 (r154): the hand-rolled inline empty joins the warm plate
+    // family (sage well — the calm "nothing here yet" tint).
     return (
-      <div className="flex flex-col items-center py-8 text-center">
-        <div className="mb-3 flex size-10 items-center justify-center rounded-md bg-muted/50">
-          <AnimatedClock className="size-5 text-muted-foreground" />
-        </div>
-        <p className="text-sm font-medium text-muted-foreground">لا توجد معاملات بعد</p>
-      </div>
+      <EmptyState
+        icon={AnimatedClock}
+        title="لا توجد معاملات بعد"
+        tone="sage"
+        className="py-8"
+      />
     )
   }
 
@@ -25,8 +28,8 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
       {transactions.map((tx) => {
         const isEarn = tx.type === "earn"
         return (
-          <div key={tx.id} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/20">
-            <div className="flex items-center gap-3">
+          <div key={tx.id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-orange/5">
+            <div className="flex items-center gap-3 min-w-0">
               <div className={cn("size-2 rounded-full shrink-0", isEarn ? "bg-success" : "bg-destructive")} />
               <div>
                 <p className="text-sm font-medium">{tx.description || (isEarn ? "نقاط مكتسبة" : "نقاط مستردة")}</p>
@@ -40,7 +43,9 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                 </p>
               </div>
             </div>
-            <span className={cn("text-sm font-semibold tabular-nums", isEarn ? "text-success-ink" : "text-destructive")}>
+            {/* Phase 6 (r154): قائد النقاط — النقاط على طراز المنيو المطبوع. */}
+            <i className="menu-leader-rule" aria-hidden="true" />
+            <span className={cn("text-sm font-semibold tabular-nums shrink-0", isEarn ? "text-success-ink" : "text-destructive")}>
               {isEarn ? "+" : "-"}{toArabicNumber(tx.points)}
             </span>
           </div>

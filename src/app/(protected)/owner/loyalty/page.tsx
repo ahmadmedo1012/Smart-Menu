@@ -125,7 +125,7 @@ function StatCard({
         bg: string;
 }) {
         return (
-                <div className="group card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50 shadow-lg shadow-black/20">
+                <div className="group card-premium relative overflow-hidden rounded-lg bg-card p-5 border border-border/50 shadow-lg">
                         <div className="pointer-events-none absolute inset-0 z-0 w-[300%] -translate-x-2/3 skew-x-12 bg-gradient-to-r from-transparent via-accent-foreground/10 to-transparent transition-transform duration-cinema ease-out group-hover:translate-x-1/3 group-hover:skew-x-0" />
                         <div className="relative z-10 flex items-start justify-between">
                                 <div className="space-y-1">
@@ -154,7 +154,7 @@ function ConversionRate({
         converted: number;
 }) {
         return (
-                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
+                <div className="card-premium relative overflow-hidden rounded-lg bg-card p-5 border border-border/50">
                         <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                         <TrendingUp className="size-4 text-orange" />
@@ -243,8 +243,8 @@ function RedeemPanel({ restaurantId, onRedeemed }: { restaurantId: number | null
         };
 
         return (
-                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
-                        <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+                <div className="card-premium relative overflow-hidden rounded-lg bg-card p-5 border border-border/50">
+                        <h2 className="font-heading text-sm font-semibold mb-1 flex items-center gap-2">
                                 <Gift className="size-4 text-muted-foreground" /> استبدال وجبة مجانية
                         </h2>
                         <p className="text-xs text-muted-foreground mb-4">
@@ -527,8 +527,8 @@ export default function OwnerLoyaltyPage() {
                                         converted={stats?.convertedReferrals ?? 0}
                                 />
 
-                                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
-                                        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                                <div className="card-premium relative overflow-hidden rounded-lg bg-card p-5 border border-border/50">
+                                        <h2 className="font-heading text-sm font-semibold mb-4 flex items-center gap-2">
                                                 <Award className="size-4 text-muted-foreground" /> الإحالات حسب الحالة
                                         </h2>
                                         <div className="space-y-3">
@@ -550,8 +550,8 @@ export default function OwnerLoyaltyPage() {
                                         </div>
                                 </div>
 
-                                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
-                                        <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                                <div className="card-premium relative overflow-hidden rounded-lg bg-card p-5 border border-border/50">
+                                        <h2 className="font-heading text-sm font-semibold mb-3 flex items-center gap-2">
                                                 <Share2 className="size-4 text-muted-foreground" /> مشاركة رابط الإحالة
                                         </h2>
                                         <div className="flex flex-col items-center gap-3">
@@ -587,11 +587,11 @@ export default function OwnerLoyaltyPage() {
 
                         {/* ---- Referrals + Transactions ---- */}
                         <div className="grid gap-6 lg:grid-cols-2">
-                                <div className="card-premium relative overflow-hidden rounded-xl bg-card border border-border/50">
+                                <div className="card-premium relative overflow-hidden rounded-lg bg-card border border-border/50">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <Gift className="size-4 text-muted-foreground" />
-                                                        <h2 className="text-sm font-semibold">الإحالات</h2>
+                                                        <h2 className="font-heading text-sm font-semibold">الإحالات</h2>
                                                 </div>
                                                 <Badge
                                                         variant="outline"
@@ -603,11 +603,11 @@ export default function OwnerLoyaltyPage() {
                                         <ReferrerList referrals={stats?.recentReferrals ?? []} />
                                 </div>
 
-                                <div className="card-premium relative overflow-hidden rounded-xl bg-card border border-border/50">
+                                <div className="card-premium relative overflow-hidden rounded-lg bg-card border border-border/50">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <AnimatedClock className="size-4 text-muted-foreground" />
-                                                        <h2 className="text-sm font-semibold">آخر المعاملات</h2>
+                                                        <h2 className="font-heading text-sm font-semibold">آخر المعاملات</h2>
                                                 </div>
                                         </div>
                                         <TransactionTable transactions={stats?.recentTransactions ?? []} />
@@ -615,11 +615,11 @@ export default function OwnerLoyaltyPage() {
                         </div>
 
                         {/* ---- Tier Distribution ---- */}
-                        <div className="card-premium relative overflow-hidden rounded-xl bg-card border border-border/50">
+                        <div className="card-premium relative overflow-hidden rounded-lg bg-card border border-border/50">
                                 <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                         <div className="flex items-center gap-2">
                                                 <Award className="size-4 text-muted-foreground" />
-                                                <h2 className="text-sm font-semibold">توزيع المستويات</h2>
+                                                <h2 className="font-heading text-sm font-semibold">توزيع المستويات</h2>
                                         </div>
                                         <Badge
                                                 variant="outline"

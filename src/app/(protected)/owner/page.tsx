@@ -235,13 +235,13 @@ export default function OwnerDashboard() {
 
                         {/* Welcome banner (new owners) */}
                         {restaurant && stats && stats.totalOrders === 0 && (
-                                <div className="rounded-xl border border-orange/20 bg-orange-muted p-5 animate-fade-in">
+                                <div className="rounded-lg border border-orange/20 bg-orange-muted p-5 animate-fade-in">
                                         <div className="flex items-start gap-4 flex-wrap">
-                                                <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange">
+                                                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-orange">
                                                         <AnimatedSparkles className="size-6 text-orange-foreground" />
                                                 </div>
                                                 <div className="flex-1 min-w-[200px]">
-                                                        <h2 className="text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
+                                                        <h2 className="font-heading text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
                                                 <span className="inline-flex items-center gap-1 text-2xs font-semibold tabular-nums text-[var(--success-ink)] bg-[var(--success-soft)] border border-transparent rounded-full px-2 py-0.5">
                                                         <PlugConnectedIcon className="size-3" />
                                                         متصل — يستقبل الطلبات
@@ -327,14 +327,14 @@ export default function OwnerDashboard() {
 
                         {/* Restaurant header */}
                         {restaurant && (
-                                <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 shadow-sm">
+                                <div className="relative overflow-hidden rounded-lg border border-border/60 bg-card p-5 shadow-sm">
                                         <div className="flex items-start justify-between flex-wrap gap-3">
                                                 <div className="flex items-center gap-3">
-                                                        <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange">
+                                                        <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-orange">
                                                                 <Store className="size-6 text-orange-foreground" />
                                                         </div>
                                                         <div>
-                                                                <h2 className="text-lg font-bold">{restaurant.name}</h2>
+                                                                <h2 className="font-heading text-lg font-bold">{restaurant.name}</h2>
                                                                 <p className="text-xs text-muted-foreground">
                                                                         {restaurant.description || 'مطعمك على الربط الذكي'}
                                                                 </p>
@@ -379,8 +379,8 @@ export default function OwnerDashboard() {
                                 </div>
 
                                 {/* Quick actions */}
-                                <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-                                        <h2 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h2>
+                                <div className="rounded-lg border border-border/60 bg-card p-4 shadow-sm">
+                                        <h2 className="font-heading text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h2>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                                 {[
                                                         { href: '/owner/menu', icon: ClipboardList, label: 'إدارة المنيو' },
@@ -390,7 +390,7 @@ export default function OwnerDashboard() {
                                                 ].map(({ href, icon: Icon, label }) => (
                                                         <Link key={href} href={href}>
                                                                 <div
-                                                                        className="group relative overflow-hidden rounded-lg border border-border/50 bg-background p-3.5 transition-[box-shadow,transform] duration-fast hover:border-orange/30 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-ring/60"
+                                                                        className="group relative overflow-hidden rounded-md border border-border/50 bg-background p-3.5 transition-[box-shadow,transform] duration-fast hover:border-orange/30 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-ring/60"
                                                                 >
                                                                         <div className="relative flex flex-col items-center gap-1.5">
                                                                                 <Icon className="size-4 text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-transform duration-base motion-reduce:transition-none" aria-hidden="true" />
@@ -432,14 +432,14 @@ export default function OwnerDashboard() {
 
                         {/* Share your menu card */}
                         {restaurant && (
-                                <div className="rounded-xl border border-orange/20 bg-orange-muted p-5 animate-fade-in">
+                                <div className="rounded-lg border border-orange/20 bg-orange-muted p-5 animate-fade-in">
                                         <div className="flex items-start justify-between flex-wrap gap-4">
                                                 <div className="flex items-start gap-3">
-                                                        <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-orange">
+                                                        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-orange">
                                                                 <AnimatedQrCode className="size-5 text-orange-foreground" />
                                                         </div>
                                                         <div>
-                                                                <h2 className="text-sm font-bold mb-1">شارك منيو مطعمك</h2>
+                                                                <h2 className="font-heading text-sm font-bold mb-1">شارك منيو مطعمك</h2>
                                                                 <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
                                                                         امسح رمز QR أو شارك الرابط مع زبائنك ليصبح بإمكانهم الطلب مباشرة
                                                                 </p>
@@ -483,7 +483,7 @@ export default function OwnerDashboard() {
 
                         {/* Loyalty quick stats */}
                         {(loyaltyStats.totalLoyaltyCards ?? 0) > 0 && (
-                                <div className="rounded-xl border border-orange/20 bg-orange-muted p-4">
+                                <div className="rounded-lg border border-orange/20 bg-orange-muted p-4">
                                         <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                                                 <div className="flex items-center gap-2">
                                                         <Award className="size-4 text-orange" />
@@ -532,7 +532,7 @@ export default function OwnerDashboard() {
                                                         },
                                                 ].map(({ label, value, icon: Icon, color, bg }) => (
                                                         <div key={label} className="flex items-center gap-2.5 rounded-md bg-card/50 p-3">
-                                                                <div className={`size-9 rounded-md ${bg} flex items-center justify-center`}>
+                                                                <div className={`size-9 rounded-full ${bg} flex items-center justify-center`}>
                                                                         <Icon className={`size-4 ${color}`} />
                                                                 </div>
                                                                 <div>
