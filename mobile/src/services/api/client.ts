@@ -55,7 +55,7 @@ export interface PaginatedResult<T> {
   meta: PaginatedMeta | undefined;
 }
 
-async function apiFetchEnvelope<T>(path: string, init: Init = {}): Promise<{ data: T; meta: PaginatedMeta | undefined }> {
+async function apiFetchEnvelope<T>(path: string, init: Init = {}): Promise<{ data: T; meta: PaginatedMeta | undefined; extras?: Record<string, unknown> }> {
   const { body, skipAuth, mobileClient, timeoutMs, headers, ...rest } = init;
   const token = skipAuth ? null : await getStoredToken();
 
@@ -105,9 +105,16 @@ async function apiFetchEnvelope<T>(path: string, init: Init = {}): Promise<{ dat
     throw new ApiError(`تعذّر الاتصال بالخادم (${res.status})`, res.status, text.slice(0, 500));
   }
 
-  const env = parsed as ApiEnvelope<T>;
+  // Phase 6 (P6-2-c): the envelope may carry EXTRAS — top-level keys the
+  // web `paginated(data, total, page, pageSize, extras)` helper merges
+  // alongside data/meta (e.g. /api/owner/reviews attaches `stats`). They
+  // are captured here so typed owner endpoints can surface them.
+  const env = parsed as ApiEnvelope<T> & Record<string, unknown>;
   if (res.ok && env?.success) {
-    return { data: env.data, meta: (env as { meta?: PaginatedMeta }).meta };
+    // (lint: the envelope's own success/error/details fields are read via the
+    // guards above/below — only the unknown extras keys are consumed here.)
+    const { success: _success, data, meta, error: _error, details: _details, ...extras } = env;
+    return { data, meta: (meta as PaginatedMeta | undefined) ?? (env as { meta?: PaginatedMeta }).meta, extras: Object.keys(extras).length > 0 ? (extras as Record<string, unknown>) : undefined };
   }
 
   const errMsg = (env && !env.success && env.error) || `تعذّر الطلب (${res.status})`;
@@ -129,3 +136,177 @@ export const api = {
   patch: <T>(path: string, body?: unknown, init?: Init) => apiFetch<T>(path, { ...init, method: "PATCH", body }),
   delete: <T>(path: string, init?: Init) => apiFetch<T>(path, { ...init, method: "DELETE" }),
 };
+
+/* ── Phase 6 (P6-2-c): the OWNER API surface ────────────────────────────────
+ * Typed twins of the web routes (src/app/api/**), so the owner screens
+ * consume one contract instead of hand-rolled paths. Shapes mirror the web
+ * handlers verbatim:
+ *   · /api/owner/restaurants  (GET — list + _count categories/orders)
+ *   · /api/owner/reviews      (GET — paginated + `stats` envelope extra)
+ *   · /api/items/[id]/reviews (DELETE ?reviewId= — moderation)
+ *   · /api/loyalty/stats      (GET — KPIs + tier/referral aggregates)
+ *   · /api/categories         (GET ?restaurantId= — paginated + _count items)
+ *   · /api/items              (GET ?categoryId= / POST / PUT/DELETE [id])
+ */
+
+export interface OwnerRestaurant {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  logo: string | null;
+  isActive: boolean;
+  createdAt: string;
+  _count: { categories: number; orders: number };
+  isPrimary: boolean;
+}
+
+/** GET /api/owner/restaurants — the owner's list (list-counts `_count`
+ * categories/orders + the isPrimary link flag). */
+export async function getOwnerRestaurants(): Promise<OwnerRestaurant[]> {
+  return apiFetch<OwnerRestaurant[]>("/api/owner/restaurants", { method: "GET" });
+}
+
+/** POST /api/owner/restaurants — the web createSchema core (name + legal slug;
+ * description optional). The server seeds 4 default categories + plan caps. */
+export async function createOwnerRestaurant(draft: { name: string; slug: string; description?: string }): Promise<OwnerRestaurant> {
+  return apiFetch<OwnerRestaurant>("/api/owner/restaurants", { method: "POST", body: draft });
+}
+
+/** PATCH /api/owner/restaurants/[id] — set this menu primary (the route clears
+ * the owner's other links first). */
+export async function setPrimaryOwnerRestaurant(restaurantId: number): Promise<void> {
+  await apiFetch<unknown>(`/api/owner/restaurants/${restaurantId}`, { method: "PATCH", body: { isPrimary: true } });
+}
+
+/** DELETE /api/owner/restaurants/[id] — refuses the primary menu (web 400)
+ * and menus with orders (web 409, non-super_admin). */
+export async function deleteOwnerRestaurant(restaurantId: number): Promise<void> {
+  await apiFetch<unknown>(`/api/owner/restaurants/${restaurantId}`, { method: "DELETE" });
+}
+
+export interface OwnerReview {
+  id: number;
+  rating: number;
+  comment: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  menuItemId: number;
+  createdAt: string;
+  menuItem: { id: number; name: string; nameAr: string | null } | null;
+}
+
+/** /api/owner/reviews `stats` extra (round87-C5: server-side aggregates over
+ *  the FULL tenant set — the client never recomputes them). */
+export interface OwnerReviewsStats {
+  total: number;
+  avg: number;
+  distribution: { star: number; count: number }[];
+}
+
+export async function getOwnerReviews(params: { page?: number; pageSize?: number; minRating?: number } = {}): Promise<{ data: OwnerReview[]; meta: PaginatedMeta; stats: OwnerReviewsStats }> {
+  const qs = new URLSearchParams();
+  if (params.page) qs.set("page", String(params.page));
+  if (params.pageSize) qs.set("pageSize", String(params.pageSize));
+  if (params.minRating) qs.set("minRating", String(params.minRating));
+  const res = await apiFetchEnvelope<OwnerReview[]>(`/api/owner/reviews${qs.size > 0 ? `?${qs}` : ""}`, { method: "GET" });
+  const stats = (res.extras?.stats as OwnerReviewsStats | undefined) ?? { total: 0, avg: 0, distribution: [] };
+  return { data: res.data, meta: res.meta ?? { total: 0, page: 1, pageSize: 0, totalPages: 0 }, stats };
+}
+
+/** Review moderation — the web r103-F5b contract (DELETE with ?reviewId). */
+export async function deleteOwnerReview(menuItemId: number, reviewId: number): Promise<void> {
+  await apiFetch<unknown>(`/api/items/${menuItemId}/reviews?reviewId=${reviewId}`, { method: "DELETE" });
+}
+
+export interface LoyaltyStats {
+  totalLoyaltyCards: number;
+  totalReferrals: number;
+  convertedReferrals: number;
+  conversionRate: number;
+  topReferrers: { customerName: string; referralCount: number; rewardsGiven: number }[];
+  tierDistribution: Record<string, number>;
+  recentTransactions: { id: number; type: string; points: number; description: string | null; createdAt: string }[];
+  totalRewardPoints: number;
+  referralsByStatus: Record<string, number>;
+  recentReferrals: {
+    id: number; referredName: string; referredPhone: string; status: string;
+    discountPercent: number; referrerRewardPct: number; createdAt: string;
+    convertedAt: string | null; referrer: { customerName: string } | null;
+  }[];
+}
+
+export async function getLoyaltyStats(): Promise<LoyaltyStats> {
+  return apiFetch<LoyaltyStats>("/api/loyalty/stats", { method: "GET" });
+}
+
+export interface OwnerCategory {
+  id: number;
+  name: string;
+  nameAr: string | null;
+  icon: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  restaurantId: number;
+  _count: { items: number };
+}
+
+/** GET /api/categories?restaurantId= — the web owner-menu contract (paginated
+ *  with _count items; pageSize=100 covers a full menu in one page). */
+export async function getOwnerCategories(restaurantId: number): Promise<OwnerCategory[]> {
+  return apiFetch<OwnerCategory[]>(`/api/categories?restaurantId=${restaurantId}&pageSize=100`, { method: "GET" });
+}
+
+export type OwnerItemStatus = "available" | "unavailable";
+
+export interface OwnerItem {
+  id: number;
+  name: string;
+  nameAr: string | null;
+  description: string;
+  price: number;
+  discountedPrice: number | null;
+  image: string | null;
+  status: OwnerItemStatus;
+  sortOrder: number;
+  categoryId: number;
+  isFeatured: boolean;
+}
+
+/** GET /api/items?categoryId= — the web owner-menu contract (owner sees all
+ *  statuses; pageSize=100 covers a full category in one page). */
+export async function getOwnerItems(categoryId: number): Promise<OwnerItem[]> {
+  return apiFetch<OwnerItem[]>(`/api/items?categoryId=${categoryId}&pageSize=100`, { method: "GET" });
+}
+
+/** Availability toggle — PARTIAL PUT (the web updateSchema: omitted fields
+ *  are never overwritten, so a status-only body is safe). */
+export async function setOwnerItemAvailability(itemId: number, status: OwnerItemStatus): Promise<void> {
+  await apiFetch<unknown>(`/api/items/${itemId}`, { method: "PUT", body: { status } });
+}
+
+export interface OwnerItemDraft {
+  name: string;
+  nameAr?: string | null;
+  description?: string;
+  price: number;
+  discountedPrice?: number | null;
+  status?: OwnerItemStatus;
+  categoryId: number;
+}
+
+/** POST /api/items — the web createSchema core (name/price/categoryId +
+ *  optional fields; modifier groups, images and showcase fields stay
+ *  web-only this round — documented). */
+export async function createOwnerItem(draft: OwnerItemDraft): Promise<OwnerItem> {
+  return apiFetch<OwnerItem>("/api/items", { method: "POST", body: draft });
+}
+
+/** PUT /api/items/[id] — partial update (name/price/description/category). */
+export async function updateOwnerItem(itemId: number, draft: Partial<OwnerItemDraft>): Promise<OwnerItem> {
+  return apiFetch<OwnerItem>(`/api/items/${itemId}`, { method: "PUT", body: draft });
+}
+
+export async function deleteOwnerItem(itemId: number): Promise<void> {
+  await apiFetch<unknown>(`/api/items/${itemId}`, { method: "DELETE" });
+}
