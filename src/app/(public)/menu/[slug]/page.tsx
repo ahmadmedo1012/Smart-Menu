@@ -23,6 +23,7 @@ export async function generateStaticParams() {
 import { prisma } from '@/lib/db';
 import { SITE_ORIGIN } from '@/lib/seo';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
 // r134-W2 (#5): JSON-LD telephone rides the ONE wa.me normalizer (E.164).
 import { normalizeWaNumber } from '@/lib/whatsapp';
@@ -458,6 +459,23 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                 categories={serializedCategories}
                                 serializedItems={serializedItems}
                         />
+
+                        {/* r151 (LIVE-AUDIT-SM1 P2-3): التذييل القانوني الأدنى للسطح
+                            الأساسي للزبون — الخصوصية/الشروط كانت تُفتحان من الهبوط
+                            فقط (قياس حي: القائمة العامة بلا تذييل قانوني إطلاقًا).
+                            رابطان نصيان بنمط الصف القانوني في تذييل الأسطول
+                            (توأم SL/SO) وأرضية لمس 44 عموديًا. خادمي خالص —
+                            لا عميل ولا حالة ولا بيانات إضافية. */}
+                        <footer className="relative z-10 mx-auto mt-14 w-full max-w-4xl xl:max-w-6xl px-4 pb-10">
+                                <div className="flex items-center justify-center gap-2 border-t border-border/40 pt-2 sm:gap-6">
+                                        <Link href="/privacy" className="inline-flex min-h-11 items-center px-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                                                سياسة الخصوصية
+                                        </Link>
+                                        <Link href="/terms" className="inline-flex min-h-11 items-center px-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                                                شروط الاستخدام
+                                        </Link>
+                                </div>
+                        </footer>
                 </div>
         );
 }

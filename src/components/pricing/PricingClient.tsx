@@ -245,8 +245,11 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                 <div className="relative z-10 max-w-3xl mx-auto px-4">
                                         {/* r128-F5 (§4): حاجب بنمط ln-label — ترقيم فصول mono
                                            مسطّح (بديل حبة الزجاج)؛ الرقم اللاتيني يفتح القراءة
-                                           في السياق RTL. */}
-                                        <p className="mb-6 font-mono text-xs font-medium tracking-[0.08em] text-accent-foreground tabular-nums">
+                                           في السياق RTL.
+                                           r151 (LIVE-AUDIT-SM1 P1-2): tracking-[0.08em] أُزيل —
+                                           السطر مختلط (رقم + شرطة + عربي) والتتبع يكسر اتصال
+                                           الحروف العربية (قانون الأسطول: لا تتبع على العربي). */}
+                                        <p className="mb-6 font-mono text-xs font-medium text-accent-foreground tabular-nums">
                                                 01 — الخطط
                                         </p>
                                         {/* r95: طباعة SmartBot §3 — font-heading + text-balance.

@@ -221,8 +221,11 @@ export function Header({ className }: HeaderProps) {
                     <Link
                       href={link.href}
                       aria-current={linkActive ? "page" : undefined}
+                      /* r151 (LIVE-AUDIT-SM1 P3-2): min-h-11 — حبات الرأس كانت
+                         px-4 py-2 (35px مقاسة على /pricing) دون عرف اللمس 44؛
+                         لوحي اللمس ≥1024px تصل لهذه الروابط فتُلحق بالكنون. */
                       className={cn(
-                        "relative z-10 px-4 py-2 text-sm font-medium transition-colors duration-fast rounded-full",
+                        "relative z-10 inline-flex min-h-11 items-center px-4 py-2 text-sm font-medium transition-colors duration-fast rounded-full",
                         linkActive ? "text-primary-foreground" : "text-foreground/70 hover:text-foreground"
                       )}
                     >

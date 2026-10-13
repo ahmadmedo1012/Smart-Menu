@@ -258,6 +258,17 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                         </span>
                                 </div>
 
+                                {/* r151 (LIVE-AUDIT-SM1 P3-1): ستارة تباين أسفل المشهد —
+                                    تدرّج صاعد من الغسيل الصلب يضمن سطحًا مؤكدًا تحت
+                                    عنوان/وصف/سعر المشهد (التدقيق الحي: العنوان والوصف
+                                    يُقرآن فوق الاسم العملاق والتوهج الزخرفي بلا ضمان
+                                    تباين — 1.06-1.51 ضد أبيض). فوق الزخارف (z-auto)
+                                    وتحت المحتوى (z-10) والنقاط (z-20) — زخرفة بلا لمس. */}
+                                <div
+                                        aria-hidden="true"
+                                        className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-56 md:h-72 bg-gradient-to-t from-[var(--scene-wash)] via-[color-mix(in_oklab,var(--scene-wash)_78%,transparent)] to-transparent"
+                                />
+
                                 {/* Generic decorative floaters (round79 option أ — sparkles,
                                                 never fake ingredients) — tinted with the scene accent. */}
                                 <m.div
@@ -455,9 +466,11 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                         active one (the sr-only live counter above stays). */}
                                                 <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex items-center gap-0.5">
                                                         {featured.map((f, i) => (
-                                                                // r115-F121: same WCAG 2.5.8 fix as GalleryCarousel —
-                                                                // the button box is now 24×24 with the visual dot as an
-                                                                // inner span (was a bare size-2 = 8px box).
+                                                                // r151 (LIVE-AUDIT-SM1 P2-2): the button box is now
+                                                                // 44×44 (fleet touch canon — was the r115-F121 24×24
+                                                                // box, measured short on the live audit). Symmetric
+                                                                // -mx-2.5 keeps the 26px visual pitch identical and
+                                                                // the inner span stays the small scene dot.
                                                                 <button
                                                                         key={f.id}
                                                                         type="button"
@@ -467,7 +480,7 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                                                 setDirection(i > index ? 1 : -1);
                                                                                 setIndex(i);
                                                                         }}
-                                                                        className="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-[color-mix(in_oklab,var(--scene-accent)_12%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--scene-accent)] focus-visible:ring-offset-2"
+                                                                        className="flex size-11 -mx-2.5 items-center justify-center rounded-full transition-colors hover:bg-[color-mix(in_oklab,var(--scene-accent)_12%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--scene-accent)] focus-visible:ring-offset-2"
                                                                 >
                                                                         <span
                                                                                 className={cn(

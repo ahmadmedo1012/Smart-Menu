@@ -329,10 +329,11 @@ export function GalleryCarousel({
                                                 {/* dot indicators — active w-6 bg-orange */}
                                                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-0.5">
                                                         {images.map((_, i) => (
-                                                                // r115-F121: الزر نفسه الآن 24×24 (الحد الأدنى WCAG 2.5.8
-                                                                // للمس) — النقطة البصرية عنصر داخلي. قبل الإصلاح كان صندوق
-                                                                // الزر 6px فقط (مع ::after توسعة غير قابلة للقياس من أدوات
-                                                                // التدقيق) ففشل فحص target-size في Lighthouse.
+                                                                // r151 (LIVE-AUDIT-SM1 P2-2): صندوق الزر 44×44 (كنون
+                                                                // الأسطول) — كان 24×24 (الحد الأدنى WCAG 2.5.8 من
+                                                                // r115-F121) وأخفق عرف اللمس 44 في قياس التدقيق الحي.
+                                                                // -mx-2.5 المتماثلة تُبقي إيقاع النقاط البصري كما كان
+                                                                // (26px خطوة) والنقطة المرئية عنصر داخلي صغير كما هي.
                                                                 <button
                                                                         key={i}
                                                                         type="button"
@@ -340,7 +341,7 @@ export function GalleryCarousel({
                                                                                 e.stopPropagation();
                                                                                 goTo(i);
                                                                         }}
-                                                                        className="relative flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                                                                        className="relative flex size-11 -mx-2.5 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                                                                         aria-label={`صورة ${i + 1}`}
                                                                         aria-current={i === current ? 'true' : undefined}
                                                                 >
@@ -456,19 +457,17 @@ export function GalleryCarousel({
 
                                                                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-0.5">
                                                                         {images.map((_, i) => (
-                                                                                // r127-F3 (K-12): same fix as the carousel dots
-                                                                                // (r115-F121) — the button itself is 24×24 (WCAG
-                                                                                // 2.5.8 minimum) and the visual dot is an inner
-                                                                                // span. The old ::after hit-area hack measured
-                                                                                // ≈22×26px — 2px short of the minimum and
-                                                                                // invisible to audit tools.
+                                                                                // r151 (LIVE-AUDIT-SM1 P2-2): same 44×44 canon as the
+                                                                                // carousel dots above (was the r127-F3/r115-F121 24×24
+                                                                                // box) — symmetric -mx-2.5 keeps the 26px visual pitch
+                                                                                // and the inner span stays the small dot.
                                                                                 <button
                                                                                         key={i}
                                                                                         type="button"
                                                                                         onClick={() => setLightboxIdx(i)}
                                                                                         aria-label={`صورة ${i + 1}`}
                                                                                         aria-current={i === lightboxIdx ? 'true' : undefined}
-                                                                                        className="relative flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                                                                                        className="relative flex size-11 -mx-2.5 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                                                                                 >
                                                                                         <span
                                                                                                 className={cn(

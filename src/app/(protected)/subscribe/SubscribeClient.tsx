@@ -414,8 +414,11 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                 {/* Header */}
                                 <div className="text-center mb-10">
                                         {/* r95 → r128-F5 (§4): حاجب بنمط ln-label — تسمية mono
-                                           مسطّحة بلا حبة؛ ترقيم الخطوات يعيش في StepIndicator. */}
-                                        <p className="mb-4 font-mono text-xs font-medium tracking-[0.08em] text-accent-foreground">
+                                           مسطّحة بلا حبة؛ ترقيم الخطوات يعيش في StepIndicator.
+                                           r151 (LIVE-AUDIT-SM1 P1-2): tracking-[0.08em] أُزيل —
+                                           النص عربي خالص («الاشتراك») والتتبع يكسر اتصال
+                                           الحروف (قانون الأسطول: لا تتبع على العربي). */}
+                                        <p className="mb-4 font-mono text-xs font-medium text-accent-foreground">
                                                 الاشتراك
                                         </p>
                                         <h1 className="font-heading text-3xl md:text-5xl font-bold mb-3">

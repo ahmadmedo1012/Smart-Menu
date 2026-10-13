@@ -135,7 +135,13 @@ const MenuItemCard = memo(function MenuItemCard({
                         className={cn(
                                 /* r135-B: hover كان duration-slower (520ms) — قانون الحركة
                                    (hover=160ms، السقف 380ms) → duration-base (240ms). */
-                                'group relative flex w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-base',
+                                /* r151 (LIVE-AUDIT-SM1 P2-1): h-full — البطاقة تملأ ارتفاع
+                                   صف الشبكة كله (الغلاف animate-reveal يمتد مع الصف
+                                   بينما البطاقة بقيت على ارتفاعها الطبيعي — قياس حي:
+                                   473 بجانب 522 في الصف نفسه على 768). جذر flex-col
+                                   يدفع أفعال البطاقة إلى قاع موحد في كل صف —
+                                   نمط بطاقات Toast/Airbnb. */
+                                'group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-base',
                                 /* r95: توهج SmartBot §5.1 — accent-foreground بدل orange على الحدود/الظل
                                    (r135-B: يُلغى للصنف النافذ — لا وهم قابلية للطلب) */
                                 !soldOut &&
@@ -253,10 +259,13 @@ const MenuItemCard = memo(function MenuItemCard({
                         </div>
 
                         {/* Content area — r135-B: النافذ يُعتّم المحتوى (opacity-60)
-                           مع بقاء السعر/الحمية/الحساسية مقروءة (معلومة محفوظة) */}
+                           مع بقاء السعر/الحمية/الحساسية مقروءة (معلومة محفوظة)
+                           r151 (LIVE-AUDIT-SM1 P2-1): flex-1 — منطقة المحتوى تمتص
+                           الفارق داخل البطاقة الممتلئة h-full فيبقى صف الأفعال
+                           مثبتًا بالقاع في كل الصفوف المتجاورة. */}
                         <div
                                 className={cn(
-                                        'relative z-10 p-4 flex flex-col gap-2',
+                                        'relative z-10 flex-1 p-4 flex flex-col gap-2',
                                         soldOut && 'opacity-60'
                                 )}
                         >
@@ -375,8 +384,10 @@ const MenuItemCard = memo(function MenuItemCard({
                                         )}
                                 </div>
 
-                                {/* Options + Animated CTA / Quantity counter row */}
-                                <div className="flex items-stretch gap-2 w-full">
+                                {/* Options + Animated CTA / Quantity counter row
+                                        r151 (LIVE-AUDIT-SM1 P2-1): mt-auto — تثبيت صف الأفعال
+                                        بقاع البطاقة (الصفوف متساوية الارتفاع h-full) */}
+                                <div className="flex items-stretch gap-2 w-full mt-auto">
                                         {/* a11y (WCAG 2.1.1): the card's onClick is mouse-only — this visible,
                                                 keyboard-reachable button is the primary path to OrderDialog. */}
                                         <button

@@ -35,8 +35,11 @@ export default function PrivacyPage() {
                         <Header />
                         <div className="max-w-3xl mx-auto px-4 py-20">
                                 {/* r128-F5 (§4): حاجب بنمط ln-label — تسمية فصل mono
-                                   مسطّحة فوق العنوان (المحتوى القانوني بلا تغيير). */}
-                                <p className="mb-3 font-mono text-xs font-medium tracking-[0.08em] text-accent-foreground tabular-nums">
+                                   مسطّحة فوق العنوان (المحتوى القانوني بلا تغيير).
+                                   r151 (LIVE-AUDIT-SM1 P1-2): tracking-[0.08em] أُزيل —
+                                   السطر مختلط (رقم + شرطة + عربي) والتتبع يكسر اتصال
+                                   الحروف العربية (قانون الأسطول: لا تتبع على العربي). */}
+                                <p className="mb-3 font-mono text-xs font-medium text-accent-foreground tabular-nums">
                                         01 — الخصوصية
                                 </p>
                                 <h1 className="text-3xl font-bold mb-8">سياسة الخصوصية</h1>

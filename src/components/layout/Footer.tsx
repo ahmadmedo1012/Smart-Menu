@@ -59,12 +59,16 @@ export function Footer({ className }: FooterProps) {
                                         <div>
                                                 <h3 className="text-sm font-medium mb-3">روابط سريعة</h3>
                                                 <div className="space-y-2.5 text-sm text-muted-foreground">
-                                                        {/* r95: لهب — الرابط المهم يتحول للنصي الأسطع عند التحويم */}
+                                                        {/* r95: لهب — الرابط المهم يتحول للنصي الأسطع عند التحويم
+                                                           r151 (LIVE-AUDIT-SM1 P2-3): min-h-11 + py-3 — روابط
+                                                           التذييل كانت 19px على الهاتف (قياس حي /pricing)
+                                                           دون الهدف اللمسي؛ الأرضية 44 عموديًا بنمط توأم
+                                                           SL (موجة SB2 r150) — space-y يبقى للإيقاع. */}
                                                         {QUICK_LINKS.map((link) => (
                                                                 <Link
                                                                         key={link.label}
                                                                         href={link.href}
-                                                                        className="block w-fit hover:text-accent-foreground hover:underline underline-offset-4 transition-colors focus-visible:ring-2 focus-visible:ring-accent-foreground/60 rounded-sm"
+                                                                        className="inline-flex w-fit min-h-11 items-center py-3 hover:text-accent-foreground hover:underline underline-offset-4 transition-colors focus-visible:ring-2 focus-visible:ring-accent-foreground/60 rounded-sm"
                                                                 >
                                                                         {link.label}
                                                                 </Link>
@@ -95,7 +99,9 @@ export function Footer({ className }: FooterProps) {
                                         <div>
                                                 <h3 className="text-sm font-medium mb-3">تواصل معنا</h3>
                                                 <div className="space-y-2.5 text-sm text-muted-foreground">
-                                                        <Link href={waLink} className="block w-fit hover:text-accent-foreground hover:underline underline-offset-4 transition-colors">
+                                                        {/* r151 (LIVE-AUDIT-SM1 P2-3): نفس أرضية اللمس 44 —
+                                                           الرابط التفاعلي الوحيد في العمود. */}
+                                                        <Link href={waLink} className="inline-flex w-fit min-h-11 items-center py-3 hover:text-accent-foreground hover:underline underline-offset-4 transition-colors">
                                                                 واتساب
                                                         </Link>
                                                         <span className="block cursor-default hover:text-foreground transition-colors">
@@ -114,10 +120,13 @@ export function Footer({ className }: FooterProps) {
                                                         &copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. جميع الحقوق محفوظة.
                                                 </p>
                                                 <div className="flex gap-4 text-xs text-muted-foreground">
-                                                        <Link href="/terms" className="hover:text-foreground transition-colors">
+                                                        {/* r151 (LIVE-AUDIT-SM1 P2-3): الرابطان القانونيان كانا
+                                                           أصغر روابط التذييل قياسًا (16px) — أرضية اللمس 44
+                                                           بنمط الصف القانوني في توأم SL (min-h-11 + py-3). */}
+                                                        <Link href="/terms" className="inline-flex min-h-11 items-center py-3 hover:text-foreground transition-colors">
                                                                 شروط الاستخدام
                                                         </Link>
-                                                        <Link href="/privacy" className="hover:text-foreground transition-colors">
+                                                        <Link href="/privacy" className="inline-flex min-h-11 items-center py-3 hover:text-foreground transition-colors">
                                                                 سياسة الخصوصية
                                                         </Link>
                                                 </div>
