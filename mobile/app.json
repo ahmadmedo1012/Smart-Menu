@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "smartmenu",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -24,7 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#070B16"
+        "backgroundColor": "#FBF7F0"
       },
       "package": "ly.smartlink.smartmenu",
       "permissions": ["VIBRATE"],
@@ -66,7 +66,12 @@
             "./node_modules/@expo-google-fonts/ibm-plex-sans-arabic/600SemiBold/IBMPlexSansArabic_600SemiBold.ttf",
             "./node_modules/@expo-google-fonts/ibm-plex-sans-arabic/700Bold/IBMPlexSansArabic_700Bold.ttf",
             "./node_modules/@expo-google-fonts/ibm-plex-mono/400Regular/IBMPlexMono_400Regular.ttf",
-            "./node_modules/@expo-google-fonts/ibm-plex-mono/500Medium/IBMPlexMono_500Medium.ttf"
+            "./node_modules/@expo-google-fonts/ibm-plex-mono/500Medium/IBMPlexMono_500Medium.ttf",
+            "./node_modules/@expo-google-fonts/baloo-bhaijaan-2/400Regular/BalooBhaijaan2_400Regular.ttf",
+            "./node_modules/@expo-google-fonts/baloo-bhaijaan-2/500Medium/BalooBhaijaan2_500Medium.ttf",
+            "./node_modules/@expo-google-fonts/baloo-bhaijaan-2/600SemiBold/BalooBhaijaan2_600SemiBold.ttf",
+            "./node_modules/@expo-google-fonts/baloo-bhaijaan-2/700Bold/BalooBhaijaan2_700Bold.ttf",
+            "./node_modules/@expo-google-fonts/baloo-bhaijaan-2/800ExtraBold/BalooBhaijaan2_800ExtraBold.ttf"
           ]
         }
       ],
@@ -86,7 +91,7 @@
           "image": "./assets/images/adaptive-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#070B16"
+          "backgroundColor": "#FBF7F0"
         }
       ]
     ],

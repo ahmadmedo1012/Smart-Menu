@@ -36,7 +36,7 @@ function TrustCell({ value, label }: { value: string; label: string }) {
   const display = useCountUp(value);
   return (
     <Text
-      style={{ color: landing.cream, fontSize: 13, textAlign: "center" }}
+      style={{ color: landing.ink, fontSize: 13, textAlign: "center" }}
       maxFontSizeMultiplier={1.4}
       accessibilityLabel={`${label}: ${value === TRUST_FALLBACK_VALUE ? "غير متوفر" : value}`}
     >
@@ -76,7 +76,7 @@ export function TrustBand({
     <View
       accessibilityLabel="أرقام المنصّة"
       style={{
-        backgroundColor: landing.ink2,
+        backgroundColor: landing.paper2,
         borderTopWidth: 1,
         borderBottomWidth: 1,
         borderColor: landing.line,
@@ -108,7 +108,7 @@ export function TrustBand({
             variant="ghost"
             label="إعادة المحاولة"
             onPress={onRetry}
-            icon={<RefreshCw size={14} color={landing.creamDim} />}
+            icon={<RefreshCw size={14} color={landing.inkDim} />}
             accessibilityHint="إعادة تحميل أرقام المنصّة"
           />
         ) : null}

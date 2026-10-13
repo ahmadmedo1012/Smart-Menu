@@ -16,6 +16,18 @@ import {
   IBMPlexSansArabic_600SemiBold,
   IBMPlexSansArabic_700Bold,
 } from "@expo-google-fonts/ibm-plex-sans-arabic";
+// Phase 6 (P6-2-c): the DISPLAY chain — Baloo Bhaijaan 2 (warm rounded
+// culinary display, Arabic+Latin, 400-800) joins the body face. The web
+// twin self-hosts the variable face at 600/700; the mobile registers the
+// per-weight families the <Text> resolver maps onto (same doctrine as the
+// Plex families below).
+import {
+  BalooBhaijaan2_400Regular,
+  BalooBhaijaan2_500Medium,
+  BalooBhaijaan2_600SemiBold,
+  BalooBhaijaan2_700Bold,
+  BalooBhaijaan2_800ExtraBold,
+} from "@expo-google-fonts/baloo-bhaijaan-2";
 // r129-F5: the mono machine voice — the landing eyebrow/chapter labels,
 // tabular numerals and the trust band ride IBM Plex Mono (400/500; the
 // web --ln-mono stack). Arabic runs inside mono contexts fall back to the
@@ -65,6 +77,11 @@ export default function App() {
         "IBM Plex Sans Arabic-Bold": IBMPlexSansArabic_700Bold,
         "IBM Plex Mono": IBMPlexMono_400Regular,
         "IBM Plex Mono-Medium": IBMPlexMono_500Medium,
+        "Baloo Bhaijaan 2": BalooBhaijaan2_400Regular,
+        "Baloo Bhaijaan 2-Medium": BalooBhaijaan2_500Medium,
+        "Baloo Bhaijaan 2-SemiBold": BalooBhaijaan2_600SemiBold,
+        "Baloo Bhaijaan 2-Bold": BalooBhaijaan2_700Bold,
+        "Baloo Bhaijaan 2-ExtraBold": BalooBhaijaan2_800ExtraBold,
       });
       if (!cancelled) setFontsReady(true);
     })();
@@ -84,7 +101,10 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AppProviders>
-          <StatusBar style="light" />
+          {/* Phase 6 (P6-2-c): dark status-bar icons — the cream ground needs
+              espresso system chrome (was "light" white icons for the retired
+              Madarek night). */}
+          <StatusBar style="dark" />
           {/* r118-B3 (A6 P1-1): crash containment — one malformed API payload used
               to kill the whole process. Providers stay ABOVE the boundary so the
               toast/query layers survive a caught render error. */}

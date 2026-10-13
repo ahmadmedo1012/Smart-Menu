@@ -89,9 +89,9 @@ const STATIONS: readonly {
   },
 ];
 
-/* Web landing literals with no --ln-* token (component-local, provenance
+/* Web landing literals with no --sm-* token (component-local, provenance
    in the comments): station ico chip fill + the hero value meta dots. */
-const STATION_ICO_BG = "rgba(245,243,231,0.08)"; // .ln-station-ico
+const STATION_ICO_BG = "rgba(194,69,45,0.12)"; // the --sm-ember-soft wash (station icon wells)
 
 /** The mono chapter label — .ln-label (lime, 12px, ls .08em, weight 500).
  *  marginBottom defaults to the .ln-label 14px; the hero eyebrow overrides
@@ -103,7 +103,7 @@ function ChapterLabel({ children, marginBottom = 14 }: { children: string; margi
   const [num, ...rest] = children.split(" — ");
   return (
     <Text
-      style={{ color: landing.lime, fontSize: 12, marginBottom }}
+      style={{ color: landing.emberInk, fontSize: 12, marginBottom }}
       maxFontSizeMultiplier={1.4}
     >
       <Text style={{ fontFamily: "IBM Plex Mono-Medium", letterSpacing: 0.08 }}>
@@ -143,7 +143,7 @@ export function LandingScreen() {
 
   return (
     // The Orbit-Ink ground — landing-scoped only (web .landing R4 rule).
-    <SafeAreaView style={{ flex: 1, backgroundColor: landing.ink }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: landing.paper }} edges={["top"]}>
       <ConnectivityBanner />
       <Animated.View entering={enterFade} style={{ flex: 1 }}>
         <ScrollView
@@ -154,27 +154,24 @@ export function LandingScreen() {
           <View style={{ paddingHorizontal: gutter, paddingTop: spacing.sp8, marginBottom: spacing.sp8 }}>
             <ChapterLabel marginBottom={spacing.sp6}>00 — البداية</ChapterLabel>
 
-            {/* the monolith — flat cream, exactly ONE lime word (على واتساب),
-                zero letter-spacing (Arabic joins — never tracked), web clamp
-                floor 44px / mid 56px (landingH1Size), lh 1.18 (GAP-5). */}
+            {/* the monolith — flat espresso ink, exactly ONE ember word (على
+                واتساب), zero letter-spacing (Arabic joins — never tracked), web
+                clamp floor 42px / 6.6vw capped 86 (landingH1Size), lh 1.18
+                (GAP-5 — tall-glyph Arabic display leading). */}
             <Text
               style={{
                 fontFamily: "IBM Plex Sans Arabic",
                 fontWeight: "700",
                 fontSize: h1Size,
                 lineHeight: Math.round(h1Size * landing.h1LineHeight),
-                color: landing.cream,
+                color: landing.ink,
                 marginBottom: spacing.sp7,
-                // P3-26 subtle depth on dark ink ground (RN: one shadow)
-                textShadowColor: "rgba(0,0,0,0.25)",
-                textShadowOffset: { width: 0, height: 2 },
-                textShadowRadius: 8,
               }}
               maxFontSizeMultiplier={1.4}
             >
               منيو رقمي لمطعمك{"\n"}
               والطلبات تصلك{" "}
-              <Text style={{ color: landing.lime }}>على واتساب</Text>
+              <Text style={{ color: landing.ember }}>على واتساب</Text>
             </Text>
 
             <Text
@@ -182,7 +179,7 @@ export function LandingScreen() {
                 fontFamily: "IBM Plex Sans Arabic",
                 fontSize: 15,
                 lineHeight: 24,
-                color: landing.creamDim,
+                color: landing.inkDim,
                 marginBottom: spacing.sp9,
               }}
               maxFontSizeMultiplier={1.4}
@@ -193,7 +190,7 @@ export function LandingScreen() {
             {/* gold + ghost pill pair — 48px (the touch floor), press 0.97 */}
             <View style={{ gap: spacing.sp3, marginBottom: spacing.sp8 }}>
               <LandingPill
-                variant="gold"
+                variant="ember"
                 size="xl"
                 fullWidth
                 label="ابدأ تجربتك الآن"
@@ -242,20 +239,20 @@ export function LandingScreen() {
                 fontWeight: "700",
                 fontSize: 32,
                 lineHeight: 39,
-                color: landing.creamDim,
+                color: landing.inkDim,
                 marginBottom: spacing.sp4,
               }}
               maxFontSizeMultiplier={1.4}
             >
               من مسح الرمز إلى الطلب —{" "}
-              <Text style={{ color: landing.cream }}>خمس محطات</Text>
+              <Text style={{ color: landing.ink }}>خمس محطات</Text>
             </Text>
             <Text
               style={{
                 fontFamily: "IBM Plex Sans Arabic",
                 fontSize: 15,
                 lineHeight: 24,
-                color: landing.creamDim,
+                color: landing.inkDim,
                 marginBottom: spacing.sp7,
               }}
               maxFontSizeMultiplier={1.4}
@@ -286,7 +283,7 @@ export function LandingScreen() {
                     }}
                   >
                     <Text
-                      style={{ fontFamily: "IBM Plex Mono", fontSize: 13, color: landing.creamDim }}
+                      style={{ fontFamily: "IBM Plex Mono", fontSize: 13, color: landing.inkDim }}
                       maxFontSizeMultiplier={1.4}
                     >
                       {s.n}
@@ -301,7 +298,7 @@ export function LandingScreen() {
                         justifyContent: "center",
                       }}
                     >
-                      <s.icon size={20} color={landing.creamDim} />
+                      <s.icon size={20} color={landing.inkDim} />
                     </View>
                     <View
                       style={{
@@ -313,7 +310,7 @@ export function LandingScreen() {
                         paddingHorizontal: 12,
                       }}
                     >
-                      <Text style={{ fontSize: 11.5, color: landing.creamDim }} maxFontSizeMultiplier={1.4}>
+                      <Text style={{ fontSize: 11.5, color: landing.inkDim }} maxFontSizeMultiplier={1.4}>
                         {s.tag}
                       </Text>
                     </View>
@@ -323,7 +320,7 @@ export function LandingScreen() {
                       fontFamily: "IBM Plex Sans Arabic",
                       fontWeight: "700",
                       fontSize: 22,
-                      color: landing.cream,
+                      color: landing.ink,
                       marginBottom: spacing.sp3,
                     }}
                     maxFontSizeMultiplier={1.4}
@@ -335,7 +332,7 @@ export function LandingScreen() {
                       fontFamily: "IBM Plex Sans Arabic",
                       fontSize: 14.5,
                       lineHeight: 25,
-                      color: landing.creamDim,
+                      color: landing.inkDim,
                     }}
                     maxFontSizeMultiplier={1.4}
                   >
@@ -354,7 +351,7 @@ export function LandingScreen() {
                   fontFamily: "IBM Plex Sans Arabic",
                   fontWeight: "700",
                   fontSize: 18,
-                  color: landing.cream,
+                  color: landing.ink,
                   marginBottom: spacing.sp4,
                 }}
                 maxFontSizeMultiplier={1.4}
@@ -379,8 +376,8 @@ export function LandingScreen() {
                     <View style={{ width: "100%", height: 100, borderRadius: radius.lg, overflow: "hidden", marginBottom: 8, backgroundColor: STATION_ICO_BG }}>
                       {r.logo ? <OptimizedImage uri={r.logo} style={{ width: "100%", height: "100%" }} /> : null}
                     </View>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontWeight: "600", fontSize: 14, color: landing.cream }} numberOfLines={1}>{r.name}</Text>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, lineHeight: 17, color: landing.creamDim, marginTop: 2 }} numberOfLines={2}>{r.description || r.city || ""}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontWeight: "600", fontSize: 14, color: landing.ink }} numberOfLines={1}>{r.name}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, lineHeight: 17, color: landing.inkDim, marginTop: 2 }} numberOfLines={2}>{r.description || r.city || ""}</Text>
                   </PressableScale>
                 ))}
               </ScrollView>
@@ -396,8 +393,8 @@ export function LandingScreen() {
 function MetaItem({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sp3 }}>
-      <Icon size={13} color={landing.creamDim} />
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: landing.creamDim }} maxFontSizeMultiplier={1.4}>
+      <Icon size={13} color={landing.inkDim} />
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: landing.inkDim }} maxFontSizeMultiplier={1.4}>
         {label}
       </Text>
     </View>

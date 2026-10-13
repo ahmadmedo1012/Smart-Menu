@@ -15,6 +15,7 @@
     "doctor": "npx expo-doctor"
   },
   "dependencies": {
+    "@expo-google-fonts/baloo-bhaijaan-2": "0.4.2",
     "@expo-google-fonts/ibm-plex-mono": "0.4.1",
     "@expo-google-fonts/ibm-plex-sans-arabic": "0.4.2",
     "@gorhom/bottom-sheet": "^5.1.4",

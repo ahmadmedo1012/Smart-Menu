@@ -8,7 +8,7 @@
  * pass through the app <Text> wrapper, so on iOS they rendered Regular.
  * Native chrome must reference the per-weight family directly.
  */
-import { DarkTheme, type Theme } from "@react-navigation/native";
+import { DefaultTheme, type Theme } from "@react-navigation/native";
 import type { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import type { BottomTabNavigationOptions, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,21 +17,26 @@ import { PressableScale } from "@/components/motion/PressableScale";
 import { PLEX_SEMIBOLD } from "@/theme/typography";
 import { colors } from "@/theme/colors";
 
-/** Madarek night palette for the NavigationContainer (matches the app). */
+/**
+ * Phase 6 (P6-2-c): the LIGHT-first culinary NavigationContainer theme —
+ * the warm twin of the web Phase-5 chrome (cream ground, espresso ink,
+ * terracotta accent; DefaultTheme is the base — the warm night kitchen
+ * stays the documented opt-in twin, adopted by the theme-toggle wave).
+ */
 export const NAV_THEME: Theme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
-    primary: colors.gold,   // gold accent
-    background: colors.night, // night page ground
-    card: colors.surface,       // surface-1
-    text: colors.sand,       // warm sand ink
-    border: colors.hairline,     // hairline
-    notification: colors.rose, // rose ink
+    ...DefaultTheme.colors,
+    primary: colors.gold,   // terracotta accent
+    background: colors.night, // cream page ground
+    card: colors.surface,       // raised plate
+    text: colors.sand,       // espresso ink
+    border: colors.hairline,     // warm hairline
+    notification: colors.rose, // deep rose ink
   },
 };
 
-/** Native-stack chrome — header on night, sand ink, SemiBold Plex titles. */
+/** Native-stack chrome — header on cream, espresso ink, SemiBold Plex titles. */
 export const STACK_SCREEN_OPTIONS: NativeStackNavigationOptions = {
   headerStyle: { backgroundColor: colors.night },
   headerTintColor: colors.sand,
@@ -56,7 +61,8 @@ function TabBarButton(props: BottomTabBarButtonProps) {
 }
 
 /**
- * Bottom-tab chrome — surface-1 bar, gold active tint, SemiBold labels.
+ * Bottom-tab chrome — raised-plate bar, terracotta active tint, SemiBold
+ * labels (Phase 6: warm light treatment).
  *
  * r133-F3 (A4 S2): an INSETS-AWARE factory, not a static object. The old
  * static `{ height: 64, paddingBottom: 8 }` sat LAST in react-navigation's

@@ -1,30 +1,30 @@
 /**
- * r129-F5: the canonical Madarek radius ladder as a JS module — the
- * inline-style SSOT twin of the NativeWind mirror in tailwind.config.js
- * (borderRadius), which the parity suite has pinned since r127. Until now
- * inline styles spelled raw numbers (radius 12/16 literals) with no
- * tokenized source; this module is that source (values 1:1 with
- * madarek/frontend/src/styles/tokens.css §1.4 --r-xs…--r-full via the web
- * bridge src/app/globals.css).
+ * Phase 6 (P6-2-c): the «plate-round» ladder — the inline-style SSOT twin
+ * of the NativeWind mirror in tailwind.config.js (borderRadius), which the
+ * parity suite pins. Phase-5 culinary contract (web globals.css
+ * --radius-xs…--radius-3xl): 10/12/14/16/20/24/28 with 16 = the
+ * plate-card rung (the web Card twin). Replaces the retired 6/8/10/12/16/
+ * 20/28 Madarek ladder — every rung rounds UP into the warm plate family
+ * (the 16 card emphasis is unchanged: xl stays 16).
  *
- * Pinned by tests/design/parity.mjs (r128 section).
+ * Pinned by tests/design/parity.mjs (the plate-ladder section).
  */
 
-/** --r-xs…--r-3xl + --r-full (6/8/10/12/16/20/28/9999). */
+/** --radius-xs…--radius-3xl + --r-full (10/12/14/16/20/24/28/9999). */
 export const radius = {
-  /** --r-xs */
-  xs: 6,
-  /** --r-sm */
-  sm: 8,
-  /** --r-md */
-  md: 10,
-  /** --r-lg */
-  lg: 12,
-  /** --r-xl */
-  xl: 16,
-  /** --r-2xl — landing station/role/chip cards ride this rung. */
-  "2xl": 20,
-  /** --r-3xl */
+  /** --radius-xs */
+  xs: 10,
+  /** --radius-sm */
+  sm: 12,
+  /** --radius-md — the small-control/chip rung. */
+  md: 14,
+  /** --radius-lg — THE PLATE (card) rung: 16 emphasis in the culinary contract. */
+  lg: 16,
+  /** --radius-xl */
+  xl: 20,
+  /** --radius-2xl — landing station/role/chip cards ride this rung. */
+  "2xl": 24,
+  /** --radius-3xl */
   "3xl": 28,
   /** --r-full — the pill family (buttons, tags, dots). */
   pill: 9999,

@@ -1,144 +1,206 @@
 /**
- * r126-M7 (A6 P2-8): the Madarek palette as the single source of truth for
- * inline styles. Previously 426 hex literals across 21 files (ErrorBoundary
- * even documented "there is no shared color-constants module") — one typo
- * (e.g. #E9B45C) would ship silently.
+ * Phase 6 (P6-2-c): the «Warm Culinary Editorial» palette — the mobile twin
+ * of the web Phase-5 contract (src/app/globals.css §light/§dark). This is
+ * the SAME discipline the r126-M7 module established (one SSOT for the 400+
+ * inline color sites), re-anchored from the retired Madarek night world to
+ * the culinary LIGHT-first world:
  *
- * Values are 1:1 with the canonical Madarek tokens (madarek tokens.css) via
- * the web bridge (smart-menu-real/src/app/globals.css); tailwind.config.js
- * mirrors the same values for the NativeWind path (JS config cannot require
- * a TS module — keep the two in sync).
+ *   page ground  cream #FBF7F0 · ink espresso #241811
+ *   primary      terracotta #C2452D (hover #A93A26 · pressed/ink #8A2B1D)
+ *   amber        #B7791F — sparingly (warning family only)
+ *   WhatsApp green #25D366 stays RESERVED for WhatsApp CTAs (the one
+ *   sanctioned non-culinary brand color — web globals.css «External brand
+ *   colors» rule, byte-identical).
  *
- * The app renders the NIGHT (dark) theme only (userInterfaceStyle: "dark",
- * night-only by design, matching the web). The Madarek LIGHT theme
- * (cream/ink/copper) + the 9 pastel families are exported for the
- * documented light-mode follow-up — nothing consumes them yet.
+ * LIGHT is the app's DEFAULT (app.json userInterfaceStyle: "light" — Phase 6
+ * revokes the Phase-5 mobile exclusion; the app was Madarek night-only).
+ * The warm night kitchen (#1D1410 ground + luminous terracotta #E07856) is
+ * the opt-in DARK twin — exported below as nightColors, byte-equal to the
+ * web .dark block, waiting for the theme-toggle wave (unconsumed follow-up
+ * data exactly like the old Madarek lightColors was).
+ *
+ * Names are the r126 exported vocabulary kept STABLE on purpose this round
+ * (re-grade, don't rename): the renames land as a dedicated sweep with all
+ * consumers fixed at once (night→page · sand→ink · gold→terracotta ·
+ * void→onAccent) — see the Phase-6 commit trail.
  */
 
-/** Night theme — the values every screen consumes. */
+/** Light culinary theme — the values every screen consumes. */
 export const colors = {
-  /** Page ground (Madarek --neutral-50 dark / night). */
-  night: "#070B16",
-  /** Raised card (surface-1). */
-  surface: "#0D1428",
-  /** Soft fill / secondary control (surface-2). */
-  surface2: "#121A36",
-  /** Hairline border (neutral-200 dark). */
-  hairline: "#1B2444",
-  /** Warm sand ink — primary text (neutral-900 dark). */
-  sand: "#F2EFE6",
-  /** Muted text (neutral-500 dark, 4.86:1 on night). */
-  muted: "#8E97B8",
-  /** Gold accent (--accent dark, 10.39:1 on night). */
-  gold: "#E9B44C",
-  /** Accent hover / pale gold. */
-  goldHover: "#F5D48A",
-  /** Accent strong. */
-  goldStrong: "#C9962F",
-  /** Void ink — text ON gold (--accent-fg dark, 10.63:1). Never white-on-gold. */
-  void: "#05070F",
-  /** Success mint ink. */
-  mint: "#7FD39A",
-  /** Success soft background (mint family dark bg). */
-  mintBg: "#0F241C",
-  /** Warning yellow ink. */
-  yellow: "#ECC97D",
-  /** Info sky ink. */
-  sky: "#8FBBF2",
-  /** Danger rose ink. */
-  rose: "#F0938F",
-  /** WhatsApp brand green (sanctioned non-Madarek brand color). */
+  /** Page ground — warm cream (web --background light = --neutral-50). */
+  night: "#FBF7F0",
+  /** Raised plate (web --card light = --neutral-0). */
+  surface: "#FFFFFF",
+  /** Soft-surface well (web --muted light = --neutral-100). */
+  surface2: "#F4EDE1",
+  /** Warm hairline (web --border light = --neutral-200). */
+  hairline: "#E8DECE",
+  /** Espresso ink — primary text (web --foreground light = --neutral-900). */
+  sand: "#241811",
+  /** Secondary text (web --muted-foreground light = --neutral-700, 5.95:1 on cream). */
+  muted: "#6B5D4F",
+  /** Terracotta primary (web --primary light — 4.70:1 non-text on cream). */
+  gold: "#C2452D",
+  /** Terracotta hover (web --accent-hover light). */
+  goldHover: "#A93A26",
+  /** Terracotta pressed/ink (web --accent-strong light — text grade 8.05:1). */
+  goldStrong: "#8A2B1D",
+  /** Ink on terracotta (web --primary-foreground light — white, 5.02:1 on the fill). */
+  void: "#FFFFFF",
+  /** Sage success ink (web --c-mint-ink light). */
+  mint: "#6FA06A",
+  /** Sage soft background (web --c-mint-bg light). */
+  mintBg: "#E1EDD9",
+  /** Amber warning ink — sparing (web --c-yellow-ink light). */
+  yellow: "#B7791F",
+  /** Info steel ink (web --c-sky-ink light). */
+  sky: "#6B8CA3",
+  /** Deep rose danger ink (web --destructive light = --c-rose-ink). */
+  rose: "#C96873",
+  /** WhatsApp brand green (reserved for WhatsApp CTAs — the one sanctioned non-culinary brand color). */
   whatsapp: "#25D366",
-  /** Elevation shadow color (near-void; --elev-* dark shadows). */
-  shadow: "#02040C",
+  /** Text/glyph ink ON the WhatsApp green (web --whatsapp-ink light — deep forest, 4.5:1+ on the fill). */
+  whatsappInk: "#1F4F30",
+  /** Elevation shadow base (web light --elev-* rgb(64,46,28,*) espresso dust). */
+  shadow: "#402E1C",
+  /** Menu dot-leader ink (web --menu-leader light — warm tan, decorative). */
+  menuLeader: "#CBB08C",
 
-  // r129-F5: the deep neutral ramp + status soft-backgrounds the r128 web
-  // bridge carries (globals.css:308-314/334-350) — surface-3, border-strong,
-  // text-secondary/strong-2, --accent-soft and the status-soft fills.
-  /** Surface-3 (--neutral-150 dark) — the deepest raised layer. */
-  surface3: "#182142",
-  /** Strong divider/border (--neutral-300 dark, --border-strong). */
-  hairlineStrong: "#263052",
-  /** Secondary body text (--neutral-700 dark, --text-secondary). */
-  textSecondary: "#C3C8DC",
-  /** Second-strong text (--neutral-800 dark) — near-sand emphasis. */
-  textStrong2: "#DDE1EE",
-  /** Gold soft fill (--accent-soft dark = --c-copper-bg). */
-  goldSoft: "#2C2312",
-  /** Warning soft background (--warning-soft dark = --c-yellow-bg). */
-  yellowBg: "#2C2410",
-  /** Info soft background (--info-soft dark = --c-sky-bg). */
-  skyBg: "#14213A",
-  /** Danger soft background (--danger-soft dark = --c-rose-bg). */
-  roseBg: "#2C1620",
+  // The deep warm ramp + status soft-backgrounds (web globals.css §light
+  // --neutral-150/300/800 + §1.6 -bg families).
+  /** Deeper paper (web --neutral-150 light = --surface-3). */
+  surface3: "#EFE6D6",
+  /** Strong divider (web --neutral-300 light = --border-strong). */
+  hairlineStrong: "#D8CBB2",
+  /** Secondary body text (web --text-secondary light = --neutral-700). */
+  textSecondary: "#6B5D4F",
+  /** Near-espresso emphasis (web --neutral-800 light). */
+  textStrong2: "#3E332A",
+  /** Terracotta soft fill (web --accent-soft light = --c-copper-bg). */
+  goldSoft: "#F7E2D9",
+  /** Amber soft background (web --c-yellow-bg light). */
+  yellowBg: "#F9EEDA",
+  /** Info soft background (web --c-sky-bg light). */
+  skyBg: "#E3EBEF",
+  /** Rose soft background (web --c-rose-bg light). */
+  roseBg: "#F9E5E6",
 
   // Alpha spellings (tokenized so 8-digit hexes stop drifting, A6 P3-12):
-  /** Sheet/scrim backdrop — night at 70%. */
-  scrim: "rgba(2,4,12,0.7)",
-  /** Overlay chrome fill — surface-2 at 92%. */
-  surface2Scrim: "rgba(18,26,54,0.92)",
+  /** Sheet/scrim backdrop — espresso veil at 40% (web --overlay light #2A1B1066). */
+  scrim: "rgba(42,27,16,0.4)",
+  /** Overlay chrome fill — surface2 at 92%. */
+  surface2Scrim: "rgba(244,237,225,0.92)",
   /** Rose at ~14% — soft danger fills (sold-out badge, modifier errors). */
-  roseSoft: "#F0938F24",
+  roseSoft: "#C9687324",
   /** Rose at ~33% — danger borders. */
-  roseBorder: "#F0938F55",
+  roseBorder: "#C9687355",
 } as const;
 
 export type ColorToken = keyof typeof colors;
 
 /**
- * Madarek LIGHT theme (cream/ink/copper) — unconsumed follow-up data.
- * --neutral-* light ramp + light accent (copper ink #B57438).
+ * The warm night kitchen — the DARK opt-in twin (web .dark block,
+ * byte-equal). Unconsumed follow-up data: the app renders LIGHT by default
+ * and the toggle wave adopts these when it lands (mirroring the web
+ * next-themes .dark opt-in). Pinned by tests/design/parity.mjs so drift
+ * here is still drift.
  */
-export const lightColors = {
-  page: "#FBFAF9",
-  surface: "#FFFFFF",
-  surface2: "#F7F6F3",
-  hairline: "#E9E7E2",
-  ink: "#191918",
-  inkMuted: "#6F6C66",
-  accent: "#B57438",
-  accentStrong: "#5C3416",
-  onAccent: "#FFFFFF",
-  /** --state-focus-ring-color LIGHT (tokens.css:543 = var(--accent-strong)):
-   *  the light ring must clear 4.5:1 — copper #B57438 is 3.65:1 on cream, so
-   *  the light theme rides the deep copper #5C3416 (10.29:1). The dark twin
-   *  keeps the shared :root cascade var(--accent) = #E9B44C (tailwind.config
-   *  `ring`) — r130 W2-4: the canonical pair, unified with the fleet ruling
-   *  (web dark ring #C9962F → #E9B44C is the W2-3 web-side fix). */
-  ring: "#5C3416",
+export const nightColors = {
+  /** Espresso night ground (web --background dark). */
+  page: "#1D1410",
+  /** Night surface (web --card dark = --neutral-0 dark). */
+  surface: "#2A1E15",
+  /** Surface-2 well (web --muted dark = --neutral-100 dark). */
+  surface2: "#241A13",
+  /** Deeper night step (web --neutral-150 dark). */
+  surface3: "#2E2118",
+  /** Warm night hairline (web --border dark). */
+  hairline: "#38291D",
+  /** Night divider (web --neutral-300 dark). */
+  hairlineStrong: "#4A3626",
+  /** Cream ink (web --foreground dark = --neutral-900 dark). */
+  ink: "#F7EFE2",
+  /** Night secondary text (web --muted-foreground dark = --neutral-700 dark). */
+  muted: "#CDBFA9",
+  /** Near-cream emphasis (web --neutral-800 dark). */
+  textStrong2: "#E5D9C4",
+  /** Secondary body text (web --text-secondary dark). */
+  textSecondary: "#CDBFA9",
+  /** Luminous terracotta (web --primary dark — 6.03:1 text on night). */
+  terracotta: "#E07856",
+  /** Terracotta pressed/depth (web --c-ember dark). */
+  terracottaHover: "#C2452D",
+  /** Deep pressed grade. */
+  terracottaPressed: "#A93A26",
+  /** Terracotta soft wash (web --accent dark rgba — as the night copper bg). */
+  terracottaSoft: "#3A211A",
+  /** Void ink on the luminous fill (web --primary-foreground dark). */
+  onAccent: "#2A130D",
+  /** Luminous sage (web --c-mint-ink dark). */
+  mint: "#8FBB8A",
+  /** Night mint well (web --c-mint-bg dark). */
+  mintBg: "#1E2B1A",
+  /** Luminous amber (web --c-yellow-ink dark). */
+  yellow: "#E3B15E",
+  /** Night amber well (web --c-yellow-bg dark). */
+  yellowBg: "#33270F",
+  /** Luminous steel (web --c-sky-ink dark). */
+  sky: "#9FB6C9",
+  /** Night steel well (web --c-sky-bg dark). */
+  skyBg: "#1F2A33",
+  /** Luminous rose (web --c-rose-ink dark). */
+  rose: "#E8918E",
+  /** Night rose well (web --c-rose-bg dark). */
+  roseBg: "#36191D",
+  /** WhatsApp green (theme-independent). */
+  whatsapp: "#25D366",
+  /** WhatsApp ink on green, night shade (web --whatsapp-ink dark). */
+  whatsappInk: "#0F241C",
+  /** Night shadow base (web dark --elev-* rgb(8,5,3,*)). */
+  shadow: "#080503",
+  /** Night dot-leader ink (web --menu-leader dark). */
+  menuLeader: "#57402D",
+  /** Night modal scrim (web --overlay dark #0C08059E). */
+  scrim: "rgba(12,8,5,0.62)",
+  /** Night overlay chrome fill. */
+  surface2Scrim: "rgba(36,26,19,0.92)",
+  /** Rose at ~14%, night spelling. */
+  roseSoft: "#E8918E24",
+  /** Rose at ~33%, night spelling. */
+  roseBorder: "#E8918E55",
 } as const;
 
 /**
- * The 9 Madarek pastel section families — DARK bg/ink/deep triplets
- * (rubric §1.6). Unconsumed follow-up data (kept for the light/pastel
- * adoption wave; web parity reference).
+ * The 9 warm section families — LIGHT bg/ink/deep triplets (web globals.css
+ * §1.6 light block, byte-equal: peach/mint/lavender/sky/yellow/rose/sand/
+ * grey/copper). ink = fill · deep = TEXT on the bg pastel (all ≥6:1). The
+ * toast wells, the EmptyState grey tile and the sold-out rose chips ride
+ * these; the night variants live below.
  */
 export const pastelFamilies = {
-  peach: { bg: "#2C1A16", ink: "#F2A07F", deep: "#FCD9C4" },
-  mint: { bg: "#0F241C", ink: "#7FD39A", deep: "#C9EAD3" },
-  lavender: { bg: "#221B3A", ink: "#B7A0F4", deep: "#DCD2F9" },
-  sky: { bg: "#14213A", ink: "#8FBBF2", deep: "#C9DCEE" },
-  yellow: { bg: "#2C2410", ink: "#ECC97D", deep: "#F8E5B5" },
-  rose: { bg: "#2C1620", ink: "#F0938F", deep: "#FACDD2" },
-  sand: { bg: "#241F14", ink: "#D9C18C", deep: "#EFE2C5" },
-  grey: { bg: "#161D33", ink: "#A9B0C8", deep: "#D5DAE8" },
-  copper: { bg: "#2C2312", ink: "#E9B44C", deep: "#F5D48A" },
+  peach: { bg: "#FBE3D9", ink: "#C25A43", deep: "#7A2E1D" },
+  mint: { bg: "#E1EDD9", ink: "#6FA06A", deep: "#2E5230" },
+  lavender: { bg: "#EFE9F6", ink: "#8A76C9", deep: "#453578" },
+  sky: { bg: "#E3EBEF", ink: "#6B8CA3", deep: "#2E4A5C" },
+  yellow: { bg: "#F9EEDA", ink: "#B7791F", deep: "#7A5210" },
+  rose: { bg: "#F9E5E6", ink: "#C96873", deep: "#8E2F3D" },
+  sand: { bg: "#F1E9D8", ink: "#A98D5F", deep: "#5C4620" },
+  grey: { bg: "#EFEAE2", ink: "#6E6154", deep: "#33302A" },
+  copper: { bg: "#F7E2D9", ink: "#C2452D", deep: "#8A2B1D" },
 } as const;
 
 /**
- * r129-F5: the 9 pastel families — LIGHT bg/ink/deep triplets (rubric §1.6
- * light block; madarek tokens.css:459-467 via the web bridge
- * globals.css:601-609, byte-equal). Unconsumed follow-up data like their
- * dark siblings — pinned so drift there is still drift.
+ * The 9 warm section families — NIGHT variants (web globals.css §1.6 dark
+ * block, byte-equal). Unconsumed opt-in twin of the light set above.
  */
-export const pastelFamiliesLight = {
-  peach: { bg: "#FFE9DC", ink: "#E07856", deep: "#6B2D1A" },
-  mint: { bg: "#DCF1E2", ink: "#4FA66D", deep: "#1F4F30" },
-  lavender: { bg: "#ECE6FA", ink: "#8A6FE0", deep: "#3F2D7A" },
-  sky: { bg: "#DDEBF7", ink: "#5C8FCE", deep: "#1F3D63" },
-  yellow: { bg: "#FCF1CD", ink: "#D6A330", deep: "#6B4C0B" },
-  rose: { bg: "#FCE0E2", ink: "#DD6E78", deep: "#6B2128" },
-  sand: { bg: "#F1ECDF", ink: "#B59868", deep: "#5A4623" },
-  grey: { bg: "#EFECE7", ink: "#6B665E", deep: "#2D2A24" },
-  copper: { bg: "#F4E4D2", ink: "#B57438", deep: "#5C3416" },
+export const pastelFamiliesNight = {
+  peach: { bg: "#3A2016", ink: "#E99070", deep: "#F7CBB5" },
+  mint: { bg: "#1E2B1A", ink: "#8FBB8A", deep: "#CBE8C4" },
+  lavender: { bg: "#2A2136", ink: "#B7A0DB", deep: "#D9CDF0" },
+  sky: { bg: "#1F2A33", ink: "#9FB6C9", deep: "#CFE0EA" },
+  yellow: { bg: "#33270F", ink: "#E3B15E", deep: "#F4E2B8" },
+  rose: { bg: "#36191D", ink: "#E8918E", deep: "#F8CFD0" },
+  sand: { bg: "#2C2416", ink: "#D6BC8A", deep: "#EFE3C6" },
+  grey: { bg: "#262019", ink: "#A79A87", deep: "#D8CFC0" },
+  copper: { bg: "#3A211A", ink: "#E07856", deep: "#F2C4B0" },
 } as const;

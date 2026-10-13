@@ -1,20 +1,21 @@
 /**
- * r129-F5: the Orbit-Ink pill button family — the RN twin of the web
- * .ln-btn-gold/.ln-btn-ghost (landing.css §4, Madarek buttons verbatim):
+ * r129-F5 → Phase 6 (P6-2-c): the landing pill family — the RN twin of the
+ * web .ln-btn-ember/.ln-btn-ghost (landing.css §4, المائدة buttons):
  *
- *   gold  = flat lime fill + ink text, the ONE lime-filled surface;
- *   ghost = transparent, 1px cream hairline (rgb(245 243 231 / 0.34)),
- *           cream text — hover tint never a lime fill (roster discipline);
+ *   ember = flat ember-DEEP fill + paper text (7.63:1 — the ONE
+ *           ember-filled surface on the page);
+ *   ghost = transparent, 1px espresso hairline (rgb(43 32 20 / 0.34)),
+ *           ink text — hover tint never an ember fill (ember roster
+ *           discipline);
  *   heights 46 (md) / 48 (xl — also the <640px WCAG 2.5.5 touch floor);
  *   press = scale 0.97 on the micro rung (--press-scale, the landing
  *           register; product controls ride the SAME 0.97 since r130 W2-4,
  *           product cards press 0.99 — --state-card-pressed-scale).
  *
  * RN adaptations: one drop shadow instead of the 3-layer web stack (the
- * outer 1px ring layer has no RN equivalent — flat surfaces are the kit
- * §7 look anyway); hover states don't exist on touch (pressed carries the
- * feedback via PressableScale); ghost's 0.01em letter-spacing is sub-pixel
- * at 15px and omitted.
+ * outer 1px ring layer has no RN equivalent); hover states don't exist on
+ * touch (pressed carries the feedback via PressableScale); ghost's
+ * letter-spacing is sub-pixel at 15px and omitted.
  */
 import React from "react";
 import { View, type ViewStyle } from "react-native";
@@ -28,12 +29,12 @@ import { radius } from "@/theme/radius";
 export const LANDING_PILL_HEIGHT = 46;
 /** .xl variant + the <640px WCAG touch floor (48px). */
 export const LANDING_PILL_HEIGHT_XL = 48;
-/** .ln-btn-ghost border — rgb(245 243 231 / 0.34), web literal. */
-const GHOST_BORDER = "rgba(245,243,231,0.34)";
+/** .ln-btn-ghost border — rgb(43 32 20 / 0.34), the espresso hairline. */
+const GHOST_BORDER = "rgba(43,32,20,0.34)";
 
 export interface LandingPillProps {
-  /** "gold" = lime fill (the conversion pill); "ghost" = hairline outline. */
-  variant?: "gold" | "ghost";
+  /** "ember" = ember-deep fill (the conversion pill); "ghost" = hairline outline. */
+  variant?: "ember" | "ghost";
   /** md = 46px inline pill; xl = 48px (hero CTAs — the touch floor). */
   size?: "md" | "xl";
   label: string;
@@ -47,7 +48,7 @@ export interface LandingPillProps {
 }
 
 export function LandingPill({
-  variant = "gold",
+  variant = "ember",
   size = "md",
   label,
   onPress,
@@ -57,7 +58,7 @@ export function LandingPill({
   accessibilityHint,
   disabled = false,
 }: LandingPillProps) {
-  const gold = variant === "gold";
+  const ember = variant === "ember";
   const xl = size === "xl";
   const base: ViewStyle = {
     minHeight: xl ? LANDING_PILL_HEIGHT_XL : LANDING_PILL_HEIGHT,
@@ -68,16 +69,18 @@ export function LandingPill({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    // gold: flat lime + ink. ghost: transparent + hairline (never lime).
-    backgroundColor: gold ? landing.lime : "transparent",
-    borderWidth: gold ? 0 : 1,
-    borderColor: gold ? "transparent" : GHOST_BORDER,
-    // one subtle drop layer (web's 3-layer stack + ring has no RN form)
-    shadowColor: "#000000",
+    // ember: flat ember-deep + paper (7.63:1). ghost: transparent + hairline
+    // (never ember).
+    backgroundColor: ember ? landing.emberDeep : "transparent",
+    borderWidth: ember ? 0 : 1,
+    borderColor: ember ? "transparent" : GHOST_BORDER,
+    // one subtle drop layer (web's 3-layer stack + ring has no RN form) —
+    // espresso dust, the warm shadow family (rgb(43 32 20 / …)).
+    shadowColor: landing.ink,
     shadowOffset: { width: 0, height: 1 },
-    shadowRadius: gold ? 6 : 2,
-    shadowOpacity: gold ? 0.12 : 0.08,
-    elevation: gold ? 2 : 1,
+    shadowRadius: ember ? 6 : 2,
+    shadowOpacity: ember ? 0.12 : 0.08,
+    elevation: ember ? 2 : 1,
     opacity: disabled ? 0.5 : 1,
     ...(fullWidth ? { alignSelf: "stretch" } : null),
   };
@@ -100,7 +103,7 @@ export function LandingPill({
           fontFamily: "IBM Plex Sans Arabic",
           fontSize: xl ? 16 : 15,
           fontWeight: "600",
-          color: gold ? landing.ink : landing.cream,
+          color: ember ? landing.paper : landing.ink,
           textAlign: "center",
         }}
         maxFontSizeMultiplier={1.4}
