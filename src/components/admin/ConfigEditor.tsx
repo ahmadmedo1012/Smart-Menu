@@ -129,7 +129,7 @@ export function ConfigEditor() {
                                                 type="button"
                                                 onClick={() => setActiveCategory(cat)}
                                                 className={cn(
-                                                        'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                        'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                         activeCategory === cat
                                                                 ? 'bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground'
                                                                 : 'border-border/30 hover:border-orange/20'
@@ -206,7 +206,7 @@ export function ConfigEditor() {
                                                                                 onChange={(e) =>
                                                                                         setEditing((prev) => ({ ...prev, [item.key]: e.target.value }))
                                                                                 }
-                                                                                className={cn('h-10 rounded-xl font-mono text-sm', item.isSecret && 'ps-10')}
+                                                                                className={cn('font-mono text-sm', item.isSecret && 'ps-10')}
                                                                                 dir="ltr"
                                                                         />
                                                                         {item.isSecret && (

@@ -194,23 +194,23 @@ export default function AdminMenuPage() {
         </select>
       </div>
 
-      {/* Stats */}
+      {/* Stats — Phase 6 (r154): plate-round tiles + Baloo labels */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-lg bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold tabular-nums">{toArabicNumber(items.length)}</p>
-          <p className="text-xs text-muted-foreground">إجمالي الأصناف</p>
+          <p className="font-heading text-xs font-semibold text-muted-foreground">إجمالي الأصناف</p>
         </div>
-        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-lg bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold text-success-ink tabular-nums">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
-          <p className="text-xs text-muted-foreground">متوفر</p>
+          <p className="font-heading text-xs font-semibold text-muted-foreground">متوفر</p>
         </div>
-        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-lg bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold text-destructive tabular-nums">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
-          <p className="text-xs text-muted-foreground">غير متوفر</p>
+          <p className="font-heading text-xs font-semibold text-muted-foreground">غير متوفر</p>
         </div>
-        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-lg bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold tabular-nums">{toArabicNumber(restaurants.length)}</p>
-          <p className="text-xs text-muted-foreground">مطاعم</p>
+          <p className="font-heading text-xs font-semibold text-muted-foreground">مطاعم</p>
         </div>
       </div>
 
@@ -223,10 +223,10 @@ export default function AdminMenuPage() {
       ) : (
         <div className="space-y-8">
           {Object.entries(grouped).map(([restName, cats]) => (
-            <div key={restName} className="rounded-md border border-border/30 overflow-hidden shadow-sm">
+            <div key={restName} className="rounded-lg border border-border/30 overflow-hidden shadow-sm">
               <div className="bg-muted/30 px-5 py-3 border-b border-border/20 flex items-center gap-2">
                 <Store className="size-4 text-primary" />
-                <h2 className="font-bold text-base">{restName}</h2>
+                <h2 className="font-heading font-bold text-base">{restName}</h2>
                 <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full me-auto">
                   {toArabicNumber(Object.values(cats).reduce((s, c) => s + c.length, 0))} صنف
                 </span>
@@ -240,18 +240,20 @@ export default function AdminMenuPage() {
                       <span className="text-xs text-muted-foreground/50">({toArabicNumber(catItems.length)})</span>
                     </div>
                     {catItems.map(item => (
-                      <div key={item.id} className="flex items-center gap-4 px-5 py-3 hover:bg-muted/10 transition-colors group">
+                      <div key={item.id} className="flex items-center gap-4 px-5 py-3 hover:bg-orange/5 transition-colors group">
                         <div className={cn("size-2 rounded-full shrink-0", item.status === "available" ? "bg-success" : "bg-destructive")} />
-                        <div className="flex-1 min-w-0">
-                          <span className={cn("font-medium text-sm", item.status !== "available" && "text-muted-foreground/50 line-through")}>
+                        {/* Phase 6 (r154): قائد النقاط — سعر الصنف
+                            على طراز المنيو المطبوع (نفس بصمة أقسام المالك):
+                            الاسم ثم القائد المرن ثم السعر، والقاعدة تمط. */}
+                        <div className="flex-1 min-w-0 menu-leader">
+                          <span className={cn("font-medium text-sm min-w-0", item.status !== "available" && "text-muted-foreground/50 line-through")}>
                             {item.nameAr || item.name}
                           </span>
-                        </div>
-                        <div className="text-end shrink-0 tabular-nums whitespace-nowrap">
-                          <span className={cn("font-bold text-sm tabular-nums", item.discountedPrice ? "text-destructive" : "")}>
+                          <i className="menu-leader-rule" aria-hidden="true" />
+                          <span className={cn("font-bold text-sm tabular-nums shrink-0", item.discountedPrice ? "text-destructive" : "")}>
                             {formatPrice(item.discountedPrice ?? item.price, { suffix: "" })}
                           </span>
-                          <span className="text-xs text-muted-foreground ms-1">د.ل</span>
+                          <span className="text-xs text-muted-foreground shrink-0">د.ل</span>
                         </div>
                         <Switch
                           size="sm"

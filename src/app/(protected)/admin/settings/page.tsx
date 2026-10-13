@@ -179,6 +179,8 @@ export default function AdminSettingsPage() {
           aria-controls/tabpanel) that was never implemented. These buttons filter
           a single in-place settings panel, so the honest pattern is a named group
           + aria-pressed toggles (same a11y decision as CategoryTabs.tsx). */}
+      {/* Tab navigation — Phase 6 (r154): pill chips (rounded-full, the
+          owner OrdersFilters grammar). */}
       <div role="group" aria-label="أقسام الإعدادات" className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {SETTINGS_TABS.map((tab) => {
           const Icon = tab.icon
@@ -189,7 +191,7 @@ export default function AdminSettingsPage() {
               aria-pressed={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+                "snap-start shrink-0 px-4 py-2.5 rounded-full text-sm font-medium border transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
                 activeTab === tab.id
                   ? "bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground"
                   : "border-border/30 hover:border-orange/20"
@@ -206,7 +208,7 @@ export default function AdminSettingsPage() {
       {activeTab === "restaurants" && <section>
         <div className="flex items-center gap-2 mb-4">
           <Store className="size-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">إعدادات المطاعم</h2>
+          <h2 className="font-heading text-lg font-semibold">إعدادات المطاعم</h2>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -216,7 +218,7 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={() => setSelectedId(r.id)}
               className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+                "snap-start shrink-0 px-4 py-2.5 rounded-full text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
                 selectedId === r.id
                   ? "bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground"
                   : "border-border/30 hover:border-orange/20"
@@ -229,14 +231,14 @@ export default function AdminSettingsPage() {
         </div>
 
         {selected ? (
-          <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
+          <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-border/20">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center" aria-hidden="true">
+                <div className="size-10 rounded-full bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center" aria-hidden="true">
                   <Store className="size-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold">{selected.name}</h3>
+                  <h3 className="font-heading font-bold">{selected.name}</h3>
                   <p className="text-xs text-muted-foreground">/{selected.slug}</p>
                 </div>
               </div>
@@ -245,44 +247,44 @@ export default function AdminSettingsPage() {
             <div className="p-5 space-y-4">
               <div>
                 <Label htmlFor="rs-name">الاسم</Label>
-                <Input id="rs-name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="h-11 rounded-xl mt-1.5" />
+                <Input id="rs-name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="rs-desc">الوصف</Label>
-                <Textarea id="rs-desc" value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="mt-1.5 rounded-xl" rows={2} />
+                <Textarea id="rs-desc" value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="mt-1.5" rows={2} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="rs-phone" className="flex items-center gap-1"><Phone className="size-3" aria-hidden="true" /> الهاتف</Label>
-                  <Input id="rs-phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+                  <Input id="rs-phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="mt-1.5 text-left" dir="ltr" />
                 </div>
                 <div>
                   <Label htmlFor="rs-whatsapp" className="flex items-center gap-1"><Phone className="size-3" aria-hidden="true" /> واتساب</Label>
-                  <Input id="rs-whatsapp" value={form.whatsapp} onChange={e => setForm({...form, whatsapp: e.target.value})} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+                  <Input id="rs-whatsapp" value={form.whatsapp} onChange={e => setForm({...form, whatsapp: e.target.value})} className="mt-1.5 text-left" dir="ltr" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="rs-email" className="flex items-center gap-1"><Mail className="size-3" aria-hidden="true" /> البريد</Label>
-                  <Input id="rs-email" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+                  <Input id="rs-email" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="mt-1.5 text-left" dir="ltr" />
                 </div>
                 <div>
                   <Label htmlFor="rs-address" className="flex items-center gap-1"><AnimatedMapPin className="size-3" aria-hidden="true" /> العنوان</Label>
-                  <Input id="rs-address" value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="h-11 rounded-xl mt-1.5" />
+                  <Input id="rs-address" value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="mt-1.5" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="rs-hours" className="flex items-center gap-1"><AnimatedClock className="size-3" aria-hidden="true" /> ساعات العمل</Label>
-                  <Input id="rs-hours" value={form.workingHours} onChange={e => setForm({...form, workingHours: e.target.value})} className="h-11 rounded-xl mt-1.5" />
+                  <Input id="rs-hours" value={form.workingHours} onChange={e => setForm({...form, workingHours: e.target.value})} className="mt-1.5" />
                 </div>
                 <div>
                   <Label htmlFor="rs-logo" className="flex items-center gap-1"><Image className="size-3" aria-hidden="true" /> رابط الشعار</Label>
-                  <Input id="rs-logo" value={form.logo} onChange={e => setForm({...form, logo: e.target.value})} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" placeholder="https://..." />
+                  <Input id="rs-logo" value={form.logo} onChange={e => setForm({...form, logo: e.target.value})} className="mt-1.5 text-left" dir="ltr" placeholder="https://..." />
                 </div>
               </div>
               {form.logo && (
-                <div className="size-20 rounded-xl overflow-hidden border">
+                <div className="size-20 rounded-md overflow-hidden border">
                   {/* round88-A2: box is size-20 (80px) */}
                   <OptimizedImage src={form.logo} alt="شعار المطعم" className="size-full" sizes="80px" />
                 </div>
@@ -296,7 +298,7 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         ) : restaurants.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3 rounded-xl bg-card/50 border border-border/30">
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3 rounded-lg bg-card/50 border border-border/30">
             <Store className="size-10 text-muted-foreground/50" />
             <p>لا توجد مطاعم</p>
           </div>
@@ -307,10 +309,10 @@ export default function AdminSettingsPage() {
       {activeTab === "profile" && <section>
         <div className="flex items-center gap-2 mb-4">
           <User className="size-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">الملف الشخصي</h2>
+          <h2 className="font-heading text-lg font-semibold">الملف الشخصي</h2>
         </div>
 
-        <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
+        <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
           <div className="p-5 space-y-4">
             {profile && (
               <>
@@ -319,7 +321,7 @@ export default function AdminSettingsPage() {
                     {profile.name.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">{profile.name}</h3>
+                    <h3 className="font-heading font-bold text-lg">{profile.name}</h3>
                     <p className="text-sm text-muted-foreground">@{profile.username}</p>
                   </div>
                 </div>
@@ -339,28 +341,28 @@ export default function AdminSettingsPage() {
 
             <div>
               <Label htmlFor="p-name">الاسم</Label>
-              <Input id="p-name" value={profileName} onChange={e => setProfileName(e.target.value)} className="h-11 rounded-xl mt-1.5" />
+              <Input id="p-name" value={profileName} onChange={e => setProfileName(e.target.value)} className="mt-1.5" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="p-email" className="flex items-center gap-1"><Mail className="size-3" aria-hidden="true" /> البريد الإلكتروني</Label>
-                <Input id="p-email" type="email" value={profileEmail} onChange={e => setProfileEmail(e.target.value)} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+                <Input id="p-email" type="email" value={profileEmail} onChange={e => setProfileEmail(e.target.value)} className="mt-1.5 text-left" dir="ltr" />
               </div>
               <div>
                 <Label htmlFor="p-phone" className="flex items-center gap-1"><Phone className="size-3" aria-hidden="true" /> رقم الهاتف</Label>
-                <Input id="p-phone" type="tel" value={profilePhone} onChange={e => setProfilePhone(e.target.value)} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+                <Input id="p-phone" type="tel" value={profilePhone} onChange={e => setProfilePhone(e.target.value)} className="mt-1.5 text-left" dir="ltr" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="p-current-pw">كلمة المرور الحالية</Label>
-                <Input id="p-current-pw" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="h-11 rounded-xl mt-1.5" />
+                <Input id="p-current-pw" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="p-new-pw">كلمة المرور الجديدة</Label>
-                <Input id="p-new-pw" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="h-11 rounded-xl mt-1.5" />
+                <Input id="p-new-pw" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="mt-1.5" />
               </div>
             </div>
 
@@ -379,7 +381,7 @@ export default function AdminSettingsPage() {
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Settings className="size-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">إعدادات النظام</h2>
+            <h2 className="font-heading text-lg font-semibold">إعدادات النظام</h2>
           </div>
           <ConfigEditor />
         </section>

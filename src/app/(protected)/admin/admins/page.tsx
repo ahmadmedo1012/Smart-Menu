@@ -201,22 +201,22 @@ export default function AdminAdminsPage() {
         }
       />
 
-      {/* Stats */}
+      {/* Stats — Phase 6 (r154): plate-round tiles + Baloo labels */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl bg-card/50 border border-border/30 p-4">
-          <p className="text-xs text-muted-foreground">إجمالي</p>
+        <div className="rounded-lg bg-card/50 border border-border/30 p-4">
+          <p className="font-heading text-xs font-semibold text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(admins.length)}</p>
         </div>
-        <div className="rounded-xl bg-info/10 dark:bg-info/15 border border-info/20 p-4">
-          <p className="text-xs text-info-ink">مدير عام</p>
+        <div className="rounded-lg bg-info/10 dark:bg-info/15 border border-info/20 p-4">
+          <p className="font-heading text-xs font-semibold text-info-ink">مدير عام</p>
           <p className="text-2xl font-bold mt-1 text-info-ink">{toArabicNumber(superAdmins.length)}</p>
         </div>
-        <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
-          <p className="text-xs text-accent-foreground">مسؤول</p>
+        <div className="rounded-lg bg-orange-muted border border-orange/20 p-4">
+          <p className="font-heading text-xs font-semibold text-accent-foreground">مسؤول</p>
           <p className="text-2xl font-bold mt-1 text-accent-foreground">{toArabicNumber(subAdmins.length)}</p>
         </div>
-        <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
-          <p className="text-xs text-success-ink">نشط اليوم</p>
+        <div className="rounded-lg bg-success/10 dark:bg-success/15 border border-success/20 p-4">
+          <p className="font-heading text-xs font-semibold text-success-ink">نشط اليوم</p>
           <p className="text-2xl font-bold mt-1 text-success-ink">{toArabicNumber(admins.filter(a => {
             if (!a.lastLoginAt) return false
             return new Date(a.lastLoginAt).getTime() > todayMs - 86400000
@@ -226,7 +226,7 @@ export default function AdminAdminsPage() {
 
       {/* Super Admins Section */}
       <section>
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <h2 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
           <Shield className="size-5 text-info-ink" />
           المدراء العامون
         </h2>
@@ -238,10 +238,10 @@ export default function AdminAdminsPage() {
         ) : (
           <div className="space-y-2">
             {superAdmins.map(admin => (
-              <div key={admin.id} className="rounded-xl bg-card/50 border border-border/30 p-5">
+              <div key={admin.id} className="rounded-lg bg-card/50 border border-border/30 p-5">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="size-11 rounded-xl bg-info/10 dark:bg-info/15 flex items-center justify-center">
+                    <div className="size-11 rounded-full bg-info/10 dark:bg-info/15 flex items-center justify-center">
                       <Shield className="size-5 text-info-ink" />
                     </div>
                     <div>
@@ -261,7 +261,7 @@ export default function AdminAdminsPage() {
 
       {/* Sub Admins Section */}
       <section>
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <h2 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
           <UserPlus className="size-5 text-orange" />
           المسؤولون
         </h2>
@@ -276,10 +276,10 @@ export default function AdminAdminsPage() {
         ) : (
           <div className="space-y-2">
             {subAdmins.map(admin => (
-              <div key={admin.id} className="rounded-xl bg-card/50 border border-border/30 p-5 hover:border-orange/20 transition-colors">
+              <div key={admin.id} className="rounded-lg bg-card/50 border border-border/30 p-5 hover:border-orange/20 transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="size-11 rounded-xl bg-orange-muted flex items-center justify-center">
+                    <div className="size-11 rounded-full bg-orange-muted flex items-center justify-center">
                       <Shield className="size-5 text-orange" />
                     </div>
                     <div>
@@ -308,7 +308,7 @@ export default function AdminAdminsPage() {
                     <button
                       type="button"
                       onClick={() => openEdit(admin)}
-                      className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="size-11 rounded-full border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       title="تعديل الصلاحيات" aria-label="تعديل الصلاحيات"
                     >
                       <Key className="size-4" />
@@ -316,7 +316,7 @@ export default function AdminAdminsPage() {
                     <button
                       type="button"
                       onClick={() => handleRevokeSessions(admin)}
-                      className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="size-11 rounded-full border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       title="إلغاء الجلسات" aria-label="إلغاء الجلسات"
                     >
                       <AnimatedLogOut className="size-4" />
@@ -324,7 +324,7 @@ export default function AdminAdminsPage() {
                     <button
                       type="button"
                       onClick={() => setDeleteTarget(admin)}
-                      className="size-11 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                      className="size-11 rounded-full border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
                       title="حذف" aria-label="حذف"
                     >
                       <AnimatedTrash2 className="size-4" />
@@ -348,15 +348,15 @@ export default function AdminAdminsPage() {
           <div className="space-y-5 mt-6">
             <div>
               <Label htmlFor="inv-name">الاسم</Label>
-              <Input id="inv-name" value={inviteForm.name} onChange={e => setInviteForm(f => ({ ...f, name: e.target.value }))} className="h-11 rounded-xl mt-1.5" placeholder="اسم المسؤول" />
+              <Input id="inv-name" value={inviteForm.name} onChange={e => setInviteForm(f => ({ ...f, name: e.target.value }))} className="mt-1.5" placeholder="اسم المسؤول" />
             </div>
             <div>
               <Label htmlFor="inv-username">اسم المستخدم</Label>
-              <Input id="inv-username" value={inviteForm.username} onChange={e => setInviteForm(f => ({ ...f, username: e.target.value }))} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" placeholder="admin_username" />
+              <Input id="inv-username" value={inviteForm.username} onChange={e => setInviteForm(f => ({ ...f, username: e.target.value }))} className="mt-1.5 text-left" dir="ltr" placeholder="admin_username" />
             </div>
             <div>
               <Label htmlFor="inv-password">كلمة المرور المؤقتة</Label>
-              <Input id="inv-password" type="password" value={inviteForm.password} onChange={e => setInviteForm(f => ({ ...f, password: e.target.value }))} className="h-11 rounded-xl mt-1.5" placeholder="******" />
+              <Input id="inv-password" type="password" value={inviteForm.password} onChange={e => setInviteForm(f => ({ ...f, password: e.target.value }))} className="mt-1.5" placeholder="******" />
             </div>
 
             <div>
@@ -367,7 +367,7 @@ export default function AdminAdminsPage() {
                   const enabled = invitePerms.includes(p.value)
                   return (
                     <label key={p.value} className={cn(
-                      "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-colors",
+                      "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors",
                       enabled ? "border-orange/30 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 hover:border-orange/20"
                     )}>
                       <Switch checked={enabled} onCheckedChange={() => toggleInvitePerm(p.value)} />
@@ -382,7 +382,7 @@ export default function AdminAdminsPage() {
               </div>
             </div>
 
-            <Button onClick={handleInvite} disabled={inviting} className="w-full gap-2 h-11 rounded-xl">
+            <Button onClick={handleInvite} disabled={inviting} className="w-full gap-2 h-11">
               {inviting ? "جارٍ…" : <><UserPlus className="size-4" /> إضافة المسؤول</>}
             </Button>
           </div>
@@ -403,7 +403,7 @@ export default function AdminAdminsPage() {
               const enabled = editPerms.includes(p.value)
               return (
                 <label key={p.value} className={cn(
-                  "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-colors",
+                  "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors",
                   enabled ? "border-orange/30 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 hover:border-orange/20"
                 )}>
                   <Switch checked={enabled} onCheckedChange={() => {
@@ -419,7 +419,7 @@ export default function AdminAdminsPage() {
             })}
           </div>
 
-          <Button onClick={handleEdit} disabled={editing} className="w-full gap-2 h-11 rounded-xl mt-6">
+          <Button onClick={handleEdit} disabled={editing} className="w-full gap-2 h-11 mt-6">
             {editing ? "جارٍ…" : "حفظ التغييرات"}
           </Button>
         </SheetContent>

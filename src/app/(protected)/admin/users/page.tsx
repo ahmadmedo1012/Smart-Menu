@@ -139,22 +139,22 @@ export default function AdminUsersPage() {
         subtitle={`${toArabicNumber(total)} مستخدم — الملاك والمديرون وربطهم بالمطاعم`}
       />
 
-      {/* Stats */}
+      {/* Stats — Phase 6 (r154): plate-round tiles + Baloo labels */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl bg-card/50 border border-border/30 p-4">
-          <p className="text-xs text-muted-foreground">إجمالي</p>
+        <div className="rounded-lg bg-card/50 border border-border/30 p-4">
+          <p className="font-heading text-xs font-semibold text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-xl bg-[var(--info-soft)] border border-transparent p-4">
-          <p className="text-xs text-[var(--info-ink)]">مديرون</p>
+        <div className="rounded-lg bg-[var(--info-soft)] border border-transparent p-4">
+          <p className="font-heading text-xs font-semibold text-[var(--info-ink)]">مديرون</p>
           <p className="text-2xl font-bold mt-1 text-[var(--info-ink)] tabular-nums">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
         </div>
-        <div className="rounded-xl bg-[var(--accent-soft)] border border-transparent p-4">
-          <p className="text-xs text-[var(--accent-ink)]">أصحاب مطاعم</p>
+        <div className="rounded-lg bg-[var(--accent-soft)] border border-transparent p-4">
+          <p className="font-heading text-xs font-semibold text-[var(--accent-ink)]">أصحاب مطاعم</p>
           <p className="text-2xl font-bold mt-1 text-[var(--accent-ink)] tabular-nums">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
         </div>
-        <div className="rounded-xl bg-[var(--success-soft)] border border-transparent p-4">
-          <p className="text-xs text-[var(--success-ink)]">مرتبط بمطعم</p>
+        <div className="rounded-lg bg-[var(--success-soft)] border border-transparent p-4">
+          <p className="font-heading text-xs font-semibold text-[var(--success-ink)]">مرتبط بمطعم</p>
           <p className="text-2xl font-bold mt-1 text-[var(--success-ink)] tabular-nums">{toArabicNumber(users.filter(u => u.restaurantId).length)}</p>
         </div>
       </div>
@@ -200,14 +200,14 @@ export default function AdminUsersPage() {
           {/* md+ — canonical data table (r131-F5, A1 P1-1/P1-2): 11px surface-2
                       headers, 13px cells, quiet hover wash + 3px accent bar, actions
                       revealed on hover/focus (always on touch). */}
-          <div className="hidden md:block overflow-x-auto rounded-xl border border-border/60 bg-card">
+          <div className="hidden md:block overflow-x-auto rounded-lg border border-border/60 bg-card">
             <Table className="w-full">
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-border">
-                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">المستخدم</TableHead>
-                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الدور</TableHead>
-                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">المطعم</TableHead>
-                  <TableHead className="h-11 bg-muted/60 px-4 text-end align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">
+                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">المستخدم</TableHead>
+                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الدور</TableHead>
+                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">المطعم</TableHead>
+                  <TableHead className="h-11 bg-muted/60 px-4 text-end align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">
                     <span className="sr-only">إجراءات</span>
                   </TableHead>
                 </TableRow>
@@ -216,7 +216,7 @@ export default function AdminUsersPage() {
                 {users.map(user => {
                   const isAdmin = user.role === "admin" || user.role === "super_admin"
                   return (
-                    <TableRow key={user.id} className="group relative border-b border-border/40 transition-colors duration-fast hover:bg-muted">
+                    <TableRow key={user.id} className="group relative border-b border-border/40 transition-colors duration-fast hover:bg-orange/5">
                       <TableCell className="relative px-4 py-3 align-middle text-sm font-semibold after:absolute after:inset-y-3 after:start-0 after:w-[3px] after:rounded-e-full after:origin-bottom after:scale-y-0 after:bg-[var(--accent-solid)] after:transition-transform after:duration-base group-hover:after:scale-y-100">
                         <span className="block">{user.name}</span>
                         <span className="block text-xs font-normal text-muted-foreground" dir="ltr">@{user.username}</span>
@@ -280,11 +280,11 @@ export default function AdminUsersPage() {
           {/* <md — the card feed (tbl-stack equivalent) */}
           <div className="md:hidden space-y-3">
             {users.map(user => (
-              <div key={user.id} className="rounded-xl border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]">
+              <div key={user.id} className="rounded-lg border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      "size-11 rounded-lg flex items-center justify-center shrink-0",
+                      "size-11 rounded-full flex items-center justify-center shrink-0",
                       user.role === "admin" ? "bg-[var(--info-soft)]" : "bg-[var(--accent-soft)]"
                     )} aria-hidden="true">
                       {user.role === "admin"
@@ -318,7 +318,7 @@ export default function AdminUsersPage() {
                     <button
                       type="button"
                       onClick={() => { setResetTarget(user); setNewPassword("") }}
-                      className="size-11 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="size-11 rounded-full border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       title="إعادة تعيين كلمة المرور"
                       aria-label={`إعادة تعيين كلمة مرور ${user.name}`}
                     >
@@ -328,7 +328,7 @@ export default function AdminUsersPage() {
                       <button
                         type="button"
                         onClick={() => setDeleteTarget(user)}
-                        className="size-11 rounded-lg border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                        className="size-11 rounded-full border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
                         title="حذف"
                         aria-label={`حذف ${user.name}`}
                       >

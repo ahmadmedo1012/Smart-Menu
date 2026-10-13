@@ -218,8 +218,11 @@ export function RestaurantFormDialog({
         return (
                 <Dialog open={open} onOpenChange={handleOpen}>
                         {/* r121-J-7: 85vh → 85dvh (توحيد مع max-h-[90dvh] للحوار
-                            الأساسي — فخ شريط عنوان iOS على الحوارات الطويلة) */}
-                        <DialogContent className="max-w-lg rounded-md max-h-[85dvh] overflow-y-auto">
+                            الأساسي — فخ شريط عنوان iOS على الحوارات الطويلة).
+                            Phase 6 (r154): off-canon overrides retire — the shared
+                            DialogContent owns plate-round 16 + the terracotta crown
+                            hairline + the 560px cap; Input/Select own h-11 + r-md. */}
+                        <DialogContent className="max-h-[85dvh] overflow-y-auto">
                                 <DialogHeader>
                                         <DialogTitle>{editing ? 'تعديل مطعم' : 'إضافة مطعم'}</DialogTitle>
                                 </DialogHeader>
@@ -231,7 +234,7 @@ export function RestaurantFormDialog({
                                                                 id="restaurant-name"
                                                                 value={form.name}
                                                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5"
+                                                                className="mt-1.5"
                                                         />
                                                 </div>
                                                 <div>
@@ -245,7 +248,7 @@ export function RestaurantFormDialog({
                                                                                 slug: e.target.value.replace(/[^a-z0-9-]/g, '').toLowerCase(),
                                                                         })
                                                                 }
-                                                                className="h-11 rounded-xl mt-1.5 text-left"
+                                                                className="mt-1.5 text-left"
                                                                 dir="ltr"
                                                         />
                                                 </div>
@@ -256,7 +259,7 @@ export function RestaurantFormDialog({
                                                         id="restaurant-desc"
                                                         value={form.description}
                                                         onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                                        className="h-11 rounded-xl mt-1.5"
+                                                        className="mt-1.5"
                                                 />
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
@@ -266,7 +269,7 @@ export function RestaurantFormDialog({
                                                                 id="restaurant-phone"
                                                                 value={form.phone}
                                                                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5 text-left"
+                                                                className="mt-1.5 text-left"
                                                                 dir="ltr"
                                                         />
                                                 </div>
@@ -276,7 +279,7 @@ export function RestaurantFormDialog({
                                                                 id="restaurant-whatsapp"
                                                                 value={form.whatsapp}
                                                                 onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5 text-left"
+                                                                className="mt-1.5 text-left"
                                                                 dir="ltr"
                                                         />
                                                 </div>
@@ -288,7 +291,7 @@ export function RestaurantFormDialog({
                                                                 id="restaurant-email"
                                                                 value={form.email}
                                                                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5 text-left"
+                                                                className="mt-1.5 text-left"
                                                                 dir="ltr"
                                                         />
                                                 </div>
@@ -298,7 +301,7 @@ export function RestaurantFormDialog({
                                                                 value={form.planId}
                                                                 onValueChange={(v) => setForm({ ...form, planId: v ?? '' })}
                                                         >
-                                                                <SelectTrigger className="h-11 rounded-xl mt-1.5">
+                                                                <SelectTrigger className="mt-1.5">
                                                                         <SelectValue placeholder="اختر خطة" />
                                                                 </SelectTrigger>
                                                                 <SelectContent>
@@ -318,7 +321,7 @@ export function RestaurantFormDialog({
                                                         id="restaurant-address"
                                                         value={form.address}
                                                         onChange={(e) => setForm({ ...form, address: e.target.value })}
-                                                        className="h-11 rounded-xl mt-1.5"
+                                                        className="mt-1.5"
                                                 />
                                         </div>
                                         <div>
@@ -327,7 +330,7 @@ export function RestaurantFormDialog({
                                                         id="restaurant-hours"
                                                         value={form.workingHours}
                                                         onChange={(e) => setForm({ ...form, workingHours: e.target.value })}
-                                                        className="h-11 rounded-xl mt-1.5"
+                                                        className="mt-1.5"
                                                 />
                                                 {/* r137: النص الحر صار «ملاحظات دوام إضافية» بجانب
                                                     المحرّر المهيكل تحت — الساعات الصارمة تُدار من هناك. */}
@@ -348,7 +351,7 @@ export function RestaurantFormDialog({
                                                                 placeholder="5"
                                                                 value={form.deliveryFee}
                                                                 onChange={(e) => setForm({ ...form, deliveryFee: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5 text-left"
+                                                                className="mt-1.5 text-left"
                                                         />
                                                 </div>
                                                 <div>
@@ -363,7 +366,7 @@ export function RestaurantFormDialog({
                                                                 placeholder="20"
                                                                 value={form.minOrder}
                                                                 onChange={(e) => setForm({ ...form, minOrder: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5 text-left"
+                                                                className="mt-1.5 text-left"
                                                         />
                                                 </div>
                                         </div>
@@ -386,7 +389,7 @@ export function RestaurantFormDialog({
                                                                 id="restaurant-city"
                                                                 value={form.city}
                                                                 onChange={(e) => setForm({ ...form, city: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5"
+                                                                className="mt-1.5"
                                                         />
                                                 </div>
                                                 <div>
@@ -396,7 +399,7 @@ export function RestaurantFormDialog({
                                                                 type="number"
                                                                 value={form.featuredRank}
                                                                 onChange={(e) => setForm({ ...form, featuredRank: e.target.value })}
-                                                                className="h-11 rounded-xl mt-1.5"
+                                                                className="mt-1.5"
                                                                 placeholder="1-999"
                                                         />
                                                 </div>

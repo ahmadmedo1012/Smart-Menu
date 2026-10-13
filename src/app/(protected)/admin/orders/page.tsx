@@ -227,22 +227,22 @@ export default function AdminOrdersPage() {
         }
       />
 
-      {/* Quick stats */}
+      {/* Quick stats — Phase 6 (r154): plate-round tiles + Baloo labels */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl bg-card/50 border border-border/30 p-4 shadow-sm">
-          <p className="text-xs text-muted-foreground">إجمالي</p>
+        <div className="rounded-lg bg-card/50 border border-border/30 p-4 shadow-sm">
+          <p className="font-heading text-xs font-semibold text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(orders.length)}</p>
         </div>
-        <div className="rounded-xl bg-warning/15 border border-warning/25 p-4 shadow-sm">
-          <p className="text-xs text-warning-ink">جديد</p>
+        <div className="rounded-lg bg-warning/15 border border-warning/25 p-4 shadow-sm">
+          <p className="font-heading text-xs font-semibold text-warning-ink">جديد</p>
           <p className="text-2xl font-bold mt-1 text-warning-ink">{toArabicNumber(totalNew)}</p>
         </div>
-        <div className="rounded-xl bg-info/15 border border-info/25 p-4 shadow-sm">
-          <p className="text-xs text-info-ink">قيد التحضير</p>
+        <div className="rounded-lg bg-info/15 border border-info/25 p-4 shadow-sm">
+          <p className="font-heading text-xs font-semibold text-info-ink">قيد التحضير</p>
           <p className="text-2xl font-bold mt-1 text-info-ink">{toArabicNumber(totalPreparing)}</p>
         </div>
-        <div className="rounded-xl bg-success/10 border border-success/20 p-4 shadow-sm">
-          <p className="text-xs text-success-ink">جاهز</p>
+        <div className="rounded-lg bg-success/10 border border-success/20 p-4 shadow-sm">
+          <p className="font-heading text-xs font-semibold text-success-ink">جاهز</p>
           <p className="text-2xl font-bold mt-1 text-success-ink">{toArabicNumber(totalReady)}</p>
         </div>
       </div>
@@ -250,10 +250,10 @@ export default function AdminOrdersPage() {
       {/* Top & Bottom Restaurants */}
       {sortedRests.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-xl bg-card/70 border border-border/30 p-4 shadow-sm">
+          <div className="rounded-lg bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <AnimatedBarChart3 className="size-4 text-success-ink" />
-              <h2 className="text-sm font-semibold">المطاعم الأكثر طلبات</h2>
+              <h2 className="font-heading text-sm font-semibold">المطاعم الأكثر طلبات</h2>
             </div>
             <div className="space-y-2">
               {topRests.map(([name, data], i) => (
@@ -267,10 +267,10 @@ export default function AdminOrdersPage() {
               ))}
             </div>
           </div>
-          <div className="rounded-xl bg-card/70 border border-border/30 p-4 shadow-sm">
+          <div className="rounded-lg bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <AnimatedBarChart3 className="size-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold">المطاعم الأقل طلبات</h2>
+              <h2 className="font-heading text-sm font-semibold">المطاعم الأقل طلبات</h2>
             </div>
             <div className="space-y-2">
               {bottomRests.map(([name, data], i) => (
@@ -302,15 +302,16 @@ export default function AdminOrdersPage() {
         )}
       </div>
 
-      {/* Status tabs */}
+      {/* Status tabs — Phase 6 (r154): solid terracotta active fill (the
+          gradient wash + glow retire, the owner OrdersFilters grammar). */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {TABS.map(tab => (
           <button key={tab.value} type="button" onClick={() => { setFilter(tab.value); setPage(1) }}
             aria-pressed={filter === tab.value}
-            className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[background-color,color,border-color,box-shadow] duration-base",
+            className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color,box-shadow] duration-base",
               filter === tab.value
-                ? "bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg shadow-orange/25"
-                : "bg-card/50 border border-border/30 hover:border-orange/30"
+                ? "bg-orange text-orange-foreground shadow-sm"
+                : "bg-card/50 border border-border/30 hover:border-orange/30 hover:bg-orange-muted/40"
             )}>{tab.label}</button>
         ))}
       </div>
@@ -327,7 +328,7 @@ export default function AdminOrdersPage() {
             const config = getOrderStatusMeta(order.status)
             const next = config.next
             return (
-              <div key={order.id} role="link" tabIndex={0} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              <div key={order.id} role="link" tabIndex={0} className="rounded-lg border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 onClick={() => router.push(`/admin/orders/${order.id}`)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -337,7 +338,7 @@ export default function AdminOrdersPage() {
                 }}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className={cn("size-11 rounded-xl flex items-center justify-center shrink-0", config.toneClassName)}>
+                    <div className={cn("size-11 rounded-full flex items-center justify-center shrink-0", config.toneClassName)}>
                       <config.icon className="size-5" />
                     </div>
                     <div>
@@ -360,15 +361,18 @@ export default function AdminOrdersPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-end shrink-0">
-                    <p className="font-bold text-lg tabular-nums">{formatPrice(order.total, { suffix: '' })}</p>
-                    <p className="text-xs text-muted-foreground">د.ل</p>
+                  {/* Phase 6 (r154): قائد النقاط — الإجمالي على طراز المنيو
+                      المطبوع (نفس بصمة بطاقة طلبات المالك). */}
+                  <div className="text-end shrink-0 min-w-24 menu-leader">
+                    <span className="text-2xs font-normal text-muted-foreground">د.ل</span>
+                    <i className="menu-leader-rule flex-none w-4" aria-hidden="true" />
+                    <span className="font-bold text-lg tabular-nums">{formatPrice(order.total, { suffix: '' })}</span>
                   </div>
                 </div>
                 {next && (
                   <div className="flex gap-2 mt-3 pt-3 border-t border-border/20">
                     <button type="button" onClick={e => { e.stopPropagation(); updateStatus(order.id, next) }}
-                      className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-colors border",
+                      className={cn("flex-1 py-2 rounded-md text-sm font-medium transition-colors border",
                         // r121-A-3/I-1: same advance-button language as the owner
                         // table (OrdersTable) — info for "قيد التحضير", success for
                         // the terminal steps; was orange for preparing+completed.

@@ -102,7 +102,7 @@ export default function AdminQRPage() {
                         {/* r118-A5-F4: three honest states instead of one conflated
                             «لا توجد مطاعم» for loading, failure AND empty. */}
                         {loadState === 'loading' && (
-                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-card/50 border border-border/30">
+                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-lg bg-card/50 border border-border/30">
                                         <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4 animate-pulse">
                                                 <AnimatedQrCode className="size-7 text-orange/40" />
                                         </div>
@@ -111,11 +111,11 @@ export default function AdminQRPage() {
                         )}
 
                         {loadState === 'error' && (
-                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-card/50 border border-border/30">
+                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-lg bg-card/50 border border-border/30">
                                         <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
                                                 <AnimatedQrCode className="size-7 text-orange/40" />
                                         </div>
-                                        <h2 className="text-lg font-semibold mb-1">تعذّر تحميل المطاعم</h2>
+                                        <h2 className="font-heading text-lg font-semibold mb-1">تعذّر تحميل المطاعم</h2>
                                         <p className="text-sm text-muted-foreground max-w-xs mb-4">
                                                 حدث خطأ في الاتصال. تحقق من الشبكة وحاول مجدداً.
                                         </p>
@@ -147,11 +147,11 @@ export default function AdminQRPage() {
                         )}
 
                         {loadState === 'loaded' && restaurants.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-card/50 border border-border/30">
+                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-lg bg-card/50 border border-border/30">
                                         <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
                                                 <AnimatedQrCode className="size-7 text-orange/40" />
                                         </div>
-                                        <h2 className="text-lg font-semibold mb-1">لا توجد مطاعم</h2>
+                                        <h2 className="font-heading text-lg font-semibold mb-1">لا توجد مطاعم</h2>
                                         <p className="text-sm text-muted-foreground max-w-xs">
                                                 لم يتم العثور على مطاعم. قم بإضافة مطعم أولاً لإنشاء رمز QR.
                                         </p>
@@ -159,7 +159,7 @@ export default function AdminQRPage() {
                         )}
 
                         {restaurants.length > 0 && (
-                                <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
+                                <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
                                         {/* Restaurant selector */}
                                         <div className="p-5 space-y-4">
                                                 <div>
@@ -174,7 +174,7 @@ export default function AdminQRPage() {
                                                                                         setSelectedName(r.name);
                                                                                 }}
                                                                                 className={cn(
-                                                                                        'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                                        'flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                         selectedSlug === r.slug
                                                                                                 ? 'bg-orange-muted border-orange/30 text-accent-foreground'
                                                                                                 : 'border-border/30 hover:border-orange/30'
@@ -189,7 +189,7 @@ export default function AdminQRPage() {
 
                                                 {/* QR Code display */}
                                                 {menuUrl && (
-                                                        <div className="flex justify-center py-6 bg-white/30 dark:bg-white/5 rounded-xl">
+                                                        <div className="flex justify-center py-6 bg-white/30 dark:bg-white/5 rounded-lg">
                                                                 <div className="relative group">
                                                                         {/* r106-N2: self-hosted render (data URL) — pixel-precise sizing kept,
                                                                             identical brand colors, zero third-party calls. */}
@@ -197,7 +197,7 @@ export default function AdminQRPage() {
                                                                                 value={menuUrl}
                                                                                 size={qrSize}
                                                                                 alt={`QR - ${selectedName}`}
-                                                                                className="rounded-xl shadow-lg transition-shadow group-hover:shadow-xl"
+                                                                                className="rounded-lg shadow-lg transition-shadow group-hover:shadow-xl"
                                                                                 style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}
                                                                         />
                                                                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -219,7 +219,7 @@ export default function AdminQRPage() {
                                                                                 type="button"
                                                                                 onClick={() => setQrSize(s.value)}
                                                                                 className={cn(
-                                                                                        'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                                        'flex-1 py-2.5 rounded-full text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                         qrSize === s.value
                                                                                                 ? 'bg-orange-muted border-orange/30 text-accent-foreground'
                                                                                                 : 'border-border/30 hover:border-orange/30'
@@ -235,7 +235,7 @@ export default function AdminQRPage() {
                                                 <div>
                                                         <Label className="text-xs text-muted-foreground">الرابط</Label>
                                                         <div className="flex gap-2 mt-1.5">
-                                                                <Input value={menuUrl} readOnly dir="ltr" className="text-sm h-11 rounded-xl" />
+                                                                <Input value={menuUrl} readOnly dir="ltr" className="text-sm" />
                                                                 <Button
                                                                         variant="outline"
                                                                         size="icon"

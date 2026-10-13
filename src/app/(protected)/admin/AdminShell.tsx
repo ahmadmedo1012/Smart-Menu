@@ -52,13 +52,13 @@ function MobileNav({
                                         </button>
                                 )}
                                 <div
-                                        className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange to-orange/80 shadow-lg shadow-orange/25"
+                                        className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-orange to-orange/80 shadow-lg shadow-orange/25"
                                         aria-hidden="true"
                                 >
                                         <Store className="size-5 text-orange-foreground" aria-hidden="true" />
                                 </div>
                                 <div>
-                                        <span className="block text-base font-bold tracking-normal">الربط الذكي</span>
+                                        <span className="block font-heading text-base font-bold tracking-normal">الربط الذكي</span>
                                         <span className="block text-2xs text-muted-foreground">لوحة الأدمن</span>
                                 </div>
                         </div>
@@ -76,7 +76,7 @@ function MobileNav({
                         <div className="border-t border-border/20 px-3 py-3">
                                 <button
                                         onClick={() => performLogout()}
-                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-base hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-base hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                 >
                                         <AnimatedLogOut className="size-4" />
                                         تسجيل الخروج

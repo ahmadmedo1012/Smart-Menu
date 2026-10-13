@@ -41,12 +41,12 @@ export function TelegramConfigSection({
     <section>
       <div className="flex items-center gap-2 mb-4">
         <Bot className="size-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold">إعدادات البوت</h2>
+        <h2 className="font-heading text-lg font-semibold">إعدادات البوت</h2>
         <Badge variant={config.isActive ? "default" : "secondary"} className="ms-auto">
           {config.isActive ? "نشط" : "غير نشط"}
         </Badge>
       </div>
-      <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
+      <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
         <div className="p-5 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <Label htmlFor="tg-active" className="flex items-center gap-2 cursor-pointer">
@@ -67,7 +67,7 @@ export function TelegramConfigSection({
                   // rotation and typo-correction were impossible).
                   onConfigChange({ ...config, botToken: e.target.value, botTokenMasked: false })
                 }
-                placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz" className="h-11 rounded-xl text-left ps-10 pe-12" dir="ltr" />
+                placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz" className="text-left ps-10 pe-12" dir="ltr" />
               <button type="button" onClick={onToggleShowToken}
                 className="absolute end-3 top-1/2 -translate-y-1/2 size-11 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={showToken ? "إخفاء الرمز" : "إظهار الرمز"}>
@@ -83,7 +83,7 @@ export function TelegramConfigSection({
             <Label htmlFor="tg-chat-id">معرف المحادثة (Chat ID)</Label>
             <Input id="tg-chat-id" value={config.chatId}
               onChange={(e) => onConfigChange({ ...config, chatId: e.target.value })}
-              placeholder="-1001234567890" className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+              placeholder="-1001234567890" className="mt-1.5 text-left" dir="ltr" />
             <p className="text-xs text-muted-foreground mt-1">
               أرسل <span className="font-mono" dir="ltr">/start</span> إلى{" "}
               <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" className="underline">@userinfobot</a> لمعرفة المعرف
@@ -92,20 +92,20 @@ export function TelegramConfigSection({
           <div>
             <Label htmlFor="tg-events">الأحداث المرسلة (مفصولة بفاصلة)</Label>
             <Input id="tg-events" value={eventsInput} onChange={(e) => onEventsChange(e.target.value)}
-              placeholder="user_signup, restaurant_created, system_alert" className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+              placeholder="user_signup, restaurant_created, system_alert" className="mt-1.5 text-left" dir="ltr" />
             <p className="text-xs text-muted-foreground mt-1">أمثلة: user_signup, restaurant_created, system_alert</p>
           </div>
           <div className="flex gap-2 pt-2">
-            <Button onClick={onSave} disabled={saving} className="rounded-xl gap-1">
+            <Button onClick={onSave} disabled={saving} className="gap-1">
               <AnimatedSave className="size-4" aria-hidden="true" />
               {saving ? "جارٍ الحفظ…" : "حفظ الإعدادات"}
             </Button>
             <Button variant="outline" onClick={onTest}
-              disabled={testing || !config.botToken.trim() || !config.chatId.trim()} className="rounded-xl gap-1">
+              disabled={testing || !config.botToken.trim() || !config.chatId.trim()} className="gap-1">
               {testing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <AnimatedSend className="size-4" aria-hidden="true" />}
               {testing ? "جارٍ…" : "اختبار الإرسال"}
             </Button>
-            <Button variant="outline" onClick={onDiagnose} disabled={diagnosing} className="rounded-xl gap-1">
+            <Button variant="outline" onClick={onDiagnose} disabled={diagnosing} className="gap-1">
               {diagnosing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Stethoscope className="size-4" aria-hidden="true" />}
               {diagnosing ? "جارٍ…" : "تشخيص"}
             </Button>

@@ -2792,3 +2792,98 @@ describe('phase6 r154 — أسطح المالك: القواعد الكاملة (
     }
   });
 });
+
+describe('phase6 r154 — أسطح الأدمن: القواعد الكاملة (قادة النقاط · أطباق · بالو للفقرات · غسل تراكوتا)', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('قادة النقاط على كل صف مالي في سكك الأدمن (بطاقات الطلبات · ملخص تفاصيل الطلب وسطور الأصناف · مبلغ الاشتراكات · صفوف منيو الأدمن)', () => {
+    expect(cc('src/app/(protected)/admin/orders/page.tsx')).toContain('menu-leader-rule');
+    const detail = cc('src/app/(protected)/admin/orders/[id]/page.tsx');
+    expect(detail).toContain('menu-leader');
+    // subtotal + total + item rows — at least three leaders
+    expect(detail.match(/menu-leader-rule/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+    // the subscriptions amount row is a full leader line (totals showcase)
+    expect(cc('src/app/(protected)/admin/subscriptions/page.tsx')).toContain('menu-leader-rule');
+    expect(cc('src/app/(protected)/admin/menu/page.tsx')).toContain('menu-leader-rule');
+  });
+
+  it('الجداول: ترويسة بالو صغيرة + غسل صف تراكوتا دافئ + صدفة الطبق (المستخدمون + سجل التدقيق)', () => {
+    const u = cc('src/app/(protected)/admin/users/page.tsx');
+    expect(u).toContain('font-heading text-2xs font-semibold');
+    expect(u).toContain('hover:bg-orange/5');
+    expect(u).toContain('rounded-lg border border-border/60 bg-card');
+    const a = cc('src/app/(protected)/admin/audit-logs/page.tsx');
+    expect(a).toContain('font-heading text-2xs font-semibold');
+    expect(a).toContain('hover:bg-orange/5');
+    expect(a).toContain('rounded-lg border border-border/30 bg-card/50');
+  });
+
+  it('الفلترة: شرائح تراكوتا صلبة (لا تدرج لا توهج) + خمول بحدود دافئة (تبويبات الطلبات · حبوب التدقيق · حبوب أحداث النظام)', () => {
+    const o = cc('src/app/(protected)/admin/orders/page.tsx');
+    // the TABS ride double-quoted className literals — pin the fill, not the quotes
+    expect(o).toContain('"bg-orange text-orange-foreground shadow-sm"');
+    expect(o).not.toContain('bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg');
+    expect(o).toContain('hover:bg-orange-muted/40');
+    const a = cc('src/app/(protected)/admin/audit-logs/page.tsx');
+    expect(a).toContain("'bg-orange text-orange-foreground shadow-sm'");
+    expect(a).not.toContain("'bg-muted text-muted-foreground hover:bg-muted/80'");
+    const s = cc('src/app/(protected)/admin/system-events/client.tsx');
+    expect(s).toContain("'bg-orange text-orange-foreground shadow-sm'");
+    expect(s).toContain('hover:bg-orange-muted/40');
+  });
+
+  it('بطاقات الإحصاء: طبق 16 + عنوان بالو + بئر أيقونة دائري (اللوحة · الاشتراكات · المستخدمين · المسؤولين · منيو الأدمن)', () => {
+    const stats = [
+      'src/app/(protected)/admin/page.tsx',
+      'src/app/(protected)/admin/orders/page.tsx',
+      'src/app/(protected)/admin/subscriptions/page.tsx',
+      'src/app/(protected)/admin/users/page.tsx',
+      'src/app/(protected)/admin/admins/page.tsx',
+      'src/app/(protected)/admin/menu/page.tsx',
+    ];
+    for (const f of stats) {
+      expect(cc(f), f).toContain('font-heading text-xs font-semibold');
+      expect(cc(f), f).toContain('rounded-lg');
+    }
+    expect(cc('src/app/(protected)/admin/restaurants/RestaurantTable.tsx')).toContain(
+      'rounded-full bg-gradient-to-br flex items-center justify-center'
+    );
+  });
+
+  it('حوار نموذج المطعم: صفر تجاوزات خارج القانون (طبق 16 + تاج التراكوتا يملكه البدائي، لا rounded-md/max-w-lg)', () => {
+    const d = cc('src/app/(protected)/admin/restaurants/RestaurantFormDialog.tsx');
+    expect(d).toContain('<DialogContent className="max-h-[85dvh] overflow-y-auto">');
+    expect(d).not.toContain('rounded-md max-h-[85dvh]');
+    expect(d).not.toContain('max-w-lg');
+    expect(d).not.toContain('rounded-xl');
+  });
+
+  it('هندسة الطبق 16 على أصداف الأدمن — صفر rounded-xl حية', () => {
+    const files = [
+      'src/app/(protected)/admin/page.tsx',
+      'src/app/(protected)/admin/AdminShell.tsx',
+      'src/app/(protected)/admin/orders/page.tsx',
+      'src/app/(protected)/admin/orders/[id]/page.tsx',
+      'src/app/(protected)/admin/restaurants/page.tsx',
+      'src/app/(protected)/admin/restaurants/RestaurantTable.tsx',
+      'src/app/(protected)/admin/restaurants/RestaurantFormDialog.tsx',
+      'src/app/(protected)/admin/users/page.tsx',
+      'src/app/(protected)/admin/admins/page.tsx',
+      'src/app/(protected)/admin/subscriptions/page.tsx',
+      'src/app/(protected)/admin/telegram/page.tsx',
+      'src/app/(protected)/admin/telegram/TelegramConfigSection.tsx',
+      'src/app/(protected)/admin/telegram/BroadcastTargetsSection.tsx',
+      'src/app/(protected)/admin/telegram/DiagnosticsSection.tsx',
+      'src/app/(protected)/admin/settings/page.tsx',
+      'src/app/(protected)/admin/audit-logs/page.tsx',
+      'src/app/(protected)/admin/menu/page.tsx',
+      'src/app/(protected)/admin/qr/page.tsx',
+      'src/components/admin/ConfigEditor.tsx',
+    ];
+    for (const f of files) {
+      expect(cc(f), f).not.toContain('rounded-xl');
+    }
+  });
+});

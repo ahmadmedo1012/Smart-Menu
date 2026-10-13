@@ -230,14 +230,15 @@ export default function AdminDashboard() {
                                 />
                         </div>
 
-                        {/* Charts: Revenue + Order Volume */}
+                        {/* Charts: Revenue + Order Volume — Phase 6 (r154): plate-round shells
+                            + Baloo section headers (the owner screen grammar). */}
                         <div className="grid gap-6 lg:grid-cols-2">
                                 {/* Revenue trend */}
-                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-lg bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-2">
                                                         <TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
-                                                        <h2 className="text-sm font-semibold">اتجاه الإيرادات (30 يوم)</h2>
+                                                        <h2 className="font-heading text-sm font-semibold">اتجاه الإيرادات (30 يوم)</h2>
                                                 </div>
                                         </div>
                                         {stats.revenueTrend.length > 0 ? (
@@ -263,11 +264,11 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Order volume trend */}
-                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-lg bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-2">
                                                         <AnimatedShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
-                                                        <h2 className="text-sm font-semibold">حجم الطلبات (30 يوم)</h2>
+                                                        <h2 className="font-heading text-sm font-semibold">حجم الطلبات (30 يوم)</h2>
                                                 </div>
                                         </div>
                                         {stats.orderVolumeTrend.length > 0 ? (
@@ -295,10 +296,10 @@ export default function AdminDashboard() {
                         {/* Charts: Top items + Quick metrics */}
                         <div className="grid gap-6 lg:grid-cols-2">
                                 {/* Top items */}
-                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-lg bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
                                                 <AnimatedBarChart3 className="size-4 text-muted-foreground" aria-hidden="true" />
-                                                <h2 className="text-sm font-semibold">الأصناف الأكثر طلباً</h2>
+                                                <h2 className="font-heading text-sm font-semibold">الأصناف الأكثر طلباً</h2>
                                         </div>
                                         {stats.topItems.length > 0 ? (
                                                 <HorizontalBar
@@ -313,31 +314,31 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Quick metrics */}
-                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-lg bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
                                                 <Activity className="size-4 text-muted-foreground" aria-hidden="true" />
-                                                <h2 className="text-sm font-semibold">مؤشرات سريعة</h2>
+                                                <h2 className="font-heading text-sm font-semibold">مؤشرات سريعة</h2>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
-                                                        <p className="text-xs text-muted-foreground">معدل الطلب</p>
+                                                        <p className="font-heading text-xs font-semibold text-muted-foreground">معدل الطلب</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{formatPrice(stats.avgOrderValue, { decimals: 2 })}</p>
                                                         <p className="text-2xs text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
                                                 </div>
                                                 <div className="rounded-md bg-success/10 dark:bg-success/15 p-4">
-                                                        <p className="text-xs text-success-ink">مدفوع</p>
+                                                        <p className="font-heading text-xs font-semibold text-success-ink">مدفوع</p>
                                                         <p className="text-2xl font-bold mt-1 text-success-ink tabular-nums">
                                                                 {toArabicNumber(stats.paidPlanCount)}
                                                         </p>
                                                         <p className="text-2xs text-muted-foreground mt-0.5">اشتراك مدفوع</p>
                                                 </div>
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
-                                                        <p className="text-xs text-accent-foreground">مرتبط</p>
+                                                        <p className="font-heading text-xs font-semibold text-accent-foreground">مرتبط</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.linkedRestaurants)}</p>
                                                         <p className="text-2xs text-muted-foreground mt-0.5">مطعم مرتبط</p>
                                                 </div>
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
-                                                        <p className="text-xs text-accent-foreground">طلبات اليوم</p>
+                                                        <p className="font-heading text-xs font-semibold text-accent-foreground">طلبات اليوم</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.ordersToday.count)}</p>
                                                         <p className="text-2xs text-muted-foreground mt-0.5 tabular-nums">
                                                                 {formatPrice(stats.ordersToday.revenue, { suffix: ' د.ل إيراد' })}
@@ -349,11 +350,11 @@ export default function AdminDashboard() {
 
                         <div className="grid gap-6 lg:grid-cols-3">
                                 {/* Recent signups */}
-                                <div className="rounded-xl bg-card/70 border border-border/30 shadow-sm">
+                                <div className="rounded-lg bg-card/70 border border-border/30 shadow-sm">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <UserPlus className="size-4 text-muted-foreground" aria-hidden="true" />
-                                                        <h2 className="text-sm font-semibold">آخر الاشتراكات</h2>
+                                                        <h2 className="font-heading text-sm font-semibold">آخر الاشتراكات</h2>
                                                 </div>
                                         </div>
                                         {stats.recentSignups.length > 0 ? (
@@ -361,11 +362,11 @@ export default function AdminDashboard() {
                                                         {stats.recentSignups.map((r) => (
                                                                 <div
                                                                         key={r.id}
-                                                                        className="flex items-center justify-between px-5 py-3 hover:bg-muted/20 transition-colors"
+                                                                        className="flex items-center justify-between px-5 py-3 hover:bg-orange/5 transition-colors"
                                                                 >
                                                                         <div className="flex items-center gap-3">
                                                                                 <div
-                                                                                        className="size-9 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center"
+                                                                                        className="size-9 rounded-full bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center"
                                                                                         aria-hidden="true"
                                                                                 >
                                                                                         <Store className="size-4 text-primary" />
@@ -395,11 +396,11 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Recent logins */}
-                                <div className="rounded-xl bg-card/70 border border-border/30 shadow-sm">
+                                <div className="rounded-lg bg-card/70 border border-border/30 shadow-sm">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <MotionLogIn className="size-4 text-muted-foreground" aria-hidden="true" />
-                                                        <h2 className="text-sm font-semibold">آخر تسجيلات الدخول</h2>
+                                                        <h2 className="font-heading text-sm font-semibold">آخر تسجيلات الدخول</h2>
                                                 </div>
                                         </div>
                                         {stats.recentLogins.length > 0 ? (
@@ -407,11 +408,11 @@ export default function AdminDashboard() {
                                                         {stats.recentLogins.map((u) => (
                                                                 <div
                                                                         key={u.id}
-                                                                        className="flex items-center justify-between px-5 py-3 hover:bg-muted/20 transition-colors"
+                                                                        className="flex items-center justify-between px-5 py-3 hover:bg-orange/5 transition-colors"
                                                                 >
                                                                         <div className="flex items-center gap-3">
                                                                                 <div
-                                                                                        className="size-9 rounded-xl bg-info/10 dark:bg-info/15 flex items-center justify-center"
+                                                                                        className="size-9 rounded-full bg-info/10 dark:bg-info/15 flex items-center justify-center"
                                                                                         aria-hidden="true"
                                                                                 >
                                                                                         <Users className="size-4 text-info-ink" />
@@ -438,11 +439,11 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Top Restaurants by Orders */}
-                                <div className="rounded-xl bg-card/70 border border-border/30 shadow-sm">
+                                <div className="rounded-lg bg-card/70 border border-border/30 shadow-sm">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <AnimatedBarChart3 className="size-4 text-muted-foreground" />
-                                                        <h2 className="text-sm font-semibold">المطاعم الأكثر طلباً</h2>
+                                                        <h2 className="font-heading text-sm font-semibold">المطاعم الأكثر طلباً</h2>
                                                 </div>
                                         </div>
                                         {stats.topRestaurants && stats.topRestaurants.length > 0 ? (
@@ -463,8 +464,8 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Quick actions */}
-                        <div className="rounded-xl bg-card/70 border border-border/30 p-5 shadow-sm">
-                                <h2 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h2>
+                        <div className="rounded-lg bg-card/70 border border-border/30 p-5 shadow-sm">
+                                <h2 className="font-heading text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                         {[
                                                 { label: 'إضافة مطعم', href: '/admin/restaurants', icon: Store, color: 'text-orange' },
@@ -482,7 +483,7 @@ export default function AdminDashboard() {
                                                         <Link
                                                                 key={i}
                                                                 href={item.href}
-                                                                className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 hover:bg-orange-muted/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                className="flex w-full flex-col items-center gap-2 rounded-md border border-border/20 bg-muted/30 p-4 hover:bg-orange-muted/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         >
                                                                 <Icon
                                                                         className={cn('size-5 group-hover:scale-110 transition-transform', item.color)}

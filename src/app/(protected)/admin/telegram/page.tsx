@@ -315,7 +315,7 @@ export default function AdminTelegramPage() {
                         {/* Broadcast guide */}
                         <section>
                                 <div className="rounded-md bg-muted/30 border border-border/20 p-5">
-                                        <h2 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                                        <h2 className="font-heading text-sm font-semibold mb-2 flex items-center gap-1.5">
                                                 <Lightbulb className="size-4 text-primary" />
                                                 خطوات التفعيل
                                         </h2>
@@ -330,7 +330,7 @@ export default function AdminTelegramPage() {
                         {/* Help */}
                         <section>
                                 <div className="rounded-md bg-muted/30 border border-border/20 p-5">
-                                        <h2 className="text-sm font-semibold mb-2">كيفية الإعداد</h2>
+                                        <h2 className="font-heading text-sm font-semibold mb-2">كيفية الإعداد</h2>
                                         <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                                                 <li>
                                                         افتح{' '}

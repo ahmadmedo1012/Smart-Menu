@@ -182,28 +182,29 @@ export default function AdminSubscriptionsPage() {
                                 subtitle={`${toArabicNumber(total)} اشتراك — تتبع الخطط والمدفوعات`}
                         />
 
-                        {/* Stats */}
+                        {/* Stats — Phase 6 (r154): plate-round tiles + Baloo labels
+                            (the owner screen grammar; counts are the page totals). */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div className="rounded-xl bg-card/50 border border-border/30 p-4">
-                                        <p className="text-xs text-muted-foreground">الإجمالي</p>
+                                <div className="rounded-lg bg-card/50 border border-border/30 p-4">
+                                        <p className="font-heading text-xs font-semibold text-muted-foreground">الإجمالي</p>
                                         <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
                                 </div>
                                 {/* r121-A-3/I-1: pending tile re-mapped to the warning family
                                         (was brand-orange) to match the semantic status language */}
-                                <div className="rounded-xl bg-warning/15 border border-warning/25 p-4">
-                                        <p className="text-xs text-warning-ink">قيد الانتظار</p>
+                                <div className="rounded-lg bg-warning/15 border border-warning/25 p-4">
+                                        <p className="font-heading text-xs font-semibold text-warning-ink">قيد الانتظار</p>
                                         <p className="text-2xl font-bold mt-1 text-warning-ink">
                                                 {toArabicNumber(payments.filter((p) => p.status === 'pending').length)}
                                         </p>
                                 </div>
-                                <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
-                                        <p className="text-xs text-success-ink">تم التحقق</p>
+                                <div className="rounded-lg bg-success/10 dark:bg-success/15 border border-success/20 p-4">
+                                        <p className="font-heading text-xs font-semibold text-success-ink">تم التحقق</p>
                                         <p className="text-2xl font-bold mt-1 text-success-ink">
                                                 {toArabicNumber(payments.filter((p) => p.status === 'verified').length)}
                                         </p>
                                 </div>
-                                <div className="rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 p-4">
-                                        <p className="text-xs text-destructive">ملغى</p>
+                                <div className="rounded-lg bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 p-4">
+                                        <p className="font-heading text-xs font-semibold text-destructive">ملغى</p>
                                         <p className="text-2xl font-bold mt-1 text-destructive">
                                                 {toArabicNumber(payments.filter((p) => p.status === 'cancelled').length)}
                                         </p>
@@ -246,11 +247,11 @@ export default function AdminSubscriptionsPage() {
                                                         return (
                                                                 <div
                                                                         key={p.id}
-                                                                        className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]"
+                                                                        className="rounded-lg border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]"
                                                                 >
                                                                         <div className="flex items-start justify-between gap-4">
                                                                                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                                                        <div className="size-11 rounded-xl bg-orange-muted flex items-center justify-center shrink-0">
+                                                                                        <div className="size-11 rounded-full bg-orange-muted flex items-center justify-center shrink-0">
                                                                                                 <Smartphone className="size-5 text-orange" />
                                                                                         </div>
                                                                                         <div className="min-w-0">
@@ -258,9 +259,15 @@ export default function AdminSubscriptionsPage() {
                                                                                                         <p className="font-bold">{p.phone}</p>
                                                                                                         <Badge className={cn('text-3xs', st.color)}>{st.label}</Badge>
                                                                                                 </div>
+                                                                                                {/* Phase 6 (r154): قائد النقاط — المبلغ
+                                                                                                    يصعد إلى سطر مالي كامل على طراز المنيو
+                                                                                                    المطبوع (بصمة الإجماليات في صفحة المالك). */}
+                                                                                                <div className="flex items-baseline gap-2 text-sm menu-leader mt-1">
+                                                                                                        <span className="text-xs text-muted-foreground shrink-0">المبلغ</span>
+                                                                                                        <i className="menu-leader-rule" aria-hidden="true" />
+                                                                                                        <span className="font-semibold tabular-nums shrink-0">{p.amount} د.ل</span>
+                                                                                                </div>
                                                                                                 <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1 flex-wrap">
-                                                                                                        <span className="tabular-nums whitespace-nowrap">{p.amount} د.ل</span>
-                                                                                                        <span>•</span>
                                                                                                         <span>{PROVIDER_NAMES[p.provider] ?? p.provider}</span>
                                                                                                         {p.planName && (
                                                                                                                 <>
@@ -334,7 +341,7 @@ export default function AdminSubscriptionsPage() {
                                                                                                                 setActionTarget(p);
                                                                                                                 setActionType('verified');
                                                                                                         }}
-                                                                                                        className="size-11 rounded-xl bg-success/10 dark:bg-success/15 border border-success/25 flex items-center justify-center hover:bg-success/20 dark:hover:bg-success/25 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/60"
+                                                                                                        className="size-11 rounded-full bg-success/10 dark:bg-success/15 border border-success/25 flex items-center justify-center hover:bg-success/20 dark:hover:bg-success/25 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/60"
                                                                                                         title="تأكيد الدفع"
                                                                                                         aria-label="تأكيد الدفع"
                                                                                                 >
@@ -346,7 +353,7 @@ export default function AdminSubscriptionsPage() {
                                                                                                                 setActionTarget(p);
                                                                                                                 setActionType('cancelled');
                                                                                                         }}
-                                                                                                        className="size-11 rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 flex items-center justify-center hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                                                                                                        className="size-11 rounded-full bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 flex items-center justify-center hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
                                                                                                         title="إلغاء"
                                                                                                         aria-label="إلغاء"
                                                                                                 >

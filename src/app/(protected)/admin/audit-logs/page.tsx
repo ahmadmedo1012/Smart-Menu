@@ -149,7 +149,7 @@ export default function AdminAuditLogsPage() {
                 return (
                         <div className="space-y-4 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
                                 <div className="h-10 w-48 skeleton rounded-lg" />
-                                <div className="h-64 skeleton rounded-xl" />
+                                <div className="h-64 skeleton rounded-lg" />
                         </div>
                 );
         }
@@ -204,9 +204,11 @@ export default function AdminAuditLogsPage() {
                                                                 }}
                                                                 className={cn(
                                                                         'px-3 py-1.5 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                                                        /* Phase 6 (r154): warm pill grammar — solid terracotta
+                                                                           active, bordered card idle (the owner filter recipe). */
                                                                         actionFilter === pill.value
                                                                                 ? 'bg-orange text-orange-foreground shadow-sm'
-                                                                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                                                                : 'bg-card/50 border border-border/30 text-muted-foreground hover:border-orange/30 hover:bg-orange-muted/40'
                                                                 )}
                                                         >
                                                                 {pill.label}
@@ -263,16 +265,16 @@ export default function AdminAuditLogsPage() {
                                 </div>
                         ) : (
                                 <>
-                                        <div className="rounded-xl border border-border/30 bg-card/50 overflow-x-auto">
+                                        <div className="rounded-lg border border-border/30 bg-card/50 overflow-x-auto">
                                                 <Table className="min-w-[600px]">
                                                         <TableHeader>
                                                                 <TableRow>
-                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الإجراء</TableHead>
-                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الهدف</TableHead>
-                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الجهة الفاعلة</TableHead>
-                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border hidden md:table-cell">IP</TableHead>
-                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border hidden sm:table-cell">التاريخ</TableHead>
-                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border w-8" />
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الإجراء</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الهدف</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الجهة الفاعلة</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border hidden md:table-cell">IP</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border hidden sm:table-cell">التاريخ</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle font-heading text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border w-8" />
                                                                 </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
@@ -280,7 +282,7 @@ export default function AdminAuditLogsPage() {
                                                                         const as = getActionStyle(log.action);
                                                                         const isExpanded = expandedId === log.id;
                                                                         return (
-                                                                                <TableRow key={log.id} className="group hover:bg-muted">
+                                                                                <TableRow key={log.id} className="group hover:bg-orange/5">
                                                                                         <TableCell>
                                                                                                 <Badge className={cn('font-medium', as.bg, as.color)}>{as.label}</Badge>
                                                                                         </TableCell>
@@ -335,7 +337,7 @@ export default function AdminAuditLogsPage() {
 
                                         {/* Expanded metadata rows */}
                                         {expandedId !== null && (
-                                                <div className="rounded-xl border border-border/30 bg-muted/30 p-4 overflow-x-auto">
+                                                <div className="rounded-lg border border-border/30 bg-muted/30 p-4 overflow-x-auto">
                                                         <pre
                                                                 className="text-xs font-mono whitespace-pre-wrap break-words max-h-96 overflow-y-auto"
                                                                 dir="ltr"

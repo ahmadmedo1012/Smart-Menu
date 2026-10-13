@@ -20,26 +20,27 @@ interface StatsRowProps {
 }
 
 export function StatsRow({ total, restaurants }: StatsRowProps) {
+  /* Phase 6 (r154): plate wells + Baloo labels — the owner stat grammar. */
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-accent-foreground">إجمالي المطاعم</p>
+        <p className="font-heading text-xs font-semibold text-accent-foreground">إجمالي المطاعم</p>
         <p className="text-2xl font-bold mt-1 text-accent-foreground">{toArabicNumber(total)}</p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-accent-foreground">على الخطة المدفوعة</p>
+        <p className="font-heading text-xs font-semibold text-accent-foreground">على الخطة المدفوعة</p>
         <p className="text-2xl font-bold mt-1 text-accent-foreground">
           {toArabicNumber(restaurants.filter((r) => r.plan?.price && Number(r.plan.price) > 0).length)}
         </p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-accent-foreground">إجمالي الطلبات</p>
+        <p className="font-heading text-xs font-semibold text-accent-foreground">إجمالي الطلبات</p>
         <p className="text-2xl font-bold mt-1 text-accent-foreground">
           {toArabicNumber(restaurants.reduce((a, r) => a + r._count.orders, 0))}
         </p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-accent-foreground">مجاني</p>
+        <p className="font-heading text-xs font-semibold text-accent-foreground">مجاني</p>
         <p className="text-2xl font-bold mt-1 text-accent-foreground">
           {toArabicNumber(restaurants.filter((r) => !r.planId || Number(r.plan?.price) === 0).length)}
         </p>
@@ -97,17 +98,17 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
   const planGrad = (r.plan?.name && PLAN_COLORS[r.plan.name]) || "from-muted-foreground/60 to-muted-foreground/80"
 
   return (
-    <div className={cn("rounded-md border p-5 transition-[border-color,box-shadow]", isSelected ? "border-orange/40 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 bg-card/50 hover:border-orange/20 hover:shadow-md")}>
+    <div className={cn("rounded-lg border p-5 transition-[border-color,box-shadow]", isSelected ? "border-orange/40 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 bg-card/50 hover:border-orange/20 hover:shadow-md")}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <input type="checkbox" checked={isSelected} onChange={() => onToggle(r.id)}
             className="rounded border-border shrink-0 mt-1" aria-label={`تحديد ${r.name}`} />
-          <div className={cn("size-12 rounded-md bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0", planGrad)} aria-hidden="true">
+          <div className={cn("size-12 rounded-full bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0", planGrad)} aria-hidden="true">
             <PlanIcon className="size-6 text-orange-foreground" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="font-bold text-lg">{r.name}</h2>
+              <h2 className="font-heading font-bold text-lg">{r.name}</h2>
               {r.plan ? (
                 <span className={cn("text-3xs font-bold px-2.5 py-1 rounded-full text-orange-foreground bg-gradient-to-r", planGrad)}>{r.plan.nameAr}</span>
               ) : (
@@ -129,12 +130,12 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <a href={`/menu/${r.slug}`} target="_blank" rel="noopener noreferrer"
-            className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="size-11 rounded-full border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             title="عرض المنيو" aria-label={`عرض منيو ${r.name}`}>
             <AnimatedExternalLink className="size-4" aria-hidden="true" />
           </a>
           <button type="button" onClick={() => onToggleShowOnLanding(r.id, !r.showOnLanding)}
-            className={cn("size-11 rounded-xl border flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            className={cn("size-11 rounded-full border flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               r.showOnLanding
                 ? "border-orange/30 bg-orange/10 text-accent-foreground hover:bg-orange/20"
                 /* r127-F4: /40 → /60 — أيقونة زر التبديل التفاعلي تحت أرضية 3:1 للرسوم */
@@ -145,12 +146,12 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
             <AnimatedSparkles className="size-3.5" aria-hidden="true" />
           </button>
           <button type="button" onClick={() => onEdit(r)}
-            className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="size-11 rounded-full border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             title="تعديل" aria-label={`تعديل ${r.name}`}>
             <Pencil className="size-4" aria-hidden="true" />
           </button>
           <button type="button" onClick={() => onDelete(r)}
-            className="size-11 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+            className="size-11 rounded-full border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
             title="حذف" aria-label={`حذف ${r.name}`}>
             <AnimatedTrash2 className="size-4" aria-hidden="true" />
           </button>

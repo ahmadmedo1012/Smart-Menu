@@ -117,7 +117,9 @@ export function SystemEventsClient() {
                                                         aria-pressed={isActive}
                                                         className={cn(
                                                                 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                isActive ? 'bg-orange text-orange-foreground shadow-sm' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                                                /* Phase 6 (r154): warm pill grammar — solid terracotta
+                                                                   active, bordered card idle (the owner filter recipe). */
+                                                                isActive ? 'bg-orange text-orange-foreground shadow-sm' : 'bg-card/50 border border-border/30 text-muted-foreground hover:border-orange/30 hover:bg-orange-muted/40'
                                                         )}
                                                 >
                                                         {key !== 'all' && <span className={cn('size-1.5 rounded-full', SEVERITY_STYLES[key].dot)} aria-hidden="true" />}
@@ -149,7 +151,7 @@ export function SystemEventsClient() {
                                                                 <button
                                                                         type="button"
                                                                         onClick={() => setSeverityFilter('all')}
-                                                                        className="inline-flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 text-sm font-medium hover:bg-muted/80 transition-colors"
+                                                                        className="inline-flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 text-sm font-medium hover:bg-orange-muted/40 transition-colors"
                                                                 >
                                                                         <FilterX className="size-3.5" aria-hidden="true" />
                                                                         عرض الكل
@@ -170,7 +172,7 @@ export function SystemEventsClient() {
                                                         const st = SEVERITY_STYLES[sev];
                                                         const SevIcon = st.icon;
                                                         return (
-                                                                <li key={ev.id} className="group flex items-start gap-3 p-4 transition-colors hover:bg-muted/20">
+                                                                <li key={ev.id} className="group flex items-start gap-3 p-4 transition-colors hover:bg-orange/5">
                                                                         <span className={cn('size-2 rounded-full shrink-0 mt-1.5', st.dot)} aria-hidden="true" />
                                                                         <span
                                                                                 className={cn(

@@ -50,22 +50,22 @@ export function BroadcastTargetsSection({
     <section>
       <div className="flex items-center gap-2 mb-4">
         <AnimatedSend className="size-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold">جهات الإرسال (Broadcast Targets)</h2>
+        <h2 className="font-heading text-lg font-semibold">جهات الإرسال (Broadcast Targets)</h2>
       </div>
-      <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
+      <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
         <div className="p-5 space-y-4">
           <div className="flex items-end gap-2">
             <div className="flex-1">
               <Label htmlFor="tg-new-label">تسمية</Label>
               <Input id="tg-new-label" value={newLabel} onChange={(e) => setNewLabel(e.target.value)}
-                placeholder="مثال: قناة الإشعارات" className="h-11 rounded-xl mt-1.5" />
+                placeholder="مثال: قناة الإشعارات" className="mt-1.5" />
             </div>
             <div className="flex-1">
               <Label htmlFor="tg-new-chatid">معرف المحادثة</Label>
               <Input id="tg-new-chatid" value={newChatId} onChange={(e) => setNewChatId(e.target.value)}
-                placeholder="-100xxxx" className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+                placeholder="-100xxxx" className="mt-1.5 text-left" dir="ltr" />
             </div>
-            <Button onClick={handleAdd} disabled={adding || !newChatId.trim()} className="rounded-xl gap-1 shrink-0">
+            <Button onClick={handleAdd} disabled={adding || !newChatId.trim()} className="gap-1 shrink-0">
               {adding ? <Loader2 className="size-4 animate-spin" /> : <MotionPlus className="size-4" />}
               إضافة
             </Button>
@@ -75,13 +75,13 @@ export function BroadcastTargetsSection({
           ) : (
             <div className="space-y-2">
               {targets.map((t) => (
-                <div key={t.id} className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/20">
+                <div key={t.id} className="flex items-center gap-3 p-3 rounded-md bg-background/50 border border-border/20">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{t.label || t.chatId}</p>
                     <p className="text-xs font-mono text-muted-foreground" dir="ltr">{maskChatId(t.chatId)}</p>
                   </div>
                   <Switch checked={t.isActive} onCheckedChange={(v) => onToggle(t.id, v)} />
-                  <Button variant="destructive" size="sm" onClick={() => onDelete(t.id)} className="rounded-xl" aria-label="حذف جهة الإرسال">
+                  <Button variant="destructive" size="sm" onClick={() => onDelete(t.id)} aria-label="حذف جهة الإرسال">
                     <AnimatedTrash2 className="size-4" />
                   </Button>
                 </div>
