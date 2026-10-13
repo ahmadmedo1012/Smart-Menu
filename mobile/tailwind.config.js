@@ -35,6 +35,7 @@ module.exports = {
         ring: "#C2452D",              // terracotta focus ring
         "on-accent": "#FFFFFF",       // white on terracotta (5.02:1)
         whatsapp: "#25D366",          // WhatsApp brand green (reserved)
+        "whatsapp-ink": "#1F4F30",   // text on brand green (web --whatsapp-ink)
         success: "#6FA06A",           // sage ink
         warning: "#B7791F",           // amber ink (sparing)
         info: "#6B8CA3",              // steel ink

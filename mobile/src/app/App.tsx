@@ -38,7 +38,7 @@ import {
 } from "@expo-google-fonts/ibm-plex-mono";
 import { I18nManager, LogBox } from "react-native";
 
-// Madarek design system: IBM Plex Sans Arabic 400/500/600/700 (no 800) — the
+// Body face: IBM Plex Sans Arabic 400/500/600/700 (no 800) — the
 // same brand face the web app self-hosts. Replaces the retired Cairo +
 // Readex Pro pair; weights register under the "IBM Plex Sans Arabic*"
 // families that every screen references.

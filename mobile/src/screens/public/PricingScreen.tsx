@@ -44,7 +44,7 @@ export function PricingScreen() {
        the 24px price metric + period line + the 56px CTA well. Was a
        centered spinner. */
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <View style={{ padding: 16 }}>
           <Skeleton width={"45%"} height={24} />
           <Skeleton width={"70%"} height={13} />
@@ -63,7 +63,7 @@ export function PricingScreen() {
 
   if (loadError) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <ErrorState message={loadError} onRetry={() => { void refetch(); }} />
       </SafeAreaView>
     );
@@ -71,29 +71,29 @@ export function PricingScreen() {
 
   if (plans.length === 0) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <EmptyState title="لا توجد باقات متاحة" />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <ConnectivityBanner />
       <Animated.View entering={enterFade} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.gold} />}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: colors.sand, marginBottom: 8 }}>اختر باقتك</Text>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.terracotta} />}>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 24, fontWeight: "700", color: colors.ink, marginBottom: 8 }}>اختر باقتك</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginBottom: 16 }}>باقات مرنة تناسب كل أنواع المطاعم والمقاهي</Text>
         {plans.map((plan) => {
           const isPopular = plan.sortOrder === 1 || plan.name.toLowerCase().includes("pro") || plan.name.toLowerCase().includes("premium");
           return (
-            <View key={plan.id} style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: isPopular ? 2 : 1, borderColor: isPopular ? colors.gold : colors.hairline }}>
+            <View key={plan.id} style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: isPopular ? 2 : 1, borderColor: isPopular ? colors.terracotta : colors.hairline }}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>{plan.nameAr || plan.name}</Text>
+                <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink }}>{plan.nameAr || plan.name}</Text>
                 {isPopular ? (
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.gold, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
-                    <Sparkles size={12} color={colors.void} />
-                    <Text style={{ color: colors.void, fontFamily: "IBM Plex Sans Arabic", fontSize: 11, fontWeight: "700" }}>الأكثر شيوعًا</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.terracotta, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
+                    <Sparkles size={12} color={colors.onAccent} />
+                    <Text style={{ color: colors.onAccent, fontFamily: "IBM Plex Sans Arabic", fontSize: 11, fontWeight: "700" }}>الأكثر شيوعًا</Text>
                   </View>
                 ) : null}
               </View>
@@ -101,12 +101,12 @@ export function PricingScreen() {
                   24px gold tnum on BOTH mobile pricing surfaces (was 28px
                   here / 20px on the subscribe wizard; the web pair rides the
                   same ruling). */}
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: colors.gold, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(plan.price)}</Text>
+              <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 24, fontWeight: "700", color: colors.terracottaPressed, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(plan.price)}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginBottom: 16 }}>لمدة {plan.periodDays} يوم</Text>
               {plan.features?.map((f, i) => (
                 <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
                   <Check size={14} color={colors.mint} style={{ marginTop: 2 }} />
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.sand, flex: 1 }}>{f}</Text>
+                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.ink, flex: 1 }}>{f}</Text>
                 </View>
               ))}
               <View style={{ flexDirection: "row", gap: 16, marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.hairline }}>
@@ -127,7 +127,7 @@ export function PricingScreen() {
 function Limit({ label, value }: { label: string; value: number }) {
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }} maxFontSizeMultiplier={1.4}>{value}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.ink, fontVariant: METRIC_FONT_VARIANT }} maxFontSizeMultiplier={1.4}>{value}</Text>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted }} maxFontSizeMultiplier={1.4}>{label}</Text>
     </View>
   );

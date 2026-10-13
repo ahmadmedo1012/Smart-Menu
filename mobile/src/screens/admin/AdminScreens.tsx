@@ -22,17 +22,17 @@ export function AdminDashboardScreen() {
   const logout = useAuth((s) => s.logout);
   const navigation = useNavigation<RootNavigation>();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: colors.sand, marginBottom: 4 }}>لوحة المدير</Text>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 22, fontWeight: "700", color: colors.ink, marginBottom: 4 }}>لوحة المدير</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginBottom: 24 }}>أهلًا {user?.name || user?.username}</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {user?.role === "super_admin" ? <AdminAction icon={<Users size={20} color={colors.sand} />} label="المستخدمون" onPress={() => navigation.navigate("AdminUsers")} /> : null}
-          {user?.role === "super_admin" ? <AdminAction icon={<Users size={20} color={colors.sand} />} label="المدراء" onPress={() => navigation.navigate("AdminAdmins")} /> : null}
-          <AdminAction icon={<Bell size={20} color={colors.sand} />} label="أحداث النظام" onPress={() => navigation.navigate("AdminSystemEvents")} />
-          {user?.role === "super_admin" ? <AdminAction icon={<FileText size={20} color={colors.sand} />} label="سجل التدقيق" onPress={() => navigation.navigate("AdminAuditLogs")} /> : null}
-          <AdminAction icon={<Send size={20} color={colors.sand} />} label="تليجرام" onPress={() => navigation.navigate("AdminTelegram")} />
-          <AdminAction icon={<Settings size={20} color={colors.sand} />} label="الإعدادات" onPress={() => navigation.navigate("AdminSettings")} />
+          {user?.role === "super_admin" ? <AdminAction icon={<Users size={20} color={colors.ink} />} label="المستخدمون" onPress={() => navigation.navigate("AdminUsers")} /> : null}
+          {user?.role === "super_admin" ? <AdminAction icon={<Users size={20} color={colors.ink} />} label="المدراء" onPress={() => navigation.navigate("AdminAdmins")} /> : null}
+          <AdminAction icon={<Bell size={20} color={colors.ink} />} label="أحداث النظام" onPress={() => navigation.navigate("AdminSystemEvents")} />
+          {user?.role === "super_admin" ? <AdminAction icon={<FileText size={20} color={colors.ink} />} label="سجل التدقيق" onPress={() => navigation.navigate("AdminAuditLogs")} /> : null}
+          <AdminAction icon={<Send size={20} color={colors.ink} />} label="تليجرام" onPress={() => navigation.navigate("AdminTelegram")} />
+          <AdminAction icon={<Settings size={20} color={colors.ink} />} label="الإعدادات" onPress={() => navigation.navigate("AdminSettings")} />
         </View>
         {/* r131-F10 (fix 1 completion): PressableScale — was a silent raw Pressable. */}
         <PressableScale onPress={logout} accessibilityLabel="تسجيل الخروج" style={{ marginTop: 32, padding: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
@@ -56,72 +56,72 @@ function AdminAction({ icon, label, onPress }: { icon: React.ReactNode; label: s
 
 export function AdminRestaurantsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة المطاعم" icon={<Store size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="إدارة المطاعم" icon={<Store size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminUsersScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة المستخدمين" icon={<Users size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="إدارة المستخدمين" icon={<Users size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminAdminsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة المدراء الفرعيين" icon={<Users size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="إدارة المدراء الفرعيين" icon={<Users size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminOrdersScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="جميع الطلبات" icon={<CreditCard size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="جميع الطلبات" icon={<CreditCard size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminOrderDetailScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="تفاصيل الطلب" icon={<CreditCard size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="تفاصيل الطلب" icon={<CreditCard size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminSubscriptionsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="موافقات الاشتراكات" icon={<CreditCard size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="موافقات الاشتراكات" icon={<CreditCard size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminSystemEventsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="أحدث أحداث النظام" icon={<Bell size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="أحدث أحداث النظام" icon={<Bell size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminAuditLogsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="سجل التدقيق" icon={<FileText size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="سجل التدقيق" icon={<FileText size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function AdminTelegramScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="تكامل تليجرام" icon={<Send size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="تكامل تليجرام" icon={<Send size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
@@ -129,9 +129,9 @@ export function AdminTelegramScreen() {
 export function AdminSettingsScreen() {
   const logout = useAuth((s) => s.logout);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>الإعدادات</Text>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, marginBottom: 16 }}>الإعدادات</Text>
         {/* r131-F10 (fix 1 completion): PressableScale — was a silent raw Pressable. */}
         <PressableScale onPress={logout} accessibilityLabel="تسجيل الخروج" style={{ paddingVertical: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.rose, fontWeight: "700" }} maxFontSizeMultiplier={1.4}>تسجيل الخروج</Text>

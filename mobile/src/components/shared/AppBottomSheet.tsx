@@ -6,12 +6,12 @@
  * installed with its provider mounted. This wrapper is the app's sheet on
  * top of BottomSheetModal:
  *
- * - swipe-to-dismiss + backdrop tap-to-close (dim 0.7, matches the old scrim)
+ * - swipe-to-dismiss + backdrop tap-to-close (warm espresso veil, 0.7)
  * - enter/exit 380ms ease-out — the Madarek --t-slow rung (mandate's
  *   240-380ms sheet band), instant under reduced-motion
  * - keyboardBehavior="interactive" — inputs scroll with the keyboard
  * - safe-area bottom padding on the pinned footer (home-indicator overlap)
- * - night surface + 20px top radius (ladder) + grabber handle
+ * - raised-plate surface + 28px plate-round top (r-3xl) + grabber handle
  *
  * Mount pattern: the parent renders <AppBottomSheet> only while the sheet
  * should be open; it presents itself on mount and calls onClose (after the
@@ -88,6 +88,10 @@ export const AppBottomSheet = forwardRef<AppBottomSheetHandle, AppBottomSheetPro
       (props: BottomSheetBackdropProps) => (
         <BottomSheetBackdrop
           {...props}
+          // Phase 6 (P6-2-c): the WARM veil — the backdrop paints the espresso
+          // scrim ink (colors.scrim base #2A1B10) instead of the library's cold
+          // black, mirroring the web --overlay light twin on the cream ground.
+          style={{ backgroundColor: "#2A1B10" }}
           opacity={0.7}
           disappearsOnIndex={-1}
           appearsOnIndex={0}
@@ -104,13 +108,14 @@ export const AppBottomSheet = forwardRef<AppBottomSheetHandle, AppBottomSheetPro
         backdropComponent={renderBackdrop}
         animationConfigs={animationConfigs}
         backgroundStyle={{
+          // Phase 6: plate-round top (r-3xl 28 — the culinary sheet rung).
           backgroundColor: colors.surface,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
           borderWidth: 1,
           borderColor: colors.hairline,
         }}
-        handleIndicatorStyle={{ backgroundColor: colors.muted, width: 44 }}
+        handleIndicatorStyle={{ backgroundColor: colors.hairlineStrong, width: 44 }}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
         android_keyboardInputMode="adjustResize"

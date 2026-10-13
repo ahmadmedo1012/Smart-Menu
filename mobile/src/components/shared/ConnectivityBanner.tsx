@@ -17,8 +17,10 @@ export function ConnectivityBanner() {
   if (online) return null;
   return (
     <View style={{ backgroundColor: colors.rose, paddingVertical: 8, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 8, zIndex: 100 }}>
-      <WifiOff size={16} color={colors.void} />
-      <Text style={{ color: colors.void, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600" }}>
+      {/* Phase 6: espresso ink on the deep-rose fill (web --destructive-foreground
+          light = #241811, 4.71:1 — white-on-rose fails AA at 3.1:1). */}
+      <WifiOff size={16} color={colors.ink} />
+      <Text style={{ color: colors.ink, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600" }}>
         لا يوجد اتصال بالإنترنت — تحقق من شبكتك
       </Text>
     </View>

@@ -24,7 +24,7 @@ interface ErrorBoundaryState {
  * (function components cannot catch render errors) mounted once around the
  * root navigator in App.tsx.
  *
- * r126-M7: brand styling now rides the shared Madarek palette
+ * r126-M7: brand styling now rides the shared palette
  * (src/theme/colors.ts) like every other surface — the old comment about
  * "no shared color-constants module" is obsolete.
  */
@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // screen. «إعادة المحاولة» is the same operation under its own label so
     // users can act on whichever promise they read first.
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
           {/* r131-F10 (fix 3): the crash well converges on the canonical
               56px r-xl state tile in the ROSE error family (SO states.tsx
@@ -72,7 +72,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             }}>
             <TriangleAlert size={24} color={colors.rose} />
           </View>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, textAlign: "center" }}>
+          <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 20, fontWeight: "700", color: colors.ink, textAlign: "center" }}>
             حدث خطأ غير متوقع
           </Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
@@ -85,10 +85,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             onPress={this.reset}
             accessibilityLabel="إعادة المحاولة"
             style={{
-              marginTop: 28, backgroundColor: colors.gold, borderRadius: radius.md,
+              marginTop: 28, backgroundColor: colors.terracotta, borderRadius: radius.md,
               paddingVertical: 12, paddingHorizontal: 32,
             }}>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.void }}>إعادة المحاولة</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.onAccent }}>إعادة المحاولة</Text>
           </PressableScale>
           <PressableScale
             onPress={this.reset}

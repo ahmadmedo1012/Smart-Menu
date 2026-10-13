@@ -1,21 +1,21 @@
 /**
- * r129-F5: the landing re-ground — the Orbit-Ink world (#252A3E) replaces
- * the product night, mirroring the web's `.landing` scoping rule: ONLY this
- * route paints Orbit-Ink (ink/cream/lime/violet, IBM Plex Mono voice,
- * 0.97 press register); every other screen keeps colors.ts night/sand/gold.
+ * Phase 6 (P6-2-c): the landing re-grounds AGAIN — the doubly-retired
+ * Orbit-Ink world (#252A3E/lime/violet) gives way to «المائدة», the web
+ * Phase-5 r142 landing identity (warm cream paper #F7F1E3, deep espresso
+ * ink, the ember/terracotta roster, Baloo display on the h1/stations).
+ * Scoping rule unchanged: ONLY this route + components/landing/* consume
+ * theme/landing.ts; the product world rides colors.ts.
  *
- * Anatomy (the web HomePage.tsx r128 layer, mobile P0 subset — light path,
- * marquee, sky and grain are P1/P3):
- *   hero   — mono chapter eyebrow «00 — البداية», h1 with exactly ONE lime
- *            word (الطلبات على واتساب), sub, gold/ghost pill pair (48px,
+ * Anatomy (the mobile P0 subset of the web المائدة narrative):
+ *   hero   — mono chapter eyebrow «00 — البداية», Baloo h1 with exactly ONE
+ *            ember word (على واتساب), sub, ember/ghost pill pair (48px,
  *            press 0.97), 13px meta row with hairline dots;
- *   trust  — full-bleed ink-2 band: mono 13px cream figures, CountUp
+ *   trust  — full-bleed paper-2 band: mono 13px ink figures, CountUp
  *            (ar-LY), honest "—" + ghost retry (never-fake, r82);
- *   journey— the web's 5-station copy (JourneySection.tsx STATIONS) as
- *            flat stacked hairline cards (radius 20, cream 3% fill):
- *            STATIC this round — no light path, no scrub.
+ *   journey— the 5-station copy (web STATIONS) as stacked hairline cards
+ *            (radius 24, raised --sm-card fill): STATIC (no light path).
  * The featured plate keeps its live ["landing"] query, re-skinned to the
- * Orbit-Ink card recipe. FAB + connectivity banner stay product chrome.
+ * المائدة card recipe. FAB + connectivity banner stay product chrome.
  */
 import { View, ScrollView, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -160,7 +160,7 @@ export function LandingScreen() {
                 (GAP-5 — tall-glyph Arabic display leading). */}
             <Text
               style={{
-                fontFamily: "IBM Plex Sans Arabic",
+                fontFamily: "Baloo Bhaijaan 2",
                 fontWeight: "700",
                 fontSize: h1Size,
                 lineHeight: Math.round(h1Size * landing.h1LineHeight),
@@ -235,7 +235,7 @@ export function LandingScreen() {
             <ChapterLabel>02 — الرحلة</ChapterLabel>
             <Text
               style={{
-                fontFamily: "IBM Plex Sans Arabic",
+                fontFamily: "Baloo Bhaijaan 2",
                 fontWeight: "700",
                 fontSize: 32,
                 lineHeight: 39,
@@ -317,7 +317,7 @@ export function LandingScreen() {
                   </View>
                   <Text
                     style={{
-                      fontFamily: "IBM Plex Sans Arabic",
+                      fontFamily: "Baloo Bhaijaan 2",
                       fontWeight: "700",
                       fontSize: 22,
                       color: landing.ink,
@@ -348,7 +348,7 @@ export function LandingScreen() {
             <View style={{ paddingHorizontal: gutter, paddingTop: spacing.sp10 }}>
               <Text
                 style={{
-                  fontFamily: "IBM Plex Sans Arabic",
+                  fontFamily: "Baloo Bhaijaan 2",
                   fontWeight: "700",
                   fontSize: 18,
                   color: landing.ink,

@@ -18,14 +18,14 @@ import { radius } from "@/theme/radius";
  * finished the sweep — the one surviving Spinner is the orders list's
  * load-more pagination feedback).
  *
- * r131-F10: the state family converges on the canonical Madarek well —
+ * r131-F10: the state family converges on the canonical state well —
  * 56px r-xl icon tile (grey family for empty, rose for error), title
  * 18px/600, matching the web EmptyState fix and the smart-order
  * states.tsx twin (fleet ruling "empty = 56 grey / 18/600").
  */
 
 export function Spinner({ size = "large" }: { size?: "small" | "large" }) {
-  return <ActivityIndicator size={size} color={colors.gold} />;
+  return <ActivityIndicator size={size} color={colors.terracotta} />;
 }
 
 export function EmptyState({ title, description, icon }: { title: string; description?: string; icon?: ReactNode }) {
@@ -72,7 +72,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
            PressableScale press register (was a silent raw Pressable). */
         <PressableScale
           onPress={onRetry}
-          style={{ marginTop: 16, minHeight: 44, borderRadius: radius.md, backgroundColor: colors.gold, paddingHorizontal: 16, paddingVertical: 10, alignItems: "center", justifyContent: "center" }}>
+          style={{ marginTop: 16, minHeight: 44, borderRadius: radius.md, backgroundColor: colors.terracotta, paddingHorizontal: 16, paddingVertical: 10, alignItems: "center", justifyContent: "center" }}>
           <Text className="text-on-accent font-sans font-semibold" maxFontSizeMultiplier={1.4}>إعادة المحاولة</Text>
         </PressableScale>
       ) : null}
@@ -109,13 +109,13 @@ export function ComingSoon({
       }}>
         <View style={{ opacity: 0.85 }}>{icon}</View>
       </View>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, textAlign: "center" }}>{title}</Text>
+      <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, textAlign: "center" }}>{title}</Text>
       <View style={{
         flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.surface2,
         borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 4, marginTop: 10,
       }}>
-        <View style={{ width: 8, height: 8, borderRadius: 9999, backgroundColor: colors.gold }} />
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: colors.gold }} maxFontSizeMultiplier={1.4}>قريبًا</Text>
+        <View style={{ width: 8, height: 8, borderRadius: 9999, backgroundColor: colors.terracotta }} />
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: colors.terracotta }} maxFontSizeMultiplier={1.4}>قريبًا</Text>
       </View>
       {webHint ? (
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 12, lineHeight: 20 }}>

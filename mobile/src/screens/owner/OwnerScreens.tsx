@@ -21,6 +21,7 @@ import { ORDERS_POLL_INTERVAL_MS } from "@/constants";
 import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
+import { DotLeader } from "@/components/DotLeader";
 import { colors, pastelFamilies } from "@/theme/colors";
 import { METRIC_FONT_VARIANT } from "@/theme/typography";
 
@@ -53,7 +54,7 @@ export function OwnerDashboardScreen() {
        a section title, then recent-order rows (the item-card recipe with
        the price/status lane). Was a centered spinner. */
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <View style={{ padding: 16 }}>
           <Skeleton width={"55%"} height={22} />
           <View style={{ flexDirection: "row", gap: 8, marginTop: 16, marginBottom: 8 }}>
@@ -89,29 +90,29 @@ export function OwnerDashboardScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <Animated.View entering={enterFade} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.gold} />}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.terracotta} />}>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 22, fontWeight: "700", color: colors.ink, marginBottom: 16 }}>
           أهلًا، {user?.name || user?.username || "صاحب المطعم"}
         </Text>
         {loadError ? <ErrorState message={loadError} onRetry={() => { void refetch(); }} /> : stats ? (
           <>
             <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
-              <Kpi label="إجمالي الطلبات" value={toArabicNumber(stats.totalOrders)} icon={<ClipboardList size={18} color={colors.gold} />} />
-              <Kpi label="طلبات اليوم" value={toArabicNumber(stats.todayOrders)} icon={<TrendingUp size={18} color={colors.gold} />} />
+              <Kpi label="إجمالي الطلبات" value={toArabicNumber(stats.totalOrders)} icon={<ClipboardList size={18} color={colors.terracotta} />} />
+              <Kpi label="طلبات اليوم" value={toArabicNumber(stats.todayOrders)} icon={<TrendingUp size={18} color={colors.terracotta} />} />
             </View>
-            <Kpi label="إيرادات اليوم" value={formatPrice(stats.todayRevenue)} icon={<Package size={18} color={colors.gold} />} full />
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, marginVertical: 16 }}>إجراءات سريعة</Text>
+            <Kpi label="إيرادات اليوم" value={formatPrice(stats.todayRevenue)} icon={<Package size={18} color={colors.terracotta} />} full />
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.ink, marginVertical: 16 }}>إجراءات سريعة</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              <QuickAction icon={<ClipboardList size={20} color={colors.sand} />} label="الطلبات" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerOrders")} />
-              <QuickAction icon={<Package size={20} color={colors.sand} />} label="المنيو" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerMenu")} />
-              <QuickAction icon={<QrCode size={20} color={colors.sand} />} label="رمز QR" onPress={() => navigation.navigate("OwnerQr")} />
-              <QuickAction icon={<Star size={20} color={colors.sand} />} label="التقييمات" onPress={() => navigation.navigate("OwnerReviews")} />
-              <QuickAction icon={<Award size={20} color={colors.sand} />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
-              <QuickAction icon={<Settings size={20} color={colors.sand} />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
+              <QuickAction icon={<ClipboardList size={20} color={colors.ink} />} label="الطلبات" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerOrders")} />
+              <QuickAction icon={<Package size={20} color={colors.ink} />} label="المنيو" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerMenu")} />
+              <QuickAction icon={<QrCode size={20} color={colors.ink} />} label="رمز QR" onPress={() => navigation.navigate("OwnerQr")} />
+              <QuickAction icon={<Star size={20} color={colors.ink} />} label="التقييمات" onPress={() => navigation.navigate("OwnerReviews")} />
+              <QuickAction icon={<Award size={20} color={colors.ink} />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
+              <QuickAction icon={<Settings size={20} color={colors.ink} />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
             </View>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.ink, marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
             {stats.recentOrders.length === 0 ? (
               /* r132-F2b (A4 S8): the dashboard's recent-orders empty rides
                  the canonical EmptyState well (56px grey tile + 18/600) —
@@ -127,11 +128,11 @@ export function OwnerDashboardScreen() {
                 // (tokens.css:248); totals/order-no ride tabular numerals.
                 <PressableScale key={o.id} scaleTo={0.99} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: colors.surface, borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
                   <View>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{o.orderNo}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.ink, fontVariant: METRIC_FONT_VARIANT }}>{o.orderNo}</Text>
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(o.total)}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.terracottaPressed, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(o.total)}</Text>
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 10, color: colors.muted, marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
                   </View>
                 </PressableScale>
@@ -155,7 +156,7 @@ function Kpi({ label, value, icon, full }: { label: string; value: string; icon:
   return (
     <View style={{ flex: full ? 1 : 0.5, backgroundColor: colors.surface, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: colors.hairline, marginBottom: 8 }}>
       <View style={{ marginBottom: 6 }}>{icon}</View>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{value}</Text>
+      <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, fontVariant: METRIC_FONT_VARIANT }}>{value}</Text>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }}>{label}</Text>
     </View>
   );
@@ -303,7 +304,7 @@ export function OwnerOrdersScreen() {
           onPress={() => { void loadMore(); }}
           accessibilityLabel="تحميل المزيد من الطلبات"
           style={{ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.hairline }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.gold }} maxFontSizeMultiplier={1.4}>تحميل المزيد</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.terracotta }} maxFontSizeMultiplier={1.4}>تحميل المزيد</Text>
         </PressableScale>
       );
     }
@@ -324,7 +325,7 @@ export function OwnerOrdersScreen() {
        surface r-12 hairline cards). The load-more footer Spinner survives
        by design: inline pagination feedback is not a loading state. */
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <View style={{ padding: 16 }}>
           {[0, 1, 2, 3, 4].map((i) => (
             <View key={i} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
@@ -345,13 +346,13 @@ export function OwnerOrdersScreen() {
   }
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <ErrorState message={getErrorMessage(error, "تعذّر تحميل الطلبات")} onRetry={() => { void refetch(); }} />
       </SafeAreaView>
     );
   }
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <Animated.View entering={enterFade} style={{ flex: 1 }}>
       <FlatList
         data={orders}
@@ -360,20 +361,20 @@ export function OwnerOrdersScreen() {
           // r130 W2-4: order CARD → --state-card-pressed-scale 0.99.
           <PressableScale scaleTo={0.99} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "عميل"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{o.orderNo}</Text>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.gold, fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.ink, fontVariant: METRIC_FONT_VARIANT }}>{o.orderNo}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.terracotta, fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
             </View>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>{o.customerName || "عميل"} • {o.customerPhone || "—"}</Text>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted }}>{formatRelativeTimeAr(o.createdAt)}</Text>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(o.total)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.terracottaPressed, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(o.total)}</Text>
             </View>
           </PressableScale>
         )}
         onEndReached={() => { void loadMore(); }}
         onEndReachedThreshold={0.4}
         contentContainerStyle={{ padding: 16, paddingBottom: 32, flexGrow: 1 }}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.gold} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.terracotta} />}
         ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={24} color={pastelFamilies.grey.deep} />} />}
         ListFooterComponent={renderFooter}
       />
@@ -399,7 +400,7 @@ export function OwnerOrderDetailScreen() {
 
   if (orderId === null) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <ErrorState message="طلب غير صالح" />
       </SafeAreaView>
     );
@@ -411,7 +412,7 @@ export function OwnerOrderDetailScreen() {
        + 3 item rows (name + price lane) + the totals row, the loaded
        layout's geometry. */
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <View style={{ padding: 16 }}>
           <Skeleton width={"45%"} height={20} />
           <Skeleton width={"30%"} height={13} />
@@ -435,7 +436,7 @@ export function OwnerOrderDetailScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <ErrorState message={getErrorMessage(error, "تعذّر تحميل الطلب")} onRetry={() => { void refetch(); }} />
       </SafeAreaView>
     );
@@ -477,36 +478,41 @@ export function OwnerOrderDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       {/* r126 (A6 P2-2): pull-to-refresh — the detail screen had none. */}
-      <ScrollView contentContainerStyle={{ padding: 16 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.gold} />}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{order.orderNo}</Text>
+      <ScrollView contentContainerStyle={{ padding: 16 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.terracotta} />}>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 20, fontWeight: "700", color: colors.ink, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{order.orderNo}</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
         <View style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.hairline }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, marginBottom: 4 }}>بيانات العميل</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.ink, marginBottom: 4 }}>بيانات العميل</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>الاسم: {order.customerName || "—"}</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>الهاتف: {order.customerPhone || "—"}</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>النوع: {getPickupTypeMeta(order.pickupType).label}</Text>
           {order.notes ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>ملاحظات: {order.notes}</Text> : null}
         </View>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.sand, marginBottom: 8 }}>الأصناف</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.ink, marginBottom: 8 }}>الأصناف</Text>
         {order.items.map((i) => (
-          <View key={i.id} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.hairline }}>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.sand }}>{i.quantity}× {i.name}</Text>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(i.price * i.quantity)}</Text>
+          <View key={i.id} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.hairline }}>
+            {/* Phase 6: قائد النقاط — the item line ends at its price through
+                the printed-menu dotted leader (web order-dialog twin). */}
+            <DotLeader
+              leading={<Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.ink, flexShrink: 1 }}>{i.quantity}× {i.name}</Text>}
+              trailing={<Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.terracottaPressed, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(i.price * i.quantity)}</Text>}
+            />
           </View>
         ))}
-        <View style={{ flexDirection: "row", justifyContent: "space-between", paddingTop: 12, marginTop: 4 }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand }}>المجموع</Text>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(order.total)}</Text>
-        </View>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.sand, marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
+        <DotLeader
+          style={{ paddingTop: 12, marginTop: 4 }}
+          leading={<Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.ink }}>المجموع</Text>}
+          trailing={<Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.terracottaPressed, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(order.total)}</Text>}
+        />
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.ink, marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {["new", "preparing", "ready", "completed", "cancelled"].map((s) => (
             // r131-F10 (fix 1 completion + fix 5): status pills ride
             // PressableScale and expose the selected state to screen readers.
-            <PressableScale key={s} onPress={() => updateStatus(s)} hitSlop={4} accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} accessibilityState={{ selected: order.status === s }} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? colors.gold : colors.surface2 }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? colors.void : colors.muted }} maxFontSizeMultiplier={1.4}>{getOrderStatusMeta(s).label}</Text>
+            <PressableScale key={s} onPress={() => updateStatus(s)} hitSlop={4} accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} accessibilityState={{ selected: order.status === s }} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? colors.terracotta : colors.surface2 }}>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? colors.onAccent : colors.muted }} maxFontSizeMultiplier={1.4}>{getOrderStatusMeta(s).label}</Text>
             </PressableScale>
           ))}
         </View>
@@ -517,19 +523,19 @@ export function OwnerOrderDetailScreen() {
 
 export function OwnerMenuScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       {/* r126-M10: honest coming-soon state — the previous copy was honest
           but unpolished; unified with the shared ComingSoon surface.
           r131-F10: 24px glyph — the ComingSoon well is 56px now (P3-14). */}
-      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={24} color={colors.gold} />} />
+      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function OwnerRestaurantsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة الفروع" icon={<Store size={24} color={colors.gold} />} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <ComingSoon title="إدارة الفروع" icon={<Store size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
@@ -565,7 +571,7 @@ export function OwnerQrScreen() {
        name line, the 224px QR well (200px code + 12px white padding ×2)
        and the share-button row. Was a centered spinner. */
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
         <View style={{ padding: 16, alignItems: "center" }}>
           <Skeleton width={"50%"} height={18} />
           <View style={{ backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.hairline, padding: 16, marginTop: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
@@ -579,9 +585,9 @@ export function OwnerQrScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, alignItems: "center" }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>رمز QR لمنيوك</Text>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, marginBottom: 16 }}>رمز QR لمنيوك</Text>
         {error ? (
           <ErrorState message={getErrorMessage(error, "تعذّر تحميل مطاعمك")} onRetry={() => { void refetch(); }} />
         ) : restaurants.length > 0 ? (
@@ -589,16 +595,20 @@ export function OwnerQrScreen() {
             const url = `${domain}/menu/${r.slug}`;
             return (
               <View key={r.id} style={{ backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.hairline, padding: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 15, fontWeight: "700", color: colors.sand, marginBottom: 12 }}>{r.name}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 15, fontWeight: "700", color: colors.ink, marginBottom: 12 }}>{r.name}</Text>
                 <View style={{ backgroundColor: "#fff", padding: 12, borderRadius: 12 }}>
-                  <QRCode value={url} size={200} backgroundColor="#ffffff" color={colors.night} />
+                  {/* Phase 6: the QR rides the deep-terracotta ink on its white
+                    quiet zone — the web r152 twin («رمز QR بحبر التراكوتا
+                    العميق»); scanning needs dark modules, and the cream page
+                    ground would fail the contrast the scanner wants. */}
+                <QRCode value={url} size={200} backgroundColor="#ffffff" color={colors.terracottaPressed} />
                 </View>
                 <PressableScale
                   onPress={() => { void Share.share({ message: url }).catch(() => {}); }}
                   accessibilityLabel={`مشاركة رابط منيو ${r.name}`}
-                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: colors.gold }}>
-                  <Share2 size={16} color={colors.void} />
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.void }} maxFontSizeMultiplier={1.4}>مشاركة الرابط</Text>
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: colors.terracotta }}>
+                  <Share2 size={16} color={colors.onAccent} />
+                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.onAccent }} maxFontSizeMultiplier={1.4}>مشاركة الرابط</Text>
                 </PressableScale>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 8, textAlign: "center" }} selectable>{url}</Text>
               </View>
@@ -614,20 +624,20 @@ export function OwnerQrScreen() {
 
 export function OwnerReviewsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       {/* r126-M10: was a static EmptyState «لا توجد تقييمات بعد» — reads as
           fetched-but-empty data; no fetch exists. Honest state instead. */}
-      <ComingSoon title="تقييمات العملاء" icon={<Star size={24} color={colors.gold} />} />
+      <ComingSoon title="تقييمات العملاء" icon={<Star size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
 
 export function OwnerLoyaltyScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       {/* r126-M10: same honesty fix — «لا توجد بيانات ولاء بعد» implied a
           fetch that never happens. */}
-      <ComingSoon title="برنامج الولاء" icon={<Award size={24} color={colors.gold} />} />
+      <ComingSoon title="برنامج الولاء" icon={<Award size={24} color={colors.terracotta} />} />
     </SafeAreaView>
   );
 }
@@ -635,9 +645,9 @@ export function OwnerLoyaltyScreen() {
 export function OwnerSettingsScreen() {
   const logout = useAuth((s) => s.logout);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>الإعدادات</Text>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, marginBottom: 16 }}>الإعدادات</Text>
         {/* r131-F10 (fix 1 completion): PressableScale — was a silent raw
             Pressable. */}
         <PressableScale onPress={logout} accessibilityLabel="تسجيل الخروج" style={{ paddingVertical: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>

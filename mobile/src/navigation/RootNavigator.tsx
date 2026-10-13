@@ -113,7 +113,7 @@ function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: ()
           backgroundColor: colors.surface2Scrim, alignItems: "center", justifyContent: "center",
           borderWidth: 1, borderColor: colors.hairline,
         }}>
-        <X size={20} color={colors.sand} />
+        <X size={20} color={colors.ink} />
       </PressableScale>
     </View>
   );

@@ -28,7 +28,7 @@
 /** Light culinary theme — the values every screen consumes. */
 export const colors = {
   /** Page ground — warm cream (web --background light = --neutral-50). */
-  night: "#FBF7F0",
+  page: "#FBF7F0",
   /** Raised plate (web --card light = --neutral-0). */
   surface: "#FFFFFF",
   /** Soft-surface well (web --muted light = --neutral-100). */
@@ -36,17 +36,17 @@ export const colors = {
   /** Warm hairline (web --border light = --neutral-200). */
   hairline: "#E8DECE",
   /** Espresso ink — primary text (web --foreground light = --neutral-900). */
-  sand: "#241811",
+  ink: "#241811",
   /** Secondary text (web --muted-foreground light = --neutral-700, 5.95:1 on cream). */
   muted: "#6B5D4F",
   /** Terracotta primary (web --primary light — 4.70:1 non-text on cream). */
-  gold: "#C2452D",
+  terracotta: "#C2452D",
   /** Terracotta hover (web --accent-hover light). */
-  goldHover: "#A93A26",
+  terracottaHover: "#A93A26",
   /** Terracotta pressed/ink (web --accent-strong light — text grade 8.05:1). */
-  goldStrong: "#8A2B1D",
+  terracottaPressed: "#8A2B1D",
   /** Ink on terracotta (web --primary-foreground light — white, 5.02:1 on the fill). */
-  void: "#FFFFFF",
+  onAccent: "#FFFFFF",
   /** Sage success ink (web --c-mint-ink light). */
   mint: "#6FA06A",
   /** Sage soft background (web --c-mint-bg light). */
@@ -77,7 +77,7 @@ export const colors = {
   /** Near-espresso emphasis (web --neutral-800 light). */
   textStrong2: "#3E332A",
   /** Terracotta soft fill (web --accent-soft light = --c-copper-bg). */
-  goldSoft: "#F7E2D9",
+  terracottaSoft: "#F7E2D9",
   /** Amber soft background (web --c-yellow-bg light). */
   yellowBg: "#F9EEDA",
   /** Info soft background (web --c-sky-bg light). */
@@ -184,7 +184,7 @@ export const pastelFamilies = {
   sky: { bg: "#E3EBEF", ink: "#6B8CA3", deep: "#2E4A5C" },
   yellow: { bg: "#F9EEDA", ink: "#B7791F", deep: "#7A5210" },
   rose: { bg: "#F9E5E6", ink: "#C96873", deep: "#8E2F3D" },
-  sand: { bg: "#F1E9D8", ink: "#A98D5F", deep: "#5C4620" },
+  ink: { bg: "#F1E9D8", ink: "#A98D5F", deep: "#5C4620" },
   grey: { bg: "#EFEAE2", ink: "#6E6154", deep: "#33302A" },
   copper: { bg: "#F7E2D9", ink: "#C2452D", deep: "#8A2B1D" },
 } as const;
@@ -200,7 +200,7 @@ export const pastelFamiliesNight = {
   sky: { bg: "#1F2A33", ink: "#9FB6C9", deep: "#CFE0EA" },
   yellow: { bg: "#33270F", ink: "#E3B15E", deep: "#F4E2B8" },
   rose: { bg: "#36191D", ink: "#E8918E", deep: "#F8CFD0" },
-  sand: { bg: "#2C2416", ink: "#D6BC8A", deep: "#EFE3C6" },
+  ink: { bg: "#2C2416", ink: "#D6BC8A", deep: "#EFE3C6" },
   grey: { bg: "#262019", ink: "#A79A87", deep: "#D8CFC0" },
   copper: { bg: "#3A211A", ink: "#E07856", deep: "#F2C4B0" },
 } as const;

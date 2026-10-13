@@ -20,6 +20,9 @@ import { bezierPoints, easings } from "@/theme/easings";
 // call sites — flame even rode the deleted bg-flame alias); `orange` renamed
 // to `primary` (values were always the Madarek gold, the name was a leftover
 // from the retired flame palette).
+// Phase 6 (P6-2-c): the `whatsapp` variant joins — the checkout/confirm
+// WhatsApp CTAs ride the BRAND green (reserved for WhatsApp exactly like
+// the web sticky-cta twin; the terracotta primary stays the generic CTA).
 const buttonVariants = cva(
   "flex items-center justify-center gap-2 rounded-md disabled:opacity-50",
   {
@@ -27,6 +30,7 @@ const buttonVariants = cva(
       variant: {
         primary: "bg-brand-500",
         outline: "border border-border bg-transparent",
+        whatsapp: "bg-whatsapp",
       },
       size: {
         // r126-M6: fixed heights clipped labels at system fontScale ≥1.3 —
@@ -45,10 +49,12 @@ const buttonVariants = cva(
 const buttonTextVariants = cva("font-semibold text-center font-sans", {
   variants: {
     variant: {
-      // Madarek: void ink #05070F rides the gold accent (dark --accent-fg) —
-      // never white-on-accent.
+      // Culinary contract: white ink on terracotta (5.02:1); espresso ink on
+      // outline; the WhatsApp TEXT ink (deep forest, web --whatsapp-ink) on
+      // the brand green — never white-on-green.
       primary: "text-on-accent",
       outline: "text-foreground",
+      whatsapp: "text-whatsapp-ink",
     },
     size: { default: "text-base", lg: "text-lg", icon: "text-base" },
   },
@@ -110,7 +116,7 @@ export function Button({ variant, size, title, loading, children, className, dis
         // r126 (A6 P2-5): a literal "…" carried no activity indication —
         // a real spinner rides the (still visible) label.
         <>
-          <ActivityIndicator size="small" color={variant === "outline" ? colors.gold : colors.void} />
+          <ActivityIndicator size="small" color={variant === "outline" ? colors.terracotta : variant === "whatsapp" ? colors.whatsappInk : colors.onAccent} />
           <Text className={buttonTextVariants({ variant, size })} maxFontSizeMultiplier={1.4}>{title}</Text>
         </>
       ) : children ?? (

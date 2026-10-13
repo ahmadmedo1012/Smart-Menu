@@ -38,9 +38,9 @@ export function OrderConfirmedScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top", "bottom"]}>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-        {/* Madarek dark status pair: success soft bg #0F241C + success ink #7FD39A.
+        {/* Phase 6: warm light status pair — sage soft bg #E1EDD9 + sage ink #6FA06A.
             r131-F10 (fix 3, A2 P3-7): the success well converges on the
             canonical 56px r-xl state tile (was an 80px circle — the web twin
             rides the same 56 ruling); the mint family stays (success state,
@@ -48,14 +48,14 @@ export function OrderConfirmedScreen() {
         <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: colors.mintBg, alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
           <CheckCircle size={28} color={colors.mint} />
         </View>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: colors.sand, marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 22, fontWeight: "700", color: colors.ink, marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", lineHeight: 20, marginBottom: 4 }}>
           {waUrl ? "سُجّل طلبك — أرسله للمطعم عبر واتساب من الزر أدناه" : "تم إرسال طلبك عبر واتساب إلى المطعم"}
         </Text>
-        {displayId ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold, fontWeight: "600", marginBottom: 32, fontVariant: METRIC_FONT_VARIANT }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
+        {displayId ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.terracottaPressed, fontWeight: "600", marginBottom: 32, fontVariant: METRIC_FONT_VARIANT }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
         <View style={{ gap: 12, width: "100%" }}>
           {waUrl ? (
-            <Button title="إرسال الطلب عبر واتساب" onPress={onSendWhatsApp} size="lg" className="w-full" />
+            <Button title="إرسال الطلب عبر واتساب" variant="whatsapp" onPress={onSendWhatsApp} size="lg" className="w-full" />
           ) : null}
           {/* r126 (A6 P3-5): "العودة للمنيو" navigated to LANDING, not the menu
               the customer ordered from. From the checkout flow (Menu →

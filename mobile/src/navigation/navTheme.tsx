@@ -27,10 +27,10 @@ export const NAV_THEME: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: colors.gold,   // terracotta accent
-    background: colors.night, // cream page ground
+    primary: colors.terracotta,   // terracotta accent
+    background: colors.page, // cream page ground
     card: colors.surface,       // raised plate
-    text: colors.sand,       // espresso ink
+    text: colors.ink,       // espresso ink
     border: colors.hairline,     // warm hairline
     notification: colors.rose, // deep rose ink
   },
@@ -38,13 +38,13 @@ export const NAV_THEME: Theme = {
 
 /** Native-stack chrome — header on cream, espresso ink, SemiBold Plex titles. */
 export const STACK_SCREEN_OPTIONS: NativeStackNavigationOptions = {
-  headerStyle: { backgroundColor: colors.night },
-  headerTintColor: colors.sand,
+  headerStyle: { backgroundColor: colors.page },
+  headerTintColor: colors.ink,
   // r126-M1: the native header does not go through the <Text> resolver —
   // point straight at the 600 family instead of fontWeight on the 400 file.
   headerTitleStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 17 },
   headerShadowVisible: false,
-  contentStyle: { backgroundColor: colors.night },
+  contentStyle: { backgroundColor: colors.page },
 };
 
 /**
@@ -79,8 +79,8 @@ export function useTabScreenOptions(): BottomTabNavigationOptions {
   const insets = useSafeAreaInsets();
   return {
     headerShown: true,
-    headerStyle: { backgroundColor: colors.night },
-    headerTintColor: colors.sand,
+    headerStyle: { backgroundColor: colors.page },
+    headerTintColor: colors.ink,
     headerTitleStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 17 },
     headerShadowVisible: false,
     tabBarStyle: {
@@ -90,7 +90,7 @@ export function useTabScreenOptions(): BottomTabNavigationOptions {
       paddingBottom: 8 + insets.bottom,
       paddingTop: 4,
     },
-    tabBarActiveTintColor: colors.gold,
+    tabBarActiveTintColor: colors.terracotta,
     tabBarInactiveTintColor: colors.muted,
     // r126-M1: same fix as headers — tab labels are native chrome.
     tabBarLabelStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 11 },

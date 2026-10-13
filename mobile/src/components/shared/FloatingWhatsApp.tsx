@@ -52,10 +52,11 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
           alignItems: "center", justifyContent: "center",
           ...elevation[6],
         }}>
-          {/* r127-F8: on-accent ink law — the web twin paints this glyph with
-              text-orange-foreground (#05070F void) on the green; the mobile
-              FAB was the app's LAST hardcoded icon hex (white-on-green). */}
-          <MessageCircle size={28} color={colors.void} />
+          {/* r127-F8 + Phase 6: on-brand-ink law — the glyph rides the
+              WhatsApp TEXT ink (web --whatsapp-ink light #1F4F30, deep forest
+              on the green; the retired void twin was the Madarek night ink).
+              WhatsApp green is reserved for WhatsApp CTAs — never regraded. */}
+          <MessageCircle size={28} color={colors.whatsappInk} />
         </PressableScale>
       </Animated.View>
     </View>

@@ -55,14 +55,14 @@ export function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top", "bottom"]}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: "center" }} keyboardShouldPersistTaps="handled">
           <View className="items-center mb-8">
-            <View className="w-16 h-16 rounded-xl items-center justify-center mb-3" style={{ backgroundColor: colors.gold }}>
-              <LogIn size={28} color={colors.void} />
+            <View className="w-16 h-16 rounded-xl items-center justify-center mb-3" style={{ backgroundColor: colors.terracotta }}>
+              <LogIn size={28} color={colors.onAccent} />
             </View>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: colors.sand }}>الربط الذكي</Text>
+            <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 24, fontWeight: "700", color: colors.ink }}>الربط الذكي</Text>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.muted, marginTop: 4 }}>منيو رقمي للمطاعم والمقاهي</Text>
           </View>
 

@@ -25,7 +25,7 @@ import {
 } from "react-native";
 import { cssInterop } from "nativewind";
 
-import { resolvePlexFamily } from "@/theme/typography";
+import { resolveFontFamily } from "@/theme/typography";
 
 export interface AppTextProps extends TextProps {
   /** React 19 passes refs as regular props — keep <Text ref> working. */
@@ -35,8 +35,10 @@ export interface AppTextProps extends TextProps {
 export function Text({ style, ...props }: AppTextProps) {
   // Flatten arrays (NativeWind hands cssInterop styles down as an array
   // entry) so fontWeight/fontFamily from ANY style layer is visible.
+  // Phase 6 (P6-2-c): the resolver now handles BOTH faces — the Plex body
+  // chain AND the Baloo Bhaijaan 2 display chain (per-weight families).
   const flattened = StyleSheet.flatten(style) as TextStyle | undefined;
-  const resolved = resolvePlexFamily(flattened?.fontFamily, flattened?.fontWeight);
+  const resolved = resolveFontFamily(flattened?.fontFamily, flattened?.fontWeight);
   return (
     <RNText
       style={resolved ? [style, { fontFamily: resolved }] : style}

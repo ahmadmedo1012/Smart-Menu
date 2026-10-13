@@ -67,7 +67,7 @@ focusManager.setEventListener((setFocused) => {
 type ToastKind = "success" | "error" | "info";
 
 const TOAST_WELL: Record<ToastKind, { bg: string; ink: string; hairline: string; Glyph: typeof CheckCircle2 }> = {
-  // Madarek pastel families (colors.ts SSOT) — solid -soft ground + -ink glyph.
+  // The warm section families (colors.ts SSOT) — solid soft ground + ink glyph.
   success: { bg: pastelFamilies.mint.bg, ink: pastelFamilies.mint.ink, hairline: colors.mint, Glyph: CheckCircle2 },
   error: { bg: pastelFamilies.rose.bg, ink: pastelFamilies.rose.ink, hairline: colors.rose, Glyph: AlertCircle },
   info: { bg: pastelFamilies.yellow.bg, ink: pastelFamilies.yellow.ink, hairline: colors.yellow, Glyph: Info },
@@ -106,7 +106,7 @@ const renderToast = ({
         <Glyph size={16} color={well.ink} />
       </View>
       <View style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
-        <Text style={{ color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
+        <Text style={{ color: colors.ink, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
         {text2 ? (
           <Text style={{ color: colors.muted, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 2 }}>{text2}</Text>
         ) : null}

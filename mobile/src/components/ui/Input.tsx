@@ -20,7 +20,7 @@ export interface InputProps extends TextInputProps { error?: boolean; }
  */
 export function fieldFocusBorderStyle(focused: boolean, error?: boolean) {
   return focused
-    ? { borderWidth: 2, borderColor: colors.gold }
+    ? { borderWidth: 2, borderColor: colors.terracotta }
     : { borderWidth: 1, borderColor: error ? colors.rose : colors.hairline };
 }
 
