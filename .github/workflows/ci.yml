@@ -336,7 +336,7 @@ jobs:
         with:
           name: coverage-report
           path: coverage/
-          retention-days: 7
+          retention-days: 3
 
       # Build-time env validation (src/lib/env.ts) throws in production mode —
       # supply CI-safe values so page-data collection can import API routes.
@@ -455,7 +455,7 @@ jobs:
           path: |
             playwright-report/
             test-results/
-          retention-days: 7
+          retention-days: 3
 
   # r103-D6: the mobile app had NO CI job — typecheck/lint/bundle were run
   # manually per round only, so a regression in mobile/ could land silently
@@ -579,4 +579,4 @@ jobs:
           path: |
             playwright-report/
             test-results/
-          retention-days: 7
+          retention-days: 3
