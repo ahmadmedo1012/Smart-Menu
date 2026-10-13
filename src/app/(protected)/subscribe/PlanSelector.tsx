@@ -19,10 +19,10 @@ const PLAN_META: Record<
         { icon: typeof Sparkles; chip: string; recommended?: boolean }
 > = {
         Free: { icon: Sparkles, chip: 'bg-muted text-muted-foreground' },
-        Basic: { icon: Star, chip: 'bg-accent-foreground/10 text-accent-foreground', recommended: true },
-        Premium: { icon: Crown, chip: 'bg-accent-foreground/10 text-accent-foreground' },
-        Pro: { icon: Building2, chip: 'bg-accent-foreground/10 text-accent-foreground' },
-        Enterprise: { icon: Building2, chip: 'bg-accent-foreground/10 text-accent-foreground' },
+        Basic: { icon: Star, chip: 'bg-orange-muted text-orange', recommended: true },
+        Premium: { icon: Crown, chip: 'bg-orange-muted text-orange' },
+        Pro: { icon: Building2, chip: 'bg-orange-muted text-orange' },
+        Enterprise: { icon: Building2, chip: 'bg-orange-muted text-orange' },
 };
 const DEFAULT_META = { icon: Sparkles, chip: 'bg-muted text-muted-foreground' };
 
@@ -61,7 +61,7 @@ export function PlanSelector({
                                                         className={cn(
                                                                 /* r95 → r128-F5 (§4 flat cards): بطاقة مسطّحة —
                                                                    حدّ شعري، لا ظلّ ولا تدرّج ولا زجاج. */
-                                                                'relative flex flex-col rounded-2xl border p-5 text-start transition-[border-color] duration-slower hover:border-accent-foreground/30 outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                'relative flex flex-col rounded-lg border p-5 text-start transition-[border-color] duration-slower hover:border-accent-foreground/30 outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                 isSelected
                                                                         ? 'border-accent-foreground/40 ring-2 ring-primary/30 bg-card'
                                                                         : 'border-border/50 bg-card'
@@ -80,18 +80,19 @@ export function PlanSelector({
                                                                 <MotionCheck className="size-3.5 text-primary-foreground" />
                                                         </span>
                                                         {meta.recommended && !upgradeMode && (
-                                                                /* round94 (D/A8) → r128-F5: هضبة saffron صرفة مسطّحة
-                                                                   (نص espresso 8.97:1) — التدرّج والظل أُزيلتا (منع
-                                                                   التدرّجات). */
-                                                                <span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-[var(--c-saffron)] px-2.5 py-0.5 text-3xs font-bold text-espresso">
+                                                                /* round94 (D/A8) → r128-F5 → Phase 6 (r154): شارة
+                                                                   تراكوتا صلبة (bg-orange بحبر أبيض 5.02:1) — موحّدة
+                                                                   مع شارة /pricing نفسها؛ بلا تدرّج ولا ظل. */
+                                                                <span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-orange px-2.5 py-0.5 text-3xs font-bold text-orange-foreground">
                                                                         <Flame className="size-3" aria-hidden="true" />
                                                                         الأكثر شعبية
                                                                 </span>
                                                         )}
                                                         <span
                                                                 className={cn(
-                                                                        /* r95 → r128-F5: شريحة أيقونة مسطّحة */
-                                                                        'size-10 rounded-xl flex items-center justify-center mb-3',
+                                                                        /* r95 → r128-F5 → Phase 6 (r154): بئر الطبق الدائري بحافة
+                                                                           التراكوتا (نفس عقد KPI/‌pricing) */
+                                                                        'size-10 rounded-full ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 flex items-center justify-center mb-3',
                                                                         meta.chip
                                                                 )}
                                                         >

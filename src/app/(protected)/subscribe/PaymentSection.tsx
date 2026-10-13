@@ -18,8 +18,9 @@ export function UpgradePlanSummary({
 }) {
         return (
                 <div className="animate-fade-in max-w-lg mx-auto">
-                        {/* r95: ملخص الخطة — هندسة بطاقة SmartBot */}
-                        <div className="rounded-2xl p-5 mb-8 border border-accent-foreground/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card">
+                        {/* r95: ملخص الخطة — هندسة بطاقة SmartBot
+                            Phase 6 (r154): طبق 16 + غسلة دافئة صلبة (التدرّج أُزيل) */}
+                        <div className="rounded-lg p-5 mb-8 border border-accent-foreground/30 bg-orange-muted/40">
                                 <div className="flex items-center justify-between">
                                         <div>
                                                 <p className="font-bold text-lg">{currentPlan.nameAr}</p>

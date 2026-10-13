@@ -237,9 +237,13 @@ export function PaymentDialog({
 
         return (
                 <Dialog open={open} onOpenChange={handleOpenChange}>
-                        <DialogContent className="max-w-sm sm:max-w-md rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto border-border/50 shadow-2xl">
-                                {/* Header */}
-                                <div className="bg-gradient-to-br from-orange to-orange/80 text-orange-foreground p-6">
+                        {/* Phase 6 (r154): زوايا الطبق 16 — تجاوز rounded-2xl (24px)
+                           أُزيل فيرث DialogContent طبقه (rounded-lg) وظله الدافئ
+                           القانوني (--shadow-modal بدل shadow-2xl). */}
+                        <DialogContent className="max-w-sm sm:max-w-md p-0 gap-0 max-h-[90dvh] overflow-y-auto border-border/50">
+                                {/* Header — Phase 6 (r154): تاج تراكوتا صلب (منع
+                                   التدرّجات r128-F5) بدل تدرّج from-orange. */}
+                                <div className="bg-orange text-orange-foreground p-6">
                                         <div className="flex items-center gap-2 mb-2">
                                                 <Smartphone className="size-5" />
                                                 <DialogTitle className="text-orange-foreground text-lg font-bold">دفع الاشتراك</DialogTitle>
@@ -251,7 +255,7 @@ export function PaymentDialog({
 
                                 <div className="p-5 space-y-5">
                                         {/* Plan summary */}
-                                        <div className="rounded-xl bg-orange-muted/50 dark:bg-orange-muted/20 border border-orange/15 p-4">
+                                        <div className="rounded-md bg-orange-muted/50 dark:bg-orange-muted/20 border border-orange/15 p-4">
                                                 <div className="flex justify-between items-center">
                                                         <span className="font-bold">{planNameAr}</span>
                                                         <span className="text-lg font-bold text-accent-foreground">{price} د.ل</span>
@@ -271,7 +275,7 @@ export function PaymentDialog({
                                                         {provider !== 'bank' && (
                                                                 <>
                                                                         {/* Provider phone */}
-                                                                        <div className="rounded-xl bg-muted/30 border border-border/20 p-3">
+                                                                        <div className="rounded-md bg-muted/30 border border-border/20 p-3">
                                                                                 <p className="text-xs text-muted-foreground mb-1">
                                                                                         أرسل المبلغ إلى {providerName}
                                                                                 </p>
@@ -282,7 +286,7 @@ export function PaymentDialog({
                                                                                         <button
                                                                                                 type="button"
                                                                                                 onClick={() => copyToClipboard(providerPhone)}
-                                                                                                className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                                                className="size-10 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                                 title="نسخ الرقم"
                                                                                         >
                                                                                                 <AnimatedCopy className="size-3.5" />
@@ -291,7 +295,7 @@ export function PaymentDialog({
                                                                         </div>
 
                                                                         {/* Quick transfer code */}
-                                                                        <div className="rounded-xl bg-success/10 border border-success/25 p-3">
+                                                                        <div className="rounded-md bg-success/10 border border-success/25 p-3">
                                                                                 <p className="text-xs font-medium text-success mb-1.5">
                                                                                         رمز التحويل السريع
                                                                                 </p>
@@ -310,7 +314,7 @@ export function PaymentDialog({
                                                                                                                         window.location.href = `tel:${encodedUSSD}`;
                                                                                                                 }, 150);
                                                                                                         }}
-                                                                                                        className="h-11 px-3 rounded-lg bg-success hover:bg-success/90 text-success-foreground text-xs font-medium flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                                                        className="h-11 px-3 rounded-md bg-success hover:bg-success/90 text-success-foreground text-xs font-medium flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                                         title="نسخ الرمز وفتح الاتصال"
                                                                                                 >
                                                                                                         <AnimatedCopy className="size-3.5" />
@@ -334,7 +338,7 @@ export function PaymentDialog({
                                                                                            الخادمي (r140 طبَّع +218/00218/الشرقية/الفواصل/الجذع)؛ 16
                                                                                            يسع كل صيغ الإدخال المعقولة والخادم يوحد التخزين. */
                                                                                         maxLength={16}
-                                                                                        className="h-11 rounded-xl mt-1.5 text-left font-mono"
+                                                                                        className="h-11 mt-1.5 text-left font-mono"
                                                                                         dir="ltr"
                                                                                 />
                                                                                 <p className="text-2xs text-muted-foreground mt-1">
@@ -348,7 +352,7 @@ export function PaymentDialog({
                                                         {provider === 'bank' && (
                                                                 <>
                                                                         {/* Bank account info card */}
-                                                                        <div className="rounded-xl bg-muted/30 border border-border/20 p-3 space-y-2.5">
+                                                                        <div className="rounded-md bg-muted/30 border border-border/20 p-3 space-y-2.5">
                                                                                 <p className="text-xs font-medium flex items-center gap-1.5">
                                                                                         <Landmark className="size-3.5 text-orange" />
                                                                                         حوّل على الحساب البنكي التالي
@@ -374,7 +378,7 @@ export function PaymentDialog({
                                                                                                 <button
                                                                                                         type="button"
                                                                                                         onClick={() => copyToClipboard(row.value)}
-                                                                                                        className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                                                        className="size-10 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                                         title={`نسخ ${row.label}`}
                                                                                                 >
                                                                                                         <AnimatedCopy className="size-4" />
@@ -395,7 +399,7 @@ export function PaymentDialog({
                                                                                                 if (isNaN(v) || v < 0) return;
                                                                                                 setBankAmount(v);
                                                                                         }}
-                                                                                        className="h-11 rounded-xl mt-1.5"
+                                                                                        className="h-11 mt-1.5"
                                                                                         min={1}
                                                                                 />
                                                                         </div>
@@ -408,7 +412,7 @@ export function PaymentDialog({
                                                                                         value={senderAccountName}
                                                                                         onChange={(e) => setSenderAccountName(e.target.value)}
                                                                                         placeholder="الاسم كما يظهر في الحساب"
-                                                                                        className="h-11 rounded-xl mt-1.5"
+                                                                                        className="h-11 mt-1.5"
                                                                                 />
                                                                         </div>
 
@@ -420,7 +424,7 @@ export function PaymentDialog({
                                                                                         value={senderAccountNumber}
                                                                                         onChange={(e) => setSenderAccountNumber(e.target.value)}
                                                                                         placeholder="رقم الحساب الذي حُوّل منه"
-                                                                                        className="h-11 rounded-xl mt-1.5 text-left font-mono"
+                                                                                        className="h-11 mt-1.5 text-left font-mono"
                                                                                         dir="ltr"
                                                                                 />
                                                                         </div>
@@ -433,7 +437,7 @@ export function PaymentDialog({
                                                         )}
 
                                                         {provider !== 'bank' && (
-                                                                <div className="rounded-xl bg-muted/30 border border-border/20 p-3 flex items-center justify-between">
+                                                                <div className="rounded-md bg-muted/30 border border-border/20 p-3 flex items-center justify-between">
                                                                         <span className="text-sm text-muted-foreground">المبلغ المطلوب</span>
                                                                         <span className="text-lg font-bold text-accent-foreground">{price} د.ل</span>
                                                                 </div>
@@ -465,7 +469,7 @@ export function PaymentDialog({
                                                                 {/* Middle ring */}
                                                                 <div className="absolute inset-2 rounded-full border border-orange/30" />
                                                                 {/* Inner icon */}
-                                                                <div className="absolute inset-4 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
+                                                                <div className="absolute inset-4 rounded-full bg-orange flex items-center justify-center">
                                                                         <Smartphone className="size-8 text-orange-foreground" />
                                                                 </div>
                                                         </div>
@@ -508,7 +512,7 @@ export function PaymentDialog({
                                                                         className="absolute inset-0 rounded-full bg-success/20 animate-ping opacity-75"
                                                                         style={{ animationDuration: '1.5s' }}
                                                                 />
-                                                                <div className="relative size-full rounded-full bg-gradient-to-br from-success to-success/80 flex items-center justify-center shadow-lg shadow-success/30">
+                                                                <div className="relative size-full rounded-full bg-success flex items-center justify-center">
                                                                         <CheckCircle2 className="size-10 text-success-foreground" />
                                                                 </div>
                                                         </m.div>
@@ -535,7 +539,7 @@ export function PaymentDialog({
                                                                 transition={{ delay: 0.3 }}
                                                         >
                                                                 <Button
-                                                                        className="w-full h-11 rounded-xl bg-success hover:bg-success/90 text-success-foreground"
+                                                                        className="w-full h-11 rounded-md bg-success hover:bg-success/90 text-success-foreground"
                                                                         onClick={() => {
                                                                                 onOpenChange(false);
                                                                                 onSuccess();
@@ -558,7 +562,7 @@ export function PaymentDialog({
                                                                         className="absolute inset-0 rounded-full bg-destructive/20 animate-ping opacity-75"
                                                                         style={{ animationDuration: '1.5s' }}
                                                                 />
-                                                                <div className="relative size-full rounded-full bg-gradient-to-br from-destructive to-destructive/80 flex items-center justify-center shadow-lg shadow-destructive/30">
+                                                                <div className="relative size-full rounded-full bg-destructive flex items-center justify-center">
                                                                         <XCircle className="size-10 text-destructive-foreground" />
                                                                 </div>
                                                         </m.div>
@@ -587,7 +591,7 @@ export function PaymentDialog({
                                                         >
                                                                 <Button
                                                                         variant="outline"
-                                                                        className="flex-1 h-11 rounded-xl"
+                                                                        className="flex-1 h-11"
                                                                         onClick={() => {
                                                                                 handleOpenChange(false);
                                                                         }}
@@ -595,7 +599,7 @@ export function PaymentDialog({
                                                                         إغلاق
                                                                 </Button>
                                                                 <Button
-                                                                        className="flex-1 h-11 rounded-xl"
+                                                                        className="flex-1 h-11"
                                                                         onClick={() => {
                                                                                 setStep('form');
                                                                                 setResolutionMsg('');
@@ -618,7 +622,7 @@ export function PaymentDialog({
                                                 <div className="flex flex-col items-center py-8 space-y-6">
                                                         <div className="relative size-20">
                                                                 <div className="absolute inset-0 rounded-full bg-success/10 animate-scale-in" />
-                                                                <div className="relative size-full rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center">
+                                                                <div className="relative size-full rounded-full bg-success/15 flex items-center justify-center">
                                                                         <CheckCircle2 className="size-10 text-success" />
                                                                 </div>
                                                         </div>
@@ -629,7 +633,7 @@ export function PaymentDialog({
                                                                 </p>
                                                         </div>
                                                         <Button
-                                                                className="w-full h-11 rounded-xl"
+                                                                className="w-full h-11"
                                                                 variant="outline"
                                                                 onClick={() => {
                                                                         handleOpenChange(false);

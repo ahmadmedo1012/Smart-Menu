@@ -36,10 +36,10 @@ export default function SubscribeLoading() {
                                         {[...Array(4)].map((_, i) => (
                                                 <div
                                                         key={i}
-                                                        className="rounded-2xl border border-border/50 p-5 animate-rise-in"
+                                                        className="rounded-lg border border-border/50 p-5 animate-rise-in"
                                                         style={{ animationDelay: `${120 + i * 60}ms` }}
                                                 >
-                                                        <div className="size-10 rounded-xl skeleton mb-3" />
+                                                        <div className="size-10 rounded-full skeleton mb-3" />
                                                         <div className="h-4 w-2/3 skeleton rounded-sm mb-3" />
                                                         <div className="h-7 w-1/2 skeleton rounded-sm mb-4" />
                                                         <div className="space-y-2 mb-4">

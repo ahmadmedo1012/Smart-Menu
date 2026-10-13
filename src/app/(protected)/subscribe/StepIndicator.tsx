@@ -63,10 +63,11 @@ export function StepIndicator({
                                                                 className={cn(
                                                                         'size-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors duration-base',
                                                                         isActive
-                                                                                /* round94 (D/A8) → r128-F5 → r131 (A2 P2-16): هضبة saffron
-                                                                                   صرفة مسطّحة (نص espresso 8.97:1) — التدرّج والظل أُزيلا،
-                                                                                   والوزن 700 سقف السلّم (كان extrabold 800). */
-                                                                                ? 'bg-[var(--c-saffron)] text-espresso border-transparent font-bold'
+                                                                                /* round94 (D/A8) → r128-F5 → r131 (A2 P2-16) → Phase 6 (r154):
+                                                                                   العقدة النشطة طبق تراكوتا صلب (bg-orange = #C2452D
+                                                                                   بحبر أبيض 5.02:1 في الفاتح) — عائلة زر الابتدائي
+                                                                                   نفسها، بلا تدرّج ولا ظل، والوزن 700 سقف السلّم. */
+                                                                                ? 'bg-orange text-orange-foreground border-transparent font-bold'
                                                                                 : isDone
                                                                                         /* r95: الخطوة المنجزة — نص أسطع (AA) */
                                                                                         ? 'bg-orange/15 text-accent-foreground border-orange/40'

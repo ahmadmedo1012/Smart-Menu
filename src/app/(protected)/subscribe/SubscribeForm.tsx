@@ -17,13 +17,9 @@ import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons'
 import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import type { WizardStep } from './StepIndicator';
 
-const PLAN_GRADIENTS: Record<string, string> = {
-        Free: 'from-muted-foreground/60 to-muted-foreground/80',
-        Basic: 'from-orange to-orange/80',
-        Premium: 'from-orange to-orange/80',
-        Pro: 'from-primary to-bloom',
-        Enterprise: 'from-bloom to-primary',
-};
+/* Phase 6 (r154): خريطة التدرّجات الميتة أُحيلت للتقاعد — بئر الأيقونة
+   أصبح طبقًا دائريًا صلبًا (bg-orange) بحافة تراكوتا، بلا تدرّج
+   (قانون منع التدرّجات r128-F5). */
 const PLAN_ICONS: Record<string, LucideIcon> = {
         Free: Sparkles,
         Basic: Star,
@@ -240,18 +236,16 @@ export function SubscribeForm({
                         {/* Selected plan summary */}
                         <div
                                 className={cn(
-                                        /* r95: ملخص الخطة — هندسة بطاقة SmartBot (rounded-2xl + حدّ accent) */
-                                        'rounded-2xl p-5 mb-8 border border-accent-foreground/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card'
+                                        /* r95: ملخص الخطة — هندسة بطاقة SmartBot → Phase 6 (r154):
+                                           طبق 16 + غسلة دافئة صلبة (التدرّج أُزيل — منع التدرّجات) */
+                                        'rounded-lg p-5 mb-8 border border-accent-foreground/30 bg-orange-muted/40'
                                 )}
                         >
                                 <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                                <div
-                                                        className={cn(
-                                                                'size-10 rounded-xl bg-gradient-to-br flex items-center justify-center',
-                                                                PLAN_GRADIENTS[currentPlan.name] ?? 'from-orange to-orange/80'
-                                                        )}
-                                                >
+                                                {/* Phase 6 (r154): بئر الطبق — دائرة تراكوتا صلبة
+                                                    بحافة 1.5px (تدرّج PLAN_GRADIENTS المتقاعد أعلاه). */}
+                                                <div className="size-10 rounded-full bg-orange ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 flex items-center justify-center">
                                                         {(() => {
                                                                 const Icon = PLAN_ICONS[currentPlan.name] || Sparkles;
                                                                 return <Icon className="size-5 text-orange-foreground" />;
@@ -289,7 +283,7 @@ export function SubscribeForm({
                                                         {/* Menus header */}
                                                         <div className="flex items-center justify-between">
                                                                 <div>
-                                                                        <h3 className="font-bold text-base">بيانات المنيوهات</h3>
+                                                                        <h3 className="font-heading font-bold text-base">بيانات المنيوهات</h3>
                                                                         <p className="text-xs text-muted-foreground mt-0.5">
                                                                                 {/* r143 D10: 9999 يذكر حدّه («حتى 9999 منيوًا») بدل «غير محدودة» */}
                                                                                 {maxMenus > 1
@@ -306,7 +300,7 @@ export function SubscribeForm({
 
                                                         {/* Restaurant blocks */}
                                                         {menus.map((restaurant, index) => (
-                                                                <div key={restaurant._key ?? `menu-${index}`} className="rounded-2xl border border-border/50 bg-card p-4 space-y-4 relative">
+                                                                <div key={restaurant._key ?? `menu-${index}`} className="rounded-lg border border-border/50 bg-card p-4 space-y-4 relative">
                                                                         <div className="flex items-center justify-between">
                                                                                 {/* r95: عنوان كتلة المنيو — accent-foreground (AA) */}
                                                                                 <h4 className="text-sm font-semibold text-accent-foreground">
@@ -422,7 +416,7 @@ export function SubscribeForm({
                                         {step === 'account' && (
                                                 <div className="space-y-5">
                                                         <div>
-                                                                <h3 className="font-bold text-base">بيانات تسجيل الدخول</h3>
+                                                                <h3 className="font-heading font-bold text-base">بيانات تسجيل الدخول</h3>
                                                                 <p className="text-xs text-muted-foreground mt-0.5">أنشئ حساباً للتحكم بمنيوهاتك من لوحة التحكم</p>
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-3">
@@ -486,10 +480,10 @@ export function SubscribeForm({
                                         {/* ── STEP: REVIEW ── */}
                                         {step === 'review' && (
                                                 <div className="space-y-4">
-                                                        <h3 className="font-bold text-base">راجع بياناتك ثم أكّد</h3>
+                                                        <h3 className="font-heading font-bold text-base">راجع بياناتك ثم أكّد</h3>
 
                                                         {/* Restaurants summary */}
-                                                        <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-3">
+                                                        <div className="rounded-lg border border-border/50 bg-card p-4 space-y-3">
                                                                 <div className="flex items-center justify-between">
                                                                         <h4 className="text-sm font-semibold">المنيوهات</h4>
                                                                         <Button type="button" variant="ghost" size="sm" onClick={() => onStepChange('menu')} className="text-accent-foreground">
@@ -518,7 +512,7 @@ export function SubscribeForm({
                                                         </div>
 
                                                         {/* Account summary */}
-                                                        <div className="rounded-2xl border border-border/50 bg-card p-4 flex items-center justify-between">
+                                                        <div className="rounded-lg border border-border/50 bg-card p-4 flex items-center justify-between">
                                                                 <div>
                                                                         <h4 className="text-sm font-semibold mb-1">بيانات الدخول</h4>
                                                                         <p className="text-sm text-muted-foreground" dir="ltr">
@@ -531,31 +525,38 @@ export function SubscribeForm({
                                                         </div>
 
                                                         {/* Plan summary */}
-                                                        {/* r95: ملخص الاشتراك — هندسة SmartBot بعائلة accent-foreground */}
-                                                        <div className="rounded-2xl bg-gradient-to-r from-accent-foreground/[0.05] to-accent-foreground/[0.05] border border-accent-foreground/20 p-5">
-                                                                <h4 className="font-bold mb-3">ملخص الاشتراك</h4>
-                                                                <div className="space-y-2 text-sm">
-                                                                        <div className="flex justify-between">
-                                                                                <span className="text-muted-foreground">الخطة</span>
-                                                                                <span className="font-medium">{currentPlan.nameAr}</span>
+                                                        {/* r95: ملخص الاشتراك — هندسة SmartBot بعائلة accent-foreground
+                                                            Phase 6 (r154): القيم على قائد النقاط المطبوع (ملخص
+                                                            الطلب في لوحة المالك نفسها) بدل صفوف فراغية. */}
+                                                        <div className="rounded-lg bg-accent-foreground/[0.05] border border-accent-foreground/20 p-5">
+                                                                <h4 className="font-heading font-bold mb-3">ملخص الاشتراك</h4>
+                                                                <div className="space-y-2.5 text-sm">
+                                                                        <div className="flex items-baseline gap-2 menu-leader">
+                                                                                <span className="text-muted-foreground shrink-0">الخطة</span>
+                                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                                <span className="font-medium shrink-0">{currentPlan.nameAr}</span>
                                                                         </div>
-                                                                        <div className="flex justify-between">
-                                                                                <span className="text-muted-foreground">السعر</span>
-                                                                                <span className="font-medium tabular-nums">
+                                                                        <div className="flex items-baseline gap-2 menu-leader">
+                                                                                <span className="text-muted-foreground shrink-0">السعر</span>
+                                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                                <span className="font-medium tabular-nums shrink-0">
                                                                                         {Number(currentPlan.price) === 0 ? 'مجاني' : formatPrice(currentPlan.price, { suffix: ' د.ل/شهر' })}
                                                                                 </span>
                                                                         </div>
-                                                                        <div className="flex justify-between">
-                                                                                <span className="text-muted-foreground">المنيوهات</span>
-                                                                                <span className="font-medium">{`حتى ${toArabicNumber(currentPlan.maxMenus)}`}</span>
+                                                                        <div className="flex items-baseline gap-2 menu-leader">
+                                                                                <span className="text-muted-foreground shrink-0">المنيوهات</span>
+                                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                                <span className="font-medium shrink-0">{`حتى ${toArabicNumber(currentPlan.maxMenus)}`}</span>
                                                                         </div>
-                                                                        <div className="flex justify-between">
-                                                                                <span className="text-muted-foreground">الحد الأقصى للأصناف</span>
-                                                                                <span className="font-medium">{`حتى ${toArabicNumber(currentPlan.maxItems)}`}</span>
+                                                                        <div className="flex items-baseline gap-2 menu-leader">
+                                                                                <span className="text-muted-foreground shrink-0">الحد الأقصى للأصناف</span>
+                                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                                <span className="font-medium shrink-0">{`حتى ${toArabicNumber(currentPlan.maxItems)}`}</span>
                                                                         </div>
-                                                                        <div className="flex justify-between">
-                                                                                <span className="text-muted-foreground">الطلبات</span>
-                                                                                <span className="font-medium">{`حتى ${toArabicNumber(currentPlan.maxOrders)}`}</span>
+                                                                        <div className="flex items-baseline gap-2 menu-leader">
+                                                                                <span className="text-muted-foreground shrink-0">الطلبات</span>
+                                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                                <span className="font-medium shrink-0">{`حتى ${toArabicNumber(currentPlan.maxOrders)}`}</span>
                                                                         </div>
                                                                 </div>
                                                         </div>

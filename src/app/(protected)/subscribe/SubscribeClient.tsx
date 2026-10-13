@@ -388,8 +388,8 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                         </div>
                                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto" aria-hidden="true">
                                                 {[...Array(4)].map((_, i) => (
-                                                        <div key={i} className="rounded-2xl border border-border/50 p-5 animate-rise-in" style={{ animationDelay: `${i * 60}ms` }}>
-                                                                <div className="size-10 rounded-xl skeleton mb-3" />
+                                                        <div key={i} className="rounded-lg border border-border/50 p-5 animate-rise-in" style={{ animationDelay: `${i * 60}ms` }}>
+                                                                <div className="size-10 rounded-full skeleton mb-3" />
                                                                 <div className="h-4 w-2/3 skeleton rounded-sm mb-3" />
                                                                 <div className="h-7 w-1/2 skeleton rounded-sm mb-4" />
                                                                 <div className="space-y-2 mb-4">
@@ -464,9 +464,9 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                 {/* Loading state while checking auth (upgrade mode detection)
                                     r131 (A11/A2 P2-17): هيكل على شكل الملخص بدل الغزل المجرّد. */}
                                 {step === 'menu' && !authLoaded && (
-                                        <div className="max-w-lg mx-auto rounded-2xl border border-border/50 p-5" role="status" aria-label="جارٍ التحقق من نوع الاشتراك">
+                                        <div className="max-w-lg mx-auto rounded-lg border border-border/50 p-5" role="status" aria-label="جارٍ التحقق من نوع الاشتراك">
                                                 <div className="flex items-center gap-3 mb-4" aria-hidden="true">
-                                                        <div className="size-10 rounded-xl skeleton" />
+                                                        <div className="size-10 rounded-full skeleton" />
                                                         <div className="flex-1 space-y-2">
                                                                 <div className="h-4 w-1/2 skeleton rounded-sm" />
                                                                 <div className="h-3 w-1/3 skeleton rounded-sm" />
