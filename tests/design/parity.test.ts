@@ -1955,9 +1955,15 @@ describe('r131-F4 parity — SM product primitives join the family', () => {
     expect(badgeCc).not.toContain('bg-gradient-to-r');
   });
 
-  it('empty-state canon: 56px grey-family tile + 18/600 title + 42ch desc (A11 SM-1)', () => {
-    expect(emptyCc).toMatch(/size-14 items-center justify-center rounded-xl/);
-    expect(emptyCc).toContain('bg-(--c-grey-bg) text-(--c-grey-deep)');
+  it('empty-state canon: 56px warm PLATE well (rounded-lg 16) + 18/600 title + 42ch desc (A11 SM-1 — Phase 6 r154: the grey tile retires)', () => {
+    expect(emptyCc).toMatch(/size-14 items-center justify-center rounded-lg/);
+    // the warm tint families — terracotta plate default, sage/amber tones,
+    // rose for danger; the Madarek grey tile is gone.
+    expect(emptyCc).toContain('bg-(--c-copper-bg) text-(--c-copper-ink)');
+    expect(emptyCc).toContain('bg-(--c-mint-bg) text-(--c-mint-ink)');
+    expect(emptyCc).toContain('bg-(--c-yellow-bg) text-(--c-yellow-ink)');
+    expect(emptyCc).toContain('bg-(--c-rose-bg) text-(--c-rose-ink)');
+    expect(emptyCc).not.toContain('bg-(--c-grey-bg)');
     expect(emptyCc).toMatch(/text-lg font-semibold text-foreground/);
     expect(emptyCc).toContain('max-w-[42ch]');
     expect(emptyCc).not.toContain('bg-orange/8');
@@ -2668,5 +2674,43 @@ describe('phase6 r154 — ليلة المطبخ: قتل أحرف مدارك ال
     };
     walk('src');
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('phase6 r154 — عائلة الحالة: بئر الطبق الدافئ + ترقيم الهياكل العظمية', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('بئر الخطأ الدافئ: طبق وردة بحلقة حبر دقيقة + عنوان 18/600 (نفس عقد العائلة)', () => {
+    const s = cc('src/components/shared/ErrorState.tsx');
+    expect(s).toMatch(/size-14 shrink-0 items-center justify-center rounded-lg/);
+    expect(s).toContain('bg-[var(--danger-soft)]');
+    expect(s).toContain('ring-1 ring-inset ring-[color:var(--danger-ink)]/25');
+    expect(s).toMatch(/text-lg font-semibold leading-snug text-foreground/);
+    // a11y contract intact: role=alert + retry CTA
+    expect(s).toContain('role="alert"');
+    expect(s).toContain('variant="orange"');
+  });
+
+  it('الهياكل العظمية: طبق 16 للأصداف ونقش الأطباق (rounded-full) للآبار', () => {
+    const s = cc('src/components/shared/DashboardSkeletons.tsx');
+    // shells land on the plate card rung…
+    expect(s).toContain('rounded-lg border border-border/50 bg-card/80');
+    expect(s).not.toMatch(/rounded-xl border/);
+    // …and the icon/avatar wells become plates
+    expect(s).toContain('size-11 rounded-full');
+    expect(s).toContain('size-8 rounded-full');
+    expect(s).toContain('size-9 rounded-full');
+  });
+
+  it('احتياطي /menu بلا مطاعم: حالة فارغة مؤلَّفة (بئر + عنوان + CTA) لا نصين عاريين', () => {
+    const s = cc('src/app/(public)/menu/page.tsx');
+    expect(s).toContain('<EmptyState');
+    expect(s).toContain('icon={UtensilsCrossed}');
+    expect(s).toContain('title="لا توجد مطاعم متاحة حالياً"');
+    expect(s).toContain('العودة للرئيسية');
+    // the honest redirect contract is untouched (demo slug first, then first active)
+    expect(s).toContain("const DEMO_SLUG = 'al-waha-cafe-demo'");
   });
 });

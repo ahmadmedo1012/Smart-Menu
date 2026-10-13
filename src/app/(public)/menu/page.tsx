@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { UtensilsCrossed } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
@@ -34,9 +38,20 @@ export default async function MenuPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4 text-center animate-fade-in">
-      <h2 className="text-xl font-semibold">لا توجد مطاعم متاحة حالياً</h2>
-      <p className="text-muted-foreground">يرجى زيارتنا لاحقاً.</p>
+    /* Phase 6 (r154): the no-restaurant fallback composes the warm plate
+       empty state (was two bare text lines) — same honest copy, composed
+       anatomy: terracotta plate well + 18/600 title + CTA home. */
+    <div className="flex min-h-[60vh] items-center justify-center px-4 animate-fade-in">
+      <EmptyState
+        icon={UtensilsCrossed}
+        title="لا توجد مطاعم متاحة حالياً"
+        description="المطبخ يستعد — يرجى زيارتنا لاحقاً لتتصفح المنيوهات الرقمية."
+        action={
+          <Link href="/">
+            <Button variant="orange">العودة للرئيسية</Button>
+          </Link>
+        }
+      />
     </div>
   );
 }

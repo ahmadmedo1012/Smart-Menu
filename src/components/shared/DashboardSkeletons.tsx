@@ -8,6 +8,11 @@
  * existing skeleton patterns (MenuSkeleton's rhythm, the deleted OwnerKpiGridSkeleton's
  * KPI cards, OrderCardSkeleton's order rows — same .skeleton shimmer class,
  * which rides --motion-duration-skeleton and goes static under RM).
+ *
+ * Phase 6 (r154): the geometry joins the culinary system — cards land on
+ * the plate-round 16 rung (rounded-lg) and the icon/avatar wells become
+ * PLATES (rounded-full), so even the loading shapes carry the kitchen's
+ * punctuation: a plate where a plate will load.
  */
 import { Skeleton } from '@/components/ui/skeleton';
 import { OrderCardSkeleton } from '@/components/orders/OrderCardSkeleton';
@@ -35,7 +40,7 @@ export function KpiGridSkeleton({ count = 4 }: { count?: number }) {
                         {Array.from({ length: count }, (_, i) => (
                                 <div
                                         key={i}
-                                        className="min-h-[132px] rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm animate-rise-in"
+                                        className="min-h-[132px] rounded-lg border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm animate-rise-in"
                                         style={{ animationDelay: `${i * 60}ms` }}
                                 >
                                         <div className="flex items-start justify-between">
@@ -44,7 +49,7 @@ export function KpiGridSkeleton({ count = 4 }: { count?: number }) {
                                                         <Skeleton className="h-9 w-24" />
                                                         <Skeleton className="h-2.5 w-16" />
                                                 </div>
-                                                <Skeleton className="size-11 rounded-lg" />
+                                                <Skeleton className="size-11 rounded-full" />
                                         </div>
                                 </div>
                         ))}
@@ -82,12 +87,12 @@ function FiltersSkeleton() {
 /** Wide list-card column (status breakdown / popular items shapes). */
 export function ListCardSkeleton({ rows = 4 }: { rows?: number }) {
         return (
-                <div className="rounded-xl border border-border/50 bg-card/60 p-5 space-y-3" aria-hidden="true">
+                <div className="rounded-lg border border-border/50 bg-card/60 p-5 space-y-3" aria-hidden="true">
                         <Skeleton className="h-4 w-28" />
                         {Array.from({ length: rows }, (_, i) => (
                                 <div key={i} className="flex items-center justify-between gap-3">
                                         <div className="flex items-center gap-2.5 flex-1">
-                                                <Skeleton className="size-8 rounded-lg" />
+                                                <Skeleton className="size-8 rounded-full" />
                                                 <Skeleton className="h-3.5 flex-1 max-w-40" />
                                         </div>
                                         <Skeleton className="h-5 w-12 rounded-full" />
@@ -110,11 +115,11 @@ export function DashboardSkeleton() {
                                         <OrderCardSkeleton count={2} />
                                 </div>
                         </div>
-                        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm" aria-hidden="true">
+                        <div className="rounded-lg border border-border/60 bg-card p-4 shadow-sm" aria-hidden="true">
                                 <Skeleton className="h-3 w-24 mb-3" />
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                         {[0, 1, 2, 3].map((i) => (
-                                                <Skeleton key={i} className="h-20 rounded-xl" />
+                                                <Skeleton key={i} className="h-20 rounded-md" />
                                         ))}
                                 </div>
                         </div>
@@ -144,13 +149,13 @@ export function MenuManagerSkeleton() {
                                 {categories.map((c) => (
                                         <div
                                                 key={c}
-                                                className="rounded-xl border border-border/30 bg-card/60 overflow-hidden animate-rise-in"
+                                                className="rounded-lg border border-border/30 bg-card/60 overflow-hidden animate-rise-in"
                                                 style={{ animationDelay: `${c * 60}ms` }}
                                                 aria-hidden="true"
                                         >
                                                 <div className="flex items-center justify-between p-4">
                                                         <div className="flex items-center gap-3">
-                                                                <Skeleton className="size-10 rounded-lg" />
+                                                                <Skeleton className="size-10 rounded-full" />
                                                                 <div className="space-y-2">
                                                                         <Skeleton className="h-4 w-32" />
                                                                         <Skeleton className="h-2.5 w-20" />
@@ -165,7 +170,7 @@ export function MenuManagerSkeleton() {
                                                         {[0, 1].map((i) => (
                                                                 <div key={i} className="flex items-center justify-between gap-3">
                                                                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                                                <Skeleton className="size-11 rounded-xl" />
+                                                                                <Skeleton className="size-11 rounded-lg" />
                                                                                 <div className="space-y-2 flex-1">
                                                                                         <Skeleton className="h-4 w-36" />
                                                                                         <Skeleton className="h-2.5 w-24" />
@@ -207,7 +212,7 @@ export function ListPageSkeleton({
                                 {Array.from({ length: rows }, (_, i) => (
                                         <Skeleton
                                                 key={i}
-                                                className={`w-full rounded-xl ${rowHeight} animate-rise-in`}
+                                                className={`w-full rounded-lg ${rowHeight} animate-rise-in`}
                                                 style={{ animationDelay: `${i * 60}ms` }}
                                         />
                                 ))}
@@ -228,7 +233,7 @@ export function TablePageSkeleton({
                 <SkeletonPage label={label}>
                         <HeaderSkeleton />
                         <FiltersSkeleton />
-                        <div className="overflow-hidden rounded-xl border border-border/60 bg-card" aria-hidden="true">
+                        <div className="overflow-hidden rounded-lg border border-border/60 bg-card" aria-hidden="true">
                                 <div className="flex gap-4 border-b border-border/60 bg-muted/60 px-4 py-3">
                                         {[0, 1, 2, 3].map((i) => (
                                                 <Skeleton key={i} className={`h-3 ${i === 0 ? 'w-24' : 'w-16'}`} />
@@ -236,7 +241,7 @@ export function TablePageSkeleton({
                                 </div>
                                 {Array.from({ length: rows }, (_, i) => (
                                         <div key={i} className="flex items-center gap-4 border-b border-border/30 px-4 py-3.5 last:border-0">
-                                                <Skeleton className="size-9 rounded-lg" />
+                                                <Skeleton className="size-9 rounded-full" />
                                                 <Skeleton className="h-4 flex-1 max-w-48" />
                                                 <Skeleton className="h-4 w-20" />
                                                 <Skeleton className="h-5 w-16 rounded-full" />
@@ -253,12 +258,12 @@ export function DetailPageSkeleton({ label = 'جارٍ تحميل التفاصي
         return (
                 <SkeletonPage label={label}>
                         <HeaderSkeleton />
-                        <div className="rounded-xl border border-border/60 bg-card p-6" aria-hidden="true">
+                        <div className="rounded-lg border border-border/60 bg-card p-6" aria-hidden="true">
                                 <Skeleton className="mb-6 h-4 w-24" />
                                 <div className="flex items-center justify-between">
                                         {[0, 1, 2, 3].map((i) => (
                                                 <div key={i} className="flex flex-col items-center gap-2">
-                                                        <Skeleton className="size-10 rounded-xl" />
+                                                        <Skeleton className="size-10 rounded-full" />
                                                         <Skeleton className="h-3 w-16" />
                                                 </div>
                                         ))}
@@ -266,7 +271,7 @@ export function DetailPageSkeleton({ label = 'جارٍ تحميل التفاصي
                         </div>
                         <div className="grid gap-4 md:grid-cols-2" aria-hidden="true">
                                 {[0, 1].map((i) => (
-                                        <div key={i} className="space-y-3 rounded-xl border border-border/60 bg-card p-5">
+                                        <div key={i} className="space-y-3 rounded-lg border border-border/60 bg-card p-5">
                                                 <Skeleton className="h-4 w-28" />
                                                 <Skeleton className="h-3.5 w-36" />
                                                 <Skeleton className="h-3.5 w-28" />
@@ -274,12 +279,12 @@ export function DetailPageSkeleton({ label = 'جارٍ تحميل التفاصي
                                         </div>
                                 ))}
                         </div>
-                        <div className="rounded-xl border border-border/60 bg-card p-5" aria-hidden="true">
+                        <div className="rounded-lg border border-border/60 bg-card p-5" aria-hidden="true">
                                 <Skeleton className="mb-4 h-4 w-24" />
                                 {[0, 1, 2].map((i) => (
                                         <div key={i} className="flex items-center justify-between py-2.5">
                                                 <div className="flex items-center gap-3">
-                                                        <Skeleton className="size-7 rounded-lg" />
+                                                        <Skeleton className="size-7 rounded-full" />
                                                         <Skeleton className="h-4 w-32" />
                                                 </div>
                                                 <Skeleton className="h-4 w-16" />
@@ -305,7 +310,7 @@ export function SettingsPageSkeleton({
                                 {Array.from({ length: cards }, (_, i) => (
                                         <Skeleton
                                                 key={i}
-                                                className={`w-full rounded-xl ${i === 0 ? 'h-36' : 'h-56'} animate-rise-in`}
+                                                className={`w-full rounded-lg ${i === 0 ? 'h-36' : 'h-56'} animate-rise-in`}
                                                 style={{ animationDelay: `${i * 60}ms` }}
                                         />
                                 ))}
@@ -320,18 +325,18 @@ export function QrPageSkeleton() {
                 <SkeletonPage label="جارٍ تحميل رمز QR…">
                         <HeaderSkeleton />
                         <div
-                                className="mx-auto max-w-xl overflow-hidden rounded-xl border border-border/60 bg-card"
+                                className="mx-auto max-w-xl overflow-hidden rounded-lg border border-border/60 bg-card"
                                 aria-hidden="true"
                         >
                                 <div className="flex items-center gap-3 border-b border-border/20 p-5">
-                                        <Skeleton className="size-10 rounded-xl" />
+                                        <Skeleton className="size-10 rounded-full" />
                                         <div className="space-y-2">
                                                 <Skeleton className="h-4 w-32" />
                                                 <Skeleton className="h-3 w-24" />
                                         </div>
                                 </div>
                                 <div className="flex justify-center p-8">
-                                        <Skeleton className="size-56 rounded-xl" />
+                                        <Skeleton className="size-56 rounded-lg" />
                                 </div>
                                 <div className="space-y-4 p-5">
                                         <div className="flex gap-2">
