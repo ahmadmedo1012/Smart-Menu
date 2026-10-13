@@ -67,7 +67,16 @@ test("browser: theme toggle persists across reload", async ({ page }) => {
   // Class flips on click — poll instead of a fixed 800ms sleep.
   await expect.poll(themeClass, { timeout: 5000 }).not.toBe(before);
   const after = await themeClass();
-  await page.reload({ waitUntil: "domcontentloaded" });
+  // P8-C (firefox gap): playwright's patched Firefox deadlocks on
+  // page.reload() while a service worker controls the page — the navigation
+  // happens but domcontentloaded never surfaces and the execution context
+  // wedges (probed directly: SW active+controlling, toggle flips, and a
+  // fresh same-URL goto answers in ~200ms; only the reload API hangs).
+  // goto(same URL) is a full fresh navigation through the SAME SW fetch
+  // pipeline, so next-themes still re-reads localStorage at mount — the
+  // persistence assertion below is unchanged in strength. Chromium is
+  // agnostic (both APIs work there).
+  await page.goto(page.url(), { waitUntil: "domcontentloaded" });
   // Persisted: the class after reload equals the class set by the toggle
   // (was: /dark|light|theme/ which matched unconditionally).
   await expect.poll(themeClass, { timeout: 15000 }).toBe(after);
