@@ -74,9 +74,23 @@ export function CategoriesList({
                                                 key={cat.id}
                                                 className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/60"
                                         >
+                                                {/* r150 §8 (a11y): التوسيع صار قابلًا للتشغيل بلوحة المفاتيح —
+                                                    role="button" + Enter/Space بدل <button> حقيقية لأن ترويسة
+                                                    البطاقة تحوي أزرار إضافة/تعديل/حذف داخلية (لا يجوز تداخل
+                                                    <button> داخل <button>؛ الحلقة focus-within على البطاقة
+                                                    تمنح حلقة التركيز المرئية). */}
                                                 <div
                                                         className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20"
                                                         onClick={() => onToggleCategory(cat.id)}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        aria-expanded={expandedCatId === cat.id}
+                                                        onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                        e.preventDefault();
+                                                                        onToggleCategory(cat.id);
+                                                                }
+                                                        }}
                                                 >
                                                         <div className="flex items-center gap-3">
                                                                 {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
@@ -253,6 +267,7 @@ export function CategoriesList({
                                                                                                                 className="h-10 w-10"
                                                                                                                 onClick={() => onEditItem(item)}
                                                                                                                 title="تعديل"
+                                                                                                                aria-label="تعديل"
                                                                                                         >
                                                                                                                 <Pencil className="size-3.5" />
                                                                                                         </Button>
@@ -262,6 +277,7 @@ export function CategoriesList({
                                                                                                                 className="h-10 w-10 text-destructive"
                                                                                                                 onClick={() => onDeleteItem(item)}
                                                                                                                 title="حذف"
+                                                                                                                aria-label="حذف"
                                                                                                         >
                                                                                                                 <AnimatedTrash className="size-3.5" />
                                                                                                         </Button>

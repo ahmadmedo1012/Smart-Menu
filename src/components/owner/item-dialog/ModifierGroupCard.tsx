@@ -152,7 +152,7 @@ export function ModifierGroupCard({
                                         variant="outline"
                                         size="sm"
                                         onClick={() => onAddOption(group.key)}
-                                        className="h-9 gap-1 text-xs"
+                                        className="gap-1 text-xs"
                                         aria-label={`إضافة خيار إلى المجموعة رقم ${toArabicNumber(index + 1)}`}
                                 >
                                         <Plus className="size-3" aria-hidden="true" /> إضافة خيار

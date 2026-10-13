@@ -91,7 +91,7 @@ export function SubscriptionEventBanner({
                                 </div>
                                 <button
                                         onClick={onDismiss}
-                                        className="shrink-0 size-9 rounded-full flex items-center justify-center hover:bg-muted/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        className="shrink-0 size-11 rounded-full flex items-center justify-center hover:bg-muted/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                         aria-label="إغلاق"
                                 >
                                         <AnimatedX className="size-3.5 text-muted-foreground" />

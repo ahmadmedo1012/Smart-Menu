@@ -176,6 +176,7 @@ export function ConfigEditor() {
                                                                                 size="icon"
                                                                                 className="size-8"
                                                                                 onClick={() => saveConfig(item)}
+                                                                                aria-label="حفظ"
                                                                         >
                                                                                 <AnimatedSave className="size-3.5" />
                                                                         </Button>
@@ -184,6 +185,7 @@ export function ConfigEditor() {
                                                                                 size="icon"
                                                                                 className="size-8 text-destructive"
                                                                                 onClick={() => setDeleteTarget(item.key)}
+                                                                                aria-label="حذف"
                                                                         >
                                                                                 <AnimatedTrash className="size-3.5" />
                                                                         </Button>

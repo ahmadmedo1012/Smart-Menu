@@ -6,8 +6,12 @@ import { cn } from '@/lib/utils';
 
 /**
  * Premium button — Madarek `.btn` recipe (components.css:266-311, r130 W2-3).
- * Radius var(--r-md)=10px · label 13px/600 · default height 40px (lg 48,
- * sm 32) · press scale(--press-scale 0.97) @t-fast on the standard --ease
+ * Sizes ladder — family control canon 44/48/52 (r150 §8, the twin of
+ * Smart-Link/Smart-Order): default 44px/h-11/13px since r150 §8, the r131
+ * h-10 rung retired · sm 32px sanctioned dense rung · icon 40px utility
+ * rung (lg stays 48px).
+ * Radius var(--r-md)=10px · label 13px/600 · press scale(--press-scale 0.97)
+ * @t-fast on the standard --ease
  * curve · disabled opacity 0.55. Solid variants hover with the canonical
  * −2px lift + the neutral multi-layer --shadow-card-premium(-h) pair (no
  * tinted glow). The sheen sweep (background-position band, 700ms stat
@@ -54,7 +58,7 @@ const buttonVariants = cva(
                         },
                         size: {
                                 sm: 'h-8 gap-1.5 rounded-sm px-3 text-xs',
-                                default: 'h-10 gap-2 px-5 text-sm',
+                                default: 'h-11 gap-2 px-5 text-sm',
                                 /* lg label = --type-body-size 15px flat
                                    (components.css:468) — the 13px mobile
                                    split is retired (r130 W2-3). */

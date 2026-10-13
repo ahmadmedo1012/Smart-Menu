@@ -149,7 +149,7 @@ export default function OwnerQRPage() {
                                                 </div>
                                                 {url && (
                                                         <a href={url} target="_blank" rel="noopener noreferrer" className="ms-auto">
-                                                                <Button variant="ghost" size="icon" aria-label="فتح الرابط" className="size-9">
+                                                                <Button variant="ghost" size="icon" aria-label="فتح الرابط">
                                                                         <AnimatedExternalLink className="size-4" />
                                                                 </Button>
                                                         </a>

@@ -187,10 +187,13 @@ export default function OwnerMenuPage() {
         const filteredCategories = categories.filter((cat) => {
                 if (!searchTerm) return true;
                 const q = searchTerm.toLowerCase();
+                // r150 §8: الطرفان مطبّعان — كان الطلب lowercase والمقارنة على
+                // الاسم الخام فصارت الأسماء اللاتينية حسّاسة لحالة الأحرف.
+                // العربية (nameAr) بلا حالة أحرف أصلًا — تُقارن كما هي.
                 return (
-                        cat.name.includes(q) ||
+                        cat.name.toLowerCase().includes(q) ||
                         cat.nameAr?.includes(q) ||
-                        cat.items?.some((i) => i.name.includes(q) || i.nameAr?.includes(q))
+                        cat.items?.some((i) => i.name.toLowerCase().includes(q) || i.nameAr?.includes(q))
                 );
         });
 

@@ -368,6 +368,7 @@ export default function AdminSubscriptionsPage() {
                                                                 size="icon"
                                                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                                                                 disabled={page <= 1}
+                                                                aria-label="الصفحة السابقة"
                                                         >
                                                                 <MotionChevronRight className="size-4" />
                                                         </Button>
@@ -395,6 +396,7 @@ export default function AdminSubscriptionsPage() {
                                                                 size="icon"
                                                                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                                                 disabled={page >= totalPages}
+                                                                aria-label="الصفحة التالية"
                                                         >
                                                                 <MotionChevronLeft className="size-4" />
                                                         </Button>

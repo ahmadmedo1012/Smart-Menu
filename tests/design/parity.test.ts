@@ -1486,8 +1486,8 @@ describe('r130 parity — P0 button recipe (Madarek components.css .btn)', () =>
     expect(base).toContain('text-sm');
   });
 
-  it('size ladder: default h-10 (40px) · lg h-12 (48) · sm h-8 (32) · icon size-10 (square of default)', () => {
-    expect(buttonRaw).toContain("default: 'h-10");
+  it('size ladder: default h-11 (44px) · lg h-12 (48) · sm h-8 (32) · icon size-10 (utility rung)', () => {
+    expect(buttonRaw).toContain("default: 'h-11");
     expect(buttonRaw).toContain("lg: 'h-12");
     expect(buttonRaw).toContain("sm: 'h-8");
     expect(buttonRaw).toContain("icon: 'size-10'");
