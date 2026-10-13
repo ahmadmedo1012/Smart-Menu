@@ -3,8 +3,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Home, ClipboardList, UtensilsCrossed, Award, Settings } from "lucide-react-native";
 
 import { OwnerDashboardScreen, OwnerOrdersScreen, OwnerOrderDetailScreen,
-  OwnerMenuScreen, OwnerLoyaltyScreen, OwnerRestaurantsScreen, OwnerQrScreen,
-  OwnerReviewsScreen, OwnerSettingsScreen } from "@/screens/owner/OwnerScreens";
+  OwnerQrScreen, OwnerSettingsScreen } from "@/screens/owner/OwnerScreens";
+// Phase 6 (P6-2-cR): the four real screens live in their own files now.
+import { OwnerMenuScreen } from "@/screens/owner/OwnerMenuScreen";
+import { OwnerRestaurantsScreen } from "@/screens/owner/OwnerRestaurantsScreen";
+import { OwnerReviewsScreen } from "@/screens/owner/OwnerReviewsScreen";
+import { OwnerLoyaltyScreen } from "@/screens/owner/OwnerLoyaltyScreen";
 import { STACK_SCREEN_OPTIONS, useTabScreenOptions } from "./navTheme";
 
 export type OwnerStackParamList = {

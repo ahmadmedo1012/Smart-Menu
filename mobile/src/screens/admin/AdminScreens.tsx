@@ -1,21 +1,64 @@
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import { Users, Store, CreditCard, Settings, Bell, FileText, Send } from "lucide-react-native";
-import { ComingSoon } from "@/components/ui";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import * as Linking from "expo-linking";
+import { Users, Store, CreditCard, Settings, Bell, FileText, Send, ExternalLink } from "lucide-react-native";
 import { Text } from "@/components/ui/Text";
 import { PressableScale } from "@/components/motion/PressableScale";
 import { useAuth } from "@/store/auth";
+import { toast } from "@/app/providers";
 import { colors } from "@/theme/colors";
 import type { RootNavigation } from "@/navigation/types";
 
 /**
- * r126-M10 (A6 P1-3): the 10 admin management screens are honest coming-soon
- * states now (ComingSoon) — they previously rendered EmptyStates titled like
- * real data surfaces («إدارة المستخدمين»), which reads as fetched-but-empty.
- * The dashboard nav hub + settings/logout are real and stay as they were.
- * Full admin tooling remains a documented follow-up (web parity work).
+ * r126-M10 (A6 P1-3): the admin management screens are honest states —
+ * they previously rendered EmptyStates titled like real data surfaces.
+ *
+ * Phase 6 (P6-2-cR): the bare ComingSoon placeholders become an
+ * INTENTIONAL identity state — the warm plate icon well (56px r-16
+ * terracotta tile), the honest line «هذه الشاشة متاحة حالياً على نسخة
+ * الويب», and a link-out affordance that opens the matching web console
+ * route. No fake controls ship here: the admin tooling itself stays a
+ * documented follow-up (web parity work).
  */
+
+const DOMAIN = process.env.EXPO_PUBLIC_DOMAIN ?? "https://menu.smart-link.ly";
+
+function openWebConsole(path: string) {
+  Linking.openURL(`${DOMAIN}${path}`).catch(() => {
+    // No browser / no handler — the failure is told, never swallowed.
+    toast.error("تعذّر فتح لوحة الويب");
+  });
+}
+
+/** The web-only identity state — plate well + honest copy + link-out. */
+function AdminWebOnly({ title, icon, webPath, webLabel }: { title: string; icon: React.ReactNode; webPath: string; webLabel: string }) {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
+        {/* Plate icon well — the Phase-6 warm state tile (56px r-16). */}
+        <View style={{
+          width: 56, height: 56, borderRadius: 16, backgroundColor: colors.terracottaSoft,
+          alignItems: "center", justifyContent: "center", marginBottom: 16,
+        }}>
+          {icon}
+        </View>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, textAlign: "center" }}>{title}</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
+          هذه الشاشة متاحة حالياً على نسخة الويب
+        </Text>
+        <PressableScale
+          onPress={() => openWebConsole(webPath)}
+          accessibilityLabel={webLabel}
+          style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 20, minHeight: 44, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 9999, backgroundColor: colors.terracotta }}
+        >
+          <ExternalLink size={16} color={colors.onAccent} />
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.onAccent }} maxFontSizeMultiplier={1.4}>{webLabel}</Text>
+        </PressableScale>
+      </View>
+    </SafeAreaView>
+  );
+}
 
 export function AdminDashboardScreen() {
   const user = useAuth((s) => s.user);
@@ -55,75 +98,50 @@ function AdminAction({ icon, label, onPress }: { icon: React.ReactNode; label: s
 }
 
 export function AdminRestaurantsScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="إدارة المطاعم" icon={<Store size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="إدارة المطاعم" icon={<Store size={24} color={colors.terracotta} />} webPath="/admin/restaurants" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminUsersScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="إدارة المستخدمين" icon={<Users size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="إدارة المستخدمين" icon={<Users size={24} color={colors.terracotta} />} webPath="/admin/users" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminAdminsScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="إدارة المدراء الفرعيين" icon={<Users size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="إدارة المدراء الفرعيين" icon={<Users size={24} color={colors.terracotta} />} webPath="/admin/admins" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminOrdersScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="جميع الطلبات" icon={<CreditCard size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="جميع الطلبات" icon={<CreditCard size={24} color={colors.terracotta} />} webPath="/admin/orders" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminOrderDetailScreen() {
+  // A detail deep-link carries the orderId — the web twin has /admin/orders/[id].
+  const route = useRoute();
+  const rawOrderId = Number((route.params as { orderId?: number } | undefined)?.orderId);
+  const orderId = Number.isInteger(rawOrderId) && rawOrderId > 0 ? rawOrderId : null;
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="تفاصيل الطلب" icon={<CreditCard size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
+    <AdminWebOnly
+      title="تفاصيل الطلب"
+      icon={<CreditCard size={24} color={colors.terracotta} />}
+      webPath={orderId ? `/admin/orders/${orderId}` : "/admin/orders"}
+      webLabel="فتح لوحة الويب"
+    />
   );
 }
 
 export function AdminSubscriptionsScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="موافقات الاشتراكات" icon={<CreditCard size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="موافقات الاشتراكات" icon={<CreditCard size={24} color={colors.terracotta} />} webPath="/admin/subscriptions" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminSystemEventsScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="أحدث أحداث النظام" icon={<Bell size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="أحدث أحداث النظام" icon={<Bell size={24} color={colors.terracotta} />} webPath="/admin/system-events" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminAuditLogsScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="سجل التدقيق" icon={<FileText size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="سجل التدقيق" icon={<FileText size={24} color={colors.terracotta} />} webPath="/admin/audit-logs" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminTelegramScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="تكامل تليجرام" icon={<Send size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
+  return <AdminWebOnly title="تكامل تليجرام" icon={<Send size={24} color={colors.terracotta} />} webPath="/admin/telegram" webLabel="فتح لوحة الويب" />;
 }
 
 export function AdminSettingsScreen() {

@@ -4,10 +4,10 @@ import { View, ScrollView, RefreshControl, Share, FlatList, Vibration, Alert, Ac
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
-import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Share2, UtensilsCrossed, Store } from "lucide-react-native";
+import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Share2 } from "lucide-react-native";
 
-import { api } from "@/services/api/client";
-import { Spinner, EmptyState, ErrorState, ComingSoon } from "@/components/ui";
+import { api, getOwnerRestaurants, type OwnerRestaurant } from "@/services/api/client";
+import { Spinner, EmptyState, ErrorState } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "@/store/auth";
 import { PressableScale } from "@/components/motion/PressableScale";
@@ -521,30 +521,11 @@ export function OwnerOrderDetailScreen() {
   );
 }
 
-export function OwnerMenuScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      {/* r126-M10: honest coming-soon state — the previous copy was honest
-          but unpolished; unified with the shared ComingSoon surface.
-          r131-F10: 24px glyph — the ComingSoon well is 56px now (P3-14). */}
-      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
-}
-
-export function OwnerRestaurantsScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      <ComingSoon title="إدارة الفروع" icon={<Store size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
-}
-
-interface OwnerRestaurantLite {
-  id: number;
-  name: string;
-  slug: string;
-}
+/* Phase 6 (P6-2-cR): the Menu/Restaurants/Reviews/Loyalty screens now live
+ * in their own real implementations — OwnerMenuScreen.tsx,
+ * OwnerRestaurantsScreen.tsx, OwnerReviewsScreen.tsx,
+ * OwnerLoyaltyScreen.tsx (same folder). This file keeps the screens that
+ * were already real: dashboard, orders, order detail, QR, settings. */
 
 /**
  * r102-M2: was a static placeholder (hardcoded `your-slug`, text instead of a
@@ -561,9 +542,11 @@ export function OwnerQrScreen() {
   // never re-ran) is structurally gone. Deletes ~10 lines.
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ["owner-restaurants"],
-    queryFn: () => api.get<OwnerRestaurantLite[]>("/api/owner/restaurants"),
+    // Phase 6 (P6-2-cR): rides the TYPED surface — the same queryFn/key the
+    // new restaurants + menu screens use, so one shared cache + invalidation.
+    queryFn: getOwnerRestaurants,
   });
-  const restaurants = data ?? [];
+  const restaurants: OwnerRestaurant[] = data ?? [];
 
   if (isPending) {
     /* r133-F3 (A4 §3, the F2b handoff): the QR screen's first paint is a
@@ -622,25 +605,11 @@ export function OwnerQrScreen() {
   );
 }
 
-export function OwnerReviewsScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      {/* r126-M10: was a static EmptyState «لا توجد تقييمات بعد» — reads as
-          fetched-but-empty data; no fetch exists. Honest state instead. */}
-      <ComingSoon title="تقييمات العملاء" icon={<Star size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
-}
+/* Phase 6 (P6-2-cR): OwnerReviewsScreen now has a real implementation in
+ * OwnerReviewsScreen.tsx (stats header + filter chips + moderation). */
 
-export function OwnerLoyaltyScreen() {
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
-      {/* r126-M10: same honesty fix — «لا توجد بيانات ولاء بعد» implied a
-          fetch that never happens. */}
-      <ComingSoon title="برنامج الولاء" icon={<Award size={24} color={colors.terracotta} />} />
-    </SafeAreaView>
-  );
-}
+/* Phase 6 (P6-2-cR): OwnerLoyaltyScreen now has a real implementation in
+ * OwnerLoyaltyScreen.tsx (KPI row + recent transactions, read-only). */
 
 export function OwnerSettingsScreen() {
   const logout = useAuth((s) => s.logout);

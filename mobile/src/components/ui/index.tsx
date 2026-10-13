@@ -80,48 +80,10 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   );
 }
 
-/**
- * r126-M10 (A6 P1-3): honest coming-soon state for stub screens. The 11
- * admin screens + 3 owner stubs previously rendered EmptyStates titled like
- * real data surfaces («إدارة المستخدمين», «لا توجد تقييمات بعد») — reads
- * as fetched-but-empty, i.e. fake data that looks real. This component says
- * plainly: the screen is not built yet, the web app is where it works today.
- */
-export function ComingSoon({
-  title,
-  icon,
-  webHint = true,
-}: {
-  title: string;
-  icon?: ReactNode;
-  webHint?: boolean;
-}) {
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-      {/* r131-F10 (A2 P3-14): the stub well converges on the canonical 56px
-          r-xl state tile (was a 72px circle) — the gold «قريبًا» voice stays
-          (this is a not-built-yet state, not an empty state, so it keeps the
-          accent). Icon call sites ride 24px glyphs like the state family. */}
-      <View style={{
-        width: 56, height: 56, borderRadius: radius.xl, backgroundColor: colors.surface,
-        borderWidth: 1, borderColor: colors.hairline, alignItems: "center", justifyContent: "center",
-        marginBottom: 16,
-      }}>
-        <View style={{ opacity: 0.85 }}>{icon}</View>
-      </View>
-      <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, textAlign: "center" }}>{title}</Text>
-      <View style={{
-        flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.surface2,
-        borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 4, marginTop: 10,
-      }}>
-        <View style={{ width: 8, height: 8, borderRadius: 9999, backgroundColor: colors.terracotta }} />
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: colors.terracotta }} maxFontSizeMultiplier={1.4}>قريبًا</Text>
-      </View>
-      {webHint ? (
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 12, lineHeight: 20 }}>
-          هذه الشاشة قيد التطوير — يمكنك إدارتها حاليًا من لوحة التحكم على الويب
-        </Text>
-      ) : null}
-    </View>
-  );
-}
+/* Phase 6 (P6-2-cR): ComingSoon was deleted — zero consumers remain. Its
+ * two families got real replacements: the owner Menu/Restaurants/Reviews/
+ * Loyalty screens ship real implementations, and the admin stubs render the
+ * intentional web-only identity state (plate well + «هذه الشاشة متاحة
+ * حالياً على نسخة الويب» + a link-out affordance) in AdminScreens.tsx.
+ * r126-M10's honesty ruling («not-built-yet must not read as empty data»)
+ * survives in both. */
