@@ -2887,3 +2887,96 @@ describe('phase6 r154 — أسطح الأدمن: القواعد الكاملة (
     }
   });
 });
+
+describe('phase6 P6-2-b2 — الشاشات الجزئية العامة: الأسطح الأربعة تنطق بقواعد المطبخ (قادة · أطباق · بالو · حبيب دافئ)', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  it('/pricing: قائد النقاط لصفوف الحدود + آبار أطباق تراكوتا + طبق 16 + بالو — صفر rounded-xl/2xl حية', () => {
+    const p = cc('src/components/pricing/PricingClient.tsx');
+    // the three plan-limit rows ride the printed menu leader (label · rule · mono value)
+    // — one JSX site renders the three data-driven rows, so pin the row triple too
+    expect(p).toContain('menu-leader-rule');
+    expect(p).toContain("['المنيو', `حتى ${plan.maxMenus}`]");
+    expect(p).toContain("['الأصناف', `حتى ${plan.maxItems}`]");
+    expect(p).toContain("['الطلبات', `حتى ${plan.maxOrders}`]");
+    // plan icon wells are literal plates: rounded-full + the 1.5px terracotta rim
+    expect(p).toContain("'flex size-11 items-center justify-center rounded-full ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30");
+    expect(p).toContain("'bg-orange-muted text-orange'");
+    // plate geometry 16 + Baloo plan names, FAQ and CTA headings
+    expect(p).toContain('rounded-lg');
+    expect(p).toContain('font-heading text-base sm:text-lg font-bold');
+    expect(p).toContain('font-heading text-xl sm:text-2xl font-bold');
+    expect(p).not.toContain('rounded-xl');
+    expect(p).not.toContain('rounded-2xl');
+    // the route loading skeleton mirrors the plate + circle well
+    const l = cc('src/app/(public)/pricing/loading.tsx');
+    expect(l).toContain('rounded-lg');
+    expect(l).toContain('size-11 rounded-full skeleton');
+    expect(l).not.toContain('rounded-xl');
+    expect(l).not.toContain('rounded-2xl');
+  });
+
+  it('/subscribe: عقد الخطوات طبق تراكوتا + حوار الدفع بزوايا الطبق وتاجه الصلب + ختم r-md للأقسام (منطق الدفع غير ممسوس)', () => {
+    const s = cc('src/app/(protected)/subscribe/StepIndicator.tsx');
+    expect(s).toContain("'bg-orange text-orange-foreground border-transparent font-bold'");
+    expect(s).not.toContain('var(--c-saffron)');
+    const d = cc('src/components/shared/PaymentDialog.tsx');
+    // plate corners inherited from DialogContent (no rounded-2xl/shadow-2xl override)
+    expect(d).toContain('className="max-w-sm sm:max-w-md p-0 gap-0 max-h-[90dvh] overflow-y-auto border-border/50"');
+    expect(d).not.toContain('rounded-2xl');
+    expect(d).not.toContain('rounded-xl');
+    // solid terracotta crown (gradient retired) + stamped sections
+    expect(d).toContain('className="bg-orange text-orange-foreground p-6"');
+    expect(d).not.toContain('bg-gradient-to-br from-orange');
+    expect((d.match(/rounded-md bg-muted\/30/g) ?? []).length).toBeGreaterThanOrEqual(2);
+    // plan cards + plate wells + leader summary (subscription facts on the printed rule)
+    const ps = cc('src/app/(protected)/subscribe/PlanSelector.tsx');
+    expect(ps).toContain("'relative flex flex-col rounded-lg border p-5 text-start");
+    expect(ps).toContain('rounded-full ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30');
+    const sf = cc('src/app/(protected)/subscribe/SubscribeForm.tsx');
+    expect(sf).toContain('menu-leader-rule');
+    expect((sf.match(/menu-leader-rule/g) ?? []).length).toBeGreaterThanOrEqual(5);
+    expect(sf).not.toContain('rounded-2xl');
+    expect(sf).not.toContain('PLAN_GRADIENTS');
+    expect(sf).not.toContain('bg-gradient-to');
+  });
+
+  it('/order-confirmed: بطاقة النجاح المؤلَّفة — طبق 16 + بطل الحبيب الدافئ + قائد رقم الطلب + عنوان بالو، وحوار الإحالة بلا زجاج ولا تدرّج', () => {
+    const o = cc('src/app/(protected)/order-confirmed/page.tsx');
+    expect(o).toContain('rounded-lg border border-border/50 bg-card');
+    expect(o).toContain('warm-scrim');
+    expect(o).toContain('bg-[var(--c-night)]');
+    expect(o).toContain('menu-leader-rule');
+    expect(o).toContain('font-heading text-2xl sm:text-3xl font-bold text-[#FBF7F0]');
+    // the 56px state wells are solid family plates (mint for orders, terracotta for subscriptions)
+    expect(o).toContain('size-14 rounded-full bg-success flex items-center justify-center');
+    expect(o).toContain('size-14 rounded-full bg-orange flex items-center justify-center');
+    const sh = cc('src/components/loyalty/ShareAfterOrder.tsx');
+    expect(sh).not.toContain('bg-gradient-to');
+    expect(sh).not.toContain('backdrop-blur');
+    expect(sh).not.toContain('glow-within');
+    expect(sh).not.toContain('rounded-xl');
+    expect(sh).not.toContain('overflow-hidden rounded-md');
+  });
+
+  it('/login: بطاقة الدخول طبق 16 ببئر علامة دائري وحافة تراكوتا + راية جلسة دافئة صادقة + هالة تركيز تراكوتا', () => {
+    const lg = cc('src/app/(protected)/login/LoginForm.tsx');
+    // plate card: no rounded-2xl override (Card's rounded-lg plate inherited)
+    expect(lg).not.toContain('rounded-2xl');
+    expect(lg).not.toContain('rounded-xl');
+    // brand block = circular plate well with the 1.5px terracotta rim
+    expect(lg).toContain('size-20 items-center justify-center rounded-full bg-orange-muted/60 ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30');
+    // the canonical terracotta focus halo still rides both field wrappers
+    expect((lg.match(/focus-within:shadow-\[var\(--state-input-focus-halo\)\]/g) ?? []).length).toBe(2);
+    // honest warm session banner: only when the proxy bounced the visitor (redirectParam)
+    expect(lg).toContain('{redirectParam && (');
+    expect(lg).toContain('bg-orange-muted/40');
+    // plate skeleton mirrors the card + circular brand well
+    const l = cc('src/app/(protected)/login/loading.tsx');
+    expect(l).toContain('rounded-lg');
+    expect(l).toContain('size-20 rounded-full skeleton');
+    expect(l).not.toContain('rounded-2xl');
+  });
+});
