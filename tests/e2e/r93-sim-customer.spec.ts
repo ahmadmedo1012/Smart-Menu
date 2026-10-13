@@ -289,8 +289,12 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
       .toContain("orderNo");
     const popup = await popupPromise;
     if (popup) {
-      await popup.waitForLoadState("domcontentloaded").catch(() => {});
-      expect(popup.url()).toContain("wa.me");
+      /* P6-3-a: سباق التزامن — حدث popup يسبق التزام الملاحة فتولد النافذة
+       * بـurl فارغ (about:blank قبل commit) وقراءة url() الفورية ترى ""
+       * رغم أن التطبيق فتح wa.me فعلًا (نجح في تشغيلة سابقة وفشل في
+       * تاليتها). انتظار الملاحة نفسها بدل القراءة الفورية — التوكيد
+       * (wa.me) لا يتغير، والنافذة المحجوبة حقًا تفشل بصوت عالٍ بعد 15s. */
+      await popup.waitForURL(/wa\.me/, { timeout: 15000 });
       await popup.close().catch(() => {});
     } else {
       // window.open من سلسلة async بعد POST — قد يحجبه المتصفح headless؛

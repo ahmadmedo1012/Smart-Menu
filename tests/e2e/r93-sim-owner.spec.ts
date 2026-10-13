@@ -131,9 +131,15 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
   /* ── 4. إنشاء صنف بخيارات وسعر داخل الفئة ── */
   test("إنشاء صنف «قهوة المحاكاة» بسعر ومجموعة خيارات «الحجم»", async () => {
     // فتح الفئة (توسيع) ثم زر «إضافة صنف» الخاص بها
-    const catCard = ownerPage.locator("div.rounded-md").filter({ hasText: CAT_NAME }).first();
-    await catCard.click();
-    // الزر قد يتكرر (رأس الفئة + جسمها الموسع) — أول واحد هو المكشوف (r93 تشخيص)
+    // P6-3-a: البطاقة التقاعدية div.rounded-md تقاعدت مع تحرير شكل المحرر
+    // (CategoriesList صار div.rounded-lg منذ r150) — عقد a11y الحقيقي للتوسيع
+    // هو ترويسة role="button" بـ aria-expanded (r150 §8) فنستهدفها هي؛
+    // النقر على اسم الفئة داخلها يفجّر onClick نفسه (توسيع) بلا التقاط
+    // أزرار الترويسة الثلاثة بـ stopPropagation.
+    const catCard = ownerPage.getByRole("button", { name: CAT_NAME }).first();
+    await catCard.getByText(CAT_NAME, { exact: true }).click();
+    // الزر داخل الترويسة مكشوف دائمًا (والجسم الموسّع الفارغ يحمل نسخة
+    // ثانية خارجه) — أول واحد هو زر الترويسة (r93 تشخيص)
     await catCard.getByRole("button", { name: "إضافة صنف" }).first().click();
 
     const itemDialog = ownerPage.locator('[role="dialog"]').first();

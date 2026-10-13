@@ -15,6 +15,10 @@
 import { test, expect } from "@playwright/test";
 import { mintCsrfPair, csrfHeadersFor } from "./csrf-helper";
 
+/* P6-3-a (نمط round87-D8): كان العنوان المطلق localhost:3000 حرفيًا فيتجاهل
+ * BASE_URL — التشغيلة المحلية على 3114 تنال ECONNREFUSED بلا سبب منتجي. */
+const BASE = process.env.BASE_URL || "http://localhost:3000";
+
 const SHOTS = "download/round94-simulations";
 const MENU = "/menu/al-waha-cafe";
 const OWNER_PASSWORD = process.env.WAHA_OWNER_PASS || "waha123456";
@@ -45,8 +49,8 @@ test.beforeAll(async ({ request }) => {
   await client.end();
 
   const pair = await mintCsrfPair(request);
-  const res = await request.post(`http://localhost:3000/api/items/${itemId}/reviews`, {
-    headers: { "Content-Type": "application/json", ...csrfHeadersFor("http://localhost:3000", pair) },
+  const res = await request.post(`${BASE}/api/items/${itemId}/reviews`, {
+    headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, pair) },
     data: { rating: 5, comment: `محاكاة r94 ${Date.now()}`, customerName: "زائر r94" },
   });
   // 201 (جديد) أو 200 — كلاهما نجاح؛ الفشل الحقيقي يفجّر الاختبار بصوت عالٍ

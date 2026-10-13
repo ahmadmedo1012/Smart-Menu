@@ -13,7 +13,10 @@ PGHOME=/home/z/pg-native
 export LD_LIBRARY_PATH="$PGHOME/lib:${LD_LIBRARY_PATH:-}"
 DATADIR=/home/z/pgdata
 PORT=5434
-REPO=/home/z/my-project
+# P6-3-a: المسار القديم /home/z/my-project تقاعد مع انتقال المستودع إلى
+# /home/z/repos/Smart-Menu — يُشتق الآن من موقع السكربت نفسه فيصمد أمام أي
+# انتقال قادم (node_modules للمستودع هو مصدر وحدة pg لإنشاء قاعدة smartmenu).
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ ! -d "$PGHOME/bin" ]; then
   echo "[pg-local] missing $PGHOME — restore via:" >&2

@@ -6,7 +6,9 @@
 # JS never loads). r92-e2e-local.sh calls this before starting the server.
 # Idempotent — safe to run on every sweep.
 set -euo pipefail
-cd /home/z/my-project
+# P6-3-a: المسار القديم /home/z/my-project تقاعد مع انتقال المستودع — يُشتق
+# الآن من موقع السكربت (نفس عائلة إصلاح r92-e2e-local.sh وpg-local-start.sh).
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 if [ ! -d .next/standalone ]; then
   echo "[r95-standalone-prepare] no .next/standalone — skipping (build first)"

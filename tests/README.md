@@ -27,8 +27,8 @@ DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vites
 ## 2) اختبارات e2e (Playwright)
 
 ### المتطلبات المسبقة
-0. **الطريق المختصر المحلي (r92-D + r95-D)**: `bash scripts/r92-e2e-local.sh "tests/e2e/team3-owner.spec.ts --project=qa-teams"` — يرفع الخادم standalone + يزامن الأصول (`r95-standalone-prepare.sh`) + يشغّل Playwright في **جلسة واحدة** (بيئات تفصل بين الأوامر تقتل خادم node بينها — درس r88)، ويصدّر متغيرات البيئة القياسية نفسها.
-1. **خادم يعمل على :3000** — إما `pnpm dev` أو بعد `pnpm build`: `node .next/standalone/server.js` (مع نسخ static/public كما في postbuild).
+0. **الطريق المختصر المحلي (r92-D + r95-D)**: `bash scripts/r92-e2e-local.sh "tests/e2e/team3-owner.spec.ts --project=qa-teams"` — يرفع الخادم standalone + يزامن الأصول (`r95-standalone-prepare.sh`) + يشغّل Playwright في **جلسة واحدة** (بيئات تفصل بين الأوامر تقتل خادم node بينها — درس r88)، ويصدّر متغيرات البيئة القياسية نفسها. **P6-3-aR**: المنفذ المحلي 3114 (3000 محجوز)، والسكربت يحقن `--workers=1` افتراضيًا (`E2E_WORKERS` للتخصيص) — عاملا الافتراضي (2) يفتحان كروميوم متوازيين فيضغطان ذاكرة الصندوق فيقتل مراقب userspace الخادم بـSIGTERM منتصف الرحلة (exit 143 بلا OOM في dmesg) فتنهار الفحوص اللاحقة بـECONNRESET/ECONNREFUSED الجماعية (تبدو عطل منتج وهي ليست كذلك). الرحلة الكاملة دفعة واحدة (مثبتة خضراء 270 passed + 2 skipped-by-design في 4.3 دقيقة): `bash scripts/r92-e2e-local.sh "tests/e2e tests/security --project=security --project=api --project=ui --project=auth-verify"` — والرَن-بوك الكامل (بذور + بناء + تقسيم القطع) في ترويسة السكربت نفسها.
+1. **خادم يعمل** — عبر r92 أعلاه تلقائيًا على :3114، أو يدويًا (بعد `pnpm build`): `node .next/standalone/server.js` (مع نسخ static/public كما في postbuild) على :3000.
 2. **بذور قاعدة البيانات** (Postgres المحلي :5434):
    ```bash
    node scripts/ci-seed.mjs        # admin — admin123456 افتراضيًا (المحلي يصدّر SEED_ADMIN_PASS=smart123 — عقد كلمة المرور يجرّبه auth-fix-verification.spec.ts §5 بالترتيب smart123 ثم admin123456)

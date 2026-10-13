@@ -17,6 +17,11 @@
 import { test, expect, type APIRequestContext, type Page } from "@playwright/test";
 import { mintCsrfPair, csrfHeadersFor } from "./csrf-helper";
 
+/* P6-3-a (نمط round87-D8 في auth-verify): العناوين المطلقة كانت مكتوبة
+ * http://localhost:3000 حرفيًا فتتجاهل BASE_URL — أي تشغيلة على منفذ غير
+ * 3000 (القاعدة المحلية 3114) تنال ECONNREFUSED بلا سبب منتجي. */
+const BASE = process.env.BASE_URL || "http://localhost:3000";
+
 const SHOTS = "download/round94-simulations";
 const TS = Date.now().toString().slice(-8);
 /* عقد البذرة المحلية (PROJECT.md): round83-seed يبذر waha_owner/waha123456
@@ -68,9 +73,8 @@ async function apiLogin(
   password: string,
 ): Promise<{ session: string; headers: Record<string, string> }> {
   const pair = await mintCsrfPair(request);
-  const base = new URL(request.constructor === Object ? "http://localhost:3000" : "http://localhost:3000");
-  const res = await request.post("http://localhost:3000/api/auth/login", {
-    headers: { "Content-Type": "application/json", ...csrfHeadersFor("http://localhost:3000", pair) },
+  const res = await request.post(`${BASE}/api/auth/login`, {
+    headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, pair) },
     data: { username, password },
   });
   expect(res.status(), `login ${username} يجب أن ينجح`).toBe(200);
@@ -80,7 +84,7 @@ async function apiLogin(
   const merged = {
     "X-CSRF-Token": pair.token,
     Cookie: `${pair.cookie}; smart-menu-session=${session}`,
-    Origin: "http://localhost:3000",
+    Origin: BASE,
   };
   return { session, headers: merged };
 }
@@ -91,15 +95,15 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
     const uname = `r94fraud_${TS}`;
     const pair = await mintCsrfPair(request);
     // تسجيل حساب USER مجاني (المخرب — مسار الخدمة الذاتية)
-    const reg = await request.post("http://localhost:3000/api/auth/register", {
-      headers: { "Content-Type": "application/json", ...csrfHeadersFor("http://localhost:3000", pair) },
+    const reg = await request.post(`${BASE}/api/auth/register`, {
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, pair) },
       data: { username: uname, password: "password123", name: `مخرب ${TS}` },
     });
     expect(reg.status()).toBe(201);
 
     const { headers } = await apiLogin(request, uname, "password123");
     // الهجوم: كود إحالة صالح لمطعم الضحية + رقم هاتف الضحية
-    const attack = await request.post("http://localhost:3000/api/loyalty/referral", {
+    const attack = await request.post(`${BASE}/api/loyalty/referral`, {
       headers: { "Content-Type": "application/json", ...headers },
       data: { referralCode, referredPhone: victimPhone, referredName: "المخرب" },
     });
@@ -111,8 +115,8 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
   /* ── 2. مجهول بلا جلسة → 401 قبل أي منطق ── */
   test("إحالة مجهولة (بلا جلسة) → 401", async ({ request }) => {
     const pair = await mintCsrfPair(request);
-    const res = await request.post("http://localhost:3000/api/loyalty/referral", {
-      headers: { "Content-Type": "application/json", ...csrfHeadersFor("http://localhost:3000", pair) },
+    const res = await request.post(`${BASE}/api/loyalty/referral`, {
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, pair) },
       data: { referralCode, referredPhone: victimPhone },
     });
     expect(res.status()).toBe(401);
@@ -122,7 +126,7 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
   test("مالك المطعم (waha_owner) يضيف إحالة صالحة → نجاح", async ({ request }) => {
     const { headers } = await apiLogin(request, "waha_owner", OWNER_PASSWORD);
     const phone = `09155500${TS.slice(-2)}`; // رقم جديد كليًا لهذه التشغيلة
-    const res = await request.post("http://localhost:3000/api/loyalty/referral", {
+    const res = await request.post(`${BASE}/api/loyalty/referral`, {
       headers: { "Content-Type": "application/json", ...headers },
       data: { referralCode, referredPhone: phone, referredName: `زبون ${TS}` },
     });
@@ -134,7 +138,7 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
   /* ── 4. بوابة /api_config (W1-a LOW-5) ── */
   test("/api/config: مجهول 401 · مالك يرى الدفع فقط · ?key= داخلي 403", async ({ request }) => {
     // مجهول
-    const anon = await request.get("http://localhost:3000/api/config");
+    const anon = await request.get(`${BASE}/api/config`);
     expect(anon.status()).toBe(401);
 
     // بذر حتمي: قناة دفع + مفتاح داخلي (عقد r94-W1a — idempotent)
@@ -151,7 +155,7 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
 
     // المالك: قنوات الدفع فقط — لا المفتاح الداخلي
     const { headers } = await apiLogin(request, "waha_owner", OWNER_PASSWORD);
-    const ownerView = await request.get("http://localhost:3000/api/config", { headers });
+    const ownerView = await request.get(`${BASE}/api/config`, { headers });
     expect(ownerView.status()).toBe(200);
     const body = await ownerView.text();
     expect(body).toContain("bank_transfer_bank_name"); // قناة الدفع الشرعية للمالك
@@ -160,10 +164,10 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
     expect(body).not.toContain("JWT_SECRET");
 
     // ?key= داخلي → 403
-    const internal = await request.get("http://localhost:3000/api/config?key=withdrawal_rules_r94", { headers });
+    const internal = await request.get(`${BASE}/api/config?key=withdrawal_rules_r94`, { headers });
     expect(internal.status()).toBe(403);
     // ?key= قناة دفع → مسموح (404 إن لم توجد — هنا موجودة → 200)
-    const payKey = await request.get("http://localhost:3000/api/config?key=bank_transfer_bank_name", { headers });
+    const payKey = await request.get(`${BASE}/api/config?key=bank_transfer_bank_name`, { headers });
     expect(payKey.status()).toBe(200);
   });
 
@@ -178,12 +182,12 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
     expect(sessions).toHaveLength(6);
     // الأولى أُبعدت بفعل السادسة → 401
     const pair = await mintCsrfPair(request);
-    const checkOld = await request.get("http://localhost:3000/api/auth/me", {
+    const checkOld = await request.get(`${BASE}/api/auth/me`, {
       headers: { Cookie: `${pair.cookie}; smart-menu-session=${sessions[0]}` },
     });
     expect(checkOld.status(), "أقدم جلسة يجب أن تُبعد بعد السادسة").toBe(401);
     // الأحدث حية → 200
-    const checkNew = await request.get("http://localhost:3000/api/auth/me", {
+    const checkNew = await request.get(`${BASE}/api/auth/me`, {
       headers: { Cookie: `${pair.cookie}; smart-menu-session=${sessions[5]}` },
     });
     expect(checkNew.status()).toBe(200);
@@ -195,7 +199,7 @@ test.describe.serial("r94 محاكاة تحقق الإصلاحات — المخ�
     let saw429 = false;
     let lastBody = "";
     for (let i = 0; i < 24; i++) {
-      const res = await request.post("http://localhost:3000/api/whatsapp/generate", {
+      const res = await request.post(`${BASE}/api/whatsapp/generate`, {
         headers: { "Content-Type": "application/json", ...headers },
         data: { orderId: 99999999 }, // طلب غير موجود — يجتاز البوابات إلى 404
       });
