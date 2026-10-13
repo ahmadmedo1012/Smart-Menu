@@ -2,6 +2,8 @@
  * r131 (A11 states — fleet ruling: loading.tsx = shape skeletons): هيكل تحميل
  * على شكل شبكة بطاقات الباقات (نفس هندسة PricingClient — ٤ بطاقات على
  * الحاوية 1280px) بدل الغزل المجرّد. بلا-JS بالكامل.
+ * Phase 6 (r154): هندسة الطبق — البطاقة 16 (rounded-lg) والبئر دائرة
+ * (rounded-full) لتنعكس قواعد PricingClient نفسها هنا.
  */
 export default function PricingLoading() {
         return (
@@ -25,12 +27,12 @@ export default function PricingLoading() {
                                         {[...Array(4)].map((_, i) => (
                                                 <div
                                                         key={i}
-                                                        className="rounded-2xl border border-border/50 p-5 sm:p-6 animate-rise-in"
+                                                        className="rounded-lg border border-border/50 p-5 sm:p-6 animate-rise-in"
                                                         style={{ animationDelay: `${i * 60}ms` }}
                                                         aria-hidden="true"
                                                 >
                                                         <div className="flex items-center gap-3 mb-4">
-                                                                <div className="size-11 rounded-xl skeleton" />
+                                                                <div className="size-11 rounded-full skeleton" />
                                                                 <div className="space-y-2 flex-1">
                                                                         <div className="h-4 w-3/4 skeleton rounded-sm" />
                                                                         <div className="h-3 w-1/2 skeleton rounded-sm" />

@@ -77,9 +77,10 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                         viewport={{ once: true, margin: "-40px" }}
                         transition={{ ...springDefault, delay: index * 0.08 }}
                         className={cn(
-                                /* r128-F5 (§4 flat cards): بطاقة مسطّحة — حدّ شعري يستجيب
-                                   في hover (لا ظلّ ولا تدرّج ولا زجاج). */
-                                'group relative flex flex-col rounded-2xl border p-5 sm:p-6 transition-[border-color] duration-slower hover:border-accent-foreground/30',
+                                /* r128-F5 (§4 flat cards) → Phase 6 (r154): هندسة الطبق —
+                                   rounded-2xl (24px) → rounded-lg = طبق 16، الدرجة
+                                   القانونية للبطاقة ( Card/الأسطح المالية ذاتها). */
+                                'group relative flex flex-col rounded-lg border p-5 sm:p-6 transition-[border-color] duration-slower hover:border-accent-foreground/30',
                                 isPopular ? 'border-accent-foreground/30 bg-card' : 'border-border/50 bg-card'
                         )}
                 >
@@ -109,20 +110,24 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
 
                         <div className="relative flex flex-col flex-1">
                                 <div className="flex items-center gap-3 mb-4">
-                                        {/* r95: شريحة أيقونة SmartBot §5.4 — بلا حدّ، bg-accent-foreground/10 */}
                                         <div
                                                 className={cn(
-                                                        /* r128-F5 (§1.5): transition-all → خصائص محدّدة */
-                                                        'flex size-11 items-center justify-center rounded-xl transition-[background-color,transform] duration-base group-hover:scale-110',
+                                                        /* r95: شريحة أيقونة SmartBot §5.4 — بلا حدّ، bg-accent-foreground/10
+                                                           Phase 6 (r154): بئر الطبق — الدائرة الكاملة بحافة التراكوتا
+                                                           1.5px (نفس عقد بطاقة KPI)؛ المجاني يظل محايدًا والمدفوع
+                                                           دافئًا (تراكوتا على غسلة دافئة). */
+                                                        'flex size-11 items-center justify-center rounded-full ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 transition-[background-color,transform] duration-base group-hover:scale-110',
                                                         isFree
                                                                 ? 'bg-muted text-muted-foreground'
-                                                                : 'bg-accent-foreground/10 text-accent-foreground group-hover:bg-accent-foreground/15'
+                                                                : 'bg-orange-muted text-orange'
                                                 )}
                                         >
                                                 <Icon className="size-5" />
                                         </div>
                                         <div>
-                                                <h2 className="text-base sm:text-lg font-bold">{plan.nameAr}</h2>
+                                                {/* Phase 6 (r154): اسم الخطة بالوجه الطهوي (Baloo)
+                                                   — إيقاع العناوين على الأسطح الجزئية أيضًا. */}
+                                                <h2 className="font-heading text-base sm:text-lg font-bold">{plan.nameAr}</h2>
                                                 <p className="text-xs text-muted-foreground">{plan.name}</p>
                                         </div>
                                 </div>
@@ -151,9 +156,11 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                         )}
                                 </div>
 
-                                <div className="space-y-2 mb-6">
-                                        {/* r128-F5 (§4): CountUp على حدود الخطط المعروضة (نمط
-                                           الثقة في المدارك) — الأرقام غربية بخط mono جدولي.
+                                <div className="space-y-3 mb-6">
+                                        {/* r128-F5 (§4) → Phase 6 (r154): قائد النقاط — حدود الخطة
+                                           على طراز المنيو المطبوع (نفس بصمة بطاقة الصنف/ملخص
+                                           الطلب) بدل خلايا الغسل المنفصلة؛ الأرقام غربية بخط
+                                           mono جدولي مع CountUp.
                                            r143 (Phase-4 W1 D10): قانون صدق r92 «TEXT follows
                                            ENFORCEMENT» يمتد لصفوف الحدود — كانت 9999/99999
                                            تُعرض «غير محدود» بينما الحارس يرفض الصنف 9999
@@ -166,10 +173,11 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                         ].map(([label, val]) => (
                                                 <div
                                                         key={label as string}
-                                                        className="flex items-center justify-between rounded-lg bg-muted/45 px-3 py-2 text-sm"
+                                                        className="flex items-baseline gap-2 text-sm menu-leader"
                                                 >
-                                                        <span className="text-muted-foreground">{label as string}</span>
-                                                        <span className="font-semibold font-mono tabular-nums">
+                                                        <span className="text-muted-foreground shrink-0">{label as string}</span>
+                                                        <i className="menu-leader-rule" aria-hidden="true" />
+                                                        <span className="font-semibold font-mono tabular-nums shrink-0">
                                                                 <CountUp value={val as string} />
                                                         </span>
                                                 </div>
@@ -273,10 +281,12 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                         <LoadingAnnouncer loading={loading} message="جارٍ تحميل الباقات…" />
                                                         <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
                                                         {[...Array(4)].map((_, i) => (
-                                                                /* r95: هياكل التحميل بنفس هندسة بطاقة SmartBot الجديدة */
-                                                                <div key={i} className="rounded-2xl border border-border/50 p-5 sm:p-6">
+                                                                /* r95: هياكل التحميل بنفس هندسة بطاقة SmartBot الجديدة
+                                                                   Phase 6 (r154): هندسة الطبق — البطاقة 16 والبئر دائرة
+                                                                   (تنعكس نفس القواعد في pricing/loading.tsx). */
+                                                                <div key={i} className="rounded-lg border border-border/50 p-5 sm:p-6">
                                                                         <div className="flex items-center gap-3 mb-4">
-                                                                                <div className="size-11 rounded-xl skeleton" />
+                                                                                <div className="size-11 rounded-full skeleton" />
                                                                                 <div className="space-y-2 flex-1">
                                                                                         <div className="h-4 w-3/4 skeleton rounded-sm" />
                                                                                         <div className="h-3 w-1/2 skeleton rounded-sm" />
@@ -299,12 +309,17 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                         </div>
                                                 </>
                                         ) : error ? (
-                                                <div className="flex flex-col items-center gap-4 py-20 text-muted-foreground">
-                                                        <span>{error}</span>
-                                                        <Button variant="outline" onClick={loadPlans}>
-                                                                إعادة المحاولة
-                                                        </Button>
-                                                </div>
+                                                /* Phase 6 (r154): حالة الخطأ تنضم لعائلة الأطباق (EmptyState
+                                                   الدافئ — بئر الأيقونة + عنوان 18/600) بدل سطرين عاريين. */
+                                                <EmptyState
+                                                        icon={UtensilsCrossed}
+                                                        title={error}
+                                                        action={
+                                                                <Button variant="outline" onClick={loadPlans}>
+                                                                        إعادة المحاولة
+                                                                </Button>
+                                                        }
+                                                />
                                         ) : plans.length === 0 ? (
                                                 /* round88-E3: unified EmptyState (icon + copy + retry
                                                    action) — was a bare muted text line with no recovery path. */
@@ -330,7 +345,8 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
 
                         <section className="pb-16 sm:pb-24">
                                 <div className="max-w-3xl mx-auto px-4">
-                                        <h2 className="text-xl sm:text-2xl font-bold text-center mb-8 sm:mb-10">أسئلة شائعة</h2>
+                                        {/* Phase 6 (r154): إيقاع بالو للعناوين الفرعية (FAQ) */}
+                                        <h2 className="font-heading text-xl sm:text-2xl font-bold text-center mb-8 sm:mb-10">أسئلة شائعة</h2>
                                         <div className="space-y-3 sm:space-y-4">
                                                 {[
                                                         {
@@ -352,7 +368,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                 ].map((faq, i) => (
                                                         <details
                                                                 key={i}
-                                                                className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color] duration-slower open:border-accent-foreground/25"
+                                                                className="group overflow-hidden rounded-lg border border-border/50 bg-card transition-[border-color] duration-slower open:border-accent-foreground/25"
                                                         >
                                                                 <summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/60">
                                                                                                                                         {faq.q}
@@ -375,10 +391,11 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
 
                         <section className="pb-16 sm:pb-24">
                                 <div className="max-w-2xl mx-auto px-4 text-center">
-                                        {/* r95: بطاقة CTA ختامية بهندسة SmartBot — r128-F5: مسطّحة بلا ظل */}
-                                        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 sm:p-8 md:p-12">
+                                        {/* r95: بطاقة CTA ختامية بهندسة SmartBot — r128-F5: مسطّحة بلا ظل
+                                            Phase 6 (r154): طبق 16 + عنوان بالو (إيقاع الأقسام). */}
+                                        <div className="relative overflow-hidden rounded-lg border border-border/50 bg-card p-6 sm:p-8 md:p-12">
                                                 <div className="absolute inset-x-0 top-0 mx-auto h-1 w-20 bg-primary" />
-                                                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+                                                <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
                                                         مستعد لانطلاق مطعمك الرقمي؟
                                                 </h2>
                                                 <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
