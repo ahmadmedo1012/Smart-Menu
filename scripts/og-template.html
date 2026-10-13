@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <style>
   /* ─────────────────────────────────────────────────────────────────
-     OG brand card — Madarek identity (r8-a rewrite)
-     Night ground #070B16 · sand ink #F2EFE6 · gold metal #E9B44C→#C9962F
-     at the canonical 145° (unified-smart-parity --btn-primary-bg family).
-     IBM Plex Sans Arabic 400-700 self-hosted from ../public/fonts/ (the
-     app's own Plex faces — no Google Fonts, no Readex Pro). Flat night
-     ground per the Madarek doctrine: no glows, no radial washes.
+     OG brand card — PHASE 5 r152: «Warm Culinary Editorial» identity.
+     Cream ground #FBF7F0 · espresso ink #241811 · secondary #6B5D4F ·
+     terracotta metal #C2452D→#8A2B1D at the canonical 145° (the
+     globals.css .qr-corner / --btn-primary pair) with the constant
+     cream glyph. Baloo Bhaijaan 2 (display, 700) + IBM Plex Sans Arabic
+     (body) self-hosted from ../public/fonts/. Flat warm paper per the
+     culinary doctrine: no night washes, warm hairlines, no cold grays.
      ─────────────────────────────────────────────────────────────────
      Rendered by scripts/render-og.mjs (node, fonts inlined as data URIs)
      or directly via file:// + playwright (needs Chromium's
@@ -24,42 +25,46 @@
     unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
   @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('../public/fonts/plex-sans-arabic-500-normal-latin.woff2') format('woff2'); font-weight: 500; font-display: block;
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  /* Phase 5 display face — Baloo Bhaijaan 2 (arabic subset, variable
+     400-800; declared at 700 like the app's fonts.css). */
+  @font-face { font-family: 'Baloo Bhaijaan 2'; src: url('../public/fonts/baloo-bhaijaan-2-arabic.woff2') format('woff2'); font-weight: 700; font-display: block;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 1200px; height: 630px; overflow: hidden; }
   body {
-    font-family: 'IBM Plex Sans Arabic', 'Cairo', system-ui, sans-serif;
-    /* Madarek night — flat ground, no glow washes */
-    background: #070B16;
-    color: #F2EFE6; /* sand ink */
+    font-family: 'IBM Plex Sans Arabic', 'Baloo Bhaijaan 2', system-ui, sans-serif;
+    /* Warm Culinary Editorial — flat cream paper, no glow washes */
+    background: #FBF7F0;
+    color: #241811; /* espresso ink */
     display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
     padding: 72px 88px;
     position: relative;
   }
-  .grain { position: absolute; inset: 0; opacity: 0.4; background-image: radial-gradient(rgba(242,239,230,0.05) 1px, transparent 1px); background-size: 5px 5px; }
+  .grain { position: absolute; inset: 0; opacity: 0.5; background-image: radial-gradient(rgba(36,24,17,0.045) 1px, transparent 1px); background-size: 5px 5px; }
   .brand-row { display: flex; align-items: center; gap: 18px; margin-bottom: 34px; position: relative; }
-  /* Brand mark — Madarek gold metal (deep→luminous) + void-ink glyph
-     (--primary/--primary-foreground pairing) on a Madarek night shadow */
+  /* Brand mark — terracotta metal (luminous→deep) + constant cream glyph
+     (--primary/--primary-foreground pairing) on a warm paper shadow */
   .mark { width: 84px; height: 84px; border-radius: 20px;
-    background: linear-gradient(145deg, #C9962F, #E9B44C);
+    background: linear-gradient(145deg, #C2452D, #8A2B1D);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 18px 44px rgba(2,4,12,0.55), inset 0 1px 0 rgba(255,255,255,0.08); }
+    box-shadow: 0 18px 44px rgba(74,54,32,0.28), inset 0 1px 0 rgba(255,255,255,0.18); }
   .mark svg { width: 46px; height: 46px; }
   /* Arabic law: no letter-spacing on Arabic, ever */
-  .brand-name { font-size: 46px; font-weight: 600; color: #F2EFE6; }
-  h1 { font-size: 84px; font-weight: 700; line-height: 1.2; margin-bottom: 18px; position: relative;
-       color: #F2EFE6; /* flat sand ink — no gradient text on the brand card */ }
-  .tagline { font-size: 34px; font-weight: 400; line-height: 1.5; color: #C3C8DC; margin-bottom: 40px; position: relative; }
+  .brand-name { font-family: 'Baloo Bhaijaan 2', 'IBM Plex Sans Arabic', system-ui, sans-serif; font-size: 46px; font-weight: 700; color: #241811; }
+  h1 { font-family: 'Baloo Bhaijaan 2', 'IBM Plex Sans Arabic', system-ui, sans-serif; font-size: 84px; font-weight: 700; line-height: 1.25; margin-bottom: 18px; position: relative;
+       color: #241811; /* flat espresso ink — no gradient text on the brand card */ }
+  .tagline { font-size: 34px; font-weight: 400; line-height: 1.5; color: #6B5D4F; margin-bottom: 40px; position: relative; }
   .pills { display: flex; gap: 14px; position: relative; }
-  /* gold-wash chips (bg-accent/10 + text-accent + accent border) */
-  .pill { font-size: 24px; line-height: 1; font-weight: 500; color: #E9B44C; border: 1.5px solid rgba(233,180,76,0.45);
-    background: rgba(233,180,76,0.10); border-radius: 999px; padding: 10px 26px; }
+  /* terracotta-wash chips (bg-accent/10 + accent-ink text + accent border) */
+  .pill { font-size: 24px; line-height: 1; font-weight: 500; color: #8A2B1D; border: 1.5px solid rgba(194,69,45,0.40);
+    background: rgba(194,69,45,0.09); border-radius: 999px; padding: 10px 26px; }
   .url { position: absolute; bottom: 54px; left: 88px; direction: ltr;
-    font-size: 26px; font-weight: 500; color: #8E97B8; letter-spacing: 0.2px; }
+    font-size: 26px; font-weight: 500; color: #8A7A68; letter-spacing: 0.2px; }
   .qr { position: absolute; bottom: 48px; right: 88px; width: 118px; height: 118px; opacity: 0.35;
     background:
-      linear-gradient(0deg, transparent 75%, #E9B44C 75%) 0 0/24px 24px,
-      linear-gradient(90deg, transparent 75%, #E9B44C 75%) 0 0/24px 24px,
-      rgba(233,180,76,0.08);
+      linear-gradient(0deg, transparent 75%, #C2452D 75%) 0 0/24px 24px,
+      linear-gradient(90deg, transparent 75%, #C2452D 75%) 0 0/24px 24px,
+      rgba(194,69,45,0.08);
     border-radius: 8px;
     -webkit-mask-image: radial-gradient(circle at center, black 72%, transparent 73%);
     mask-image: radial-gradient(circle at center, black 72%, transparent 73%);
@@ -70,9 +75,9 @@
   <div class="grain"></div>
   <div class="brand-row">
     <div class="mark">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#05070F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 8h16"/><path d="M4 12h16"/><path d="M4 16h10"/>
-        <circle cx="19.5" cy="16" r="1.6" fill="#05070F" stroke="none"/>
+        <circle cx="19.5" cy="16" r="1.6" fill="#FBF7F0" stroke="none"/>
       </svg>
     </div>
     <div class="brand-name">الربط الذكي</div>

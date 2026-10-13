@@ -1,5 +1,9 @@
-const CACHE_NAME = 'smart-menu-v8';
+const CACHE_NAME = 'smart-menu-v9';
 // REMINDER: bump CACHE_VERSION whenever this file changes
+// (r152 / Phase 5: v8 → v9 — the brand raster set (icon-192/icon-512) +
+// manifest + offline.html were re-rendered in the Warm Culinary Editorial
+// identity (terracotta), and the Baloo Bhaijaan 2 arabic display face joined
+// the precache so offline menu revisits keep the h1 culinary voice.)
 // (r134-W2: v7 → v8 — the protected-navigation cache.put skip below changes
 // what lives in CACHE_NAME; the bump also purges any owner/admin/cart HTML a
 // v7 SW already wrote on a shared device.)
@@ -8,13 +12,15 @@ const CACHE_NAME = 'smart-menu-v8';
 // precached at install — previously they were cache-first ONLY after the
 // first visit of each, so offline/weak-signal revisits flashed fallback
 // text (FOUT). 400 = body/regular runs, 700 = bold/CTA runs.
+// r152 (Phase 5): + Baloo Bhaijaan 2 arabic (38 KB) — h1-h5 display runs.
 const STATIC_ASSETS = [
-	'/offline.html',
-	'/manifest.json',
-	'/icon-192.png',
-	'/icon-512.png',
-	'/fonts/plex-sans-arabic-400-normal-arabic.woff2',
-	'/fonts/plex-sans-arabic-700-normal-arabic.woff2',
+        '/offline.html',
+        '/manifest.json',
+        '/icon-192.png',
+        '/icon-512.png',
+        '/fonts/plex-sans-arabic-400-normal-arabic.woff2',
+        '/fonts/plex-sans-arabic-700-normal-arabic.woff2',
+        '/fonts/baloo-bhaijaan-2-arabic.woff2',
 ];
 
 // round87-D10: dedicated cache for /_next/image responses, separate from
@@ -33,119 +39,119 @@ const IMAGE_CACHE_MAX = 60;
 const API_CACHEABLE = [/^\/api\/public\//];
 
 self.addEventListener('install', (event) => {
-	event.waitUntil(
-		(async () => {
-			const cache = await caches.open(CACHE_NAME);
-			await cache.addAll(STATIC_ASSETS);
-		})()
-	);
-	self.skipWaiting();
+        event.waitUntil(
+                (async () => {
+                        const cache = await caches.open(CACHE_NAME);
+                        await cache.addAll(STATIC_ASSETS);
+                })()
+        );
+        self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-	event.waitUntil(
-		(async () => {
-			const keys = await caches.keys();
-			await Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== IMAGE_CACHE_NAME).map((k) => caches.delete(k)));
-			await self.clients.claim();
-		})()
-	);
+        event.waitUntil(
+                (async () => {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== IMAGE_CACHE_NAME).map((k) => caches.delete(k)));
+                        await self.clients.claim();
+                })()
+        );
 });
 
 self.addEventListener('fetch', (event) => {
-	const { request } = event;
-	const url = new URL(request.url);
+        const { request } = event;
+        const url = new URL(request.url);
 
-	if (request.method !== 'GET') return;
-	if (url.origin !== self.location.origin) return;
+        if (request.method !== 'GET') return;
+        if (url.origin !== self.location.origin) return;
 
-	// Static assets: cache-first
-	if (
-		url.pathname.match(/\.(css|js|woff2?|ttf|otf|svg|ico|png|jpg|jpeg|webp)$/) ||
-		url.pathname === '/manifest.json'
-	) {
-		event.respondWith(cacheFirst(request));
-		return;
-	}
+        // Static assets: cache-first
+        if (
+                url.pathname.match(/\.(css|js|woff2?|ttf|otf|svg|ico|png|jpg|jpeg|webp)$/) ||
+                url.pathname === '/manifest.json'
+        ) {
+                event.respondWith(cacheFirst(request));
+                return;
+        }
 
-	// round86-B11: optimized images are content-addressed (?url=&w=&q=) — safe
-	// to cache-first so offline/weak-signal QR re-visits don't re-fetch item
-	// images (previously fell through to network-first because /_next/image
-	// URLs carry no file extension). round87-D10: now served from the bounded
-	// LRU image cache (IMAGE_CACHE_MAX entries, see imageCacheFirst below).
-	if (url.pathname.startsWith('/_next/image')) {
-		event.respondWith(imageCacheFirst(request));
-		return;
-	}
+        // round86-B11: optimized images are content-addressed (?url=&w=&q=) — safe
+        // to cache-first so offline/weak-signal QR re-visits don't re-fetch item
+        // images (previously fell through to network-first because /_next/image
+        // URLs carry no file extension). round87-D10: now served from the bounded
+        // LRU image cache (IMAGE_CACHE_MAX entries, see imageCacheFirst below).
+        if (url.pathname.startsWith('/_next/image')) {
+                event.respondWith(imageCacheFirst(request));
+                return;
+        }
 
-	// API: stale-while-revalidate ONLY for the public read-only allowlist
-	// (/api/public/* — landing featured/stats). Everything else is
-	// network-only. round79 Stage C caught the previous behavior caching
-	// authenticated endpoints too: after creating a category (POST 201 +
-	// "تمت الإضافة" toast) the list GET was served the PRE-POST cached
-	// response, so the new category stayed invisible until a later
-	// navigation. Same staleness risk applies to /api/auth/* (session),
-	// payment status polls, and all owner/admin management data — none of
-	// them may ever be served stale.
-	if (url.pathname.startsWith('/api/')) {
-		const cacheable =
-			request.method === 'GET' && API_CACHEABLE.some((re) => re.test(url.pathname));
-		if (cacheable) {
-			event.respondWith(staleWhileRevalidateJSON(request));
-		} else {
-			event.respondWith(networkOnly(request));
-		}
-		return;
-	}
+        // API: stale-while-revalidate ONLY for the public read-only allowlist
+        // (/api/public/* — landing featured/stats). Everything else is
+        // network-only. round79 Stage C caught the previous behavior caching
+        // authenticated endpoints too: after creating a category (POST 201 +
+        // "تمت الإضافة" toast) the list GET was served the PRE-POST cached
+        // response, so the new category stayed invisible until a later
+        // navigation. Same staleness risk applies to /api/auth/* (session),
+        // payment status polls, and all owner/admin management data — none of
+        // them may ever be served stale.
+        if (url.pathname.startsWith('/api/')) {
+                const cacheable =
+                        request.method === 'GET' && API_CACHEABLE.some((re) => re.test(url.pathname));
+                if (cacheable) {
+                        event.respondWith(staleWhileRevalidateJSON(request));
+                } else {
+                        event.respondWith(networkOnly(request));
+                }
+                return;
+        }
 
-	// Navigations (everything left after assets / images / API): network-first.
-	// r134-W2 (#10): the old `/^\/([^.]*|$)/` discriminator was dead code —
-	// its empty alternation matched EVERY pathname, so both the guarded branch
-	// and the fallthrough ran the identical networkFirst. One unconditional
-	// respondWith; the protected-route cache policy lives inside networkFirst (#9).
-	event.respondWith(networkFirst(request));
+        // Navigations (everything left after assets / images / API): network-first.
+        // r134-W2 (#10): the old `/^\/([^.]*|$)/` discriminator was dead code —
+        // its empty alternation matched EVERY pathname, so both the guarded branch
+        // and the fallthrough ran the identical networkFirst. One unconditional
+        // respondWith; the protected-route cache policy lives inside networkFirst (#9).
+        event.respondWith(networkFirst(request));
 });
 
 // JSON-safe stale-while-revalidate: serves cached response only when it is
 // valid application/json; refreshes from network; never caches non-JSON.
 // Also purges any poisoned (text/html) cache entries from older SW versions.
 async function staleWhileRevalidateJSON(request) {
-	const cache = await caches.open(CACHE_NAME);
-	const cached = await cache.match(request);
-	const isJson = (r) => (r?.headers?.get('content-type') || '').includes('application/json');
-	if (cached && isJson(cached)) {
-		// revalidate in background
-		fetch(request)
-			.then(async (res) => {
-				if (res.ok && isJson(res)) await cache.put(request, res.clone());
-			})
-			.catch(() => {});
-		return cached;
-	}
-	// Purge poisoned entry, then network
-	if (cached) await cache.delete(request);
-	try {
-		const res = await fetch(request);
-		if (res.ok && isJson(res)) await cache.put(request, res.clone());
-		return res;
-	} catch {
-		return cached ?? Response.error();
-	}
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(request);
+        const isJson = (r) => (r?.headers?.get('content-type') || '').includes('application/json');
+        if (cached && isJson(cached)) {
+                // revalidate in background
+                fetch(request)
+                        .then(async (res) => {
+                                if (res.ok && isJson(res)) await cache.put(request, res.clone());
+                        })
+                        .catch(() => {});
+                return cached;
+        }
+        // Purge poisoned entry, then network
+        if (cached) await cache.delete(request);
+        try {
+                const res = await fetch(request);
+                if (res.ok && isJson(res)) await cache.put(request, res.clone());
+                return res;
+        } catch {
+                return cached ?? Response.error();
+        }
 }
 
 async function cacheFirst(request) {
-	const cached = await caches.match(request);
-	if (cached) return cached;
-	try {
-		const res = await fetch(request);
-		if (res.ok) {
-			const cache = await caches.open(CACHE_NAME);
-			cache.put(request, res.clone());
-		}
-		return res;
-	} catch {
-		return caches.match('/offline.html');
-	}
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        try {
+                const res = await fetch(request);
+                if (res.ok) {
+                        const cache = await caches.open(CACHE_NAME);
+                        cache.put(request, res.clone());
+                }
+                return res;
+        } catch {
+                return caches.match('/offline.html');
+        }
 }
 
 // round87-D10: bounded LRU variant of cacheFirst for /_next/image URLs.
@@ -153,40 +159,40 @@ async function cacheFirst(request) {
 // A hit refreshes recency (delete + re-put moves it to the tail); a new
 // entry evicts from the head first until the cache fits the cap.
 async function imageCacheFirst(request) {
-	const cache = await caches.open(IMAGE_CACHE_NAME);
-	const cached = await cache.match(request);
-	if (cached) {
-		// LRU touch: clone BEFORE returning (a consumed body can no longer be
-		// cloned). Background refresh — failure is harmless, worst case the
-		// entry keeps its old position and is evicted sooner.
-		const fresh = cached.clone();
-		cache.delete(request).then(() => cache.put(request, fresh)).catch(() => {});
-		return cached;
-	}
-	try {
-		const res = await fetch(request);
-		if (res.ok) {
-			// +1 accounts for the entry we are about to insert.
-			const keys = await cache.keys();
-			while (keys.length + 1 > IMAGE_CACHE_MAX) {
-				const oldest = keys.shift();
-				if (!oldest) break;
-				await cache.delete(oldest);
-			}
-			await cache.put(request, res.clone());
-		}
-		return res;
-	} catch {
-		return caches.match('/offline.html');
-	}
+        const cache = await caches.open(IMAGE_CACHE_NAME);
+        const cached = await cache.match(request);
+        if (cached) {
+                // LRU touch: clone BEFORE returning (a consumed body can no longer be
+                // cloned). Background refresh — failure is harmless, worst case the
+                // entry keeps its old position and is evicted sooner.
+                const fresh = cached.clone();
+                cache.delete(request).then(() => cache.put(request, fresh)).catch(() => {});
+                return cached;
+        }
+        try {
+                const res = await fetch(request);
+                if (res.ok) {
+                        // +1 accounts for the entry we are about to insert.
+                        const keys = await cache.keys();
+                        while (keys.length + 1 > IMAGE_CACHE_MAX) {
+                                const oldest = keys.shift();
+                                if (!oldest) break;
+                                await cache.delete(oldest);
+                        }
+                        await cache.put(request, res.clone());
+                }
+                return res;
+        } catch {
+                return caches.match('/offline.html');
+        }
 }
 
 async function networkOnly(request) {
-	try {
-		return await fetch(request);
-	} catch {
-		return new Response(null, { status: 503 });
-	}
+        try {
+                return await fetch(request);
+        } catch {
+                return new Response(null, { status: 503 });
+        }
 }
 
 // r134-W2 (#9): authenticated navigation HTML must never be WRITTEN to
@@ -198,19 +204,19 @@ async function networkOnly(request) {
 const PROTECTED_NAVIGATION = [/^\/(owner|admin|cart|order-confirmed|subscribe|login)(\/|$)/];
 
 async function networkFirst(request) {
-	try {
-		const res = await fetch(request);
-		if (res.ok) {
-			const url = new URL(request.url);
-			const isProtected = PROTECTED_NAVIGATION.some((re) => re.test(url.pathname));
-			if (!isProtected) {
-				const cache = await caches.open(CACHE_NAME);
-				cache.put(request, res.clone());
-			}
-		}
-		return res;
-	} catch {
-		const cached = await caches.match(request);
-		return cached || caches.match('/offline.html');
-	}
+        try {
+                const res = await fetch(request);
+                if (res.ok) {
+                        const url = new URL(request.url);
+                        const isProtected = PROTECTED_NAVIGATION.some((re) => re.test(url.pathname));
+                        if (!isProtected) {
+                                const cache = await caches.open(CACHE_NAME);
+                                cache.put(request, res.clone());
+                        }
+                }
+                return res;
+        } catch {
+                const cached = await caches.match(request);
+                return cached || caches.match('/offline.html');
+        }
 }

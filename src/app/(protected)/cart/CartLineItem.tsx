@@ -51,10 +51,10 @@ export function CartLineItem({
                                                         unavailable && 'opacity-50'
                                                 )}
                                         >
-                                                {/* r148 (CROSS R2): كان text-primary — في الفاتح صار نحاسًا
-                                                    3.8:1 على أرضية البطاقة البيضاء تحت سقف 4.5 للنص الصغير.
-                                                    accent-foreground = نفس الذهب الحرفي في الداكن (#E9B44C)
-                                                    والنحاس العميق 10.29:1 في الفاتح — صفر فرق داكنًا + AA فاتحًا. */}
+                                                {/* r148 (CROSS R2) → Phase 5 (r152): كان text-primary — في الفاتح كان
+                                                    نحاسًا 3.8:1 على أرضية البطاقة البيضاء تحت سقف 4.5 للنص الصغير.
+                                                    accent-foreground = التراكوتا العميق #8A2B1D في الفاتح (8.05:1)
+                                                    والتراكوتا المضيء #E07856 في الداكن — AA في الوضعين. */}
                                                 <span className="text-sm font-bold text-accent-foreground tabular-nums">
                                                         {toArabicNumber(item.quantity)}
                                                 </span>
@@ -76,10 +76,14 @@ export function CartLineItem({
                                                                 {item.modifiersSummary}
                                                         </p>
                                                 )}
-                                                <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
+                                                {/* Phase 5 (r152): قائد النقاط — سطر سعر الوحدة على
+                                                    * طراز المنيو المطبوع (dotted leader قبل «للواحد»). */}
+                                                <p className="text-xs text-muted-foreground tabular-nums mt-0.5 menu-leader">
                                                         {/* r121 (H-1): decimals:1 كان يعرض «8.0 / للواحد» ويقرّب
                                                             7.25 إلى «7.3» — الافتراضي الذكي (r120). */}
-                                                        {formatPrice(item.price)} / للواحد
+                                                        <span>{formatPrice(item.price)}</span>
+                                                        <i className="menu-leader-rule" aria-hidden="true" />
+                                                        <span>/ للواحد</span>
                                                 </p>
                                         </div>
                                 </div>

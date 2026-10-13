@@ -6,8 +6,9 @@
 // (default: regenerate public/og-default.png) or override the copy fields
 // without editing the template.
 //
-// r8-a: the template is now Madarek identity (night #070B16 / sand #F2EFE6 /
-// gold metal #C9962F→#E9B44C @145°) and self-hosts IBM Plex Sans Arabic from
+// r152 (Phase 5): the template is now Warm Culinary Editorial identity
+// (cream #FBF7F0 / espresso #241811 / terracotta metal #C2452D→#8A2B1D
+// @145°) and self-hosts Baloo Bhaijaan 2 (display) + IBM Plex Sans Arabic from
 // ../public/fonts/ (relative to scripts/og-template.html). ROOT is derived
 // from this file's location (the old hard-coded /home/z/my-project/Smart-Menu
 // path died with the repo move), and EVERY woff2 the template references is
@@ -58,4 +59,4 @@ await page.setContent(html, { waitUntil: 'networkidle' });
 await page.waitForTimeout(1500); // font parse + layout settle
 await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1200, height: 630 } });
 await browser.close();
-console.log(`OG_IMAGE_RENDERED madarek-identity 1200x630 -> ${out}`);
+console.log(`OG_IMAGE_RENDERED warm-culinary-editorial 1200x630 -> ${out}`);

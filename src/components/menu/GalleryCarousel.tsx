@@ -278,7 +278,8 @@ export function GalleryCarousel({
                                                                         sizes="(max-width: 928px) calc(100vw - 32px), 896px"
                                                                 />
                                                         )}
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />
+                                                        {/* Phase 5 (r152): warm food-imagery grade — faint espresso scrim. */}
+                                                        <div className="absolute inset-0 warm-scrim-faint" />
                                                 </div>
                                         ))}
                                 </div>

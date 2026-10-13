@@ -44,6 +44,9 @@ export function QuantityCard({
                                         </p>
                                 )}
                         </div>
+                        {/* Phase 5 (r152): قائد النقاط — السعر على طراز المنيو المطبوع
+                            * (dotted leader يفصل السعر عن وحدة الكمية). */}
+                        <i className="menu-leader-rule flex-1 hidden sm:block" aria-hidden="true" />
                         <div className="flex items-center gap-3">
                                 <button
                                         type="button"

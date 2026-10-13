@@ -202,8 +202,9 @@ const MenuItemCard = memo(function MenuItemCard({
                                         )}
                                 </div>
 
-                                {/* Gradient overlay — fades into glass below */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                                {/* Phase 5 (r152): warm food-imagery grade — espresso scrim
+                                        (كان أسودًا باردًا); text-on-image stays in-world. */}
+                                <div className="absolute inset-0 warm-scrim pointer-events-none" />
 
                                 {/* Badges — top-start with glass backdrop */}
                                 <div className="absolute top-3 start-3 flex flex-col gap-1.5 z-10">
@@ -356,14 +357,10 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         'text-xl font-bold transition-colors duration-base tabular-nums',
                                                         hasDiscount
                                                                 ? 'text-success-ink'
-                                                                /* r95: حبر السعر — accent-foreground (#df5a00) 5.42:1 على
-                                                                   البطاقة الداكنة بدرجة واحدة AA في الثيمين. */
-                                                                // a11y(round84): --primary (#c53c00) is
-                                                                // tuned for white-text-on-orange BUTTONS
-                                                                // (4.5:1) — as TEXT on dark cards it is
-                                                                // 3.89:1. ember (light ~6.5:1) /
-                                                                // saffron (dark ~9.8:1) keep the brand
-                                                                // hue at AA in both themes.
+                                                                /* Phase 5 (r152): حبر السعر — accent-foreground:
+                                                                   التراكوتا العميق #8A2B1D في الفاتح (8.05:1 على أبيض
+                                                                   البطاقة) والتراكوتا المضيء #E07856 في الداكن
+                                                                   (6.03:1 على بطاقة المطبخ الليلي) — AA في الوضعين. */
                                                                 : 'text-accent-foreground'
                                                 )}
                                         >
@@ -374,6 +371,12 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 <span className="text-xs text-muted-foreground line-through decoration-2">
                                                         {formatPrice(item.price)}
                                                 </span>
+                                        )}
+                                        {/* Phase 5 (r152): قائد النقاط — the printed-menu dotted price
+                                         * leader ties the price row together (same motif as the print
+                                         * sheet + landing menu board). */}
+                                        {hasModifiers && (
+                                                <i className="menu-leader-rule flex-none w-6 sm:w-10" aria-hidden="true" />
                                         )}
                                         {/* w3-f1: a light «خيارات متاحة» pill signals choices exist without
                                          * loading the card — muted border, no icon, hidden when none. */}

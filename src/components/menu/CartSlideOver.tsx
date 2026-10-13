@@ -306,7 +306,10 @@ export function CartSlideOver() {
                                                                                         <MotionPlus className="size-4" />
                                                                                 </button>
                                                                         </div>
-                                                                        <span className="text-xs font-semibold tabular-nums ms-auto">
+                                                                        {/* Phase 5 (r152): قائد النقاط — إجمالي السطر على
+                                                                            * طراز المنيو المطبوع. */}
+                                                                        <i className="menu-leader-rule flex-1" aria-hidden="true" />
+                                                                        <span className="text-xs font-semibold tabular-nums">
                                                                                 {formatPrice(item.price * item.quantity)}
                                                                         </span>
                                                                         {/* a11y(F-D/round91): trash icon was muted-foreground/30 ≈1.6:1 —
@@ -359,8 +362,11 @@ export function CartSlideOver() {
                                                 </button>
                                             </div>
                                         )}
-                                        <div className="flex items-center justify-between text-sm">
+                                        {/* Phase 5 (r152): قائد النقاط — صف الإجمالي على طراز
+                                            * المنيو المطبوع (dotted leader بين التسمية والقيمة). */}
+                                        <div className="menu-leader text-sm">
                                                 <span className="text-muted-foreground">الإجمالي</span>
+                                                <i className="menu-leader-rule" aria-hidden="true" />
                                                 <span className="font-bold tabular-nums text-base">
                                                         {/* r137: الرسوم (إن استحقت) مضافة بعد المجموع —
                                                            فصل صادق قبل صفحة الدفع */}

@@ -346,7 +346,8 @@ export function OrderDialog({
                                                    here (opens on interaction, never LCP). */
                                                 sizes="(max-width: 640px) 100vw, 448px"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                                        {/* Phase 5 (r152): warm food-imagery grade — espresso scrim (was cold black). */}
+                                        <div className="absolute inset-0 warm-scrim-strong" />
                                         <button
                                                 type="button"
                                                 onClick={() => onOpenChange(false)}

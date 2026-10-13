@@ -43,7 +43,7 @@ export function SelfHostedQR({ value, size, alt, className, style }: SelfHostedQ
                                 mod.toDataURL(value, {
                                         width: size,
                                         errorCorrectionLevel: 'M',
-                                        color: { dark: '#5C3416', light: '#ffffff' },
+                                        color: { dark: '#8A2B1D', light: '#ffffff' },
                                 }),
                         )
                         .then((url) => {
@@ -93,6 +93,6 @@ export async function qrPngDataUrl(value: string, size: number): Promise<string>
         return mod.toDataURL(value, {
                 width: size,
                 errorCorrectionLevel: 'M',
-                color: { dark: '#5C3416', light: '#ffffff' },
+                color: { dark: '#8A2B1D', light: '#ffffff' },
         });
 }

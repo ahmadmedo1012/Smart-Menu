@@ -131,19 +131,19 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                 <div className="print-sheet">
                         <style>{`
           .print-sheet {
-            /* MADAREK LIGHT على الورق — حبر مدارك الدافئ (#191918) ونحاسها
-               (#B57438) وذهبها AA (#D6A330 fill / #6B4C0B نصًا) وخطوطها
-               الشعرية (#E9E7E2). كل الأزواج AA على الأبيض (Madarek §1). */
-            --print-foreground: #191918;
+            /* PHASE 5 (r152) — الطبخ الدافئ على الورق: حبر إسبريسو #241811،
+               وتراكوتا #C2452D (نصًا 5.02:1 على الأبيض)، وعنبر دافئ للفواصل
+               (#B7791F)، وخطوط شعرية دافئة #E8DECE. كل الأزواج AA على الأبيض. */
+            --print-foreground: #241811;
             --print-background: #FFFFFF;
-            --print-primary: #B57438;      /* copper — 5.9:1 على الأبيض */
-            --print-amber-500: oklch(0.744 0.138 83.1); /* gold fill/stroke = #D6A330 — بصيغة oklch وفاءً بعقد r94-AA (نفس اللون تمامًا) */
-            --print-amber-700: oklch(0.439 0.086 79.8); /* gold-ink نصًا = #6B4C0B — 7.56:1 — oklch حسب عقد الاختبار (نفس اللون تمامًا) */
-            --print-muted: #6E6C65;        /* text-muted — 5.04:1 */
-            --print-border: #E9E7E2;       /* hairline */
-            --print-sub: #4F4D48;
-            --print-desc: #4F4D48;
-            --print-footer: #4F4D48;
+            --print-primary: #C2452D;      /* terracotta — 5.02:1 على الأبيض */
+            --print-amber-500: oklch(0.626 0.125 70.4); /* warm amber fill/stroke = #B7791F — بصيغة oklch وفاءً لعقد r94-AA (نفس اللون تمامًا) */
+            --print-amber-700: oklch(0.471 0.093 73.8); /* amber-ink نصًا = #7A5210 — 6.9:1 على الأبيض — oklch حسب عقد الاختبار (نفس اللون تمامًا) */
+            --print-muted: #6B5D4F;        /* secondary espresso — 5.95:1 */
+            --print-border: #E8DECE;       /* warm hairline */
+            --print-sub: #6B5D4F;
+            --print-desc: #6B5D4F;
+            --print-footer: #6B5D4F;
           }
           /* الأنماط محصورة تحت .print-sheet — النسخة القديمة كانت تعيد ضبط * وbody
              على مستوى المستند كله فتتصادم مع هيكل التطبيق الذي يغلف الصفحة. */
@@ -166,7 +166,10 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
           .print-sheet .divider { border: none; border-top: 2px solid var(--print-amber-500); margin: 1rem 0; }
           .print-sheet .cat { margin: 1.2rem 0; page-break-inside: avoid; }
           .print-sheet .cat h2 { font-size: 1.1rem; color: var(--print-amber-700); border-bottom: 1px solid var(--print-border); padding-bottom: 0.3rem; }
-          .print-sheet .item { display: flex; justify-content: space-between; padding: 0.3rem 0; font-size: 0.95rem; }
+          .print-sheet .item { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.3rem 0; font-size: 0.95rem; }
+          /* Phase 5 (r152): قائد النقاط المطبوع — dotted price leader بين
+             الاسم والسعر (نفس بصمة المنيو الرقمي: .menu-leader). */
+          .print-sheet .item .ldr { flex: 1 1 auto; min-width: 1.5rem; border-block-end: 2px dotted var(--print-muted); transform: translateY(-0.3em); opacity: 0.7; }
           .print-sheet .item .nm { font-weight: 500; }
           .print-sheet .item .pr { font-weight: 700; color: var(--print-primary); white-space: nowrap; }
           .print-sheet .item .old { text-decoration: line-through; color: var(--print-muted); font-weight: 400; }
@@ -242,6 +245,7 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                                                         <div key={item.id}>
                                                                 <div className="item">
                                                                         <span className="nm">{item.nameAr || item.name}</span>
+                                                                        <i className="ldr" aria-hidden="true" />
                                                                         <span className="pr">
                                                                                 {/* r120 (U12-P2-2): العملة كانت تتكرر مرتين — formatPrice
                                                                                    يضيف «د.ل» والوسم الحرفي تحته أضاف ثانية («5.0 د.ل د.ل»
