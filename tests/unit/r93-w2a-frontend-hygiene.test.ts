@@ -24,15 +24,16 @@ const gone = (p: string) => !existsSync(join(process.cwd(), p));
 
 // ── U1: توحيد خط العناوين ────────────────────────────────────────────────
 
-describe('U1 — --font-heading موحد على IBM Plex Sans Arabic (المصدر الواحد للحقيقة)', () => {
+describe('U1 — --font-heading موحد على Baloo Bhaijaan 2 ثم Plex (المصدر الواحد للحقيقة)', () => {
     const css = src('src/app/globals.css');
 
-    it('تعريفا @theme و:root متطابقان حرفيًا وIBM Plex Sans Arabic أولًا في كليهما', () => {
+    it('تعريفا @theme و:root متطابقان حرفيًا وBaloo Bhaijaan 2 أولًا في كليهما', () => {
         const decls = [...css.matchAll(/--font-heading:\s*([^;]+);/g)].map((m) => m[1].trim());
         expect(decls.length).toBe(2); // واحد في @theme inline وواحد في :root — لا ثالث
         expect(decls[0]).toBe(decls[1]);
-        // مدارك: IBM Plex Sans Arabic هي عائلة العناوين والنص معًا (--font-display لديهم)
-        expect(decls[0].startsWith('"IBM Plex Sans Arabic"')).toBe(true);
+        // Phase 5 (r152): العنوان = Baloo Bhaijaan 2 (الصوت الطبخي الدافئ)
+        // مع Plex خلفه في السلسلة — الجسد يبقى Plex (انظر اختبار الخطوط أدناه)
+        expect(decls[0].startsWith('"Baloo Bhaijaan 2", "IBM Plex Sans Arabic"')).toBe(true);
         // القيمة القديمة الكاذبة (Cairo أولًا في :root) زالت
         expect(decls.some((d) => d.startsWith('var(--font-cairo'))).toBe(false);
     });
@@ -41,13 +42,18 @@ describe('U1 — --font-heading موحد على IBM Plex Sans Arabic (المصد
         expect(css).toMatch(/h1, h2 \{\s*font-family: var\(--font-heading\)/);
     });
 
-    it('خطوط IBM Plex الـ 10 مسجلة في fonts.css وملفات woff2 موجودة فعلًا', () => {
+    it('خطوط IBM Plex الـ 10 + وجها Baloo Bhaijaan 2 (العرض) مسجلة في fonts.css وملفات woff2 موجودة فعلًا', () => {
         const fontsCss = src('public/fonts/fonts.css');
         const faces = [...fontsCss.matchAll(/src:\s*url\(['"](\/fonts\/plex-[^'")]+)['"]\)/g)].map((m) => m[1]);
         // r132 (A3 §1.3): 12 → 10 — وجها IBM Plex Serif المائلان حُذفا (صفر مستهلكين؛
         // 285KB من وجوه القاهرة/نسخ/ريدكس التي لا تُجلب أبدًا حُذفت معهما).
+        // Phase 5 (r152): + Baloo Bhaijaan 2 arabic/latin (خط العرض 600/700).
         expect(faces.length).toBe(10);
         for (const f of faces) {
+            expect(existsSync(join(process.cwd(), 'public', f.replace(/^\//, '')))).toBe(true);
+        }
+        for (const f of ['/fonts/baloo-bhaijaan-2-arabic.woff2', '/fonts/baloo-bhaijaan-2-latin.woff2']) {
+            expect(fontsCss).toContain(`url('${f}')`);
             expect(existsSync(join(process.cwd(), 'public', f.replace(/^\//, '')))).toBe(true);
         }
         // الـ shim ما زال موجودًا (غيابه أفجر الإنتاج إلى Times New Roman ذات مرة)

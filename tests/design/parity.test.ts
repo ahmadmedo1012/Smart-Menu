@@ -1,16 +1,26 @@
 /**
- * test(r125 → r126) — Madarek parity snapshot: pin the canonical design tokens.
- * (Task 11-a, Wave B; source of truth: madarek/frontend/src/styles/tokens.css
- * + download/madarek-reference-digest.md — §1 dark · §2 light · §3 radius ·
- * §4 motion · §5 elevation.)
+ * test(r125 → r126 → PHASE 5 r152) — Smart-Menu design-token parity snapshot.
+ *
+ * PHASE 5 PER-PRODUCT IDENTITY DECISION (the coordinator mission, r152):
+ * the Smart Link Ecosystem breaks the Madarek visual monoculture — each of
+ * the four products gets its own design contract. Smart-Menu's contract is
+ * «Warm Culinary Editorial»: LIGHT-FIRST warm cream ground #FBF7F0 ·
+ * raised #FFFFFF · soft #F4EDE1 · espresso ink #241811 · secondary #6B5D4F ·
+ * hairline #E8DECE · primary TERRACOTTA #C2452D (white fg 5.02:1, hover
+ * #A93A26, strong #8A2B1D) · warm amber #B7791F · sage success · amber
+ * warning · warm-steel info · deep-rose destructive. Baloo Bhaijaan 2
+ * display + IBM Plex Sans Arabic body. Plate-round radius 10..28 (16 card).
+ * The dark mode becomes the explicit opt-in `.dark` = «مطبخ ليلي دافئ»
+ * (warm night kitchen, espresso #1D1410 + luminous terracotta #E07856).
  *
  * WHAT THIS FILE IS
  * ─────────────────
- * A CI-able snapshot of the Madarek canonical values, asserted against
- * src/app/globals.css (the repo's single token file). Madarek carries its own
- * snapshot suite; the four siblings did not — this closes that gap so any
- * future token edit that drifts from the SSOT fails `pnpm test` immediately,
- * with a message naming the exact token and both values.
+ * A CI-able snapshot of the SMART-MENU canonical values (formerly the
+ * Madarek mirror), asserted against src/app/globals.css (the repo's single
+ * token file). Any future token edit that drifts from the contract fails
+ * `pnpm test` immediately, with a message naming the exact token and both
+ * values. The ARCHITECTURE pins (names, split layers, consumption gates)
+ * carry over from the Madarek era — only the VALUES were re-anchored.
  *
  * r126 EXTENSION (P4-W3b, parity with smart-link's 271-pin / smart-order's
  * 161-pin harnesses): the r125 pins covered token DEFINITIONS only — the
@@ -33,14 +43,14 @@
  *     have ≥1 real consumer — definitions without adoption were the exact
  *     debt class the P4-A1 audit found.
  *
- * HOW IT READS THE CSS
+ * HOW IT READS THE CSS (Phase 5 flip)
  * ─────────────────────
- * - Only the theme blocks matter: :root (night, the default) and .light
- *   (paper) — extracted brace-matched from the TOP LEVEL so @media
- *   (prefers-contrast / reduced-motion) overrides can never mask the resting
- *   values.
- * - The light scope is the real cascade: {.light} overlays {:root}; tokens
- *   .light does not redefine (radius, motion, …) inherit :root.
+ * - Only the theme blocks matter: :root (the LIGHT default — Warm Culinary
+ *   Editorial) and .dark (the opt-in warm night kitchen) — extracted
+ *   brace-matched from the TOP LEVEL so @media (prefers-contrast /
+ *   reduced-motion) overrides can never mask the resting values.
+ * - The dark scope is the real cascade: {.dark} overlays {:root}; tokens
+ *   .dark does not redefine (radius, motion, fonts, …) inherit :root.
  * - var() chains are resolved inside the final scope (e.g. --accent-soft is
  *   var(--c-copper-bg) and must resolve to the per-theme family ground).
  * - Comparisons are normalization-tolerant (whitespace, `a,b` vs `a, b`,
@@ -114,9 +124,10 @@ function parseDecls(block: string): Record<string, string> {
   return out;
 }
 
-const dark = parseDecls(topLevelBlock(css, ':root'));
-// real cascade: .light overlays :root; everything else inherits
-const light: Record<string, string> = { ...dark, ...parseDecls(topLevelBlock(css, '.light')) };
+// Phase 5 flip: :root IS the light default; .dark is the opt-in overlay.
+const light = parseDecls(topLevelBlock(css, ':root'));
+// real cascade: .dark overlays :root; everything else inherits
+const dark: Record<string, string> = { ...light, ...parseDecls(topLevelBlock(css, '.dark')) };
 // r126: the Tailwind bridge layer — what every duration-*/shadow-*/rounded-*
 // utility actually resolves to. NOTE: var() refs inside @theme (var(--t-*),
 // var(--elev-*)) are pinned AS REFERENCES; they resolve at runtime against
@@ -149,89 +160,91 @@ function pin(scope: Record<string, string>, mode: string, token: string, expecte
   expect(actual, `${mode} ${token} drifted from the Madarek canonical value`).toBe(norm(expected));
 }
 
-// ── canonical snapshot (madarek tokens.css, live-verified) ──────────────────
+// ── canonical snapshot (Smart-Menu Warm Culinary Editorial, r152) ───────────
 
-const GROUNDS_DARK: Record<string, string> = {
-  '--bg': '#070B16', // neutral-50 night
-  '--bg-soft': '#121A36',
-  '--surface': '#0D1428', // neutral-0
-  '--surface-2': '#121A36',
-  '--surface-3': '#182142',
-  '--text': '#F2EFE6', // neutral-900 sand
-  '--text-secondary': '#C3C8DC',
-  '--text-muted': '#8E97B8',
-  '--text-faint': '#7A83A0',
-  '--border': '#1B2444', // neutral-200 hairline (family token)
-  '--border-strong': '#263052',
-};
 const GROUNDS_LIGHT: Record<string, string> = {
-  '--bg': '#FBFAF9', // neutral-50 cream
-  '--bg-soft': '#F7F6F3',
-  '--surface': '#FFFFFF',
-  '--surface-2': '#F7F6F3',
-  '--surface-3': '#F1EFEC',
-  '--text': '#191918',
-  '--text-secondary': '#4F4D48',
-  '--text-muted': '#6E6C65', // WCAG literal (not neutral-500) — Madarek T3-F4
-  '--text-faint': '#74706A', // WCAG literal
-  '--border': '#E9E7E2',
-  '--border-strong': '#D9D6D0',
+  '--bg': '#FBF7F0', // neutral-50 cream
+  '--bg-soft': '#F4EDE1', // soft surface
+  '--surface': '#FFFFFF', // raised plate
+  '--surface-2': '#F4EDE1',
+  '--surface-3': '#EFE6D6',
+  '--text': '#241811', // neutral-900 espresso
+  '--text-secondary': '#6B5D4F', // 5.95:1
+  '--text-muted': '#7A6A58', // faint tier — 4.88:1 on cream
+  '--text-faint': '#7A6A58',
+  '--border': '#E8DECE', // warm hairline (family token)
+  '--border-strong': '#D8CBB2',
 };
-const ACCENT_DARK: Record<string, string> = {
-  '--accent-solid': '#E9B44C', // Madarek --accent (their --accent is the 15% wash twin)
-  '--accent-hover': '#F5D48A',
-  '--accent-soft': '#2C2312', // resolves var(--c-copper-bg)
-  '--accent-strong': '#C9962F',
-  '--accent-fg': '#05070F',
-  '--accent-ink': '#E9B44C',
+const GROUNDS_DARK: Record<string, string> = {
+  '--bg': '#1D1410', // neutral-50 espresso night
+  '--bg-soft': '#241A13',
+  '--surface': '#2A1E15', // neutral-0
+  '--surface-2': '#241A13',
+  '--surface-3': '#2E2118',
+  '--text': '#F7EFE2', // neutral-900 cream
+  '--text-secondary': '#CDBFA9',
+  '--text-muted': '#9A8977',
+  '--text-faint': '#9A8977',
+  '--border': '#38291D', // neutral-200 hairline (family token)
+  '--border-strong': '#4A3626',
 };
 const ACCENT_LIGHT: Record<string, string> = {
-  '--accent-solid': '#B57438',
-  '--accent-hover': '#9A5F25',
-  '--accent-soft': '#F4E4D2',
-  '--accent-strong': '#5C3416',
-  '--accent-fg': '#1A0F06',
-  '--accent-ink': '#5C3416',
+  '--accent-solid': '#C2452D', // terracotta (product primary)
+  '--accent-hover': '#A93A26',
+  '--accent-soft': '#F7E2D9', // resolves var(--c-copper-bg)
+  '--accent-strong': '#8A2B1D',
+  '--accent-fg': '#FFFFFF', // 5.02:1 on terracotta
+  '--accent-ink': '#8A2B1D', // 8.05:1 on cream
 };
-const STATUS_DARK: Record<string, string> = {
-  '--success': '#7FD39A', '--success-soft': '#0F241C', '--success-ink': '#7FD39A',
-  '--warning': '#ECC97D', '--warning-soft': '#2C2410', '--warning-ink': '#ECC97D',
-  '--danger': '#F0938F', '--danger-soft': '#2C1620', '--danger-ink': '#F0938F',
-  '--danger-fg': '#05070F',
-  '--info': '#8FBBF2', '--info-soft': '#14213A', '--info-ink': '#8FBBF2',
+const ACCENT_DARK: Record<string, string> = {
+  '--accent-solid': '#E07856', // luminous terracotta (night primary)
+  '--accent-hover': '#E98F72',
+  '--accent-soft': '#3A211A', // resolves var(--c-copper-bg)
+  '--accent-strong': '#C2452D',
+  '--accent-fg': '#2A130D', // 5.84:1 on the luminous fill
+  '--accent-ink': '#E07856', // 6.03:1 on night
 };
 const STATUS_LIGHT: Record<string, string> = {
-  '--success': '#4FA66D', '--success-soft': '#DCF1E2', '--success-ink': '#1F4F30',
-  '--warning': '#D6A330', '--warning-soft': '#FCF1CD', '--warning-ink': '#6B4C0B',
-  '--danger': '#DD6E78', '--danger-soft': '#FCE0E2', '--danger-ink': '#6B2128',
-  '--danger-fg': '#191918',
-  '--info': '#5C8FCE', '--info-soft': '#DDEBF7', '--info-ink': '#1F3D63',
+  '--success': '#6FA06A', '--success-soft': '#E1EDD9', '--success-ink': '#2E5230',
+  '--warning': '#B7791F', '--warning-soft': '#F9EEDA', '--warning-ink': '#7A5210',
+  '--danger': '#C96873', '--danger-soft': '#F9E5E6', '--danger-ink': '#8E2F3D',
+  '--danger-fg': '#241811',
+  '--info': '#6B8CA3', '--info-soft': '#E3EBEF', '--info-ink': '#2E4A5C',
 };
-const FAMILIES_DARK: Record<string, [string, string, string]> = {
-  peach: ['#2C1A16', '#F2A07F', '#FCD9C4'],
-  mint: ['#0F241C', '#7FD39A', '#C9EAD3'],
-  lavender: ['#221B3A', '#B7A0F4', '#DCD2F9'],
-  sky: ['#14213A', '#8FBBF2', '#C9DCEE'],
-  yellow: ['#2C2410', '#ECC97D', '#F8E5B5'],
-  rose: ['#2C1620', '#F0938F', '#FACDD2'],
-  sand: ['#241F14', '#D9C18C', '#EFE2C5'],
-  grey: ['#161D33', '#A9B0C8', '#D5DAE8'],
-  copper: ['#2C2312', '#E9B44C', '#F5D48A'],
+const STATUS_DARK: Record<string, string> = {
+  '--success': '#8FBB8A', '--success-soft': '#1E2B1A', '--success-ink': '#8FBB8A',
+  '--warning': '#E3B15E', '--warning-soft': '#33270F', '--warning-ink': '#E3B15E',
+  '--danger': '#E8918E', '--danger-soft': '#36191D', '--danger-ink': '#E8918E',
+  '--danger-fg': '#2A130D',
+  '--info': '#9FB6C9', '--info-soft': '#1F2A33', '--info-ink': '#9FB6C9',
 };
 const FAMILIES_LIGHT: Record<string, [string, string, string]> = {
-  peach: ['#FFE9DC', '#E07856', '#6B2D1A'],
-  mint: ['#DCF1E2', '#4FA66D', '#1F4F30'],
-  lavender: ['#ECE6FA', '#8A6FE0', '#3F2D7A'],
-  sky: ['#DDEBF7', '#5C8FCE', '#1F3D63'],
-  yellow: ['#FCF1CD', '#D6A330', '#6B4C0B'],
-  rose: ['#FCE0E2', '#DD6E78', '#6B2128'],
-  sand: ['#F1ECDF', '#B59868', '#5A4623'],
-  grey: ['#EFECE7', '#6B665E', '#2D2A24'],
-  copper: ['#F4E4D2', '#B57438', '#5C3416'],
+  peach: ['#FBE3D9', '#C25A43', '#7A2E1D'],
+  mint: ['#E1EDD9', '#6FA06A', '#2E5230'],
+  lavender: ['#EFE9F6', '#8A76C9', '#453578'],
+  sky: ['#E3EBEF', '#6B8CA3', '#2E4A5C'],
+  yellow: ['#F9EEDA', '#B7791F', '#7A5210'],
+  rose: ['#F9E5E6', '#C96873', '#8E2F3D'],
+  sand: ['#F1E9D8', '#A98D5F', '#5C4620'],
+  grey: ['#EFEAE2', '#6E6154', '#33302A'],
+  copper: ['#F7E2D9', '#C2452D', '#8A2B1D'],
 };
+const FAMILIES_DARK: Record<string, [string, string, string]> = {
+  peach: ['#3A2016', '#E99070', '#F7CBB5'],
+  mint: ['#1E2B1A', '#8FBB8A', '#CBE8C4'],
+  lavender: ['#2A2136', '#B7A0DB', '#D9CDF0'],
+  sky: ['#1F2A33', '#9FB6C9', '#CFE0EA'],
+  yellow: ['#33270F', '#E3B15E', '#F4E2B8'],
+  rose: ['#36191D', '#E8918E', '#F8CFD0'],
+  sand: ['#2C2416', '#D6BC8A', '#EFE3C6'],
+  grey: ['#262019', '#A79A87', '#D8CFC0'],
+  copper: ['#3A211A', '#E07856', '#F2C4B0'],
+};
+// Phase 5 «plate-round» ladder — warmer/rounder than the old Notion-soft
+// 6..28; 16 = the default card plate (Card consumes --r-lg).
 const RADIUS: Record<string, string> = {
-  '--r-xs': '6px', '--r-sm': '8px', '--r-md': '10px', '--r-lg': '12px',
-  '--r-xl': '16px', '--r-2xl': '20px', '--r-3xl': '28px', '--r-full': '9999px',
+  '--r-xs': '10px', '--r-sm': '12px', '--r-md': '14px', '--r-lg': '16px',
+  '--r-xl': '20px', '--r-2xl': '24px', '--r-3xl': '28px', '--r-full': '9999px',
 };
 const MOTION: Record<string, string> = {
   '--t-micro': '80ms', '--t-fast': '160ms', '--t-base': '240ms',
@@ -239,19 +252,21 @@ const MOTION: Record<string, string> = {
   '--motion-duration-page': '320ms', '--motion-duration-reveal': '360ms',
   '--motion-duration-stat': '700ms', '--motion-duration-skeleton': '1200ms',
 };
-const ELEV_DARK: Record<string, string> = {
-  '--elev-1': '0 1px 2px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.04)',
-  '--elev-2': '0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)',
-  '--elev-3': '0 8px 16px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.06)',
-  '--elev-4': '0 16px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07)',
-  '--elev-5': '0 32px 64px rgba(0,0,0,0.50), inset 0 1px 0 rgba(255,255,255,0.08)',
-};
+// Phase 5: light elevations are WARM-tinted (espresso rgba(64,46,28,*) —
+// no cold grays); dark = fill-led + warm top-light inset.
 const ELEV_LIGHT: Record<string, string> = {
-  '--elev-1': '0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.06)',
-  '--elev-2': '0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04)',
-  '--elev-3': '0 8px 16px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.05)',
-  '--elev-4': '0 16px 32px rgba(0,0,0,0.10), 0 8px 16px rgba(0,0,0,0.06)',
-  '--elev-5': '0 32px 64px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.08)',
+  '--elev-1': '0 1px 2px rgba(64,46,28,0.05), 0 1px 1px rgba(64,46,28,0.04)',
+  '--elev-2': '0 4px 8px rgba(64,46,28,0.07), 0 2px 4px rgba(64,46,28,0.05)',
+  '--elev-3': '0 8px 16px rgba(64,46,28,0.09), 0 4px 8px rgba(64,46,28,0.06)',
+  '--elev-4': '0 16px 32px rgba(64,46,28,0.11), 0 8px 16px rgba(64,46,28,0.07)',
+  '--elev-5': '0 32px 64px rgba(64,46,28,0.13), 0 16px 32px rgba(64,46,28,0.09)',
+};
+const ELEV_DARK: Record<string, string> = {
+  '--elev-1': '0 1px 2px rgba(8,5,3,0.30), inset 0 1px 0 rgba(255,244,230,0.04)',
+  '--elev-2': '0 4px 8px rgba(8,5,3,0.35), inset 0 1px 0 rgba(255,244,230,0.05)',
+  '--elev-3': '0 8px 16px rgba(8,5,3,0.40), inset 0 1px 0 rgba(255,244,230,0.06)',
+  '--elev-4': '0 16px 32px rgba(8,5,3,0.45), inset 0 1px 0 rgba(255,244,230,0.07)',
+  '--elev-5': '0 32px 64px rgba(8,5,3,0.50), inset 0 1px 0 rgba(255,244,230,0.08)',
 };
 
 // ── assertions ───────────────────────────────────────────────────────────────
@@ -321,10 +336,10 @@ describe('r125 Madarek parity — elevation ladder (§5)', () => {
   });
 });
 
-describe('r125 Madarek parity — glass ground (§1.8)', () => {
-  it('dark rgba(11,16,32,0.78) · light rgba(251,250,249,0.78)', () => {
-    pin(dark, 'glass', '--glass-bg', 'rgba(11, 16, 32, 0.78)');
-    pin(light, 'glass', '--glass-bg', 'rgba(251, 250, 249, 0.78)');
+describe('r125 parity — glass ground (§1.8)', () => {
+  it('light cream rgba(251,247,240,0.78) · dark warm night rgba(26,17,12,0.78)', () => {
+    pin(light, 'glass', '--glass-bg', 'rgba(251, 247, 240, 0.78)');
+    pin(dark, 'glass', '--glass-bg', 'rgba(26, 17, 12, 0.78)');
   });
 });
 
@@ -356,11 +371,14 @@ const THEME_SHADOW_BRIDGE: Record<string, string> = {
   '--shadow-glass': 'var(--glass-shadow)',
   '--shadow-glass-lg': 'var(--glass-shadow-lg)',
 };
+// Phase 5 «plate-round»: 10/12/14/16/20/24/28 (16 = default card plate).
 const THEME_RADIUS_BRIDGE: Record<string, string> = {
-  '--radius-xs': '6px', '--radius-sm': '8px', '--radius-md': '10px',
-  '--radius-lg': '12px', '--radius-xl': '16px', '--radius-2xl': '20px',
+  '--radius-xs': '10px', '--radius-sm': '12px', '--radius-md': '14px',
+  '--radius-lg': '16px', '--radius-xl': '20px', '--radius-2xl': '24px',
   '--radius-3xl': '28px',
 };
+// Phase 5: display/heading = Baloo Bhaijaan 2 (warm rounded culinary
+// display, Arabic+Latin); body/-arabic stay Plex-led; mono unchanged.
 const THEME_FONTS: Record<string, string> = {
   // r129 token-matrix fix: the canonical Madarek stacks verbatim
   // (tokens.css:47-50). --font-sans/-arabic are the full canonical chain
@@ -380,8 +398,8 @@ const THEME_FONTS: Record<string, string> = {
   '--font-sans': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   '--font-mono': '"IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace',
   '--font-arabic': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-  '--font-display': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif',
-  '--font-heading': '"IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif',
+  '--font-display': '"Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif',
+  '--font-heading': '"Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif',
 };
 
 describe('r126 parity — @theme bridges (what Tailwind utilities resolve to)', () => {
@@ -395,12 +413,12 @@ describe('r126 parity — @theme bridges (what Tailwind utilities resolve to)', 
       pin(theme, 'theme', token, value);
     }
   });
-  it('radius: rounded-xs..3xl carry the Madarek 6..28 ladder', () => {
+  it('radius: rounded-xs..3xl carry the Phase 5 plate-round 10..28 ladder', () => {
     for (const [token, value] of Object.entries(THEME_RADIUS_BRIDGE)) {
       pin(theme, 'theme', token, value);
     }
   });
-  it('font stacks: IBM Plex Sans Arabic is THE family (sans/arabic/heading), Plex Mono for digits', () => {
+  it('font stacks: Baloo Bhaijaan 2 display + IBM Plex Sans Arabic body (sans/arabic), Plex Mono for digits', () => {
     for (const [token, value] of Object.entries(THEME_FONTS)) {
       pin(theme, 'theme', token, value);
     }
@@ -433,12 +451,11 @@ describe('r127 parity — @theme micro-typography tokens (text-2xs/text-3xs)', (
 // ── r126: focus-ring contract (audit D1/D5 — the ONE focus language) ────────
 
 describe('r126 parity — focus-ring contract (§1.9, both themes)', () => {
-  it('dark: --ring #E9B44C (r130 canonical cascade) + --state-focus-ring-* 2px/2px + shorthand + input halo', () => {
-    // r130 (W2-3, P1-3 / FLEET-1): the canonical Madarek cascade keeps the
-    // shared :root default --accent (#E9B44C) in dark — the old #C9962F was a
-    // fleet fork one shade darker than the reference night UI.
-    pin(dark, 'focus-dark', '--ring', '#E9B44C'); // --accent-solid, 10.39:1 on night
-    pin(dark, 'focus-dark', '--state-focus-ring-color', '#E9B44C'); // resolves var(--accent-solid)
+  it('dark: --ring #E07856 (luminous terracotta) + --state-focus-ring-* 2px/2px + shorthand + input halo', () => {
+    // Phase 5: the night ring rides the luminous terracotta — 6.03:1
+    // non-text on the espresso ground.
+    pin(dark, 'focus-dark', '--ring', '#E07856'); // --accent-solid night
+    pin(dark, 'focus-dark', '--state-focus-ring-color', '#E07856'); // resolves var(--accent-solid)
     pin(dark, 'focus-dark', '--state-focus-ring-width', '2px');
     pin(dark, 'focus-dark', '--state-focus-ring-offset', '2px');
     pin(
@@ -447,19 +464,19 @@ describe('r126 parity — focus-ring contract (§1.9, both themes)', () => {
       '--state-focus-ring',
       // pinned RESOLVED — proves the shorthand chain (width × color) resolves
       // to the live 2px × --accent-solid ring in the dark cascade
-      '0 0 0 2px #E9B44C'
+      '0 0 0 2px #E07856'
     );
     pin(
       dark,
       'focus-dark',
       '--state-input-focus-halo',
       // pinned RESOLVED — the halo chain lands on the live dark accent
-      '0 0 0 3px color-mix(in srgb, #E9B44C 22%, transparent)'
+      '0 0 0 3px color-mix(in srgb, #E07856 22%, transparent)'
     );
   });
-  it('light: --ring #5C3416 (10.29:1) + inherited width/offset (no dark-only drift)', () => {
-    pin(light, 'focus-light', '--ring', '#5C3416');
-    pin(light, 'focus-light', '--state-focus-ring-color', '#5C3416'); // light --accent-strong
+  it('light: --ring #C2452D (terracotta, 4.70:1 non-text) + inherited width/offset (no dark-only drift)', () => {
+    pin(light, 'focus-light', '--ring', '#C2452D');
+    pin(light, 'focus-light', '--state-focus-ring-color', '#C2452D'); // light --accent-solid
     pin(light, 'focus-light', '--state-focus-ring-width', '2px'); // inherited from :root
     pin(light, 'focus-light', '--state-focus-ring-offset', '2px'); // inherited from :root
   });
@@ -540,6 +557,36 @@ describe('r126 parity — the 10-face IBM Plex manifest (public/fonts/fonts.css)
       'the IBM Plex manifest must declare exactly 10 faces'
     ).toBe(10);
   });
+  it('Phase 5 (r152): the 4-face Baloo Bhaijaan 2 display manifest (600/700 × arabic+latin, 2 variable files)', () => {
+    const balooFaces = fontFaces.filter((b) => /url\(['"]\/fonts\/baloo-/.test(b));
+    expect(
+      balooFaces.length,
+      'the Baloo Bhaijaan 2 manifest must declare exactly 4 faces'
+    ).toBe(4);
+    for (const file of ['baloo-bhaijaan-2-arabic.woff2', 'baloo-bhaijaan-2-latin.woff2']) {
+      expect(
+        existsSync(`public/fonts/${file}`),
+        `public/fonts/${file} must exist on disk`
+      ).toBe(true);
+    }
+    for (const weight of ['600', '700']) {
+      for (const subset of ['arabic', 'latin']) {
+        const block = fontFaces.find(
+          (b) => b.includes(`url('/fonts/baloo-bhaijaan-2-${subset}.woff2')`) && b.includes(`font-weight: ${weight}`)
+        );
+        expect(block, `Baloo ${weight} ${subset} @font-face is missing`).toBeDefined();
+        expect(block).toContain(`font-family: 'Baloo Bhaijaan 2'`);
+        expect(block).toContain('font-display: swap');
+        expect(block).toMatch(/unicode-range:\s*U\+/);
+      }
+    }
+    // the @theme display/heading bridges ride Baloo FIRST (consumption gate)
+    expect(theme['--font-display']).toContain('"Baloo Bhaijaan 2"');
+    expect(theme['--font-heading']).toContain('"Baloo Bhaijaan 2"');
+    // the body stays Plex-led (the culinary voice is display-only)
+    expect(theme['--font-sans']).toContain('"IBM Plex Sans Arabic"');
+    expect(theme['--font-sans']).not.toContain('Baloo');
+  });
   it.each(FONT_MANIFEST)(
     '%s: family/weight/style + swap + unicode-range + woff2 on disk',
     (file, family, weight, style) => {
@@ -572,54 +619,56 @@ describe('r126 parity — the 10-face IBM Plex manifest (public/fonts/fonts.css)
 
 // ── r126: prefers-contrast port (15 tokens × 2 themes) ──────────────────────
 
-const CONTRAST_DARK: Record<string, string> = {
-  '--elev-1': '0 0 0 1px rgba(255,255,255,0.36)',
-  '--elev-2': '0 0 0 1.5px rgba(255,255,255,0.44)',
-  '--elev-3': '0 0 0 2px rgba(255,255,255,0.52)',
-  '--elev-4': '0 0 0 2.5px rgba(255,255,255,0.60)',
-  '--elev-5': '0 0 0 3px rgba(255,255,255,0.68)',
-  '--glass-bg': 'var(--surface)', // glass goes SOLID under increased contrast
-  '--glass-bg-strong': 'var(--surface)',
-  '--glass-border': 'rgba(255,255,255,0.36)',
-  '--glass-border-strong': 'rgba(255,255,255,0.64)',
-  '--surface-border': 'rgba(255,255,255,0.36)',
-  '--surface-divider': 'rgba(255,255,255,0.24)',
-  '--border': 'rgba(255,255,255,0.48)',
-  '--border-strong': 'rgba(255,255,255,0.64)',
-  '--input': 'rgba(255,255,255,0.48)',
-  '--rule': 'rgba(255,255,255,0.48)',
-};
+// Phase 5: :root carries the LIGHT port (warm espresso solid rings);
+// html.dark carries the night port (luminous cream solid rings).
 const CONTRAST_LIGHT: Record<string, string> = {
-  '--elev-1': '0 0 0 1px rgba(0,0,0,0.32)',
-  '--elev-2': '0 0 0 1.5px rgba(0,0,0,0.40)',
-  '--elev-3': '0 0 0 2px rgba(0,0,0,0.48)',
-  '--elev-4': '0 0 0 2.5px rgba(0,0,0,0.56)',
-  '--elev-5': '0 0 0 3px rgba(0,0,0,0.64)',
+  '--elev-1': '0 0 0 1px rgba(36,24,17,0.42)',
+  '--elev-2': '0 0 0 1.5px rgba(36,24,17,0.50)',
+  '--elev-3': '0 0 0 2px rgba(36,24,17,0.58)',
+  '--elev-4': '0 0 0 2.5px rgba(36,24,17,0.66)',
+  '--elev-5': '0 0 0 3px rgba(36,24,17,0.74)',
   '--glass-bg': 'var(--surface)',
   '--glass-bg-strong': 'var(--surface)',
-  '--glass-border': 'rgba(0,0,0,0.32)',
-  '--glass-border-strong': 'rgba(0,0,0,0.60)',
-  '--surface-border': 'rgba(0,0,0,0.32)',
-  '--surface-divider': 'rgba(0,0,0,0.20)',
-  '--border': 'rgba(0,0,0,0.42)',
-  '--border-strong': 'rgba(0,0,0,0.60)',
-  '--input': 'rgba(0,0,0,0.42)',
-  '--rule': 'rgba(0,0,0,0.42)',
+  '--glass-border': 'rgba(36,24,17,0.42)',
+  '--glass-border-strong': 'rgba(36,24,17,0.70)',
+  '--surface-border': 'rgba(36,24,17,0.42)',
+  '--surface-divider': 'rgba(36,24,17,0.28)',
+  '--border': 'rgba(36,24,17,0.52)',
+  '--border-strong': 'rgba(36,24,17,0.70)',
+  '--input': 'rgba(36,24,17,0.52)',
+  '--rule': 'rgba(36,24,17,0.52)',
+};
+const CONTRAST_DARK: Record<string, string> = {
+  '--elev-1': '0 0 0 1px rgba(247,239,226,0.36)',
+  '--elev-2': '0 0 0 1.5px rgba(247,239,226,0.44)',
+  '--elev-3': '0 0 0 2px rgba(247,239,226,0.52)',
+  '--elev-4': '0 0 0 2.5px rgba(247,239,226,0.60)',
+  '--elev-5': '0 0 0 3px rgba(247,239,226,0.68)',
+  '--glass-bg': 'var(--surface)', // glass goes SOLID under increased contrast
+  '--glass-bg-strong': 'var(--surface)',
+  '--glass-border': 'rgba(247,239,226,0.36)',
+  '--glass-border-strong': 'rgba(247,239,226,0.64)',
+  '--surface-border': 'rgba(247,239,226,0.36)',
+  '--surface-divider': 'rgba(247,239,226,0.24)',
+  '--border': 'rgba(247,239,226,0.48)',
+  '--border-strong': 'rgba(247,239,226,0.64)',
+  '--input': 'rgba(247,239,226,0.48)',
+  '--rule': 'rgba(247,239,226,0.48)',
 };
 
 describe('r126 parity — prefers-contrast: more port (WCAG 1.4.11)', () => {
-  it('dark: elevations collapse to luminous solid rings, glass goes solid, hairlines strengthen', () => {
+  it('light (:root): elevations collapse to warm espresso solid rings, glass goes solid, hairlines strengthen', () => {
     const contrastMedia = topLevelBlock(css, '@media (prefers-contrast: more)');
     const scope = parseDecls(topLevelBlock(contrastMedia, ':root'));
-    for (const [token, value] of Object.entries(CONTRAST_DARK)) {
-      pin(scope, 'contrast-dark', token, value);
-    }
-  });
-  it('light: the same port with ink solid rings', () => {
-    const contrastMedia = topLevelBlock(css, '@media (prefers-contrast: more)');
-    const scope = parseDecls(topLevelBlock(contrastMedia, 'html.light'));
     for (const [token, value] of Object.entries(CONTRAST_LIGHT)) {
       pin(scope, 'contrast-light', token, value);
+    }
+  });
+  it('dark (html.dark): the same port with luminous cream solid rings', () => {
+    const contrastMedia = topLevelBlock(css, '@media (prefers-contrast: more)');
+    const scope = parseDecls(topLevelBlock(contrastMedia, 'html.dark'));
+    for (const [token, value] of Object.entries(CONTRAST_DARK)) {
+      pin(scope, 'contrast-dark', token, value);
     }
   });
 });
@@ -723,6 +772,71 @@ const CONSUMPTION_GATES: ReadonlyArray<readonly [name: string, ok: () => boolean
   ],
 ];
 
+describe('r152 parity — the Phase 5 signature: the menu dot-leader motif', () => {
+  it('definition: --menu-leader ink + .menu-leader/.menu-leader-rule utilities live in globals.css', () => {
+    pin(light, 'r152', '--menu-leader', '#CBB08C');
+    pin(dark, 'r152', '--menu-leader', '#57402D');
+    expect(globalsRaw).toMatch(/\.menu-leader\s*\{[\s\S]*?display:\s*flex/);
+    expect(globalsRaw).toMatch(/\.menu-leader-rule\s*\{[\s\S]*?border-block-end:\s*2px dotted var\(--menu-leader\)/);
+  });
+  it('consumption: the dotted price leader rides ≥4 real menu surfaces (item card · order dialog · cart · slide-over)', () => {
+    const surfaces = [
+      'src/components/menu/MenuItemCard.tsx',
+      'src/components/menu/order-dialog/quantity-card.tsx',
+      'src/app/(protected)/cart/CartLineItem.tsx',
+      'src/components/menu/CartSlideOver.tsx',
+      'src/app/(public)/menu/[slug]/print/page.tsx',
+    ].filter((f) => /menu-leader-rule|\.ldr/.test(raw(f)));
+    expect(surfaces.length, 'the dot-leader motif must stay on the menu surfaces').toBeGreaterThanOrEqual(4);
+    // the print sheet draws its own .ldr twin (no globals import on that path)
+    const printRaw = raw('src/app/(public)/menu/[slug]/print/page.tsx');
+    expect(printRaw).toMatch(/\.item \.ldr\s*\{[\s\S]*?2px dotted var\(--print-muted\)/);
+    expect(printRaw).toContain('<i className="ldr" aria-hidden="true" />');
+  });
+  it('warm food-imagery grade: .warm-scrim* espresso utilities + the cold from-black scrims are retired', () => {
+    // definition: three tiers of the espresso scrim live in globals.css
+    for (const cls of ['warm-scrim', 'warm-scrim-strong', 'warm-scrim-faint']) {
+      expect(
+        globalsRaw,
+        `.${cls} must be defined in globals.css`
+      ).toMatch(new RegExp(`\\.${cls}\\s*\\{[\\s\\S]*?rgb\\(26 17 12`));
+    }
+    // consumption: the food-imagery surfaces ride the warm grade
+    expect(raw('src/components/menu/MenuItemCard.tsx')).toContain('warm-scrim');
+    expect(raw('src/components/menu/OrderDialog.tsx')).toContain('warm-scrim-strong');
+    expect(raw('src/components/menu/GalleryCarousel.tsx')).toContain('warm-scrim-faint');
+    // and the cold black scrims are gone from those three files
+    expect(raw('src/components/menu/MenuItemCard.tsx')).not.toMatch(/from-black\/(40|50|60|70)/);
+    expect(raw('src/components/menu/OrderDialog.tsx')).not.toMatch(/from-black\/(40|50|60|70)/);
+    expect(raw('src/components/menu/GalleryCarousel.tsx')).not.toMatch(/from-black\/(40|50|60|70)/);
+  });
+  it('plate-round: the Card plate consumes --r-lg (16px default) — Card + .card-premium', () => {
+    expect(globalsRaw).toMatch(/\.card-premium\s*\{[\s\S]*?border-radius:\s*var\(--r-lg, 16px\)/);
+    const cardRaw = raw('src/components/ui/card.tsx');
+    expect(cardRaw).toMatch(/overflow-hidden rounded-lg/);
+    expect(cardRaw).not.toMatch(/overflow-hidden rounded-xl/);
+    // consumption twin: the plate image crops follow the same rung
+    // (rounded-t-lg/b-lg on the first/last img children).
+    const noCc = (s: string) =>
+      s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+    const cardCc = noCc(cardRaw);
+    expect(cardCc).toMatch(/rounded-t-lg/);
+    expect(cardCc).toMatch(/rounded-b-lg/);
+    expect(cardCc).not.toMatch(/rounded-[tx]-xl/);
+  });
+  it('theme default is LIGHT: :root declares color-scheme: light; .dark overrides with dark', () => {
+    // parseDecls only reads --custom-props, so color-scheme is asserted on
+    // the brace-matched blocks directly.
+    const rootBlock = topLevelBlock(css, ':root');
+    expect(rootBlock).toMatch(/color-scheme:\s*light/);
+    const darkBlock = topLevelBlock(css, '.dark');
+    expect(darkBlock).toMatch(/color-scheme:\s*dark/);
+    // and the resolved grounds prove the flip: :root = cream, .dark = night.
+    expect(resolve(light, light['--background'])).toBe('#FBF7F0');
+    expect(resolve(dark, dark['--background'])).toBe('#1D1410');
+  });
+});
+
 describe('r126 consumption gates — pinned tokens must have ≥1 real consumer', () => {
   it.each(CONSUMPTION_GATES)('%s', (_name, ok) => {
     expect(ok(), 'consumption gate FAILED — the pinned token(s) have zero consumers').toBe(
@@ -805,11 +919,12 @@ describe('r142 parity — المائدة token block (the --sm-* identity, verba
       ['--sm-card', '#FFFDF7'],
       ['--sm-ink', '#2B2014'],
       ['--sm-ink-dim', '#67523B'],
-      ['--sm-ember', '#B4531F'],
-      ['--sm-ember-ink', '#9C4214'],
-      ['--sm-ember-deep', '#8F3E12'],
-      ['--sm-ember-bright', '#E09A5F'],
-      ['--sm-ember-soft', 'rgb(180 83 31 / 0.12)'],
+      // Phase 5 (r152): the ember roster = the product terracotta family.
+      ['--sm-ember', '#C2452D'],
+      ['--sm-ember-ink', '#A93A26'],
+      ['--sm-ember-deep', '#8A2B1D'],
+      ['--sm-ember-bright', '#E89070'],
+      ['--sm-ember-soft', 'rgb(194 69 45 / 0.12)'],
       ['--sm-line', 'rgb(43 32 20 / 0.16)'],
       ['--sm-line-soft', 'rgb(43 32 20 / 0.08)'],
       ['--sm-line-strong', 'rgb(43 32 20 / 0.30)'],
@@ -1112,7 +1227,7 @@ describe('r129 parity — P2 value rows (measures · landscape · 1080 · depth 
     );
   });
 
-  it('RM press neutralizer: .ln-btn-ember:active { transform: none; background: #A84A17 } under prefers-reduced-motion', () => {
+  it('RM press neutralizer: .ln-btn-ember:active { transform: none; background: #A93A26 } under prefers-reduced-motion', () => {
     const prmBlocks = allTopLevelBlocks(
       landingCss,
       '@media (prefers-reduced-motion: reduce)'
@@ -1121,7 +1236,7 @@ describe('r129 parity — P2 value rows (measures · landscape · 1080 · depth 
       (b) =>
         b.includes('.landing .ln-btn-ember:active') &&
         /transform:\s*none/.test(b) &&
-        /background:\s*#A84A17/.test(b)
+        /background:\s*#A93A26/.test(b)
     );
     expect(off, 'the RM press neutralizer was lost').toBe(true);
   });
@@ -1446,14 +1561,14 @@ describe('r129 parity — token-matrix SM rows (5 misvalued + 8 missing → cano
     pin(light, 'r129-light', '--scrim-blur', '4px');
   });
 
-  it('--brand-purple = the lavender ink chain (dark #B7A0F4 / light #8A6FE0)', () => {
-    pin(dark, 'r129-dark', '--brand-purple', '#B7A0F4');
-    pin(light, 'r129-light', '--brand-purple', '#8A6FE0');
+  it('--brand-purple = the lavender ink chain (dark #B7A0DB / light #8A76C9)', () => {
+    pin(dark, 'r129-dark', '--brand-purple', '#B7A0DB');
+    pin(light, 'r129-light', '--brand-purple', '#8A76C9');
   });
 
-  it('--gold-soft = the yellow bg chain (dark #2C2410 / light #FCF1CD)', () => {
-    pin(dark, 'r129-dark', '--gold-soft', '#2C2410');
-    pin(light, 'r129-light', '--gold-soft', '#FCF1CD');
+  it('--gold-soft = the yellow bg chain (dark #33270F / light #F9EEDA)', () => {
+    pin(dark, 'r129-dark', '--gold-soft', '#33270F');
+    pin(light, 'r129-light', '--gold-soft', '#F9EEDA');
   });
 });
 
@@ -1551,9 +1666,10 @@ describe('r130 parity — P0 charts consume the --chart-* token series (theme-aw
     expect(chartTokensRaw).toContain('--chart-${i + 1}');
     expect(chartTokensRaw).toContain('read("--chart-1"');
     expect(chartTokensRaw).toContain('read("--accent-hover"');
-    // the 6th series is the --chart-6 night value, not the ad-hoc oklch
-    expect(chartTokensRaw).toContain('"#F2C766"');
-    expect(chartTokensRaw).not.toContain('oklch(0.52');
+    // Phase 5: fallbacks match the LIGHT :root roster (the default theme);
+    // the 6th series is the --chart-6 light value #8F6212.
+    expect(chartTokensRaw).toContain('"#8F6212"');
+    expect(chartTokensRaw).toContain('"#C2452D"');
   });
 
   it('DoughnutChart consumes the token series roster (no SERIES_PALETTE import)', () => {
@@ -1624,11 +1740,11 @@ describe('r142 parity — the hero LCP contract + the leaning card (word-stagger
 });
 
 describe('r130 parity — P1 focus ring + link hover AA + state/premium token families', () => {
-  it('focus ring values: dark #E9B44C / light #5C3416 (canonical cascade, both themes)', () => {
-    pin(dark, 'r130', '--ring', '#E9B44C');
-    pin(dark, 'r130', '--state-focus-ring-color', '#E9B44C');
-    pin(light, 'r130', '--ring', '#5C3416');
-    pin(light, 'r130', '--state-focus-ring-color', '#5C3416');
+  it('focus ring values: dark #E07856 / light #C2452D (terracotta cascade, both themes)', () => {
+    pin(dark, 'r130', '--ring', '#E07856');
+    pin(dark, 'r130', '--state-focus-ring-color', '#E07856');
+    pin(light, 'r130', '--ring', '#C2452D');
+    pin(light, 'r130', '--state-focus-ring-color', '#C2452D');
   });
 
   it('a:hover rides var(--accent-ink) — 10.29:1 on cream (AA fix; was var(--orange) 3.65:1)', () => {
@@ -1636,10 +1752,11 @@ describe('r130 parity — P1 focus ring + link hover AA + state/premium token fa
     expect(globalsRaw).not.toMatch(/a:hover\s*\{[\s\S]*?color:\s*var\(--orange\)/);
   });
 
-  it('premium shadow tokens: --shadow-card-premium/-h multi-layer neutral (tokens.css:596-597 verbatim)', () => {
-    pin(dark, 'r130', '--shadow-card-premium', '0 2px 4px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08), 0 2px 8px rgba(15,15,15,0.04)');
-    pin(dark, 'r130', '--shadow-card-premium-h', '0 4px 8px rgba(15,15,15,0.06), 0 12px 32px rgba(15,15,15,0.10), 0 4px 12px rgba(15,15,15,0.05)');
-    pin(light, 'r130', '--shadow-card-premium', '0 2px 4px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08), 0 2px 8px rgba(15,15,15,0.04)');
+  it('premium shadow tokens: --shadow-card-premium/-h multi-layer WARM neutral (no cold grays)', () => {
+    // Phase 5: light = espresso-tinted rgba(64,46,28,*); dark = warm night.
+    pin(light, 'r130', '--shadow-card-premium', '0 2px 4px rgba(64,46,28,0.05), 0 8px 24px rgba(64,46,28,0.09), 0 2px 8px rgba(64,46,28,0.05)');
+    pin(light, 'r130', '--shadow-card-premium-h', '0 4px 8px rgba(64,46,28,0.07), 0 12px 32px rgba(64,46,28,0.11), 0 4px 12px rgba(64,46,28,0.06)');
+    pin(dark, 'r130', '--shadow-card-premium', '0 2px 4px rgba(8,5,3,0.30), 0 8px 24px rgba(8,5,3,0.40), 0 2px 8px rgba(8,5,3,0.30)');
   });
 
   it('interaction-state family: --state-button/card/input/tab/link/loading-* present (tokens.css §state)', () => {
@@ -1755,17 +1872,20 @@ describe('r131-F4 parity — SM product primitives join the family', () => {
   const toasterCc = cc('src/components/ui/app-toaster.tsx');
   const syncCc = cc('src/components/shared/theme-color-sync.tsx');
   const brandCc = cc('src/lib/brand.ts');
+  // Phase 5: the pre-paint boot script — light default, dark opt-in.
+  const bootRaw = raw('src/lib/theme-boot.ts');
   const manifestRaw = raw('public/manifest.json');
   const sparkCc = cc('src/components/shared/MiniSparkline.tsx');
   const ordersListCc = cc('src/app/(protected)/owner/OwnerOrdersList.tsx');
 
-  it('fleet ruling: --muted-foreground #C3C8DC | #4F4D48 — faint tier survives as --text-muted, placeholders keep --placeholder-text', () => {
-    pin(dark, 'r131', '--muted-foreground', '#C3C8DC');
-    pin(light, 'r131', '--muted-foreground', '#4F4D48');
-    pin(dark, 'r131', '--text-muted', '#8E97B8');
-    pin(light, 'r131', '--text-muted', '#6E6C65');
-    pin(dark, 'r131', '--placeholder-text', '#7A83A0');
-    pin(light, 'r131', '--placeholder-text', '#74706A');
+  it('muted ladder: --muted-foreground #6B5D4F (light) | #CDBFA9 (dark) — faint tier --text-muted, placeholders keep --placeholder-text', () => {
+    // Phase 5 re-grade: warm espresso tiers, all AA on their grounds.
+    pin(light, 'r131', '--muted-foreground', '#6B5D4F');
+    pin(dark, 'r131', '--muted-foreground', '#CDBFA9');
+    pin(light, 'r131', '--text-muted', '#7A6A58');
+    pin(dark, 'r131', '--text-muted', '#9A8977');
+    pin(light, 'r131', '--placeholder-text', '#7E6E5C');
+    pin(dark, 'r131', '--placeholder-text', '#9A8977');
   });
 
   it('input canon: 44px / r-md 10 / 16px floor at EVERY breakpoint + halo-only focus + AA placeholder (A1 P0-1)', () => {
@@ -1882,24 +2002,28 @@ describe('r131-F4 parity — SM product primitives join the family', () => {
     expect(cc('src/components/layout/OrderNotifier.tsx')).toContain('premiumToast');
   });
 
-  it('theme system: ONE resolution path — enableSystem OFF + pre-paint boot + runtime theme-color sync #070B16 (A10 F2/F3/SM-2)', () => {
+  it('theme system: ONE resolution path — LIGHT default + enableSystem OFF + pre-paint boot + runtime theme-color sync #FBF7F0 (A10 F2/F3/SM-2, Phase 5)', () => {
     for (const layout of [publicLayoutRaw, protectedLayoutRaw]) {
       expect(layout).not.toMatch(/<ThemeProvider[^>]*enableSystem/);
       expect(layout).toContain('disableTransitionOnChange');
+      // Phase 5: the provider + the boot script both default LIGHT.
+      expect(layout).toContain('defaultTheme="light"');
       expect(layout).toContain('THEME_BOOT_SCRIPT');
       expect(layout).toContain('<AppToaster />');
       expect(layout).toContain('<ThemeColorSync />');
     }
-    expect(brandCc).toContain('"#070B16"');
-    expect(brandCc).not.toContain('"#191918"');
-    expect(manifestRaw).toContain('"theme_color": "#070B16"');
-    expect(syncCc).toContain('dark: "#070B16"');
-    expect(syncCc).toContain('light: "#FBFAF9"');
-    // grain follows the .light class, not the OS (SO pattern)
-    expect(globalsRaw).toContain('.light .grain-overlay::before { opacity: 0.012; }');
+    expect(bootRaw).toContain("if(t==='dark')");
+    expect(bootRaw).toContain("classList.add('light')");
+    expect(brandCc).toContain('"#1D1410"');           // warm night kitchen (dark tint)
+    expect(brandCc).toContain('"#FBF7F0"');           // cream ground (light tint)
+    expect(manifestRaw).toContain('"theme_color": "#FBF7F0"');
+    expect(syncCc).toContain('dark: "#1D1410"');
+    expect(syncCc).toContain('light: "#FBF7F0"');
+    // grain follows the .dark class, not the OS (SO pattern) — light default
+    expect(globalsRaw).toContain('.dark .grain-overlay::before { opacity: 0.022; }');
     expect(globalsRaw).not.toMatch(/@media \(prefers-color-scheme: light\) \{ \.grain-overlay/);
     // sparkline gradient follows --accent-hover (A10 SM-4)
-    expect(sparkCc).toContain('stopColor="var(--accent-hover, #F5D48A)"');
+    expect(sparkCc).toContain('stopColor="var(--accent-hover, #A93A26)"');
     expect(ordersListCc).not.toContain('ring-black/5');
   });
 
@@ -2205,8 +2329,11 @@ describe('r134 parity — W2 fix wave: money-path UX, spin canon, SW privacy, co
     const swCc = noCc(sw);
     expect(swCc).not.toContain('/^\\/([^.]*|$)/');
     // version bumped with this file's policy change (also purges v7's
-    // already-cached protected HTML on shared devices)
-    expect(sw).toContain("const CACHE_NAME = 'smart-menu-v8';");
+    // already-cached protected HTML on shared devices);
+    // Phase 5 (r152): v8 → v9 — re-rendered brand assets + manifest +
+    // offline.html joined the precache (terracotta identity) + the Baloo
+    // arabic display face. The pin follows the CURRENT canon version.
+    expect(sw).toContain("const CACHE_NAME = 'smart-menu-v9';");
   });
 });
 

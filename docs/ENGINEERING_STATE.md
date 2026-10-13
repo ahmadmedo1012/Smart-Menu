@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **r139 queue-completion round — local verification green (tsc 0 · lint 0-10w · unit 2523/2523 · parity 237 tests · build 85/85 routes) — e2e gate delegated to CI on push (no local Postgres in sandbox; CI runs the full matrix). r137/r138/r139 documented in commit messages; see r139 + r140 entries (r140: عقد هاتف الدفع الموحد + CLS الخطوط + WCAG 2.5.3 + كنون الزجاج/الرفعة)** |
+| Last verified commit | **r152 (Phase 5) «Warm Culinary Editorial» re-anchoring — local verification green (tsc 0 · lint 0 errors (12 pre-existing e2e warnings) · unit+design 2578/2578 · parity 243 tests · build 85/85 routes with shape-valid env; migrate-deploy env-blocked in sandbox — no Postgres — runs on Vercel). Live agent-browser verification on the production server: landing/pricing/login light-default cream+espresso+terracotta, Baloo h1, warm-night dark opt-in, 44px inputs, theme-color sync. r142–r151 documented in commit messages** |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
-| Unit tests | **2537/2537** (r140: +15 عقد هاتف الدفع الأسطولي الموحد — قبول/رفض/تطبيع ×15؛ r139: +25 net) · parity 237 tests (r140: مسامير السلاسل الخطية حُدّثت لطبقة «Plex Fallback» — نفس العدد، قيم أحدث) · e2e matrix incl. qa-teams deep journeys (CI) |
+| Unit tests | **2578/2578** (r152: parity re-anchored to the culinary contract — 242→243 + r93-W2a font-contract re-anchor; r140: +15 عقد هاتف الدفع الأسطولي) · e2e matrix incl. qa-teams deep journeys (CI) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -28,6 +28,14 @@
 - **Ops**: `docs/ops-runbook.md` (PITR/rollback/incidents).
 
 ## Round history (recent, newest first)
+
+## r152 (2026-10-13) — Phase 5 «الطهي التحريري الدافئ»: re-anchoring the whole product contract (LIGHT-first cream/espresso/terracotta + Baloo display + dot-leader signature)
+- **Identity flip**: `:root` = warm light default (cream #FBF7F0 · espresso #241811 · terracotta #C2452D primary, white fg 5.02:1, hover #A93A26, strong/ink #8A2B1D, amber #B7791F sparingly); `.dark` = explicit «مطبخ ليلي دافئ» opt-in (#1D1410 + luminous #E07856). next-themes `defaultTheme="light"` + THEME_BOOT_SCRIPT + color-scheme both flipped; ~150 TSX consumers re-skin with ZERO churn (semantic names preserved). Status families warm-graded (sage/amber/warm-steel/deep-rose); WhatsApp green untouched.
+- **Type**: display/heading = Baloo Bhaijaan 2 (self-hosted variable 600/700 × arabic+latin, preloaded + SW-precached); body stays IBM Plex Sans Arabic; prices tabular (unchanged).
+- **Shape/motifs**: plate-round ladder 10..28 (16 = card plate, Card re-pinned); NEW signature motifs — `.menu-leader`/`.menu-leader-rule` dotted price leaders (item card · quantity card · cart lines · slide-over totals · print sheet) + `.warm-scrim*` espresso food-imagery grades (replacing cold from-black on cards/dialog/gallery).
+- **Surfs**: landing ember roster = the product terracotta family (one world); not-found/offline/print/og raster assets re-rendered terracotta (favicon/icons/apple-touch/brand-icon/og-default + scripts/r152-regen-brand.mjs + og-template rewrite); manifest + theme-color + brand.ts + SelfHostedQR ink synced; sw.js v8→v9 (+Baloo precache).
+- **Tests**: parity re-anchored to the NEW contract (header documents the Phase 5 per-product decision; 242→243 pins incl. dot-leader + warm-scrim + Baloo manifest + light-default gates); r93-W2a U1 font contract re-anchored (Baloo-first heading, 10 Plex + 2 Baloo faces); full suite 2578/2578. Gates: tsc 0 · lint 0e/12w (pre-existing) · build 85/85 (env shape; migrate-deploy env-blocked — no local PG, honest).
+- **Docs**: DESIGN.md rewritten as the Phase 5 culinary constitution; this file's snapshot + this entry updated.
 
 ## r139 (2026-10-11) — r138 queue completion: the sold-out hunt ends, honest money rows, admin inks, housekeeping
 - **J5 (medium→done)**: server rejects unavailable items as a batch WITH names («هذه الأصناف لم تعد متوفرة: …» — ≤3 then «وغيرها») + `unavailableItemIds` in the envelope; the cart page marks those lines (danger border + «لم يعد متوفرًا» badge + delete-only controls; badge lives until removal/success; cleared on confirmed submit). Unit ×3 (named/multiple/bare) + parity pin.
