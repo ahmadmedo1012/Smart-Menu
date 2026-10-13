@@ -11,11 +11,11 @@ import { useTheme } from "next-themes";
  * component re-points their content to the resolved theme after mount.
  * Renders null — zero SSR markup, no flash, no LCP/CLS impact (SL
  * theme-color-sync.tsx, madarek index.html does the same at runtime).
- * Values are the FAMILY night/cream pair (#070B16 / #FBFAF9) — SM was the
+ * Values are the culinary cream/night pair (#FBF7F0 / #1D1410) — SM was the
  * only member tinting #191918 (A10 SM-2); manifest.json + lib/brand.ts now
  * carry the same pair.
  */
-const BAR = { dark: "#070B16", light: "#FBFAF9" } as const;
+const BAR = { dark: "#1D1410", light: "#FBF7F0" } as const;
 
 export function ThemeColorSync() {
   const { resolvedTheme } = useTheme();

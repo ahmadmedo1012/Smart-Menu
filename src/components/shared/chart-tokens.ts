@@ -6,54 +6,53 @@ import { useEffect, useState } from "react";
  * Brand chart tokens read from CSS custom properties at draw-time, so charts
  * follow theme switches (light/dark) instead of hardcoding values.
  *
- * Static fallbacks match the :root (Madarek night) token values so SSR /
- * first paint never flashes an unstyled stroke. Re-reads whenever the
- * <html> class attribute changes (the project's .light theme toggle).
+ * Static fallbacks match the :root (Phase 5 warm LIGHT default) token
+ * values so SSR / first paint never flashes an unstyled stroke. Re-reads
+ * whenever the <html> class attribute changes (the .dark theme toggle).
  *
- * MADAREK PARITY — --c-flame resolves to the gold accent #E9B44C on night
- * (copper #B57438 in light); --c-saffron-ink is the AA-safe gold series
- * (#ECC97D night / #6B4C0B light).
+ * PHASE 5 — --c-flame resolves to the terracotta #C2452D in light
+ * (luminous #E07856 in dark); --c-saffron-ink is the AA-safe amber series
+ * (#7A5210 light / #E3B15E dark).
  *
  * r130 (W2-3, P0-4): the full `--chart-1..8` series roster is read at
- * draw-time (the tokens were defined in both themes with ZERO consumers —
- * charts hardcoded the night palette, so light mode rendered night-tuned
- * slices). `chart1` is the series-1 stroke (copper-ink chain) and
- * `accentHover` feeds the area-gradient top stop (copper-deep/hover chain:
- * #F5D48A night / #9A5F25 light). The 6th series rides --chart-6
- * (#F2C766 night / #A67A22 light) — the ad-hoc oklch() is retired.
+ * draw-time. `chart1` is the series-1 stroke (terracotta chain) and
+ * `accentHover` feeds the area-gradient top stop (accent-hover chain:
+ * #A93A26 light / #E98F72 dark). The 6th series rides --chart-6
+ * (#8F6212 light / #E8C568 dark).
  */
 export interface ChartTokens {
         /** Brand heat — --c-flame (== --orange family). */
         flame: string;
-        /** Series-2 amber — --c-saffron-ink (Madarek gold-ink: 12.37:1 night /
-         *  7.56:1 light on their grounds — AA on both plot cards). */
+        /** Series-2 amber — --c-saffron-ink (amber-ink: 6.46:1 light / 9.24:1
+         *  night on their grounds — AA on both plot cards). */
         saffron: string;
-        /** Series-1 stroke — --chart-1 (copper-ink chain: #E9B44C night /
-         *  #B57438 light). */
+        /** Series-1 stroke — --chart-1 (terracotta chain: #C2452D light /
+         *  #E07856 dark). */
         chart1: string;
-        /** Area-gradient top stop — --accent-hover (#F5D48A night /
-         *  #9A5F25 light). */
+        /** Area-gradient top stop — --accent-hover (#A93A26 light /
+         *  #E98F72 dark). */
         accentHover: string;
         /** The full --chart-1..8 series roster at draw-time (theme-aware). */
         series: string[];
 }
 
 const FALLBACK: ChartTokens = {
-        flame: "#E9B44C",
-        saffron: "#ECC97D",
-        chart1: "#E9B44C",
-        accentHover: "#F5D48A",
-        // :root (night) --chart-1..8 values — SSR/first-paint only; the
-        // MutationObserver re-reads per active theme.
+        // Phase 5 (r152): :root is now the LIGHT default — fallbacks match
+        // the warm culinary chart roster; the MutationObserver re-reads per
+        // active theme (.dark swaps in the night roster).
+        flame: "#C2452D",
+        saffron: "#7A5210",
+        chart1: "#C2452D",
+        accentHover: "#A93A26",
         series: [
-                "#E9B44C", // --chart-1 copper-ink
-                "#7FD39A", // --chart-2 mint-ink
-                "#8FBBF2", // --chart-3 sky-ink
-                "#F0938F", // --chart-4 rose-ink
-                "#B7A0F4", // --chart-5 lavender-ink
-                "#F2C766", // --chart-6 AA-safe gold
-                "#5FAFAF", // --chart-7 teal
-                "#C57DA9", // --chart-8 mauve
+                "#C2452D", // --chart-1 terracotta
+                "#6FA06A", // --chart-2 sage
+                "#6B8CA3", // --chart-3 warm steel
+                "#C96873", // --chart-4 rose
+                "#8A76C9", // --chart-5 lavender
+                "#8F6212", // --chart-6 amber
+                "#3F8B7E", // --chart-7 warm teal
+                "#96547A", // --chart-8 warm plum
         ],
 };
 

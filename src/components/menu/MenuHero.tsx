@@ -110,9 +110,9 @@ export function MenuHero({
                         </div>
                     )}
 
-                    {/* Signwriting treatment — IBM Plex Sans Arabic display face
-                        (r132/A3 §1.3: was "Readex display face" — the Readex
-                        faces were never-fetched dead weight, deleted), warm
+                    {/* Signwriting treatment — Phase 5 (r152): the display face is
+                        Baloo Bhaijaan 2 (warm rounded culinary voice, self-hosted
+                        600/700), Plex Sans Arabic behind it in the stack, warm
                         gradient via the hero token */}
                     <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-semibold mb-3 text-balance leading-[1.3] text-gradient-hero drop-shadow-sm">
                         {restaurant.name}

@@ -8,9 +8,10 @@ import { HIGH_CONTRAST_STORAGE_KEY } from '@/lib/high-contrast';
  *
  * A single boolean preference stored in localStorage and expressed as a
  * `high-contrast` class on <html> (same pattern next-themes uses for
- * `.dark`/`.light`): the pre-paint inline script in both root layouts reads
+ * `.dark`): the pre-paint inline script in both root layouts reads
  * the key before first paint (no flash), and the matching token overrides
- * live in globals.css (`html.high-contrast` / `html.light.high-contrast`).
+ * live in globals.css (`html.high-contrast` = light default /
+ * `html.dark.high-contrast` = the dark opt-in).
  *
  * The SSR markup never carries the class — React hydration is protected by
  * the existing `suppressHydrationWarning` on <html> (exactly how next-themes'

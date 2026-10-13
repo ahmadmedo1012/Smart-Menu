@@ -1,11 +1,10 @@
 /**
  * r131-F4 (r130 SO ruling — ONE theme resolution path): pre-paint theme boot.
- * DARK default; .light only when explicitly stored under the next-themes
- * default key ("theme"). enableSystem is now OFF in both group providers, so
- * this script and next-themes agree — no OS-follow, no post-hydration class
- * flip (the r130 SO fix: with enableSystem, next-themes resolved system-light
- * after hydration and flipped the class the boot script had already painted
- * → theme flash).
+ * Phase 5 (r152): LIGHT default (Warm Culinary Editorial); .dark ("warm
+ * night kitchen") only when explicitly stored under the next-themes default
+ * key ("theme"). enableSystem is OFF in both group providers, so this script
+ * and next-themes agree — no OS-follow, no post-hydration class flip (the
+ * r130 SO fix).
  *
  * Plain module (NO 'use client') so server layouts can import the string
  * directly — importing from a client module would hand the layout a
@@ -14,4 +13,4 @@
  * tree's per-request CSP gets the nonce'd variant).
  */
 export const THEME_BOOT_SCRIPT =
-  "try{var t=localStorage.getItem('theme');if(t==='light')document.documentElement.classList.add('light');else document.documentElement.classList.add('dark')}catch(e){document.documentElement.classList.add('dark')}";
+  "try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');else document.documentElement.classList.add('light')}catch(e){document.documentElement.classList.add('light')}";

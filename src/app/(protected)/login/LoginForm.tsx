@@ -145,9 +145,9 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
 
         return (
                 <div className="relative flex min-h-dvh items-center justify-center px-4 py-20 sm:px-6">
-                        {/* r128-F5 (§4 login): إزالة التدرّجات — لا غسلة لهبية ولا توهج
-                           ضبابي؛ الأرض المسطّحة هي أرض المنتج نفسها (ليل #070B16
-                           في الداكن). صفحة هادئة بتصميمها. */}
+                        {/* r128-F5 (§4 login) → Phase 5 (r152): إزالة التدرّجات — لا غسلة لهبية ولا توهج
+                           ضبابي؛ الأرض المسطّحة هي أرض المنتج نفسها (كريم #FBF7F0
+                           في الفاتح الافتراضي). صفحة هادئة بتصميمها. */}
 
                         {/* Back to home + ThemeToggle */}
                         <div className="fixed start-4 top-4 z-50 flex items-center gap-2">

@@ -14,41 +14,41 @@ import { cn } from "@/lib/utils";
 // first interacts with the menu. The lightweight motion-based ShoppingCartIcon
 // (~2KB) keeps the same delightful bounce with zero network cost.
 
-/*
- * r131-F4 (A1 P0-9 + A11 SM-4 — fleet toast canon, madarek notifications.css):
+/* r131-F4 (A1 P0-9 + A11 SM-4 — fleet toast canon):
  *   · icon well 28px (size-7) r-md, PASTEL solid —soft ground + -ink glyph
  *     (was a 40px /12 translucent wash well).
  *   · status coding = the 1px inline-start HAIRLINE (v22 ruling #4: the card
  *     border stays 1px; only border-inline-start-color flips per kind —
  *     success/error/warning → status inks, gold kinds → accent, logout
  *     stays neutral).
- *   · solid surface card (bg-card — the old /95 + backdrop-blur-xl glass is
- *     retired), r-lg 12, --elev-3.
+ *   · solid surface card (bg-card), r-lg 16, --elev-3.
  *   · error/trash (the role=alert family) are MANUAL-DISMISS ONLY
- *     (duration Infinity — the failure reason never auto-vanishes; madarek
- *     5-A9 §3 doctrine).
+ *     (duration Infinity — the failure reason never auto-vanishes).
  *   · rtl:flex-row-reverse dropped — DOM order is logical, sonner's dir=rtl
  *     lays the icon at inline-START; the old physical flip double-reversed
  *     the card (icon parked on the inline-END edge, A1 P1-15).
  *   · entrance rides the ladder: --t-slow 380ms on the slide-up keyframe
  *     (reduced-motion zeroing flows through the token automatically).
- */
+ *
+ * Phase 5 (r152): the var() fallbacks match the :root LIGHT roster (the
+ * default theme) — sage/amber/warm-steel/deep-rose inks, never the retired
+ * night luminous values. */
 
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
 
 const iconConfig = {
-  success: { icon: CheckCircle2, bg: "bg-(--success-soft)", color: "var(--success-ink, #7FD39A)", hairline: "var(--success)" },
-  error:   { icon: AlertCircle,  bg: "bg-(--danger-soft)",  color: "var(--danger-ink, #F0938F)",   hairline: "var(--destructive)" },
-  info:    { icon: Info,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
-  cart:    { icon: ShoppingCart, bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
-  login:   { icon: LogIn,        bg: "bg-(--success-soft)", color: "var(--success-ink, #7FD39A)", hairline: "var(--success)" },
+  success: { icon: CheckCircle2, bg: "bg-(--success-soft)", color: "var(--success-ink, #2E5230)", hairline: "var(--success)" },
+  error:   { icon: AlertCircle,  bg: "bg-(--danger-soft)",  color: "var(--danger-ink, #8E2F3D)",   hairline: "var(--destructive)" },
+  info:    { icon: Info,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #7A5210)",     hairline: "var(--orange)" },
+  cart:    { icon: ShoppingCart, bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #7A5210)",     hairline: "var(--orange)" },
+  login:   { icon: LogIn,        bg: "bg-(--success-soft)", color: "var(--success-ink, #2E5230)", hairline: "var(--success)" },
   logout:  { icon: LogOut,       bg: "bg-muted",            color: "var(--muted-foreground)",     hairline: undefined },
-  star:    { icon: Star,         bg: "bg-(--warning-soft)", color: "var(--warning-ink, #ECC97D)", hairline: "var(--warning)" },
-  gift:    { icon: Gift,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
-  refresh: { icon: RefreshCw,    bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
-  save:    { icon: Save,         bg: "bg-(--success-soft)", color: "var(--success-ink, #7FD39A)", hairline: "var(--success)" },
-  trash:   { icon: Trash2,       bg: "bg-(--danger-soft)",  color: "var(--danger-ink, #F0938F)",   hairline: "var(--destructive)" },
-  copy:    { icon: Copy,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
+  star:    { icon: Star,         bg: "bg-(--warning-soft)", color: "var(--warning-ink, #7A5210)", hairline: "var(--warning)" },
+  gift:    { icon: Gift,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #7A5210)",     hairline: "var(--orange)" },
+  refresh: { icon: RefreshCw,    bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #7A5210)",     hairline: "var(--orange)" },
+  save:    { icon: Save,         bg: "bg-(--success-soft)", color: "var(--success-ink, #2E5230)", hairline: "var(--success)" },
+  trash:   { icon: Trash2,       bg: "bg-(--danger-soft)",  color: "var(--danger-ink, #8E2F3D)",   hairline: "var(--destructive)" },
+  copy:    { icon: Copy,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #7A5210)",     hairline: "var(--orange)" },
 } as const;
 
 /** The assertive family — role=alert + manual-dismiss (never auto-vanish). */
@@ -82,7 +82,7 @@ function AnimatedCartToastIcon() {
       <ShoppingCartIcon
         ref={ref}
         size={18}
-        className="text-[var(--gold-ink, #ECC97D)]"
+        className="text-[var(--gold-ink, #7A5210)]"
       />
     </div>
   );

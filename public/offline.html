@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>غير متصل بالإنترنت | الربط الذكي</title>
-  <meta name="theme-color" content="#FBFAF9" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#070B16" />
+  <meta name="theme-color" content="#FBF7F0" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1D1410" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -13,8 +13,8 @@
          via /fonts/fonts.css, so the offline fallback may use the cached face;
          system stack covers a cold cache. */
       font-family: 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
-      background: #FBFAF9;
-      color: #191918;
+      background: #FBF7F0;
+      color: #241811;
       min-height: 100dvh;
       display: flex;
       align-items: center;
@@ -49,7 +49,7 @@
       font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: .75rem;
-      color: #191918;
+      color: #241811;
     }
     p {
       font-size: 1rem;
@@ -62,8 +62,8 @@
       align-items: center;
       gap: .5rem;
       padding: .75rem 2rem;
-      background: #B57438;
-      color: #1A0F06;
+      background: #C2452D;
+      color: #FFFFFF;
       border: none;
       border-radius: .75rem;
       font-size: 1rem;
@@ -71,18 +71,18 @@
       cursor: pointer;
       transition: background .15s;
     }
-    .btn:hover { background: #9A5F25; }
-    .btn:active { background: #5C3416; }
+    .btn:hover { background: #A93A26; }
+    .btn:active { background: #8A2B1D; }
     /* r127-F3: Madarek night palette (matches not-found.tsx literals) —
        the app boots dark-first; the offline fallback should too. */
     @media (prefers-color-scheme: dark) {
-      body { background: #070B16; color: #F2EFE6; }
-      .card { background: #0D1428; box-shadow: 0 4px 24px rgba(0,0,0,.45); }
-      h1 { color: #F2EFE6; }
+      body { background: #1D1410; color: #F7EFE2; }
+      .card { background: #2A1E15; box-shadow: 0 4px 24px rgba(8,5,3,.45); }
+      h1 { color: #F7EFE2; }
       p { color: #8E97B8; }
-      .btn { background: #E9B44C; color: #05070F; }
-      .btn:hover { background: #F5D48A; }
-      .btn:active { background: #C9962F; }
+      .btn { background: #E07856; color: #2A130D; }
+      .btn:hover { background: #E98F72; }
+      .btn:active { background: #C2452D; }
       .brand { color: #8E97B8; }
     }
   </style>

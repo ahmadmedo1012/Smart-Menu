@@ -10,8 +10,9 @@
  * Decorative only: aria-hidden, pointer-events-none, select-none, and fully
  * static for reduced-motion users.
  *
- * r95: الحبر switched إلى accent-foreground (#df5a00 الأسطع) — رمزياً زخرفي
- * فلا قيد AA عليه، لكنه يظهر بلون اللهب على الخلفية #010000 بدل الاختفاء.
+ * r95 → Phase 5 (r152): الحبر accent-foreground (التراكوتا العميق في الفاتح) —
+ * رمزياً زخرفي فلا قيد AA عليه، لكنه يظهر بلون الطبخ الدافئ على الأرض
+ * الكريمية بدل الاختفاء.
  */
 export function HeroDecor() {
         return (

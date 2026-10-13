@@ -101,6 +101,8 @@ export default async function RootLayout({
            fallback faces were deleted — /fonts/fonts.css ships Plex only). */
         preload('/fonts/plex-sans-arabic-400-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/plex-sans-arabic-700-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
+        /* Phase 5 (r152): Baloo arabic 700 — headings/display (h1-h5 everywhere). */
+        preload('/fonts/baloo-bhaijaan-2-arabic.woff2', { as: 'font', type: 'font/woff2' });
         // r93-W2a (U1): خط العناوين — المصدر الواحد للحقيقة هو تعريف @theme inline
         // في globals.css (IBM Plex Sans Arabic أولًا) وسطر :root مرآة مطابقة له؛ هذا الـ
         // preload يطابق الجذر العام ويمنع وميض تبديل خط العناوين هنا.
@@ -135,8 +137,8 @@ export default async function RootLayout({
                                 per-request nonce CSP from proxy.ts, so the script carries the
                                 same nonce Next stamps on every other inline script here. */}
                         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }} />
-                        {/* r131-F4 (r130 SO ruling): pre-paint theme boot — dark default,
-                            .light only when stored; rides the same per-request CSP nonce as
+                        {/* r131-F4 (r130 SO ruling) → Phase 5 (r152): pre-paint theme boot — LIGHT default,
+                            .dark (المطبخ الليلي الدافئ) only when stored; rides the same per-request CSP nonce as
                             the high-contrast script above. */}
                         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
                                 <a
@@ -148,7 +150,8 @@ export default async function RootLayout({
                                         تخطَّ إلى المحتوى الرئيسي
                                 </a>
                                 <div className="grain-overlay" />
-                                <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange nonce={nonce}> {/* r95: داكن أولاً — توأمة SmartBot (توحيد مع العام) */}
+                                {/* Phase 5 (r152): فاتح أولًا — الطبخ الدافئ؛ الداكن مطبخ ليلي دافئ بالطلب */}
+                                <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange nonce={nonce}>
                                         <GridPattern
                                                 width={60}
                                                 height={60}

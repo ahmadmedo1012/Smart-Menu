@@ -44,8 +44,8 @@ export function AreaChart({
 }: AreaChartProps) {
         const [tooltip, setTooltip] = useState<TooltipState | null>(null);
         // r130 (W2-3, P0-4): stroke + gradient stops ride the draw-time chart
-        // tokens — --chart-1 (copper-ink chain) for the stroke, --accent-hover
-        // (copper-deep/hover chain) for the top stop — so the chart follows
+        // tokens — --chart-1 (terracotta chain) for the stroke, --accent-hover
+        // (terracotta-hover chain) for the top stop — so the chart follows
         // the theme (was: hardcoded night golds #E9B44C/#F5D48A).
         const tokens = useChartTokens();
         const stroke = color ?? tokens.chart1;

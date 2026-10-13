@@ -406,8 +406,8 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                 );
 
         return (
-                /* r128-F5 (§4): أرض مسطّحة — تدرّج الصفحة أُزيل (منع التدرّجات)،
-                   الأرض هي أرض المنتج نفسها (--background ليل #070B16). */
+                /* r128-F5 (§4) → Phase 5 (r152): أرض مسطّحة — تدرّج الصفحة أُزيل (منع التدرّجات)،
+                   الأرض هي أرض المنتج نفسها (--background كريم #FBF7F0 في الفاتح). */
                 <div className="min-h-screen bg-background">
                         <Header />
                         <div className="max-w-4xl mx-auto px-4 py-12">

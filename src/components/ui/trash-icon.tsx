@@ -76,7 +76,7 @@ function TrashIcon({ shakeOnClick = false, dangerHover = false, keepOpenOnDelete
 
       await animate(
         ".trash-icon",
-        { stroke: resolveTokenColor("--destructive", "#F0938F") },
+        { stroke: resolveTokenColor("--destructive", "#C96873") /* Phase 5: light roster fallback (was night rose) */ },
         { duration: 0.2, delay: 0.1, ease: "easeInOut" },
       );
     }, [animate, dangerHover]);

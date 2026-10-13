@@ -99,6 +99,9 @@ export default async function RootLayout({
            fallback faces were deleted — /fonts/fonts.css ships Plex only). */
         preload('/fonts/plex-sans-arabic-400-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/plex-sans-arabic-700-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
+        /* Phase 5 (r152): Baloo Bhaijaan 2 arabic 700 — the h1 display face,
+           above-fold on every culinary headline (38KB). */
+        preload('/fonts/baloo-bhaijaan-2-arabic.woff2', { as: 'font', type: 'font/woff2' });
         /* r138-d (F5): اللاتيني 400+700 يُسبق جلبه هو الآخر — كل أسعار القائمة
            أرقام غربية (سياسة أرقام المنصة r135) تُرسم بأول لقطة، والعائلة
            العربية لا تغطي المحارف اللاتينية (قسيم منفصل بـunicode-range)،
@@ -106,6 +109,7 @@ export default async function RootLayout({
            فقط = وميض متأخر للأسعار على الشبكات البطيئة (~40KB إضافيان). */
         preload('/fonts/plex-sans-arabic-400-normal-latin.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/plex-sans-arabic-700-normal-latin.woff2', { as: 'font', type: 'font/woff2' });
+        preload('/fonts/baloo-bhaijaan-2-latin.woff2', { as: 'font', type: 'font/woff2' });
         const nonce = '';
         // r119-S5-P1-3: <html>/<head>/<body> now come from the ROOT layout —
         // the multiple-root-layouts pattern left every 404 rendering in Next's
@@ -173,7 +177,9 @@ export default async function RootLayout({
                                     r131-F4 (r130 SO ruling): enableSystem OFF — one resolution path
                                     with the THEME_BOOT_SCRIPT above; disableTransitionOnChange kills
                                     the whole-app color cross-fade on toggle (SO twin). */}
-                                <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange nonce={nonce}>
+                                {/* Phase 5 (r152): LIGHT default — Warm Culinary Editorial;
+                                    .dark = the warm night kitchen opt-in. */}
+                                <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange nonce={nonce}>
                                         <GridPattern
                                                 width={60}
                                                 height={60}

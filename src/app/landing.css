@@ -46,11 +46,16 @@
   --sm-card:       #FFFDF7;   /* raised card surface */
   --sm-ink:        #2B2014;   /* deep espresso — primary text · 14.1:1 */
   --sm-ink-dim:    #67523B;   /* secondary text · 6.5:1 */
-  --sm-ember:      #B4531F;   /* fire accent — LARGE text (≥24px) + decor only · 4.4:1 */
-  --sm-ember-ink:  #9C4214;   /* normal-size ember text · 5.8:1 */
-  --sm-ember-deep: #8F3E12;   /* filled surfaces · paper-on-it 6.5:1 */
-  --sm-ember-bright: #E09A5F; /* ember text on the INK ground (finale) · 6.8:1 */
-  --sm-ember-soft: rgb(180 83 31 / 0.12);   /* warm tint wash */
+  /* Phase 5 (r152): the ember roster joins the product TERRACOTTA identity
+     (same family as --primary #C2452D — one culinary world across landing
+     and product). Contrast on paper #F7F1E3 (measured): ember 4.46:1
+     (large ≥24px + decor only) · ink 5.62:1 · deep 7.63:1 · bright on ink
+     ground 6.56:1. */
+  --sm-ember:      #C2452D;   /* terracotta accent — LARGE text (≥24px) + decor only · 4.46:1 */
+  --sm-ember-ink:  #A93A26;   /* normal-size terracotta text · 5.62:1 */
+  --sm-ember-deep: #8A2B1D;   /* filled surfaces · paper-on-it 7.63:1 */
+  --sm-ember-bright: #E89070; /* terracotta text on the INK ground (finale) · 6.56:1 */
+  --sm-ember-soft: rgb(194 69 45 / 0.12);   /* warm tint wash */
   --sm-line:       rgb(43 32 20 / 0.16);
   --sm-line-soft:  rgb(43 32 20 / 0.08);
   --sm-line-strong:rgb(43 32 20 / 0.30);   /* dotted price leaders */
@@ -332,7 +337,7 @@
   box-shadow: 0 1px 2px rgb(43 32 20 / 0.18);
 }
 .landing .ln-btn-ember:hover {
-  background: #A84A17;
+  background: #A93A26;
   box-shadow: 0 2px 4px rgb(43 32 20 / 0.20), 0 8px 20px rgb(43 32 20 / 0.16);
   transform: translate(var(--mag-x, 0), calc(var(--mag-y, 0) - 1px));
 }
@@ -1748,7 +1753,7 @@
 /* RM press neutralizer — under prefers-reduced-motion the scale
    transform is disabled but the color feedback stays. */
 @media (prefers-reduced-motion: reduce) {
-  .landing .ln-btn-ember:active { transform: none; background: #A84A17; }
+  .landing .ln-btn-ember:active { transform: none; background: #A93A26; }
   .landing .ln-btn-ghost:active { transform: none; background: rgb(43 32 20 / 0.06); }
 }
 
@@ -1801,17 +1806,17 @@ html:has(.landing) {
   --scrollbar-thumb-hover: rgb(43 32 20 / 0.34);
 }
 
-/* r149 (SM4): the floating family (WhatsApp bubble · scroll-to-top) rode
-   --orange, which turns #E9B44C gold under the default dark theme — a
-   second warm accent arguing with the page's ember roster. The landing
-   is the copper/cream world in BOTH themes (r148), so while it is
-   mounted the brand accent stays on the light-theme copper #B57438 with
-   its ink foreground (4.95:1 — AA; same values the :root already
-   defines, no invented color). Product pages keep each theme's own
+/* r149 (SM4) → Phase 5 (r152): the floating family (WhatsApp bubble ·
+   scroll-to-top) rode --orange, which turns #E07856 luminous under the
+   dark opt-in — a second warm accent arguing with the page's terracotta
+   roster. The landing is the terracotta/cream world in BOTH themes, so
+   while it is mounted the brand accent stays pinned on the product
+   primary pair (#C2452D + white 5.02:1 — the exact light-theme :root
+   values, no invented color). Product pages keep each theme's own
    --orange untouched. */
 html:has(.landing) {
-  --orange: #b57438;
-  --orange-foreground: #1a0f06;
+  --orange: #C2452D;
+  --orange-foreground: #FFFFFF;
 }
 
 /* hover micro-verbs — scroll-line grows, footer links underline */

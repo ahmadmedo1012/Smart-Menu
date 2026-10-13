@@ -145,8 +145,8 @@ export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) 
     <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-base font-bold text-foreground">آخر الطلبات</h2>
-        {/* r148 (CROSS R2): text-primary → accent-foreground — نص 12px كان يهبط
-            مع النحاس الفاتح إلى 3.8:1؛ الداكن نفس الذهب حرفيًا (#E9B44C). */}
+        {/* r148 (CROSS R2) → Phase 5 (r152): text-primary → accent-foreground — نص 12px كان يهبط
+            مع النحاس الفاتح إلى 3.8:1؛ الداكن الآن التراكوتا المضيء #E07856 (6.03:1). */}
         <Link href="/owner/orders"><span className="text-xs text-accent-foreground font-medium">عرض الكل</span></Link>
       </div>
       {orders && orders.length > 0 ? (

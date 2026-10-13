@@ -14,9 +14,10 @@ import { ErrorShellLangFix } from "@/components/shared/ErrorShellLangFix";
  * the themed path, but Next.js still reaches THIS file for a few shell-level
  * paths — so it is rewritten with INLINE STYLES ONLY: no Tailwind, no CSS
  * import, no CSS-dependent components (no Button/ThemeToggle), system fonts.
- * It literally cannot lose its styling. Dark palette mirrors the brand
- * (MADAREK NIGHT literals: #070B16 bg / #F2EFE6 sand ink / #E9B44C gold accent —
- * mirrors globals.css :root; this shell renders before/outside the theme CSS).
+ * It literally cannot lose its styling. Phase 5 (r152): warm LIGHT palette
+ * mirrors the brand (cream #FBF7F0 bg / espresso #241811 ink / terracotta
+ * #C2452D accent — mirrors globals.css :root, the light default; this shell
+ * renders before/outside the theme CSS).
  */
 
 export const metadata: Metadata = {
@@ -66,8 +67,8 @@ export default function NotFound() {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 background:
-                                        "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(233,180,76,0.08), transparent 70%), #070B16",
-                                color: "#F2EFE6",
+                                        "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(194,69,45,0.06), transparent 70%), #FBF7F0",
+                                color: "#241811",
                                 fontFamily: SYS_FONT,
                                 padding: "2rem 1.25rem",
                                 textAlign: "center",
@@ -93,8 +94,8 @@ export default function NotFound() {
                                                 display: "flex",
                                                 alignItems: "center",
                                                 justifyContent: "center",
-                                                background: "rgba(233,180,76,0.12)",
-                                                color: "#E9B44C",
+                                                background: "rgba(194,69,45,0.10)",
+                                                color: "#8A2B1D",
                                                 fontWeight: 700,
                                                 fontSize: "1.1rem",
                                         }}
@@ -110,7 +111,7 @@ export default function NotFound() {
                                         fontSize: "clamp(4.5rem, 18vw, 7.5rem)",
                                         fontWeight: 800,
                                         lineHeight: 1,
-                                        color: "#E9B44C",
+                                        color: "#C2452D",
                                         marginBottom: "0.75rem",
                                         userSelect: "none",
                                 }}
@@ -125,7 +126,7 @@ export default function NotFound() {
                         <p
                                 style={{
                                         fontSize: "1.05rem",
-                                        color: "#8E97B8",
+                                        color: "#6B5D4F",
                                         maxWidth: "26rem",
                                         lineHeight: 1.8,
                                         margin: "0 0 2rem",
@@ -148,9 +149,9 @@ export default function NotFound() {
                                                         height: 40,
                                                         padding: "0 1rem",
                                                         borderRadius: 10,
-                                                        border: "1px solid #1B2444",
-                                                        background: "#0D1428",
-                                                        color: "#F2EFE6",
+                                                        border: "1px solid #E8DECE",
+                                                        background: "#FFFFFF",
+                                                        color: "#241811",
                                                         textDecoration: "none",
                                                         fontSize: "0.925rem",
                                                 }}
@@ -169,8 +170,8 @@ export default function NotFound() {
                                         height: 48,
                                         padding: "0 2rem",
                                         borderRadius: 12,
-                                        background: "#E9B44C",
-                                        color: "#05070F",
+                                        background: "#C2452D",
+                                        color: "#FFFFFF",
                                         textDecoration: "none",
                                         fontSize: "1rem",
                                         fontWeight: 600,
@@ -179,7 +180,7 @@ export default function NotFound() {
                                 العودة إلى الرئيسية
                         </a>
 
-                        <p style={{ marginTop: "3rem", fontSize: "0.75rem", color: "rgba(122,131,160,0.5)", userSelect: "none" }}>
+                        <p style={{ marginTop: "3rem", fontSize: "0.75rem", color: "rgba(107,93,79,0.5)", userSelect: "none" }}>
                                 الربط الذكي — Smart Menu
                         </p>
                         </main>

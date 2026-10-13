@@ -5,11 +5,10 @@
  *
  * Keep in sync with `public/manifest.json` and `public/offline.html`.
  *
- * MADAREK PARITY — the browser/PWA chrome tint follows the user's theme at
- * runtime via <ThemeColorSync /> (r131-F4, Smart-Link pattern): dark → the
- * family night ground #070B16 (was madarek's chrome ink #191918 — A10 SM-2
- * alignment: every sibling app tints the night ground), light → #FBFAF9
- * (cream). The old flame #bc4700 tint is retired with the flame palette.
+ * PHASE 5 (r152) — Warm Culinary Editorial: the browser/PWA chrome tint
+ * follows the user's theme at runtime via <ThemeColorSync />: light → the
+ * cream ground #FBF7F0 (default), dark → the warm night kitchen ground
+ * #1D1410. Keep in sync with public/manifest.json + public/offline.html.
  */
-export const BRAND_THEME_COLOR = "#070B16" as const;
-export const BRAND_THEME_COLOR_LIGHT = "#FBFAF9" as const;
+export const BRAND_THEME_COLOR = "#1D1410" as const;
+export const BRAND_THEME_COLOR_LIGHT = "#FBF7F0" as const;

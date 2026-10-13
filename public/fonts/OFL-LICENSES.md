@@ -14,6 +14,7 @@ Full license text: <https://openfontlicense.org/open-font-license-official-text/
 |---|---|---|---|
 | **IBM Plex Sans Arabic** (primary brand face) | `plex-sans-arabic-{400,500,600,700}-normal-{arabic,latin}.woff2` (web) + `@expo-google-fonts/ibm-plex-sans-arabic` 400–700 (mobile) | Copyright © 2017 IBM Corp. (Reserved Font Name "Plex") — <https://github.com/IBM/plex> | SIL OFL 1.1 |
 | **IBM Plex Mono** | `plex-mono-{400,500}-normal-latin.woff2` | Copyright © 2017 IBM Corp. (Reserved Font Name "Plex") — <https://github.com/IBM/plex> | SIL OFL 1.1 |
+| **Baloo Bhaijaan 2** (Phase 5 display face) | `baloo-bhaijaan-2-{arabic,latin}.woff2` (variable, weights 600/700 declared) | Copyright © 2021 Ek Type (Reserved Font Name "Baloo Bhaijaan 2") — <https://github.com/EkType/BalooBhaijaan> | SIL OFL 1.1 |
 
 <!-- r132 (A3 §1.3): the never-fetched fallback families — IBM Plex Serif
      (italic 400/500), Cairo ×3, Readex Pro ×2, Noto Naskh Arabic ×2 — were

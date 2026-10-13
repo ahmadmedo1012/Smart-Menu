@@ -42,8 +42,11 @@
         --font-arabic: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         /* r93-W2a (U1) + r129: --font-display (canonical name) and the
            --font-heading bridge — Madarek tokens.css:47-49 + طبقة r140. */
-        --font-display: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
-        --font-heading: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
+        /* Phase 5 r152: display/heading = Baloo Bhaijaan 2 (warm rounded
+           culinary display, Arabic+Latin, self-hosted 600/700) with the
+           Plex-led stack behind it; --font-sans/-arabic stay Plex body. */
+        --font-display: "Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
+        --font-heading: "Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
 
         /* ── Theme colors ── */
         --color-background: var(--background);
@@ -78,7 +81,7 @@
            يستهلكها للنص عبر أدوات Tailwind (توكنات -ink: عائلات mint/yellow/rose
            deep الداكنة ≥4.5:1 على الخلفيات الفاتحة المحسوبة 7.0-11.2:1) بينما
            الداكن يبقى على أحباره الأساسية نفسها (8-11:1) فلا يتغير عرضه إطلاقًا.
-           التوكنات نفسها معرّفة أصلًا في :root/.light (§1.6) — هنا فقط تصديرها
+           التوكنات نفسها معرّفة أصلًا في :root/.dark (§1.6) — هنا فقط تصديرها
            لأدوات Tailwind (نفس نمط --color-saffron-ink r94). */
         --color-success-ink: var(--success-ink);
         --color-warning-ink: var(--warning-ink);
@@ -92,7 +95,7 @@
         --color-info-ink: var(--info-ink);
         /* r121-I-6: the r96-W4a --color-*-soft tint twins were deleted — zero
            adoption in 25 rounds (surfaces use the ad-hoc bg-success/15 opacity
-           utilities instead); values removed from :root/.light below too. */
+           utilities instead); values live in :root/.dark below. */
 
         /* External brand + semantic extensions */
         --color-whatsapp: var(--whatsapp);
@@ -109,7 +112,7 @@
 
         /* Round83 — FeaturedShowcase scene accents (5 rotating identities:
            paprika / basil / rosewater / turmeric / spearmint-patina). Resolved
-           from :root (dark) and .light (light) so utilities like
+           from :root (light) and .dark (dark) so utilities like
            text-[var(--scene-accent)] inherit the active theme automatically. */
         --color-showcase-1: var(--showcase-accent-1);
         --color-showcase-2: var(--showcase-accent-2);
@@ -122,7 +125,7 @@
         --color-ember: var(--c-ember);
         --color-saffron: var(--c-saffron);
         /* round94 (تقرير D/A1): الحبر النصي للعائلة — يتولد منه text-saffron-ink/fill-saffron-ink.
-           .light يحمله على قيمة AA بينما يبقى --c-saffron توهجًا زخرفيًا للتدرجات في الوضعين. */
+           .dark يحمله على قيمة AA بينما يبقى --c-saffron توهجًا زخرفيًا للتدرجات في الوضعين. */
         --color-saffron-ink: var(--c-saffron-ink);
         --color-ash: var(--c-ash);
         --color-ash-dim: var(--c-ash-dim);
@@ -133,16 +136,17 @@
         /* Overlay */
         --color-overlay: var(--overlay);
 
-        /* ── Radius scale — Madarek "Notion-soft" ladder (6/8/10/12/16/20/28) ──
-           rounded-* utilities now land exactly on the Madarek scale
-           (--r-xs 6 / --r-sm 8 / --r-md 10 / --r-lg 12 / --r-xl 16 /
-            --r-2xl 20 / --r-3xl 28). */
-        --radius-xs: 6px;
-        --radius-sm: 8px;
-        --radius-md: 10px;
-        --radius-lg: 12px;
-        --radius-xl: 16px;
-        --radius-2xl: 20px;
+        /* ── Radius scale — Phase 5 «plate-round» ladder (10/12/14/16/20/24/28)
+           rounded-* utilities land on the culinary scale
+           (--r-xs 10 / --r-sm 12 / --r-md 14 / --r-lg 16 / --r-xl 20 /
+            --r-2xl 24 / --r-3xl 28); 16 = the default card plate
+            (Card + .card-premium consume --r-lg). */
+        --radius-xs: 10px;
+        --radius-sm: 12px;
+        --radius-md: 14px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --radius-2xl: 24px;
         --radius-3xl: 28px;
 
         /* r121-I-6: the "8pt spacing scale" (--space-xs…4xl) was deleted — wrong
@@ -265,33 +269,46 @@
 
 :root {
         /* ══════════════════════════════════════════════════════════════
-           MADAREK NIGHT (default theme) — مدارك ليلًا
-           Ground #070B16 night-indigo · ink #F2EFE6 sand · accent
-           #E9B44C gold. Values are Madarek-exact (tokens.css dark block);
-           family variable NAMES are preserved so 160+ TSX consumers flip
-           with zero churn.
+           WARM CULINARY EDITORIAL — المطبخ الدافئ (Phase 5 r152, default)
+           LIGHT is the DEFAULT theme: ground cream #FBF7F0 · raised
+           #FFFFFF · soft #F4EDE1 · espresso ink #241811 · secondary
+           #6B5D4F · hairline #E8DECE · primary TERRACOTTA #C2452D
+           (white fg 5.02:1) · hover #A93A26 · pressed/strong #8A2B1D ·
+           warm amber #B7791F · sage success · amber warning · warm-steel
+           info · deep-rose destructive. The dark opt-in (.dark =
+           «مطبخ ليلي دافئ» warm night kitchen) re-grades the SAME token
+           names on espresso night #1D1410 with luminous terracotta
+           #E07856. Phase 5 per-product identity: Smart Menu leaves the
+           Madarek night monoculture — names preserved (150+ TSX
+           consumers flip with zero churn), values are the new culinary
+           contract. Measured AA pairs: ink/cream 16.2:1 · secondary
+           5.95:1 · muted #7A6A58 4.88:1 · accent-ink #8A2B1D 8.05:1 ·
+           white-on-terracotta 5.02:1 · ring #C2452D 4.70:1 non-text ·
+           placeholder #7E6E5C 4.92:1 on white.
            ══════════════════════════════════════════════════════════════ */
-        color-scheme: dark;
+        color-scheme: light;
 
-        /* ── Fonts — r129 token-matrix fix: the canonical Madarek stacks
-           (tokens.css:47-50), with the --font-cairo shim (fonts.css) kept
-           as the safety net for any legacy var(--font-cairo) consumer.
-           r140: طبقة «Plex Fallback» المدخلة (موثقة أعلاه في @theme). */
+        /* ── Fonts — Phase 5: body stays IBM Plex Sans Arabic (self-hosted
+           400-700); DISPLAY/HEADINGS flip to Baloo Bhaijaan 2 (rounded,
+           warm, Arabic+Latin, weights 600/700 self-hosted — public/fonts).
+           The Plex-led body keeps long-form menu readability; Baloo carries
+           the culinary voice on h1-h5 + display. --font-cairo shim
+           (fonts.css) stays as the legacy safety net. */
         --font-arabic: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --font-sans: var(--font-arabic);
-        --font-display: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
-        /* r93-W2a (U1) — same value as --font-display (the bridge name). */
-        --font-heading: "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
+        --font-display: "Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
+        --font-heading: "Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Plex Fallback", system-ui, sans-serif;
 
-        /* ── Font weights — Madarek reality: Plex Sans Arabic ships 400-700
-           only; --fw-black resolves to 700 (no synthetic 800 exists). ── */
+        /* ── Font weights — Plex Sans Arabic ships 400-700 only (Baloo
+           400-800, but the canon tops at 700 for body parity);
+           --fw-black resolves to 700. ── */
         --fw-regular: 400;
         --fw-medium: 500;
         --fw-semibold: 600;
         --fw-bold: 700;
         --fw-black: var(--fw-bold);
 
-        /* ── Motion tokens — Madarek exact (§4) ── */
+        /* ── Motion tokens (unchanged ladder — theme-independent) ── */
         --scroll-offset: 6rem;
         --t-micro: 80ms;
         --t-fast: 160ms;
@@ -307,18 +324,12 @@
         --ease-spring-soft: cubic-bezier(0.34, 1.18, 0.64, 1);
         --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
         --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-        /* r129 (missing tokens, canonical tokens.css:152-153): the bounce
-           and snappy spring tiers. */
         --ease-spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
         --ease-spring-snappy: cubic-bezier(0.5, 1.6, 0.4, 1);
-        /* family easing aliases remapped onto the Madarek curves — r130
-           (P1-12): --ease-out-quart joins --ease-smooth on the single
-           canonical settle curve (0.16,1,0.3,1); no more forked values. */
-        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);   /* = Madarek --ease-out */
-        --ease-out-quart: cubic-bezier(0.16, 1, 0.3, 1);  /* = Madarek --ease-out (r130) */
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-out-quart: cubic-bezier(0.16, 1, 0.3, 1);
         --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
-        --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);     /* = Madarek --ease-out */
-        /* semantic motion layer (Madarek §4.3) */
+        --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
         --motion-duration-micro: 80ms;
         --motion-duration-short: 160ms;
         --motion-duration-medium: 240ms;
@@ -337,72 +348,8 @@
         --motion-stagger-step: 60ms;
         --motion-stagger-cap: 6;
         --motion-direction: -1; /* [dir=rtl] default (app is RTL-first) */
-        --press-scale: 0.97;    /* Madarek press ladder: buttons .97 · cards .99 */
-        /* r129 (missing token, canonical tokens.css:171): the standard
-           hover lift register (-1px; hover-capable surfaces only). */
+        --press-scale: 0.97;    /* press ladder: buttons .97 · cards .99 */
         --hover-lift: -1px;
-
-        /* ── r130 (W2-3, P1-9): interaction-state token family (canonical
-           tokens.css §state 239-266) — the vocabulary every primitive
-           re-drifts without. NOTE vs Madarek: --accent is the translucent
-           WASH here, so the fill/stroke/underline slots consume
-           --accent-solid (the SmartBot r129 remap pattern). Disabled
-           opacity is 0.55 — the .btn:disabled reality (components.css:311)
-           that wins over the tokens.css:243 spelling of 0.5. ── */
-        --state-button-hover-bg-shift: 4%;
-        --state-button-hover-translate: -1px;
-        /* r134-W2 (#17): --state-button-pressed-scale: 0.98 deleted — zero
-           consumers (buttons press via active:scale-[0.97] / --press-scale,
-           the r130 W2-3 .btn reality); the XC audit caught it as a dead
-           fork of the canon's 0.97 press ladder. r134-V1: the duration twin
-           (--motion-duration-micro alias) was consumer-dead too — deleted
-           with its pin, completing the canon alignment (madarek deleted
-           both this round). */
-        --state-button-disabled-opacity: 0.55;
-
-        --state-card-hover-elevation: 0 4px 12px rgb(0 0 0 / 0.06);
-        --state-card-hover-translate: -1px;
-        --state-card-hover-border: var(--rule-strong, var(--rule, var(--neutral-200)));
-        --state-card-pressed-scale: 0.99;
-        --state-card-selected-ring: inset 0 0 0 2px var(--accent-solid);
-        --state-card-disabled-opacity: 0.5;
-
-        --state-input-focus-ring: var(--state-focus-ring);
-        --state-input-focus-border: var(--accent-solid);
-        --state-input-error-border: var(--danger, #dc2626);
-        --state-input-disabled-opacity: 0.6;
-        --state-input-loading-cursor: progress;
-
-        --state-tab-active-indicator: 2px solid var(--accent-solid);
-        --state-tab-indicator-duration: var(--motion-duration-medium);
-        --state-tab-indicator-ease: var(--motion-ease-emphasized);
-
-        --state-link-hover-underline: 1.5px solid currentColor;
-
-        --state-loading-spinner-size: 1em;
-        --state-loading-spinner-stroke: 2px;
-        --state-loading-spinner-color: currentColor;
-
-        /* ── r130 (W2-3, P0-1 companion): canonical type-role extras —
-           metric rungs (22/30/44, tokens.css:90-92), the mono eyebrow
-           (12px, tokens.css:62) and the reference-bar cine display
-           clamps (tokens.css:56-58). KPI numerals + engineered labels
-           stop riding the generic text ladder. ── */
-        --fs-eyebrow: 12px;
-        --fs-metric-md: 22px;
-        --fs-metric-lg: 30px;
-        --fs-metric-xl: 44px;
-        --fs-cine-hero: clamp(56px, 9.2vw, 148px);
-        --fs-cine-xl: clamp(44px, 6.4vw, 104px);
-        --fs-cine-lg: clamp(34px, 4.6vw, 72px);
-        /* canonical leading names (tokens.css:106-108) — body consumes
-           --lh-base below; --lh-snug feeds the @theme snug rung. */
-        --lh-snug: 1.20;
-        --lh-base: 1.65;
-        /* ── r126 (P4-F1 M3): ambient loop ladder (Madarek §4.3) — infinite
-           decorative loops ONLY (never hover/press/entrance). The animate-*
-           classes below now consume these bands instead of raw 1.4-18s
-           literals (audit B4). ── */
         --motion-duration-ambient-pulse: 1.6s;
         --motion-duration-ambient: 2.4s;
         --motion-duration-ambient-slow: 3.6s;
@@ -410,102 +357,118 @@
         --motion-duration-ambient-cinema: 9s;
         --motion-duration-ambient-scene: 22s;
 
-        /* ── Radius ladder — Madarek "Notion-soft" (§1.2) ── */
-        --r-xs: 6px;  --r-sm: 8px;  --r-md: 10px; --r-lg: 12px;
-        --r-xl: 16px; --r-2xl: 20px; --r-3xl: 28px; --r-full: 9999px;
+        /* ── Interaction-state token family (theme-independent grammar;
+           the color-chaining slots resolve per theme) ── */
+        --state-button-hover-bg-shift: 4%;
+        --state-button-hover-translate: -1px;
+        --state-button-disabled-opacity: 0.55;
+        --state-card-hover-elevation: 0 4px 12px rgb(64 46 28 / 0.10);
+        --state-card-hover-translate: -1px;
+        --state-card-hover-border: var(--rule-strong, var(--rule, var(--neutral-200)));
+        --state-card-pressed-scale: 0.99;
+        --state-card-selected-ring: inset 0 0 0 2px var(--accent-solid);
+        --state-card-disabled-opacity: 0.5;
+        --state-input-focus-ring: var(--state-focus-ring);
+        --state-input-focus-border: var(--accent-solid);
+        --state-input-error-border: var(--danger, #dc2626);
+        --state-input-disabled-opacity: 0.6;
+        --state-input-loading-cursor: progress;
+        --state-tab-active-indicator: 2px solid var(--accent-solid);
+        --state-tab-indicator-duration: var(--motion-duration-medium);
+        --state-tab-indicator-ease: var(--motion-ease-emphasized);
+        --state-link-hover-underline: 1.5px solid currentColor;
+        --state-loading-spinner-size: 1em;
+        --state-loading-spinner-stroke: 2px;
+        --state-loading-spinner-color: currentColor;
 
-        /* ── Neutral ramp — مدارك night (§1.3) ── */
-        --neutral-0:   #0D1428;   /* surface */
-        --neutral-50:  #070B16;   /* page ground */
-        --neutral-100: #121A36;
-        --neutral-150: #182142;
-        --neutral-200: #1B2444;   /* hairline */
-        --neutral-300: #263052;   /* divider */
-        --neutral-400: #7A83A0;
-        --neutral-500: #8E97B8;
-        --neutral-700: #C3C8DC;
-        --neutral-800: #DDE1EE;
-        --neutral-900: #F2EFE6;   /* primary ink (sand) */
+        /* ── Type-role metric rungs (theme-independent) ── */
+        --fs-eyebrow: 12px;
+        --fs-metric-md: 22px;
+        --fs-metric-lg: 30px;
+        --fs-metric-xl: 44px;
+        --fs-cine-hero: clamp(56px, 9.2vw, 148px);
+        --fs-cine-xl: clamp(44px, 6.4vw, 104px);
+        --fs-cine-lg: clamp(34px, 4.6vw, 72px);
+        --lh-snug: 1.20;
+        --lh-base: 1.65;
 
-        /* ── The 9 pastel section families — night variants (§1.4) ── */
-        --c-peach-bg:     #2C1A16;   --c-peach-ink:    #F2A07F;   --c-peach-deep:   #FCD9C4;
-        --c-mint-bg:      #0F241C;   --c-mint-ink:     #7FD39A;   --c-mint-deep:    #C9EAD3;
-        --c-lavender-bg:  #221B3A;   --c-lavender-ink: #B7A0F4;   --c-lavender-deep:#DCD2F9;
-        --c-sky-bg:       #14213A;   --c-sky-ink:      #8FBBF2;   --c-sky-deep:     #C9DCEE;
-        --c-yellow-bg:    #2C2410;   --c-yellow-ink:   #ECC97D;   --c-yellow-deep:  #F8E5B5;
-        --c-rose-bg:      #2C1620;   --c-rose-ink:     #F0938F;   --c-rose-deep:    #FACDD2;
-        --c-sand-bg:      #241F14;   --c-sand-ink:     #D9C18C;   --c-sand-deep:    #EFE2C5;
-        --c-grey-bg:      #161D33;   --c-grey-ink:     #A9B0C8;   --c-grey-deep:    #D5DAE8;
-        --c-copper-bg:    #2C2312;   --c-copper-ink:   #E9B44C;   --c-copper-deep:  #F5D48A;
+        /* ── Radius ladder — Phase 5 «plate-round»: warmer/rounder than the
+           old Notion-soft 6..28; 16 stays the default card plate
+           (Card + .card-premium consume --r-lg); pills unchanged. ── */
+        --r-xs: 10px;  --r-sm: 12px;  --r-md: 14px; --r-lg: 16px;
+        --r-xl: 20px;  --r-2xl: 24px; --r-3xl: 28px; --r-full: 9999px;
 
-        /* ── Grounds & surfaces (§1.7) ── */
+        /* ── Neutral ramp — warm cream (light) ── */
+        --neutral-0:   #FFFFFF;   /* raised plate */
+        --neutral-50:  #FBF7F0;   /* page ground — cream */
+        --neutral-100: #F4EDE1;   /* soft surface */
+        --neutral-150: #EFE6D6;   /* deeper paper */
+        --neutral-200: #E8DECE;   /* warm hairline */
+        --neutral-300: #D8CBB2;   /* divider */
+        --neutral-400: #A08D74;
+        --neutral-500: #8A7A68;
+        --neutral-700: #6B5D4F;   /* secondary espresso text — 5.95:1 */
+        --neutral-800: #3E332A;
+        --neutral-900: #241811;   /* primary ink — espresso */
+
+        /* ── The 9 section families — warm light variants (bg/ink/deep;
+           ink = fill · deep = TEXT on the bg pastel; all ≥6:1) ── */
+        --c-peach-bg:     #FBE3D9;   --c-peach-ink:    #C25A43;   --c-peach-deep:   #7A2E1D;
+        --c-mint-bg:      #E1EDD9;   --c-mint-ink:     #6FA06A;   --c-mint-deep:    #2E5230;
+        --c-lavender-bg:  #EFE9F6;   --c-lavender-ink: #8A76C9;   --c-lavender-deep:#453578;
+        --c-sky-bg:       #E3EBEF;   --c-sky-ink:      #6B8CA3;   --c-sky-deep:     #2E4A5C;
+        --c-yellow-bg:    #F9EEDA;   --c-yellow-ink:   #B7791F;   --c-yellow-deep:  #7A5210;
+        --c-rose-bg:      #F9E5E6;   --c-rose-ink:     #C96873;   --c-rose-deep:    #8E2F3D;
+        --c-sand-bg:      #F1E9D8;   --c-sand-ink:     #A98D5F;   --c-sand-deep:    #5C4620;
+        --c-grey-bg:      #EFEAE2;   --c-grey-ink:     #6E6154;   --c-grey-deep:    #33302A;
+        --c-copper-bg:    #F7E2D9;   --c-copper-ink:   #C2452D;   --c-copper-deep:  #8A2B1D;
+
+        /* ── Grounds & surfaces ── */
         --bg:               var(--neutral-50);
         --bg-soft:          var(--neutral-100);
         --surface:          var(--neutral-0);
         --surface-1:        var(--neutral-0);
         --surface-2:        var(--neutral-100);
         --surface-3:        var(--neutral-150);
-        --surface-elevated: var(--neutral-100);
-        --surface-border:   rgba(142,151,184,0.14);
-        --surface-divider:  rgba(142,151,184,0.08);
+        --surface-elevated: var(--neutral-0);
+        --surface-border:   rgba(107, 93, 79, 0.16);
+        --surface-divider:  rgba(107, 93, 79, 0.10);
 
-        /* ── Text (§1.7) ── */
+        /* ── Text ── */
         --text:             var(--neutral-900);
         --text-strong:      var(--neutral-900);
         --text-secondary:   var(--neutral-700);
-        --text-muted:       var(--neutral-500);
-        --text-faint:       #7A83A0;
-        --text-on-accent:   #05070F;
-        --text-on-dark:     var(--neutral-900);
+        --text-muted:       #7A6A58;   /* faint tier — 4.88:1 on cream */
+        --text-faint:       #7A6A58;
+        --text-on-accent:   #FFFFFF;
+        --text-on-dark:     var(--neutral-50);
         --text-subtle:      var(--text-muted);
 
-        /* ── Borders & rules (§1.7) ── */
+        /* ── Borders & rules ── */
         --border-strong:    var(--neutral-300);
-        --border-faint:     rgba(142,151,184,0.10);
+        --border-faint:     rgba(36, 24, 17, 0.06);
         --rule:             var(--neutral-200);
         --rule-strong:      var(--border-strong);
 
-        /* ── Accent family — gold on night (§1.5) ── */
-        --accent-solid:     #E9B44C;
-        --accent-hover:     #F5D48A;
+        /* ── Accent family — TERRACOTTA (light) ── */
+        --accent-solid:     #C2452D;   /* UI fill + ring — 4.70:1 non-text on cream */
+        --accent-hover:     #A93A26;
         --accent-soft:      var(--c-copper-bg);
-        --accent-strong:    #C9962F;
-        --accent-fg:        #05070F;
-        --accent-ink:       #E9B44C;   /* 10.39:1 on night ground */
-        /* ── r126 (P4-F1 M2): focus interaction contract (Madarek §1.9) — the
-           ring color was already theme-scoped here + .light; the width/
-           offset/shorthand/halo twins complete the set and are now CONSUMED
-           by the global :focus-visible rule + the Input primitive halo
-           (audit D1: defined twice, consumed never). r130 (W2-3, P1-3): the
-           DARK ring rides var(--accent-solid) #E9B44C (10.39:1) — the true
-           Madarek cascade (tokens.css:228 — the dark block never overrides
-           the shared --accent default); #C9962F was a fleet fork one shade
-           too dark. Light keeps --accent-strong #5C3416 (10.29:1). ── */
-        --state-focus-ring-color: var(--accent-solid); /* #E9B44C — 10.39:1 on night */
+        --accent-strong:    #8A2B1D;
+        --accent-fg:        #FFFFFF;   /* 5.02:1 on terracotta */
+        --accent-ink:       #8A2B1D;   /* accent as TEXT — 8.05:1 on cream */
+        /* Focus contract — the ring rides the terracotta (4.70:1 non-text). */
+        --state-focus-ring-color: var(--accent-solid);
         --state-focus-ring-width: 2px;
         --state-focus-ring-offset: 2px;
         --state-focus-ring: 0 0 0 var(--state-focus-ring-width) var(--state-focus-ring-color);
         --state-input-focus-halo: 0 0 0 3px color-mix(in srgb, var(--accent-solid) 22%, transparent);
-        /* r131-F4 (A1 P0-1 / SO r130 recipe): the stateful Input (error /
-           success / warning) rides the SAME 3px/22% halo contract, keyed to
-           each status ink — the old ring-2/ring-/20 double indicator is
-           retired (A1 P1-10). Single :root definition: each token chains a
-           per-theme semantic ink, so both themes resolve correctly. */
         --state-input-error-halo: 0 0 0 3px color-mix(in srgb, var(--destructive) 22%, transparent);
         --state-input-success-halo: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
         --state-input-warning-halo: 0 0 0 3px color-mix(in srgb, var(--warning) 22%, transparent);
 
-        /* ── r126 (P4-F1 M10): z-order ladder (Madarek §1.11) — theme-
-           independent. Hotspots consume it via the Tailwind var shorthand
-           (z-(--z-toast), z-(--z-lightbox)); the legacy portal band
-           (dialog/sheet/select at z-40/50) maps to the modal rung and stays
-           on raw values until the select-portal coupling is reworked —
-           floats NEVER cover modals (r121 J-1 lesson). ── */
+        /* ── z-order ladder (theme-independent) ── */
         --z-base: 0;
-        /* r143 (Phase-4 W1 D7): درجة العناصر العائمة الثابتة — نفس نطاق
-           z-30/31/33 الذي سكنته J-1 (FloatingWhatsApp) وسابقاتها؛ كل عنصر
-           fixed عائم يركبها بدل الأرقام الخام فلا يطفو فوق حوارات z-40/50
-           أبدًا (InstallPrompt كانت 9999 = أعلى طبقة في المنتج). */
         --z-float: 30;
         --z-dropdown: 100;
         --z-popover: 200;
@@ -515,135 +478,119 @@
         --z-toast: 500;
         --z-lightbox: 600;
 
-        /* ── Semantic status + text-safe inks (§1.6) ── */
+        /* ── Semantic status + text-safe inks (light split: base = family
+           ink for fills/strokes · -soft = pastel bg tint · -ink = family
+           DEEP for text, 6.0-8.7:1 on cream) ── */
         --success:      var(--c-mint-ink);
         --success-soft: var(--c-mint-bg);
-        --success-ink:  var(--c-mint-ink);
+        --success-ink:  var(--c-mint-deep);
         --warning:      var(--c-yellow-ink);
         --warning-soft: var(--c-yellow-bg);
-        --warning-ink:  var(--c-yellow-ink);
+        --warning-ink:  var(--c-yellow-deep);
         --danger:       var(--c-rose-ink);
         --danger-soft:  var(--c-rose-bg);
-        --danger-ink:   var(--c-rose-ink);
-        --danger-fg:    #05070F;
+        --danger-ink:   var(--c-rose-deep);
+        --danger-fg:    #241811;
         --info:         var(--c-sky-ink);
         --info-soft:    var(--c-sky-bg);
-        --info-ink:     var(--c-sky-ink);
+        --info-ink:     var(--c-sky-deep);
 
-        /* ── Brand / gold (§1.5) ── */
+        /* ── Brand / warm amber (light) ── */
         --brand:      var(--accent-solid);
-        /* r129 (missing token, canonical tokens.css:576): the lavender
-           brand purple (= --c-lavender-ink chain). */
         --brand-purple: var(--c-lavender-ink);
-        --gold:       var(--accent-solid);
-        --gold-ink:   var(--c-yellow-ink);
-        /* r129 (missing token, canonical tokens.css:1033): soft gold
-           ground for chip/tint surfaces (= --c-yellow-bg chain). */
+        --gold:       #B7791F;   /* the warm amber highlight — use sparingly */
+        --gold-ink:   #7A5210;   /* amber as text — 6.46:1 */
         --gold-soft:  var(--c-yellow-bg);
 
-        /* ── Chart colors (§1.11) — chart-tokens.ts resolves at draw-time ── */
-        --chart-text: var(--neutral-500);
-        --chart-grid: rgba(142,151,184,0.10);
+        /* ── Chart colors (light) ── */
+        --chart-text: var(--neutral-700);
+        --chart-grid: rgba(36, 24, 17, 0.08);
         --chart-1: var(--c-copper-ink);
         --chart-2: var(--c-mint-ink);
         --chart-3: var(--c-sky-ink);
         --chart-4: var(--c-rose-ink);
         --chart-5: var(--c-lavender-ink);
-        --chart-6: #F2C766;   /* AA-safe gold series */
-        --chart-7: #5FAFAF;   /* teal */
-        --chart-8: #C57DA9;   /* mauve */
+        --chart-6: #8F6212;   /* amber series — AA text-safe on cream */
+        --chart-7: #3F8B7E;   /* warm teal */
+        --chart-8: #96547A;   /* warm plum */
 
-        /* ── Scrollbar (§1.16) ── */
-        --scrollbar-thumb: rgba(142,151,184,0.20);
-        --scrollbar-thumb-hover: rgba(142,151,184,0.34);
+        /* ── Scrollbar (light) ── */
+        --scrollbar-thumb: rgba(36, 24, 17, 0.18);
+        --scrollbar-thumb-hover: rgba(36, 24, 17, 0.30);
 
         /* ══════════════════════════════════════════════════════════════
-           FAMILY semantic tokens — Madarek night values
-           (names preserved; consumed by @theme inline + 160+ TSX files)
+           FAMILY semantic tokens — Warm Culinary Editorial (light)
            ══════════════════════════════════════════════════════════════ */
-        --background: #070B16;                 /* night-indigo ground (was #010000) */
-        --background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, #e9b44c14, transparent 70%);
-        --foreground: #F2EFE6;                 /* sand ink (was #ebe7e2) */
-        --card: #0D1428;                       /* night surface (was #070503) */
-        --card-foreground: #F2EFE6;
-        --popover: #0D1428;
-        --popover-foreground: #F2EFE6;
+        --background: #FBF7F0;                 /* cream ground */
+        --background-radial: radial-gradient(circle at 30% 0%, rgba(194, 69, 45, 0.05), transparent 65%);
+        --foreground: #241811;                 /* espresso ink */
+        --card: #FFFFFF;                       /* raised plate */
+        --card-foreground: #241811;
+        --popover: #FFFFFF;
+        --popover-foreground: #241811;
 
-        /* Madarek dark: primary = the gold accent, void ink on top (§1.5) */
-        --primary: #E9B44C;                    /* was #bc4700 flame */
-        --primary-foreground: #05070F;         /* was white */
-        --secondary: #121A36;
-        --secondary-foreground: #C3C8DC;
-        --muted: #121A36;                      /* surface-2 well */
-        /* r131-F4 (fleet ruling, A9 §1.8): --muted-foreground joins the fleet
-           pair #C3C8DC | #4F4D48 (SL/SO/SB — 3-of-4 apps + all newest work).
-           SM was one tier dimmer (#8E97B8 | #6E6C65) — every muted caption
-           rendered a step darker than the family. The dimmer pair SURVIVES as
-           the separate faint tier --text-muted (§1.7, unchanged); placeholders
-           keep --placeholder-text (AA 4.86:1 / 4.92:1). */
-        --muted-foreground: #C3C8DC;           /* neutral-700 — 10.17:1 on card ✓ AAA */
-        --placeholder-text: #7A83A0;           /* text-faint night */
+        /* Primary = solid terracotta, white foreground (5.02:1) */
+        --primary: #C2452D;
+        --primary-foreground: #FFFFFF;
+        --secondary: #F4EDE1;                  /* soft surface */
+        --secondary-foreground: #6B5D4F;
+        --muted: #F4EDE1;                      /* soft-surface well */
+        --muted-foreground: #6B5D4F;           /* 5.95:1 on cream · 6.36 on white ✓ AA */
+        --placeholder-text: #7E6E5C;           /* 4.92:1 on white card ✓ AA */
         /* --accent stays the translucent wash twin; --accent-foreground is the
-           visible gold (bg-accent + text-accent-foreground pattern, 44 files) */
-        --accent: rgba(233, 180, 76, 0.15);    /* gold wash (was #bc470026) */
-        --accent-foreground: #E9B44C;          /* gold text — 10.39:1 ✓ AA (was #df5a00) */
-        --destructive: #F0938F;                /* rose-ink night (was #e62b34) */
-        --destructive-foreground: #05070F;     /* void ink on luminous rose */
-        --border: #1B2444;                     /* night hairline (was #211c18) */
-        --input: #263052;                      /* night divider */
-        --ring: #E9B44C;                       /* accent-solid focus ring — 10.39:1 (r130 canonical cascade) */
+           visible terracotta-DEEP (text) — 8.05:1 on cream */
+        --accent: rgba(194, 69, 45, 0.12);     /* terracotta wash */
+        --accent-foreground: #8A2B1D;
+        --destructive: #C96873;                /* deep rose fill — espresso fg 4.71:1 */
+        --destructive-foreground: #241811;
+        --border: #E8DECE;                     /* warm hairline */
+        --input: #D8CBB2;                      /* divider-strong */
+        --ring: #C2452D;                       /* terracotta focus ring — 4.70:1 non-text */
 
-        /* Status — luminous night fills, dark ink text (Madarek §1.6) */
-        --success: #7FD39A;                    /* was #23a136 */
-        --success-foreground: #191918;
-        --warning: #ECC97D;                    /* was #ce9200 */
-        --warning-foreground: #191918;
-        --info: #8FBBF2;                       /* was #348dcf */
-        --info-foreground: #191918;
+        /* Status fills — warm pastel mids, espresso ink on top (4.75-5.7:1) */
+        --success-foreground: #241811;
+        --warning-foreground: #241811;
+        --info-foreground: #241811;
 
-        /* Orange twin — 93 files — flips to the gold accent (Madarek §1.5) */
-        --orange: #E9B44C;                     /* was #bc4700 */
-        --orange-foreground: #05070F;          /* accent-fg on gold (was white) */
-        --orange-muted: rgba(233, 180, 76, 0.15);
+        /* Orange twin — flips to the terracotta accent */
+        --orange: #C2452D;
+        --orange-foreground: #FFFFFF;
+        --orange-muted: rgba(194, 69, 45, 0.12);
 
-        /* Round83 — FeaturedShowcase scene accents (dark theme) — kept: the 5
-           rotating food identities carry their own AA-tuned washes. */
-        --showcase-accent-1: oklch(0.70 0.16 45);      /* paprika */
-        --showcase-accent-1-wash: oklch(0.20 0.045 45);
-        --showcase-accent-2: oklch(0.68 0.13 150);     /* basil */
-        --showcase-accent-2-wash: oklch(0.19 0.04 150);
-        --showcase-accent-3: oklch(0.68 0.13 350);     /* rosewater */
-        --showcase-accent-3-wash: oklch(0.19 0.04 350);
-        --showcase-accent-4: oklch(0.76 0.14 90);      /* turmeric */
-        --showcase-accent-4-wash: oklch(0.20 0.045 90);
-        --showcase-accent-5: oklch(0.64 0.10 205);     /* spearmint patina */
-        --showcase-accent-5-wash: oklch(0.19 0.035 205);
+        /* Round83 — FeaturedShowcase scene accents (light theme) — the 5
+           rotating food identities keep their AA-tuned warm washes. */
+        --showcase-accent-1: oklch(0.46 0.15 45);
+        --showcase-accent-1-wash: oklch(0.94 0.03 45);
+        --showcase-accent-2: oklch(0.45 0.12 150);
+        --showcase-accent-2-wash: oklch(0.94 0.03 150);
+        --showcase-accent-3: oklch(0.48 0.13 350);
+        --showcase-accent-3-wash: oklch(0.94 0.03 350);
+        --showcase-accent-4: oklch(0.44 0.13 90);
+        --showcase-accent-4-wash: oklch(0.95 0.03 90);
+        --showcase-accent-5: oklch(0.45 0.10 205);
+        --showcase-accent-5-wash: oklch(0.95 0.025 205);
 
-        /* Warm kitchen palette — remapped onto the Madarek gold family */
-        --c-flame: #E9B44C;                    /* brand heat = gold accent (was #bc4700) */
-        --c-ember: #C9962F;                    /* pressed/depth = accent-strong */
-        --c-saffron: #F5D48A;                  /* light gold glow (copper-deep night) */
-        --c-saffron-ink: #ECC97D;              /* gold-as-TEXT — 12.37:1 ✓ (gold-ink night) */
-        --c-ash: #C3C8DC;                      /* neutral-700 UI text */
-        --c-ash-dim: #7A83A0;                  /* neutral-400 muted */
-        --c-ash-pale: #121A36;                 /* surface-2 wash */
-        --c-night: #070B16;                    /* night ground base */
-        --c-basil: #7FD39A;                    /* mint-ink — dietary/health */
-        /* r138 (P1-1): الحبر النصي لرقائق الحمية — ليليًا نفس mint-ink
-           (القيمة الداكنة ذاتها فلا يتغير العرض؛ الفاتح يقلبها إلى mint-deep). */
-        --c-basil-ink: var(--c-mint-ink);
-        --c-espresso: #05070F;                 /* void ink — fg on gold fills (was #1a130b) */
-        --c-bloom: #F0938F;                    /* rose-ink night */
+        /* Warm kitchen palette — the terracotta family (light) */
+        --c-flame: #C2452D;                    /* brand heat = terracotta */
+        --c-ember: #A93A26;                    /* pressed/depth = accent-hover */
+        --c-saffron: #E9B98F;                  /* warm glow — flame-gradient center (espresso text 9.72:1) */
+        --c-saffron-ink: #7A5210;              /* amber-as-TEXT — 6.46:1 ✓ */
+        --c-ash: #6B5D4F;                      /* neutral-700 UI text */
+        --c-ash-dim: #A08D74;                  /* neutral-400 muted */
+        --c-ash-pale: #F4EDE1;                 /* soft-surface wash */
+        --c-night: #241811;                    /* deepest warm ink (espresso) */
+        --c-basil: #6FA06A;                    /* sage — dietary/health */
+        --c-basil-ink: var(--c-mint-deep);     /* text — sage-deep 8.31:1 */
+        --c-espresso: #241811;                 /* fg on warm fills */
+        --c-bloom: #C96873;                    /* rose fill */
 
         /* External brand colors — theme-independent by definition.
-           r130 (W2-3, P2): --whatsapp-ink — the dark forest-green TEXT ink
-           for fills on the constant brand green (was the raw #0b3d2e ×5).
-           Per-theme values ride the nearest canonical mint-family shades:
-           night --c-mint-bg #0F241C (≈6.9:1 on #25D366) · light --c-mint-deep
-           #1F4F30 (≈4.6:1) — both AA on the fill. */
+           WhatsApp green stays EXACTLY as-is (reserved for WhatsApp UI
+           only — documented rule). --whatsapp-ink is the dark forest-green
+           TEXT ink for fills on the constant brand green (per-theme). */
         --whatsapp: #25D366;                      /* WhatsApp official green */
         --whatsapp-deep: #20bd5a;                 /* WhatsApp pressed/hover green */
-        --whatsapp-ink: #0F241C;                  /* text on brand green — night */
+        --whatsapp-ink: #1F4F30;                  /* text on brand green — light */
 
         /* Device mockup materials — physical, theme-independent */
         --c-device-black: #0b0b0d;                /* iPhone black frame */
@@ -666,310 +613,290 @@
         --confetti-violet: #8b5cf6;
         --confetti-pink: #ec4899;
 
-        /* Overlay backdrop — Madarek night modal scrim rgba(15,15,15,0.62) */
-        --overlay: #0f0f0f9e;
+        /* Overlay backdrop — warm light scrim (espresso 40%) */
+        --overlay: #2A1B1066;
 
-        /* Grid pattern colors — gold alphas */
-        --grid-line: #e9b44c1f;
-        --grid-fill: #e9b44c0f;
-        --grid-square: #e9b44c1f;
+        /* Grid pattern colors — terracotta alphas */
+        --grid-line: #c2452d1f;
+        --grid-fill: #c2452d0f;
+        --grid-square: #c2452d1f;
 
-        /* Surface variants — night depth ramp */
-        --surface-raised: #121A36;              /* surface-elevated */
-        --surface-overlay: #0D1428;             /* surface */
-        --surface-sunken: #070B16;              /* ground */
+        /* Surface variants — light depth ramp */
+        --surface-raised: #FFFFFF;
+        --surface-overlay: #FFFFFF;
+        --surface-sunken: #F4EDE1;
 
-        /* Gradients — gold washes */
-        --gradient-orange: linear-gradient(135deg, #e9b44c1f, #e9b44c0f);
-        --gradient-shine: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
+        /* Gradients — terracotta washes + warm dark sweep */
+        --gradient-orange: linear-gradient(135deg, #c2452d1f, #c2452d0f);
+        --gradient-shine: linear-gradient(90deg, transparent 0%, oklch(0.24 0.03 35 / 0.06) 50%, transparent 100%);
 
-        /* Menu page glow — gold halo */
-        --menu-glow: radial-gradient(ellipse_at_50%_0%, #e9b44c14, transparent 70%);
-        --menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, #e9b44c26, transparent 70%);
+        /* Menu page glow — terracotta halo */
+        --menu-glow: radial-gradient(ellipse_at_50%_0%, rgba(194, 69, 45, 0.06), transparent 70%);
+        --menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(194, 69, 45, 0.10), transparent 70%);
 
-        /* Image placeholder shimmer — keeps OptimizedImage theme-aware */
-        --image-shimmer: #0d142826;
+        /* Image placeholder shimmer — warm ink sweep */
+        --image-shimmer: rgba(36, 24, 17, 0.08);
 
-        /* Glass — Madarek night (§1.8): rgba(11,16,32,0.78) + neutral hairline.
-           r129 (missing tokens, canonical tokens.css:601/607): the two-blur
-           register — --glass-blur for glass surfaces, --scrim-blur for
-           dimming scrims (the six ad-hoc blur values collapse onto them). */
-        --glass-bg: rgba(11, 16, 32, 0.78);
-        --glass-bg-strong: rgba(11, 16, 32, 0.92);
+        /* Glass — warm cream (light): cream 78% + warm hairline */
+        --glass-bg: rgba(251, 247, 240, 0.78);
+        --glass-bg-strong: rgba(251, 247, 240, 0.92);
         --glass-blur: 16px;
         --scrim-blur: 4px;
-        --glass-border: rgba(142, 151, 184, 0.12);
-        --glass-border-strong: rgba(142, 151, 184, 0.24);
-        --glass-shadow: 0 10px 40px rgba(2, 4, 12, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        --glass-shadow-lg: 0 16px 56px rgba(2, 4, 12, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        --glass-border: rgba(36, 24, 17, 0.07);
+        --glass-border-strong: rgba(36, 24, 17, 0.16);
+        --glass-shadow: 0 8px 36px rgba(74, 54, 32, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+        --glass-shadow-lg: 0 16px 56px rgba(74, 54, 32, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.86);
 
-        /* ── Shadows & elevation — Madarek night (§1.9): fill-led + 1px inset
-           top highlight; much heavier than light ── */
-        --elev-1: 0 1px 2px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.04);
-        --elev-2: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
-        --elev-3: 0 8px 16px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.06);
-        --elev-4: 0 16px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07);
-        --elev-5: 0 32px 64px rgba(0,0,0,0.50), inset 0 1px 0 rgba(255,255,255,0.08);
+        /* ── Shadows & elevation — light: soft two-layer, WARM-tinted
+           (espresso rgba(64,46,28,*) — no cold grays) ── */
+        --elev-1: 0 1px 2px rgba(64,46,28,0.05), 0 1px 1px rgba(64,46,28,0.04);
+        --elev-2: 0 4px 8px rgba(64,46,28,0.07), 0 2px 4px rgba(64,46,28,0.05);
+        --elev-3: 0 8px 16px rgba(64,46,28,0.09), 0 4px 8px rgba(64,46,28,0.06);
+        --elev-4: 0 16px 32px rgba(64,46,28,0.11), 0 8px 16px rgba(64,46,28,0.07);
+        --elev-5: 0 32px 64px rgba(64,46,28,0.13), 0 16px 32px rgba(64,46,28,0.09);
         --shadow-card:    var(--elev-1);
-        --shadow-card-h:  0 1px 2px rgba(2,4,12,0.50), 0 8px 22px rgba(2,4,12,0.55), 0 0 0 1px rgba(142,151,184,0.08);
-        --shadow-pop:     0 2px 4px rgba(2,4,12,0.55), 0 10px 28px rgba(2,4,12,0.62), 0 0 0 1px rgba(142,151,184,0.10);
-        --shadow-modal:   0 12px 32px rgba(2,4,12,0.66), 0 32px 80px rgba(2,4,12,0.70), 0 0 0 1px rgba(142,151,184,0.12);
-        /* ── r130 (W2-3, P1-2): premium depth family (canonical tokens.css:596-598,
-           verbatim — Madarek defines it once for BOTH themes; soft multi-layer,
-           zero color glow). The primary Button + premium cards consume the pair.
-           (r132 A3 §3.1: --shadow-mockup died with HeroSection and
-           --shadow-card-glow never shipped a consumer — both deleted.) ── */
-        --shadow-card-premium:  0 2px 4px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08), 0 2px 8px rgba(15,15,15,0.04);
-        --shadow-card-premium-h: 0 4px 8px rgba(15,15,15,0.06), 0 12px 32px rgba(15,15,15,0.10), 0 4px 12px rgba(15,15,15,0.05);
+        --shadow-card-h:  0 1px 2px rgba(64,46,28,0.05), 0 6px 18px rgba(64,46,28,0.08);
+        --shadow-pop:     0 1px 2px rgba(64,46,28,0.05), 0 8px 24px rgba(64,46,28,0.10);
+        --shadow-modal:   0 12px 36px rgba(64,46,28,0.12), 0 32px 80px rgba(64,46,28,0.16);
+        /* premium depth family — warm neutral multi-layer, zero color glow */
+        --shadow-card-premium:  0 2px 4px rgba(64,46,28,0.05), 0 8px 24px rgba(64,46,28,0.09), 0 2px 8px rgba(64,46,28,0.05);
+        --shadow-card-premium-h: 0 4px 8px rgba(64,46,28,0.07), 0 12px 32px rgba(64,46,28,0.11), 0 4px 12px rgba(64,46,28,0.06);
+
+        /* ── Phase 5 signature: the menu dot-leader ink (dotted price
+           leaders on menu surfaces — .menu-leader utility below) ── */
+        --menu-leader: #CBB08C;   /* warm tan — decorative leaders on plates */
 }
 
 
-/* ── Light theme ── */
-.light {
+/* ── Dark theme — the explicit opt-in («مطبخ ليلي دافئ» warm night
+      kitchen). Same token names as :root; night-warm values. Users who
+      opt in get a dim espresso kitchen, not the old indigo night. ── */
+.dark {
         /* ══════════════════════════════════════════════════════════════
-           MADAREK LIGHT — ورق مدارك
-           Ground #FBFAF9 warm cream · ink #191918 · accent #B57438
-           copper. Values are Madarek-exact (tokens.css light block);
-           family variable NAMES preserved (zero TSX churn).
+           WARM NIGHT KITCHEN — مطبخ ليلي دافئ
+           Ground #1D1410 espresso night · surfaces #2A1E15/#241A13 ·
+           ink #F7EFE2 cream · accent luminous terracotta #E07856
+           (6.03:1 text on night · fg #2A130D 5.84:1 on the fill) ·
+           pressed #C2452D. Warm amber, sage, steel, rose stay luminous
+           night variants. WhatsApp green unchanged (theme-independent).
            ══════════════════════════════════════════════════════════════ */
-        color-scheme: light;
+        color-scheme: dark;
 
-        /* ── Neutral ramp — Madarek light (§1.3) ── */
-        --neutral-0:   #FFFFFF;
-        --neutral-50:  #FBFAF9;   /* page ground */
-        --neutral-100: #F7F6F3;
-        --neutral-150: #F1EFEC;
-        --neutral-200: #E9E7E2;   /* hairline */
-        --neutral-300: #D9D6D0;   /* divider */
-        --neutral-400: #8E8A82;
-        --neutral-500: #6F6C66;
-        --neutral-700: #4F4D48;
-        --neutral-800: #322F2A;
-        --neutral-900: #191918;   /* primary ink */
+        /* ── Neutral ramp — espresso night ── */
+        --neutral-0:   #2A1E15;   /* surface */
+        --neutral-50:  #1D1410;   /* page ground — espresso night */
+        --neutral-100: #241A13;
+        --neutral-150: #2E2118;
+        --neutral-200: #38291D;   /* hairline */
+        --neutral-300: #4A3626;   /* divider */
+        --neutral-400: #9A8977;
+        --neutral-500: #AC9C8A;
+        --neutral-700: #CDBFA9;
+        --neutral-800: #E5D9C4;
+        --neutral-900: #F7EFE2;   /* primary ink — cream */
 
-        /* ── The 9 pastel section families — light variants (§1.4) ── */
-        --c-peach-bg:     #FFE9DC;   --c-peach-ink:    #E07856;   --c-peach-deep:   #6B2D1A;
-        --c-mint-bg:      #DCF1E2;   --c-mint-ink:     #4FA66D;   --c-mint-deep:    #1F4F30;
-        --c-lavender-bg:  #ECE6FA;   --c-lavender-ink: #8A6FE0;   --c-lavender-deep:#3F2D7A;
-        --c-sky-bg:       #DDEBF7;   --c-sky-ink:      #5C8FCE;   --c-sky-deep:     #1F3D63;
-        --c-yellow-bg:    #FCF1CD;   --c-yellow-ink:   #D6A330;   --c-yellow-deep:  #6B4C0B;
-        --c-rose-bg:      #FCE0E2;   --c-rose-ink:     #DD6E78;   --c-rose-deep:    #6B2128;
-        --c-sand-bg:      #F1ECDF;   --c-sand-ink:     #B59868;   --c-sand-deep:    #5A4623;
-        --c-grey-bg:      #EFECE7;   --c-grey-ink:     #6B665E;   --c-grey-deep:    #2D2A24;
-        --c-copper-bg:    #F4E4D2;   --c-copper-ink:   #B57438;   --c-copper-deep:  #5C3416;
+        /* ── The 9 section families — warm night variants ── */
+        --c-peach-bg:     #3A2016;   --c-peach-ink:    #E99070;   --c-peach-deep:   #F7CBB5;
+        --c-mint-bg:      #1E2B1A;   --c-mint-ink:     #8FBB8A;   --c-mint-deep:    #CBE8C4;
+        --c-lavender-bg:  #2A2136;   --c-lavender-ink: #B7A0DB;   --c-lavender-deep:#D9CDF0;
+        --c-sky-bg:       #1F2A33;   --c-sky-ink:      #9FB6C9;   --c-sky-deep:     #CFE0EA;
+        --c-yellow-bg:    #33270F;   --c-yellow-ink:   #E3B15E;   --c-yellow-deep:  #F4E2B8;
+        --c-rose-bg:      #36191D;   --c-rose-ink:     #E8918E;   --c-rose-deep:    #F8CFD0;
+        --c-sand-bg:      #2C2416;   --c-sand-ink:     #D6BC8A;   --c-sand-deep:    #EFE3C6;
+        --c-grey-bg:      #262019;   --c-grey-ink:     #A79A87;   --c-grey-deep:    #D8CFC0;
+        --c-copper-bg:    #3A211A;   --c-copper-ink:   #E07856;   --c-copper-deep:  #F2C4B0;
 
-        /* ── Grounds & surfaces (§1.7) ── */
+        /* ── Grounds & surfaces ── */
         --bg:               var(--neutral-50);
         --bg-soft:          var(--neutral-100);
         --surface:          var(--neutral-0);
         --surface-1:        var(--neutral-0);
         --surface-2:        var(--neutral-100);
         --surface-3:        var(--neutral-150);
-        --surface-elevated: var(--neutral-0);
-        --surface-border:   rgba(0,0,0,0.08);
-        --surface-divider:  rgba(0,0,0,0.05);
+        --surface-elevated: var(--neutral-100);
+        --surface-border:   rgba(205, 191, 169, 0.14);
+        --surface-divider:  rgba(205, 191, 169, 0.08);
 
-        /* ── Text (§1.7) — --text-muted #6E6C65 = 5.04:1 ✓ AA on cream ── */
+        /* ── Text ── */
         --text:             var(--neutral-900);
         --text-strong:      var(--neutral-900);
         --text-secondary:   var(--neutral-700);
-        --text-muted:       #6E6C65;
-        --text-faint:       #74706A;
-        --text-on-accent:   #FFFFFF;
-        --text-on-dark:     var(--neutral-50);
+        --text-muted:       #9A8977;   /* 5.36:1 on night */
+        --text-faint:       #9A8977;
+        --text-on-accent:   #2A130D;
+        --text-on-dark:     var(--neutral-900);
         --text-subtle:      var(--text-muted);
 
-        /* ── Borders & rules (§1.7) ── */
+        /* ── Borders & rules ── */
         --border-strong:    var(--neutral-300);
-        --border-faint:     rgba(25,25,24,0.06);
+        --border-faint:     rgba(247, 239, 226, 0.06);
         --rule:             var(--neutral-200);
         --rule-strong:      var(--border-strong);
 
-        /* ── Accent family — copper (§1.5) ── */
-        --accent-solid:     #B57438;
-        --accent-hover:     #9A5F25;
+        /* ── Accent family — luminous terracotta (night) ── */
+        --accent-solid:     #E07856;   /* 6.03:1 as text on night */
+        --accent-hover:     #E98F72;
         --accent-soft:      var(--c-copper-bg);
-        --accent-strong:    #5C3416;
-        --accent-fg:        #1A0F06;   /* 4.95:1 on copper ✓ AA */
-        --accent-ink:       #5C3416;   /* 10.29:1 on cream — accent as TEXT */
-        --state-focus-ring-color: var(--accent-strong);
+        --accent-strong:    #C2452D;
+        --accent-fg:        #2A130D;   /* 5.84:1 on the luminous fill */
+        --accent-ink:       #E07856;
+        --state-focus-ring-color: var(--accent-solid);
 
-        /* ── Semantic status + text-safe inks (§1.6) — canonical Madarek light
-           split (r8-a dedup): ONE set, byte-matching tokens.css light block.
-           base = the family INK for fills/strokes (mint #4FA66D · yellow
-           #D6A330 · rose #DD6E78 · sky #5C8FCE) · -soft = the pastel bg tint
-           · -ink = the family DEEP for TEXT (mint-deep #1F4F30 = 9.08:1 ·
-           yellow-deep #6B4C0B = 7.56:1 · rose-deep #6B2128 = 10.75:1 ·
-           sky-deep #1F3D63 = 10.57:1 on cream #FBFAF9) — text consumers use
-           the -ink twins. The former r123-a11y deep-collapsed base set
-           (declared here AND a second conflicting time in the family block
-           below — --info was #5C8FCE then #1F3D63) was removed: one split,
-           documented once. */
+        /* ── Semantic status (night: luminous bases, deep warm softs,
+           ink == base) ── */
         --success:      var(--c-mint-ink);
         --success-soft: var(--c-mint-bg);
-        --success-ink:  var(--c-mint-deep);
+        --success-ink:  var(--c-mint-ink);
         --warning:      var(--c-yellow-ink);
         --warning-soft: var(--c-yellow-bg);
-        --warning-ink:  var(--c-yellow-deep);
+        --warning-ink:  var(--c-yellow-ink);
         --danger:       var(--c-rose-ink);
         --danger-soft:  var(--c-rose-bg);
-        --danger-ink:   var(--c-rose-deep);
-        --danger-fg:    #191918;
+        --danger-ink:   var(--c-rose-ink);
+        --danger-fg:    #2A130D;
         --info:         var(--c-sky-ink);
         --info-soft:    var(--c-sky-bg);
-        --info-ink:     var(--c-sky-deep);
+        --info-ink:     var(--c-sky-ink);
 
-        /* ── Brand / gold (§1.5) ── */
+        /* ── Brand / warm amber (night) ── */
         --brand:      var(--accent-solid);
-        /* r129 (missing token, canonical light tokens.css:781). */
         --brand-purple: var(--c-lavender-ink);
-        --gold:       #D6A330;
-        --gold-ink:   #6B4C0B;
-        /* r129 (missing token, canonical light tokens.css:1019-1033). */
+        --gold:       #E3B15E;
+        --gold-ink:   #E3B15E;
         --gold-soft:  var(--c-yellow-bg);
 
-        /* ── Chart colors (§1.11) ── */
-        --chart-text: #6E6C65;
-        --chart-grid: rgba(25,25,24,0.08);
+        /* ── Chart colors (night) ── */
+        --chart-text: var(--neutral-500);
+        --chart-grid: rgba(205, 191, 169, 0.10);
         --chart-1: var(--c-copper-ink);
         --chart-2: var(--c-mint-ink);
         --chart-3: var(--c-sky-ink);
         --chart-4: var(--c-rose-ink);
         --chart-5: var(--c-lavender-ink);
-        --chart-6: #A67A22;   /* AA-safe amber series on cream (3.71:1) */
-        --chart-7: #3F8B8B;   /* teal */
-        --chart-8: #A65D8A;   /* mauve */
+        --chart-6: #E8C568;   /* AA-safe amber series */
+        --chart-7: #6FB5A8;   /* warm teal */
+        --chart-8: #C98FB4;   /* warm mauve */
 
-        /* ── Scrollbar (§1.16) ── */
-        --scrollbar-thumb: rgba(25,25,24,0.16);
-        --scrollbar-thumb-hover: rgba(25,25,24,0.28);
+        /* ── Scrollbar (night) ── */
+        --scrollbar-thumb: rgba(205, 191, 169, 0.20);
+        --scrollbar-thumb-hover: rgba(205, 191, 169, 0.34);
 
         /* ══════════════════════════════════════════════════════════════
-           FAMILY semantic tokens — Madarek light values
+           FAMILY semantic tokens — warm night kitchen
            ══════════════════════════════════════════════════════════════ */
-        --background: #FBFAF9;                 /* warm cream ground (was oklch warm white) */
-        --background-radial: radial-gradient(circle at 30% 0%, rgba(181, 116, 56, 0.04), transparent 65%);
-        --foreground: #191918;                 /* warm ink (was oklch dark) */
-        --card: #FFFFFF;
-        --card-foreground: #191918;
-        --popover: #FFFFFF;
-        --popover-foreground: #191918;
+        --background: #1D1410;                 /* espresso night ground */
+        --background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, #e078561a, transparent 70%);
+        --foreground: #F7EFE2;                 /* cream ink */
+        --card: #2A1E15;                       /* night surface */
+        --card-foreground: #F7EFE2;
+        --popover: #2A1E15;
+        --popover-foreground: #F7EFE2;
 
-        /* 19-AUDIT-CROSS R2 (r148): light primary تلتصق بقراءة الأسطول النحاسية —
-           كانون مدارك .btn.accent light (SL styles.css:476 · SO:552 · SB:599):
-           نحاس صلب #B57438 + حبر الفراغ #1A0F06 (4.95:1 AA). قراءة «الوحل
-           الحبري» كانت SM-محلية ولم يثبّتها اختبار parity أبدًا؛ المستهلكون
-           (bg-primary/text-primary في الفاتح) يصيرون نحاسيين كأخواتهم. */
-        --primary: #B57438;
-        --primary-foreground: #1A0F06;
-        --secondary: #F7F6F3;
-        --secondary-foreground: #4F4D48;
-        --muted: #F7F6F3;
-        /* r131-F4 (fleet ruling): light pair = #4F4D48 (SO/SB/SL) — was
-           #6E6C65; the old value stays alive as the --text-muted faint tier
-           (§1.7) so secondary captions and placeholders keep their ladder. */
-        --muted-foreground: #4F4D48;           /* 7.9:1 on cream ✓ AAA */
-        --placeholder-text: #74706A;           /* text-faint */
-        --accent: rgba(181, 116, 56, 0.12);    /* copper wash */
-        --accent-foreground: #5C3416;          /* copper-deep text — 10.29:1 ✓ AA */
-        --destructive: #DD6E78;                /* rose-ink */
-        --destructive-foreground: #191918;     /* danger-fg light */
-        --border: #E9E7E2;                     /* warm hairline */
-        --input: #D9D6D0;                      /* divider-strong */
-        --ring: #5C3416;                       /* accent-strong focus ring — 10.29:1 */
+        /* Night primary = luminous terracotta, espresso void ink on top */
+        --primary: #E07856;
+        --primary-foreground: #2A130D;
+        --secondary: #241A13;
+        --secondary-foreground: #CDBFA9;
+        --muted: #241A13;                      /* surface-2 well */
+        --muted-foreground: #CDBFA9;           /* neutral-700 — 10.02:1 ✓ AAA */
+        --placeholder-text: #9A8977;           /* text-faint night — 4.80:1 on card */
+        --accent: rgba(224, 120, 86, 0.15);    /* terracotta wash */
+        --accent-foreground: #E07856;          /* terracotta text — 6.03:1 ✓ */
+        --destructive: #E8918E;                /* luminous rose */
+        --destructive-foreground: #2A130D;     /* espresso ink on luminous rose */
+        --border: #38291D;                     /* warm night hairline */
+        --input: #4A3626;                      /* night divider */
+        --ring: #E07856;                       /* luminous terracotta focus ring */
 
-        /* Status fill foregrounds (r8-a): warm dark ink on the canonical pastel
-           mids — the Madarek --danger-fg pattern (their light #191918-on-fill
-           ruling), mirroring this file's dark block (#191918 on the luminous
-           night fills) and the --destructive-foreground / --danger-fg pair
-           above. Measured: #191918 on mint #4FA66D = 5.9:1 · yellow #D6A330
-           = 7.7:1 · sky #5C8FCE = 5.3:1 — all AA. (The former white-on-deep
-           pairs retired with the duplicate base declarations above.) */
-        --success-foreground: #191918;
-        --warning-foreground: #191918;
-        --info-foreground: #191918;
+        /* Status — luminous night fills, espresso ink text (7.4-9.0:1) */
+        --success-foreground: #2A130D;
+        --warning-foreground: #2A130D;
+        --info-foreground: #2A130D;
 
-        /* Orange twin — flips to copper */
-        --orange: #B57438;
-        --orange-foreground: #1A0F06;          /* accent-fg on copper (§1.5) */
-        --orange-muted: rgba(181, 116, 56, 0.12);
-        /* WhatsApp ink — light: the mint-family deep (#1F4F30, 4.6:1 on the
-           constant brand green; canonical text-on-pastel shade). */
-        --whatsapp-ink: #1F4F30;
+        /* Orange twin — flips to the luminous terracotta */
+        --orange: #E07856;
+        --orange-foreground: #2A130D;
+        --orange-muted: rgba(224, 120, 86, 0.15);
 
-        /* Round83 — FeaturedShowcase scene accents (light theme) — kept */
-        --showcase-accent-1: oklch(0.46 0.15 45);
-        --showcase-accent-1-wash: oklch(0.94 0.03 45);
-        --showcase-accent-2: oklch(0.45 0.12 150);
-        --showcase-accent-2-wash: oklch(0.94 0.03 150);
-        --showcase-accent-3: oklch(0.48 0.13 350);
-        --showcase-accent-3-wash: oklch(0.94 0.03 350);
-        --showcase-accent-4: oklch(0.44 0.13 90);
-        --showcase-accent-4-wash: oklch(0.95 0.03 90);
-        --showcase-accent-5: oklch(0.45 0.10 205);
-        --showcase-accent-5-wash: oklch(0.95 0.025 205);
+        /* Round83 — FeaturedShowcase scene accents (dark theme) */
+        --showcase-accent-1: oklch(0.70 0.16 45);      /* paprika */
+        --showcase-accent-1-wash: oklch(0.20 0.045 45);
+        --showcase-accent-2: oklch(0.68 0.13 150);     /* basil */
+        --showcase-accent-2-wash: oklch(0.19 0.04 150);
+        --showcase-accent-3: oklch(0.68 0.13 350);     /* rosewater */
+        --showcase-accent-3-wash: oklch(0.19 0.04 350);
+        --showcase-accent-4: oklch(0.76 0.14 90);      /* turmeric */
+        --showcase-accent-4-wash: oklch(0.20 0.045 90);
+        --showcase-accent-5: oklch(0.64 0.10 205);     /* spearmint patina */
+        --showcase-accent-5-wash: oklch(0.19 0.035 205);
 
-        /* Warm kitchen palette — remapped onto the Madarek copper family */
-        --c-flame: #B57438;                    /* brand heat = copper */
-        --c-ember: #9A5F25;                    /* pressed/depth = accent-hover */
-        --c-saffron: #C28A2D;                  /* amber glow — Madarek ill-hue-6 light */
-        --c-saffron-ink: #6B4C0B;              /* gold-as-TEXT — 7.56:1 ✓ (gold-ink light) */
-        --c-ash: #4F4D48;                      /* neutral-700 UI text */
-        --c-ash-dim: #8E8A82;                  /* neutral-400 muted */
-        --c-ash-pale: #F1EFEC;                 /* neutral-150 wash */
-        --c-night: #191918;                    /* deepest warm ink */
-        --c-basil: #4FA66D;                    /* mint-ink — dietary/health */
-        /* r138 (P1-1): نص رقائق الحمية في الفاتح — mint-deep: 8.6:1 على
-           basil/10 (كان mint-ink 2.72:1 — تدقيق r138-b). */
-        --c-basil-ink: var(--c-mint-deep);
-        --c-espresso: #1A0F06;                 /* accent-fg — fg on copper fills */
-        --c-bloom: #DD6E78;                    /* rose-ink */
+        /* Warm kitchen palette — luminous night variants */
+        --c-flame: #E07856;                    /* brand heat = luminous terracotta */
+        --c-ember: #C2452D;                    /* pressed/depth */
+        --c-saffron: #E98F72;                  /* warm glow — flame-gradient center (7.21:1 espresso text) */
+        --c-saffron-ink: #E3B15E;              /* amber-as-TEXT — 9.24:1 on night */
+        --c-ash: #CDBFA9;                      /* neutral-700 UI text */
+        --c-ash-dim: #9A8977;                  /* neutral-400 muted */
+        --c-ash-pale: #241A13;                 /* surface-2 wash */
+        --c-night: #1D1410;                    /* night ground base */
+        --c-basil: #8FBB8A;                    /* luminous sage — dietary/health */
+        --c-basil-ink: var(--c-mint-ink);      /* night ink == base */
+        --c-espresso: #2A130D;                 /* void ink — fg on luminous fills */
+        --c-bloom: #E8918E;                    /* luminous rose */
 
-        /* Overlay backdrop — Madarek light modal scrim rgba(15,15,15,0.40) */
-        --overlay: #0f0f0f66;
+        /* WhatsApp ink — night: deep forest shade on the brand green */
+        --whatsapp-ink: #0F241C;
 
-        /* Grid pattern colors — copper alphas */
-        --grid-line: #b5743814;
-        --grid-fill: #b574380a;
-        --grid-square: #b5743814;
+        /* Overlay backdrop — night modal scrim (espresso 62%) */
+        --overlay: #0C08059E;
 
-        /* Surface variants — light depth ramp */
-        --surface-raised: #FFFFFF;
-        --surface-overlay: #FFFFFF;
-        --surface-sunken: #F1EFEC;
+        /* Grid pattern colors — terracotta alphas */
+        --grid-line: #e078561f;
+        --grid-fill: #e078560f;
+        --grid-square: #e078561f;
 
-        /* Gradients — copper washes */
-        --gradient-orange: linear-gradient(135deg, #b5743814, #b574380a);
-        --gradient-shine: linear-gradient(90deg, transparent 0%, oklch(0.18 0.02 30 / 0.05) 50%, transparent 100%);
+        /* Surface variants — night depth ramp */
+        --surface-raised: #241A13;             /* surface-elevated */
+        --surface-overlay: #2A1E15;            /* surface */
+        --surface-sunken: #1D1410;             /* ground */
 
-        /* Menu page glow — copper halo */
-        --menu-glow: radial-gradient(ellipse_at_50%_0%, rgba(181, 116, 56, 0.06), transparent 70%);
-        --menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(181, 116, 56, 0.10), transparent 70%);
+        /* Gradients — terracotta washes + warm white sweep */
+        --gradient-orange: linear-gradient(135deg, #e078561f, #e078560f);
+        --gradient-shine: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
 
-        /* Image placeholder shimmer — ink sweep on light surfaces */
-        --image-shimmer: rgba(25, 25, 24, 0.08);
+        /* Menu page glow — luminous terracotta halo */
+        --menu-glow: radial-gradient(ellipse_at_50%_0%, rgba(224, 120, 86, 0.08), transparent 70%);
+        --menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(224, 120, 86, 0.12), transparent 70%);
 
-        /* Glass — Madarek light (§1.8): cream 78% + warm hairline.
-           r129 (missing tokens, canonical light tokens.css:794/796). */
-        --glass-bg: rgba(251, 250, 249, 0.78);
-        --glass-bg-strong: rgba(251, 250, 249, 0.92);
+        /* Image placeholder shimmer */
+        --image-shimmer: #2A1E1526;
+
+        /* Glass — warm night (§1.8): espresso 78% + warm hairline */
+        --glass-bg: rgba(26, 17, 12, 0.78);
+        --glass-bg-strong: rgba(26, 17, 12, 0.92);
         --glass-blur: 16px;
         --scrim-blur: 4px;
-        --glass-border: rgba(25, 25, 24, 0.06);
-        --glass-border-strong: rgba(25, 25, 24, 0.14);
-        --glass-shadow: 0 8px 36px rgba(15, 15, 15, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.72);
-        --glass-shadow-lg: 0 16px 56px rgba(15, 15, 15, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        --glass-border: rgba(205, 191, 169, 0.12);
+        --glass-border-strong: rgba(205, 191, 169, 0.24);
+        --glass-shadow: 0 10px 40px rgba(8, 5, 3, 0.55), inset 0 1px 0 rgba(255, 244, 230, 0.05);
+        --glass-shadow-lg: 0 16px 56px rgba(8, 5, 3, 0.62), inset 0 1px 0 rgba(255, 244, 230, 0.07);
 
-        /* ── Shadows & elevation — Madarek light (§1.9): soft two-layer ── */
-        --elev-1: 0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.06);
-        --elev-2: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
-        --elev-3: 0 8px 16px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.05);
-        --elev-4: 0 16px 32px rgba(0,0,0,0.10), 0 8px 16px rgba(0,0,0,0.06);
-        --elev-5: 0 32px 64px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.08);
+        /* ── Shadows & elevation — night: fill-led + 1px inset warm
+           top-light; heavier than light ── */
+        --elev-1: 0 1px 2px rgba(8,5,3,0.30), inset 0 1px 0 rgba(255,244,230,0.04);
+        --elev-2: 0 4px 8px rgba(8,5,3,0.35), inset 0 1px 0 rgba(255,244,230,0.05);
+        --elev-3: 0 8px 16px rgba(8,5,3,0.40), inset 0 1px 0 rgba(255,244,230,0.06);
+        --elev-4: 0 16px 32px rgba(8,5,3,0.45), inset 0 1px 0 rgba(255,244,230,0.07);
+        --elev-5: 0 32px 64px rgba(8,5,3,0.50), inset 0 1px 0 rgba(255,244,230,0.08);
         --shadow-card:    var(--elev-1);
-        --shadow-card-h:  0 1px 2px rgba(15,15,15,0.04), 0 6px 18px rgba(15,15,15,0.06);
-        --shadow-pop:     0 1px 2px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08);
-        --shadow-modal:   0 12px 36px rgba(15,15,15,0.10), 0 32px 80px rgba(15,15,15,0.14);
+        --shadow-card-h:  0 1px 2px rgba(8,5,3,0.50), 0 8px 22px rgba(8,5,3,0.55), 0 0 0 1px rgba(205,191,169,0.08);
+        --shadow-pop:     0 2px 4px rgba(8,5,3,0.55), 0 10px 28px rgba(8,5,3,0.62), 0 0 0 1px rgba(205,191,169,0.10);
+        --shadow-modal:   0 12px 32px rgba(8,5,3,0.66), 0 32px 80px rgba(8,5,3,0.70), 0 0 0 1px rgba(205,191,169,0.12);
+        --shadow-card-premium:  0 2px 4px rgba(8,5,3,0.30), 0 8px 24px rgba(8,5,3,0.40), 0 2px 8px rgba(8,5,3,0.30);
+        --shadow-card-premium-h: 0 4px 8px rgba(8,5,3,0.35), 0 12px 32px rgba(8,5,3,0.45), 0 4px 12px rgba(8,5,3,0.35);
+
+        /* menu dot-leader ink — night */
+        --menu-leader: #57402D;
 }
 
 
@@ -988,28 +915,28 @@
    - Base font: 112.5% (16 → 18px) — every rem-based text/spacing/touch-target
      utility scales with it; absolute-px utilities are untouched by design.
    Specificity: `html.high-contrast` (0,1,1) beats `:root` (0,1,0);
-   `html.light.high-contrast` (0,2,1) beats `.light` (0,1,0) — both blocks
+   `html.dark.high-contrast` (0,2,1) beats `.dark` (0,1,0) — both blocks
    below are explicit so the active theme always resolves correctly. */
 
 html.high-contrast {
-        /* Dark theme (default) overrides — Madarek night: lift the mist neutrals
-           one step (neutral-700 #C3C8DC = 10.17:1 on card) and strengthen the
-           night hairlines past the 3:1 non-text bar. */
-        --muted-foreground: #C3C8DC;            /* neutral-700 — AAA text */
-        --border: #46538A;                     /* lifted past neutral-300 */
-        --input: #46538A;
-        --glass-border: rgba(142, 151, 184, 0.45);
-        --glass-border-strong: rgba(142, 151, 184, 0.65);
+        /* Light theme (default) overrides — cream: espresso-800 ink muted
+           text (11.9:1 on cream) + divider-strong borders (≥3:1 non-text). */
+        --muted-foreground: #3E332A;            /* neutral-800 — AAA text */
+        --border: #B7A98D;                     /* lifted past neutral-300 */
+        --input: #B7A98D;
+        --glass-border: rgba(36, 24, 17, 0.45);
+        --glass-border-strong: rgba(36, 24, 17, 0.65);
 }
 
-html.light.high-contrast {
-        /* Light theme overrides — Madarek cream: neutral-800 ink muted text
-           (11.28:1) + divider-strong borders (3.78:1 vs cream). */
-        --muted-foreground: #322F2A;            /* neutral-800 — AAA text */
-        --border: #8E8A82;                     /* neutral-400 — 3.3:1 non-text */
-        --input: #8E8A82;
-        --glass-border: rgba(25, 25, 24, 0.45);
-        --glass-border-strong: rgba(25, 25, 24, 0.65);
+html.dark.high-contrast {
+        /* Dark theme overrides — warm night kitchen: lift the cream-mist
+           neutrals one step (neutral-700 #CDBFA9 = 9.9:1 on card) and
+           strengthen the night hairlines past the 3:1 non-text bar. */
+        --muted-foreground: #CDBFA9;            /* neutral-700 — AAA text */
+        --border: #6B5233;                     /* lifted past neutral-300 */
+        --input: #6B5233;
+        --glass-border: rgba(205, 191, 169, 0.45);
+        --glass-border-strong: rgba(205, 191, 169, 0.65);
 }
 
 html.high-contrast {
@@ -1034,40 +961,40 @@ html.high-contrast :focus-visible {
    every edge ≥3:1 without the shadow haze. */
 @media (prefers-contrast: more) {
         :root {
-                /* night theme — luminous solid rings */
-                --elev-1: 0 0 0 1px rgba(255,255,255,0.36);
-                --elev-2: 0 0 0 1.5px rgba(255,255,255,0.44);
-                --elev-3: 0 0 0 2px rgba(255,255,255,0.52);
-                --elev-4: 0 0 0 2.5px rgba(255,255,255,0.60);
-                --elev-5: 0 0 0 3px rgba(255,255,255,0.68);
+                /* light theme (default) — warm espresso solid rings */
+                --elev-1: 0 0 0 1px rgba(36,24,17,0.42);
+                --elev-2: 0 0 0 1.5px rgba(36,24,17,0.50);
+                --elev-3: 0 0 0 2px rgba(36,24,17,0.58);
+                --elev-4: 0 0 0 2.5px rgba(36,24,17,0.66);
+                --elev-5: 0 0 0 3px rgba(36,24,17,0.74);
                 --glass-bg: var(--surface);
                 --glass-bg-strong: var(--surface);
-                --glass-border: rgba(255,255,255,0.36);
-                --glass-border-strong: rgba(255,255,255,0.64);
-                --surface-border: rgba(255,255,255,0.36);
-                --surface-divider: rgba(255,255,255,0.24);
-                --border: rgba(255,255,255,0.48);
-                --border-strong: rgba(255,255,255,0.64);
-                --input: rgba(255,255,255,0.48);
-                --rule: rgba(255,255,255,0.48);
+                --glass-border: rgba(36,24,17,0.42);
+                --glass-border-strong: rgba(36,24,17,0.70);
+                --surface-border: rgba(36,24,17,0.42);
+                --surface-divider: rgba(36,24,17,0.28);
+                --border: rgba(36,24,17,0.52);
+                --border-strong: rgba(36,24,17,0.70);
+                --input: rgba(36,24,17,0.52);
+                --rule: rgba(36,24,17,0.52);
         }
-        html.light {
-                /* cream theme — ink solid rings */
-                --elev-1: 0 0 0 1px rgba(0,0,0,0.32);
-                --elev-2: 0 0 0 1.5px rgba(0,0,0,0.40);
-                --elev-3: 0 0 0 2px rgba(0,0,0,0.48);
-                --elev-4: 0 0 0 2.5px rgba(0,0,0,0.56);
-                --elev-5: 0 0 0 3px rgba(0,0,0,0.64);
+        html.dark {
+                /* warm night kitchen — luminous solid rings */
+                --elev-1: 0 0 0 1px rgba(247,239,226,0.36);
+                --elev-2: 0 0 0 1.5px rgba(247,239,226,0.44);
+                --elev-3: 0 0 0 2px rgba(247,239,226,0.52);
+                --elev-4: 0 0 0 2.5px rgba(247,239,226,0.60);
+                --elev-5: 0 0 0 3px rgba(247,239,226,0.68);
                 --glass-bg: var(--surface);
                 --glass-bg-strong: var(--surface);
-                --glass-border: rgba(0,0,0,0.32);
-                --glass-border-strong: rgba(0,0,0,0.60);
-                --surface-border: rgba(0,0,0,0.32);
-                --surface-divider: rgba(0,0,0,0.20);
-                --border: rgba(0,0,0,0.42);
-                --border-strong: rgba(0,0,0,0.60);
-                --input: rgba(0,0,0,0.42);
-                --rule: rgba(0,0,0,0.42);
+                --glass-border: rgba(247,239,226,0.36);
+                --glass-border-strong: rgba(247,239,226,0.64);
+                --surface-border: rgba(247,239,226,0.36);
+                --surface-divider: rgba(247,239,226,0.24);
+                --border: rgba(247,239,226,0.48);
+                --border-strong: rgba(247,239,226,0.64);
+                --input: rgba(247,239,226,0.48);
+                --rule: rgba(247,239,226,0.48);
         }
 }
 
@@ -1079,6 +1006,46 @@ html.high-contrast :focus-visible {
         font-family: var(--font-arabic);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   Phase 5 SIGNATURE MOTIF — the menu dot-leader
+   The printed-menu price leader: a flex row whose middle child is a
+   dotted rule (border-block-end) that flexes to fill the space between
+   the item name and its price. Ink = --menu-leader (warm tan / night).
+   Usage: <div class="menu-leader"><span>اسم الصنف</span><i aria-hidden
+   class="menu-leader-rule" /><span class="tabular-nums">12.5</span></div>
+   ══════════════════════════════════════════════════════════════ */
+.menu-leader {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        min-width: 0;
+}
+.menu-leader-rule {
+        flex: 1 1 auto;
+        min-width: 1.5rem;
+        border-block-end: 2px dotted var(--menu-leader);
+        transform: translateY(-0.25em);
+        opacity: 0.9;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Phase 5 SIGNATURE — warm food-imagery grading
+   Every text-on-image photo (menu item cards · order dialog · gallery)
+   bottoms into an ESPRESSO scrim, never a cold black — the warm culinary
+   grade. Constant across themes (photos are photos); the ink is the
+   --c-night family so the wash stays in-world. Replaces the raw
+   from-black/50 utilities on food imagery.
+   ══════════════════════════════════════════════════════════════ */
+.warm-scrim {
+        background: linear-gradient(to top, rgb(26 17 12 / 0.55), rgb(26 17 12 / 0.16) 55%, transparent);
+}
+.warm-scrim-strong {
+        background: linear-gradient(to top, rgb(26 17 12 / 0.78), rgb(26 17 12 / 0.34) 55%, transparent);
+}
+.warm-scrim-faint {
+        background: linear-gradient(to top, rgb(26 17 12 / 0.18), transparent 75%);
+}
+
 /* r121-I-6: four dead @utility shims (spotlight-border / ambient-glow /
    shimmer-press / shimmer-ambient) + their pseudo-element rules and exclusive
    keyframes (shimmer-slow, ambient-glow-pulse) were deleted here — zero
@@ -1087,38 +1054,38 @@ html.high-contrast :focus-visible {
    shimmer-sweep) died with them. */
 
 @utility text-gradient-orange {
-        /* Madarek night: gold gradient (accent → accent-strong) at the
-           canonical 145° metal angle (unified-smart-parity --btn-primary-bg). */
-        background: linear-gradient(145deg, #E9B44C, #C9962F);
+        /* Phase 5 (r152): the terracotta metal pair at the canonical 145°
+           angle — light: terracotta → terracotta-deep. */
+        background: linear-gradient(145deg, #C2452D, #8A2B1D);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
 }
-.light .text-gradient-orange {
-        /* Madarek light: copper gradient (accent → accent-hover) @145° */
-        background: linear-gradient(145deg, #B57438, #9A5F25);
+.dark .text-gradient-orange {
+        /* warm night kitchen: luminous terracotta → pressed */
+        background: linear-gradient(145deg, #E07856, #C2452D);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
 }
 
 @utility text-gradient-hero {
-        /* Madarek night: sand-ink start → luminous gold end */
-        background: linear-gradient(135deg, #F2EFE6 0%, rgba(233, 180, 76, 0.85) 100%);
+        /* Phase 5 (r152): espresso start → terracotta end (light) */
+        background: linear-gradient(135deg, #241811 0%, #C2452D 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
 }
-.light .text-gradient-hero {
-        /* Madarek light: warm-ink start → copper end */
-        background: linear-gradient(135deg, #191918 0%, #B57438 100%);
+.dark .text-gradient-hero {
+        /* warm night kitchen: cream start → luminous terracotta end */
+        background: linear-gradient(135deg, #F7EFE2 0%, rgba(224, 120, 86, 0.85) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
 }
 
 /* r121-I-6: card-3d (and its low-end-device guard), animate-tilt-in,
-   animate-scale-glow, and shimmer-advanced (+ .light twin) were deleted
+   animate-scale-glow, and shimmer-advanced (+ .dark twin) were deleted
    here — zero render sites, nothing sets [data-3d-tilt] either.
    r132 (A3 §3.1): @utility animate-float-slow + @keyframes float-slow
    joined them — the r121-I-6 sweep missed this pair (zero render sites). */
@@ -1216,11 +1183,12 @@ html.high-contrast :focus-visible {
                 }
         }
 
-        /* Typography scale — Madarek §2: headings ride the display family
-           (IBM Plex Sans Arabic) at TRUE 700 (--fw-black = 700), line-height
-           floors that clear Arabic diacritics (h1 1.12 / h2 1.2 / h3 1.3),
-           and letter-spacing: normal everywhere — the Arabic cursive-join
-           law (ruling #2). Sizes 30/22/18px = Madarek --fs-h1/h2/h3. */
+        /* Typography scale — Phase 5: headings ride the DISPLAY family
+           (Baloo Bhaijaan 2, warm rounded culinary voice; Plex behind it)
+           at TRUE 700, line-height floors that clear Arabic diacritics
+           (h1 1.12 / h2 1.2 / h3 1.3), and letter-spacing: normal
+           everywhere — the Arabic cursive-join law (ruling #2).
+           Sizes 30/22/18px rungs are unchanged. */
         h1, h2 {
                 font-family: var(--font-heading);
                 font-weight: var(--fw-bold, 700);
@@ -1278,10 +1246,8 @@ html.high-contrast :focus-visible {
                 transition: color var(--t-fast, 160ms) var(--ease);
         }
         a:hover {
-                /* r130 (W2-3, P1-1 / SM-1): --accent-ink — 10.29:1 on cream
-                   (canonical base.css:69). The old var(--orange) #B57438 was
-                   3.65:1 in light — an AA fail on body-size links. Dark
-                   resolves #E9B44C (10.39:1), unchanged. */
+                /* Phase 5: --accent-ink = terracotta-deep #8A2B1D — 8.05:1 on
+                   cream (AA). Dark resolves the luminous #E07856 (6.03:1). */
                 color: var(--accent-ink);
         }
 }
@@ -1314,9 +1280,9 @@ html.high-contrast :focus-visible {
 * { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
 
 ::selection {
-        /* r130 (W2-3, P1-6): canonical polish.css:5192-5195 — accent 28% mix
-           + the TEXT ink re-painted (inherit could strand muted text on the
-           tint). --accent-solid = #E9B44C night / #B57438 light. */
+        /* Phase 5: accent 28% mix + the TEXT ink re-painted (inherit could
+           strand muted text on the tint). --accent-solid = #C2452D light /
+           #E07856 dark. */
         background: color-mix(in srgb, var(--accent-solid) 28%, transparent);
         color: var(--foreground);
 }
@@ -1330,13 +1296,13 @@ html.high-contrast :focus-visible {
         align-items: center;
         justify-content: center;
         border-radius: 22%;
-        /* r8-a: canonical Madarek gold metal (unified-smart-parity
-           --btn-primary-bg): #E9B44C → #C9962F @145° — the brand-mark
-           pair, both themes (glyph stays --c-espresso void/dark ink). */
-        background: linear-gradient(145deg, #E9B44C, #C9962F);
+        /* Phase 5 (r152): the terracotta metal brand mark — #C2452D →
+           #8A2B1D @145° (the smart-menu --btn-primary pair), both themes;
+           glyph rides the constant cream ink (5.0:1 on the metal). */
+        background: linear-gradient(145deg, #C2452D, #8A2B1D);
         box-shadow: 0 8px 28px color-mix(in srgb, var(--orange) 32%, transparent), inset 0 1px 0 oklch(1 0 0 / 0.12);
         overflow: hidden;
-        color: var(--c-espresso);
+        color: #FBF7F0;   /* constant cream glyph on the terracotta metal */
         paint-order: stroke fill;
         transition: transform 0.35s var(--ease-out-expo), box-shadow 0.35s var(--ease-out-expo);
 }
@@ -1370,7 +1336,7 @@ html.high-contrast :focus-visible {
         background-repeat: no-repeat;
         opacity: 0.9;
 }
-.qr-corner:has(> svg) { color: var(--c-espresso); }
+.qr-corner:has(> svg) { color: #FBF7F0; }
 
 .qr-seed {
         display: grid;
@@ -1616,8 +1582,8 @@ textarea:autofill {
         min-width: 0;
         background: var(--card);
         border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-        /* Madarek §5.4: card = r-xl (16px) radius + --shadow-card (= --elev-1) */
-        border-radius: var(--r-xl, 16px);
+        /* Phase 5 plate-round: card plate = r-lg (16px) + --shadow-card */
+        border-radius: var(--r-lg, 16px);
         box-shadow: var(--shadow-card);
         transform: translateZ(0);
         transition:
@@ -1664,15 +1630,15 @@ textarea:autofill {
         animation: shimmer var(--motion-duration-skeleton, 1.2s) linear infinite;
 }
 .shimmer {
-        background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, oklch(0.24 0.03 35 / 0.05) 50%, transparent 100%);
         background-size: 200% 100%;
         border-radius: var(--radius-sm);
         /* image-load placeholder = skeleton-class loader → same 1200ms token
            (r131-F4: linear, same ruling as .skeleton above) */
         animation: shimmer var(--motion-duration-skeleton, 1.2s) linear infinite;
 }
-.light .shimmer {
-        background: linear-gradient(90deg, transparent 0%, oklch(0 0 0 / 0.04) 50%, transparent 100%);
+.dark .shimmer {
+        background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
         background-size: 200% 100%;
 }
 
@@ -1686,7 +1652,7 @@ textarea:autofill {
 .grain-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 .grain-overlay::before {
         content: ''; position: absolute; inset: 0;
-        opacity: 0.022;
+        opacity: 0.012;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         background-size: 256px 256px;
         animation: none;
@@ -1696,7 +1662,7 @@ textarea:autofill {
    were losing the grain (0.012 won over 0.022) and manual-light + OS-dark kept
    the heavy night grain on cream. Class rule = one resolution path with the
    next-themes class attribute. */
-.light .grain-overlay::before { opacity: 0.012; }
+.dark .grain-overlay::before { opacity: 0.022; }
 
 
 .empty-state-icon {
