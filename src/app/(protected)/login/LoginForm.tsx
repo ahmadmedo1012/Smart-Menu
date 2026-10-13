@@ -170,22 +170,25 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                            الحدّ الشعري النحاسي ٢px أعلى البطاقة (canonical
                            auth.css:179-188: inset-inline 30%، تدرّج
                            transparent→accent→transparent، نصف قطر 2px)،
-                           حشوة البطاقة clamp(32px,4vw,48px) (auth.css:145). */}
-                        <Card className="animate-scale-in relative z-10 w-full max-w-[27.5rem] rounded-2xl border-border/50 bg-card p-0">
+                           حشوة البطاقة clamp(32px,4vw,48px) (auth.css:145).
+                           Phase 6 (r154): الطبق 16 — تجاوز rounded-2xl (24px) أُزيل
+                           فيرث Card درجته القانونية (rounded-lg = طبق 16). */}
+                        <Card className="animate-scale-in relative z-10 w-full max-w-[27.5rem] border-border/50 bg-card p-0">
                                 {/* canonical .auth-card::before — the short copper hairline */}
                                 <span
                                         aria-hidden="true"
                                         className="absolute inset-x-[30%] top-0 h-0.5 rounded-b-full bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]"
                                 />
-                                {/* Logo area */}
+                                {/* Logo area — Phase 6 (r154): كتلة العلامة على بئر طبق
+                                    دائري بحافة تراكوتا 1.5px (نفس عقد KPI/الأسعار). */}
                                 <CardHeader className="px-[clamp(2rem,4vw,3rem)] pb-2 pt-[clamp(2rem,4vw,3rem)] text-center">
-                                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
+                                        <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-orange-muted/60 ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30">
                                                 <Image
                                                         src="/brand-icon.png"
                                                         alt="الربط الذكي"
                                                         width={160}
                                                         height={160}
-                                                        className="h-full w-full object-contain"
+                                                        className="h-16 w-16 object-contain"
                                                         priority
                                                 />
                                         </div>
@@ -200,6 +203,18 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                 </CardHeader>
 
                                 <CardContent className="px-[clamp(2rem,4vw,3rem)] pb-[clamp(2rem,4vw,3rem)] pt-4">
+                                        {/* Phase 6 (r154): راية الجلسة الدافئة — تظهر فقط عندما
+                                            يصل redirectParam (مصدره الوحيد الـproxy حين يقذف
+                                            زائرًا بلا جلسة صالحة عن صفحة محمية)؛ بعد الخروج
+                                            يصل /login بلا معامل فلا راية (لا كذب على المستخدم). */}
+                                        {redirectParam && (
+                                                <p
+                                                        role="status"
+                                                        className="mb-5 rounded-md border border-orange/25 bg-orange-muted/40 px-4 py-3 text-[13px] font-semibold text-accent-foreground"
+                                                >
+                                                        جلستك غير صالحة أو منتهية — سجّل دخولك للمتابعة إلى صفحتك
+                                                </p>
+                                        )}
                                         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                                                 {/* r126 (P4-F1 M8): persistent server-error line — announced
                                                         via role=alert; focus returns to the username field.
@@ -220,7 +235,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                            للحلقات في كل الأسطح. */}
                                                         <div
                                                                 className={cn(
-                                                                        'rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring focus-within:shadow-[var(--state-input-focus-halo)]',
+                                                                        'rounded-md border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring focus-within:shadow-[var(--state-input-focus-halo)]',
                                                                         fieldError('username') ? 'border-destructive/60' : 'border-border/50'
                                                                 )}
                                                         >
@@ -260,7 +275,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                            r131 (A2 P2-3): هالة التركيز القانونية 3px/22% بدل ring-2/25. */}
                                                         <div
                                                                 className={cn(
-                                                                        'relative rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring focus-within:shadow-[var(--state-input-focus-halo)]',
+                                                                        'relative rounded-md border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring focus-within:shadow-[var(--state-input-focus-halo)]',
                                                                         fieldError('password') ? 'border-destructive/60' : 'border-border/50'
                                                                 )}
                                                         >
@@ -337,7 +352,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
 
                                         {/* Forgot password help dialog */}
                                         <Dialog open={showForgot} onOpenChange={setShowForgot}>
-                                                <DialogContent className="max-w-sm rounded-2xl font-arabic">
+                                                <DialogContent className="max-w-sm font-arabic">
                                                         <DialogHeader>
                                                                 <DialogTitle className="font-arabic text-lg">استعادة كلمة المرور</DialogTitle>
                                                                 <DialogDescription className="font-arabic text-sm leading-relaxed">
@@ -350,7 +365,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                                         href={`https://wa.me/${SUPPORT_WHATSAPP}`}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
-                                                                        className="flex items-center justify-center gap-2 rounded-xl bg-success/10 border border-success/30 px-4 py-2.5 text-sm font-medium text-success-ink hover:bg-success/15 transition-colors"
+                                                                        className="flex items-center justify-center gap-2 rounded-md bg-success/10 border border-success/30 px-4 py-2.5 text-sm font-medium text-success-ink hover:bg-success/15 transition-colors"
                                                                 >
                                                                         <AnimatedMessageCircle className="size-4" />
                                                                         تواصل عبر واتساب
