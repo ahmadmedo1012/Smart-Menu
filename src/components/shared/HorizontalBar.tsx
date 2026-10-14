@@ -52,8 +52,10 @@ export function HorizontalBar({
               <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
                 <m.div
                   className="h-full rounded-full"
-                  /* ponytail: CSS var not usable in JS `background` style prop in framer-motion. Inline oklch matches DESIGN.md gold accent. */
-                  style={{ background: item.color || "#C2452D" }}
+                  /* P10-2 (a): كان حرفًا خامًا بلا توأم ليلي — #C2452D ثابتًا في
+                     الوضعين (تراكوتا الفاتح على بطاقة ليلية). var(--accent-solid)
+                     يعبر سلّم السمة: #C2452D فاتحًا / #E07856 المضيء ليلًا. */
+                  style={{ background: item.color || "var(--accent-solid)" }}
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
                   transition={{ duration: 0.6, delay: i * 0.05, ease: "easeOut" }}

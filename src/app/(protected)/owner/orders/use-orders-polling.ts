@@ -63,7 +63,9 @@ export function useOrdersPolling({ filter, activeId, fetchOrders }: UseOrdersPol
                                 if (sig === probeRef.current) return;
                                 probeRef.current = sig;
                                 fetchOrders(filter, 1, false);
-                                premiumToast('success', '📦 تحديث الطلبات', undefined, {
+                                /* P10-2 (g): إيموجي النص → بلا — بئر أيقونة premiumToast
+                                   (lucide) هو الأيقونة الوحيدة في الإشعار */
+                                premiumToast('success', 'تحديث الطلبات', undefined, {
                                         duration: 3000,
                                 });
                         } catch {

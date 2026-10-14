@@ -439,7 +439,9 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                 type="button"
                                                                                 role="radio"
                                                                                 aria-checked={s === formRating}
-                                                                                aria-label={`${toArabicNumber(s)} من ٥ نجوم`}
+                                                                                /* E1 (P10-2): أرقام غربية في كل ما يقرؤه المستخدم — ٥ الرقم
+                                                                                    الشرقي كان آخر رقم حي في واجهة الويب */
+                                                                                aria-label={`${toArabicNumber(s)} من 5 نجوم`}
                                                                                 tabIndex={s === (formRating || 1) ? 0 : -1}
                                                                                 whileTap={{ scale: 1.3 }}
                                                                                 animate={formRating >= s ? starAnimate : {}}

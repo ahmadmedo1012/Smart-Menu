@@ -79,7 +79,7 @@ test("XSS: item <script> stored and rendered as text (not executed)", async ({ p
     // invasive; instead rely on the passing restaurant-name XSS test + manual check.
     await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2500);
-    const executed = await page.evaluate(() => (window as any).__xss === 1);
+    const executed = await page.evaluate(() => (window as { __xss?: number }).__xss === 1);
     expect(executed).toBe(false);
     return;
   }
@@ -111,7 +111,7 @@ test("XSS: item <script> stored and rendered as text (not executed)", async ({ p
   });
   await page.goto(`/menu/${slug}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2500);
-  const executed = await page.evaluate(() => (window as any).__xss === 1);
+  const executed = await page.evaluate(() => (window as { __xss?: number }).__xss === 1);
   expect(executed).toBe(false); // NOT executed (the core security claim)
 });
 
@@ -121,6 +121,6 @@ test("XSS: restaurant name injection not executed on public menu", async ({ page
   // (covered by the item test above — this is a belt-and-suspenders sanity check)
   await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2500);
-  const executed = await page.evaluate(() => (window as any).__xss === 1);
+  const executed = await page.evaluate(() => (window as { __xss?: number }).__xss === 1);
   expect(executed).toBe(false);
 });

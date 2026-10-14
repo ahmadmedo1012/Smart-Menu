@@ -7,7 +7,7 @@
 // kept on disk for provenance (same policy as r96's demo-image conversion),
 // but nothing in src/ references them anymore.
 import sharp from 'sharp';
-import { readdir, stat, writeFile, copyFile } from 'node:fs/promises';
+import { stat, writeFile, copyFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const DIR = 'public/images/culinary';

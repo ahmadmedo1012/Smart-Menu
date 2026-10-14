@@ -14,7 +14,7 @@
  *
  * Run: bash scripts/r92-e2e-local.sh "tests/e2e/round94-sim-fixes.spec.ts --project=ui"
  */
-import { test, expect, type APIRequestContext, type Page } from "@playwright/test";
+import { test, expect, type APIRequestContext } from "@playwright/test";
 import { mintCsrfPair, csrfHeadersFor } from "./csrf-helper";
 
 /* P6-3-a (نمط round87-D8 في auth-verify): العناوين المطلقة كانت مكتوبة
@@ -22,7 +22,6 @@ import { mintCsrfPair, csrfHeadersFor } from "./csrf-helper";
  * 3000 (القاعدة المحلية 3114) تنال ECONNREFUSED بلا سبب منتجي. */
 const BASE = process.env.BASE_URL || "http://localhost:3000";
 
-const SHOTS = "download/round94-simulations";
 const TS = Date.now().toString().slice(-8);
 /* عقد البذرة المحلية (PROJECT.md): round83-seed يبذر waha_owner/waha123456
  * (SEED_ADMIN_PASS=smart123 خاص بحساب admin من ci-seed — ليس المالك) */

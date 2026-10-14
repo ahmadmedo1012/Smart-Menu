@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { m } from "motion/react";
 import AnimatedStar from '@/components/ui/star-icon';
-import { MessageCircle, Trash2 } from 'lucide-react';
+import { MessageCircle, Trash2, Star } from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils";
@@ -133,7 +133,8 @@ export default function OwnerReviewsPage() {
           <div className="space-y-1.5">
             {stats.distribution.map((d) => (
               <div key={d.star} className="flex items-center gap-2 text-xs">
-                <span className="w-8 shrink-0">{d.star} ⭐</span>
+                {/* P10-2 (g): r97-X1 نفسه — رقم + نجمة lucide بدل ⭐ */}
+                <span className="w-8 shrink-0 inline-flex items-center gap-0.5">{d.star} <Star className="size-3 fill-current" aria-hidden="true" /></span>
                 <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                   <div
                     className="h-full rounded-full bg-saffron transition-[width] duration-cinema"
@@ -147,21 +148,28 @@ export default function OwnerReviewsPage() {
         </div>
       </div>
 
-      {/* Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      {/* Filter — P10-2 (g): قواعد ر97-X1 المثبّتة في ReviewSheet (رقم + نجمة
+          lucide بدل ⭐، aria-pressed لكل رقاقة، اسم مجموعة للقارئ) */}
+      <div role="group" aria-label="تصفية التقييمات حسب النجوم" className="flex gap-2 overflow-x-auto pb-2">
         {[null, 5, 4, 3, 2, 1].map((star) => (
           <button
             key={star ?? "all"}
             onClick={() => setFilterStar(star)}
+            aria-pressed={filterStar === star}
             className={cn(
-              "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border",
+              "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border inline-flex items-center gap-1",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
               filterStar === star
                 ? "bg-orange text-orange-foreground border-orange shadow-sm"
                 : "bg-card/50 text-muted-foreground border-border/20 hover:bg-muted/50",
             )}
           >
-            {star ? `${star} ⭐` : "الكل"}
+            {star ? (
+              <>
+                {toArabicNumber(star)}
+                <Star className="size-3 fill-current" aria-hidden="true" />
+              </>
+            ) : ("الكل")}
           </button>
         ))}
       </div>
@@ -248,7 +256,7 @@ export default function OwnerReviewsPage() {
           <DialogHeader>
             <DialogTitle>حذف التقييم</DialogTitle>
             <DialogDescription>
-              سيُحذف تقييم {deleteTarget?.customerName || "مجهول"} ({toArabicNumber(deleteTarget?.rating ?? 0)} ⭐) على «{deleteTarget?.menuItem.nameAr || deleteTarget?.menuItem.name}»
+              سيُحذف تقييم {deleteTarget?.customerName || "مجهول"} ({toArabicNumber(deleteTarget?.rating ?? 0)} <Star className="inline-block size-3 align-text-bottom fill-current" aria-hidden="true" />) على «{deleteTarget?.menuItem.nameAr || deleteTarget?.menuItem.name}»
               نهائياً وسيُعاد حساب متوسط التقييم. هذا الإجراء لا يمكن التراجع عنه.
             </DialogDescription>
           </DialogHeader>

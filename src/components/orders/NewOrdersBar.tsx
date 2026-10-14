@@ -140,7 +140,10 @@ export function NewOrdersBar({
                         <div className="h-20" aria-hidden="true" />
                         <div
                                 className={cn(
-                                        'fixed bottom-6 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 z-50',
+                                        /* P10-2 (c): قانون J-1/r143 — عنصر عائم في نطاق النوافذ
+                                           الخام (z-50) يخالف سلّم العوائم؛ الدرجة نفسها التي
+                                           تركبها FloatingWhatsApp وInstallPrompt. */
+                                        'fixed bottom-6 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 z-(--z-float)',
                                         'animate-ticket-drop'
                                 )}
                                 role="region"

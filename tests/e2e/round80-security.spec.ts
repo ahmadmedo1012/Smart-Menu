@@ -60,7 +60,7 @@ test("S5: admin API blocked for owner (RBAC)", async ({ page }) => {
 test("S6: XSS payload in item name never executes", async ({ page }) => {
   await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
-  const executed = await page.evaluate(() => (window as any).__xss === 1);
+  const executed = await page.evaluate(() => (window as { __xss?: number }).__xss === 1);
   expect(executed).toBe(false);
   const injected = await page.evaluate(() =>
     Array.from(document.querySelectorAll("script")).some((s) => s.textContent.includes("__xss"))

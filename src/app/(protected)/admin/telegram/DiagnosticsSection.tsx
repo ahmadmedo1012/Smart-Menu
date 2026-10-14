@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {Loader2, Stethoscope, CheckCircle2, XCircle} from 'lucide-react';
+import {Loader2, Stethoscope, CheckCircle2, XCircle, Clock} from 'lucide-react';
 import AnimatedTrash2 from '@/components/ui/trash-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedUserCheck from '@/components/ui/user-check-icon';
@@ -244,9 +244,11 @@ export function DiagnosticsSection({
                                                                                                 className="flex items-center justify-between p-2 rounded-lg bg-background/50 border border-border/20"
                                                                                         >
                                                                                                 <span className="text-sm truncate">{t.label || t.chatId}</span>
-                                                                                                {t.ok === true && <Badge variant="default">✅</Badge>}
-                                                                                                {t.ok === false && <Badge variant="destructive">❌ {t.error}</Badge>}
-                                                                                                {t.ok === null && <Badge variant="secondary">⏳ لم يُختبر</Badge>}
+                                                                                                {/* P10-2 (g): إيموجي الشارات → lucide —
+                                                                                                   نفس قواعد نعم/لا أعلاه */}
+                                                                                                {t.ok === true && <Badge variant="default"><CheckCircle2 className="size-3" aria-hidden="true" /></Badge>}
+                                                                                                {t.ok === false && <Badge variant="destructive"><XCircle className="size-3" aria-hidden="true" /> {t.error}</Badge>}
+                                                                                                {t.ok === null && <Badge variant="secondary"><Clock className="size-3" aria-hidden="true" /> لم يُختبر</Badge>}
                                                                                         </div>
                                                                                 ))}
                                                                         </div>

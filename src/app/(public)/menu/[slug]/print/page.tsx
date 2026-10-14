@@ -12,6 +12,7 @@ import { SITE_ORIGIN } from '@/lib/seo';
 // r135: الوسوم الغذائية على الورقة — زبون الحساسية يحتاجها قبل الطلب،
 // والورقة المطبوعة هي القناة الوحيدة بلا نوافذ تفاصيل.
 import { DIETARY_LABELS } from '@/lib/dietary';
+import { Phone, Clock } from 'lucide-react';
 import { PrintButton } from './print-button';
 import type { Metadata } from 'next';
 
@@ -218,9 +219,11 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
 
                         <h1>{restaurant.name}</h1>
                         {restaurant.description && <p className="sub">{restaurant.description}</p>}
+                        {/* P10-2 (g): أيقونات الاتصال lucide بدل رموز الإيموجي (تُطبع
+                            خطيًا ثابتًا عبر محركات الطباعة بدل رموز متقلبة) */}
                         <p className="sub">
-                                {restaurant.phone && <> 📞 {restaurant.phone} </>}
-                                {restaurant.workingHours && <> 🕐 {restaurant.workingHours}</>}
+                                {restaurant.phone && <> <Phone className="inline-block size-3 align-text-bottom" aria-hidden="true" /> {restaurant.phone} </>}
+                                {restaurant.workingHours && <> <Clock className="inline-block size-3 align-text-bottom" aria-hidden="true" /> {restaurant.workingHours}</>}
                         </p>
                         {/* r137: سطر الدوام المهيكل — «السبت: 16:00–23:00 · الجمعة: مغلق».
                             يظهر فقط إذا عبّأ المالك محرّر الأسبوع (غياب صادق: بلا صفوف
@@ -228,7 +231,7 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                             اللحظي عميلي فقط (شارة المنيو الرقمي). */}
                         {(() => {
                                 const line = formatHoursForPrint(restaurant.hours);
-                                return line ? <p className="sub">🕒 {line}</p> : null;
+                                return line ? <p className="sub"><Clock className="inline-block size-3 align-text-bottom" aria-hidden="true" /> {line}</p> : null;
                         })()}
                         <p className="sub" style={{ fontSize: '0.8rem', color: 'var(--print-footer)' }}>
                                 {toArabicNumber(categories.length)} قسم · {toArabicNumber(totalItems)} صنف

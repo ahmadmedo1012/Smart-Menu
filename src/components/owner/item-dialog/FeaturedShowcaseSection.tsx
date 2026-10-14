@@ -82,7 +82,8 @@ export function FeaturedShowcaseSection({
                 so it is implemented inline here. */}
                                                 <div className="col-span-2">
                                                         <span id={`${fId}-showcase-tags`} className="text-sm font-medium leading-none block">
-                                                                شارات العرض (حتى ٣)
+                                                                {/* E1 (P10-2): رقم غربي في النص الحي (بقية ٣ في التعليقات فقط) */}
+                                                                شارات العرض (حتى 3)
                                                         </span>
                                                         <div className="flex gap-2 mt-1.5">
                                                                 <Input
@@ -96,7 +97,7 @@ export function FeaturedShowcaseSection({
                                                                         }}
                                                                         maxLength={40}
                                                                         placeholder={
-                                                                                showcaseTags.length >= 3 ? 'الحد الأقصى ٣ شارات' : 'مثال: الأكثر طلبًا'
+                                                                                showcaseTags.length >= 3 ? 'الحد الأقصى 3 شارات' : 'مثال: الأكثر طلبًا'
                                                                         }
                                                                         disabled={showcaseTags.length >= 3}
                                                                 />

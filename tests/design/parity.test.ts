@@ -3135,3 +3135,130 @@ describe('phase9 E3 — the warm night stage (landing.css §19, gated html.dark)
     expect(publicLayoutRaw).toContain('attribute="class" defaultTheme="light"');
   });
 });
+
+// ── phase10 (P10-2) — the route-quality wave Smart-Menu missed while the
+// private repo sat PAT-blocked (Wave 1 covered Smart-Link/SmartBot/
+// Smart-Order only). The same families swept here at source level; what the
+// sweep found and fixed, these pins hold:
+//   · E1 (family k): the LAST three live Arabic-Indic digit sites (ReviewSheet
+//     star-radio aria-label «…من ٥ نجوم», FeaturedShowcase label
+//     «(حتى ٣)» + placeholder «الحد الأقصى ٣ شارات») → Western digits.
+//   · family (a): HorizontalBar's bar fill was the one raw color literal
+//     without a night twin — #C2452D (light-grade terracotta) painted
+//     constant in BOTH stages behind a false "framer-motion can't do var()"
+//     comment; it now rides var(--accent-solid) (#C2452D light / #E07856
+//     warm-night, the pinned accent chain) like every other chart surface
+//     (chart-tokens reads the same tokens at draw-time).
+//   · family (c): NewOrdersBar — the ONLY float outside the float band —
+//     rode raw z-50 (the dialog band), violating the pinned J-1 law
+//     (floats never cover dialogs); now z-(--z-float) exactly like
+//     FloatingWhatsApp/InstallPrompt (the r121/r143 precedent).
+//   · family (g) E5: emoji chrome retired on four surfaces — the admin
+//     telegram diagnostics badges (Check/X/Clock lucide, the file's own
+//     yes/no twin grammar), owner/reviews ⭐ (the exact r97-X1 regression
+//     the ReviewSheet sweep missed, number + lucide Star + aria-pressed
+//     group), the orders-polling toast 📦 (premiumToast's icon well is the
+//     icon), and the print sheet's contact glyphs (lucide Phone/Clock —
+//     they print as stable line art instead of emoji raster).
+//   · family (f): SearchInput's clear button was the one sub-floor control
+//     (bare size-7 = 28px) — it now carries the r125 (11-b) hit-area
+//     extension (before:-inset-2 → 44px effective), same grammar as the
+//     menu toolbar chips.
+// Verified-clean with evidence (no churn — see the P10-2 worklog entry):
+// the shadow bridge + --elev-1..5 night twins (already pinned r126: bridge
+// keys L365-372 / ELEV_DARK+light L255-269), physical positioning (sheet
+// ltr/rtl slide twins, symmetric 1/2-centering), sticky/fixed overlap
+// (cart money-bar spacer, NewOrdersBar h-20, dialog overscroll-contain),
+// states census (loading.tsx+error.tsx on every async route, EmptyState ×24,
+// ErrorState ×13, aria-busy ×20, AccessDenied plan-locks), theme-toggle
+// coverage (LandingHeader pinned E3; LayoutHeader serves Owner+Admin shells
+// — pinned below; StickyMenuHeader + login corner + themed 404), منيوك = 0
+// (phase9 E2 pin above), pricing SSOT (plans-server.getActivePlans feeds
+// /pricing + /subscribe; zero divergent tables).
+
+const p10cc = (p: string) =>
+  raw(p).replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+
+describe('phase10 P10-2 — E1: zero live Arabic-Indic digits on UI surfaces', () => {
+  it('comment-stripped components/ + app/ (incl. api) carry no ٠-٩ — the folding tables live in lib/ by design', () => {
+    const offenders = walkSrc('src/components')
+      .concat(walkSrc('src/app'))
+      .filter((p) => /[٠-٩]/.test(p10cc(p)));
+    expect(offenders, `Eastern digits survived in: ${offenders.join(', ')}`).toEqual([]);
+  });
+
+  it('the three fixed sites render Western digits', () => {
+    expect(p10cc('src/components/menu/ReviewSheet.tsx')).toContain('من 5 نجوم');
+    const featured = p10cc('src/components/owner/item-dialog/FeaturedShowcaseSection.tsx');
+    expect(featured).toContain('شارات العرض (حتى 3)');
+    expect(featured).toContain('الحد الأقصى 3 شارات');
+  });
+});
+
+describe('phase10 P10-2 — family (a): the bar-chart fill rides the accent token, not a raw literal', () => {
+  it('HorizontalBar consumes var(--accent-solid) (light terracotta / warm-night luminous twin) with zero raw hex', () => {
+    const bar = p10cc('src/components/shared/HorizontalBar.tsx');
+    expect(bar).toContain('item.color || "var(--accent-solid)"');
+    expect(bar).not.toMatch(/#[0-9a-fA-F]{6}/);
+  });
+});
+
+describe('phase10 P10-2 — family (c): the new-orders float rides the ladder float band (J-1)', () => {
+  it('NewOrdersBar: z-(--z-float) (30) under the raw dialog band — never z-40/50 again', () => {
+    const bar = p10cc('src/components/orders/NewOrdersBar.tsx');
+    expect(bar).toContain('z-(--z-float)');
+    expect(bar).not.toContain('z-50');
+    expect(bar).not.toContain('z-40');
+  });
+});
+
+describe('phase10 P10-2 — family (g): zero emoji in UI chrome (E5)', () => {
+  it('admin telegram diagnostics badges speak lucide (the file\'s own yes/no grammar), not emoji', () => {
+    const d = p10cc('src/app/(protected)/admin/telegram/DiagnosticsSection.tsx');
+    expect(d).toContain('<CheckCircle2 className="size-3"');
+    expect(d).toContain('<XCircle className="size-3"');
+    expect(d).toContain('<Clock className="size-3"');
+    expect(d).not.toMatch(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}\u{2B50}\u{23F3}\u{2705}\u{274C}]/u);
+  });
+
+  it('owner/reviews rides the r97-X1 twin (number + lucide Star + aria-pressed group) — the ⭐ regression stays dead', () => {
+    const r = p10cc('src/app/(protected)/owner/reviews/page.tsx');
+    expect(r).toContain('import { MessageCircle, Trash2, Star } from \'lucide-react\'');
+    expect(r).toContain('<Star className="size-3 fill-current" aria-hidden="true" />');
+    expect(r).toContain('aria-pressed={filterStar === star}');
+    expect(r).toContain('role="group" aria-label="تصفية التقييمات حسب النجوم"');
+    expect(r).not.toContain('⭐');
+  });
+
+  it('the orders-polling toast text carries no emoji (premiumToast\'s lucide well is the icon)', () => {
+    const t = p10cc('src/app/(protected)/owner/orders/use-orders-polling.ts');
+    expect(t).toContain("'تحديث الطلبات'");
+    expect(t).not.toContain('📦');
+  });
+
+  it('the print sheet speaks lucide Phone/Clock line art, not emoji', () => {
+    const p = p10cc('src/app/(public)/menu/[slug]/print/page.tsx');
+    expect(p).toContain("import { Phone, Clock } from 'lucide-react'");
+    expect(p).not.toMatch(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}]/u);
+  });
+});
+
+describe('phase10 P10-2 — family (f): the clear-search hit floor (44px effective)', () => {
+  it('SearchInput clear button: size-7 visual + the r125 (11-b) before:-inset-2 extension', () => {
+    const s = p10cc('src/components/ui/search-input.tsx');
+    expect(s).toContain('size-7');
+    expect(s).toContain("before:absolute before:-inset-2 before:content-['']");
+  });
+});
+
+describe('phase10 P10-2 — family (h): every shell exposes the shared ThemeToggle', () => {
+  it('LandingHeader (E3, pinned above) + LayoutHeader (owner + admin shells) + the menu sticky header all render it', () => {
+    expect(landingHeaderRaw).toContain('<ThemeToggle'); // the E3 pin covers the rest
+    expect(p10cc('src/components/layout/LayoutHeader.tsx')).toContain('import { ThemeToggle } from "@/components/shared/ThemeToggle"');
+    expect(p10cc('src/components/layout/LayoutHeader.tsx')).toContain('<ThemeToggle />');
+    expect(p10cc('src/components/menu/StickyMenuHeader.tsx')).toContain('<ThemeToggle');
+    // the shells that consume LayoutHeader (the toggle rides them for free)
+    expect(p10cc('src/app/(protected)/owner/OwnerShell.tsx')).toContain('<LayoutHeader');
+    expect(p10cc('src/app/(protected)/admin/AdminShell.tsx')).toContain('<LayoutHeader');
+  });
+});

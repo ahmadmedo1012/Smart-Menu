@@ -103,8 +103,9 @@ Baloo display (regenerate via `scripts/render-og.mjs`). PWA chrome:
   Warmer and rounder than the old Notion-soft 6..28; never ad-hoc px radii.
 - Spacing: Tailwind scale only (zero arbitrary px — keep it that way).
 - Elevation: light = soft two-layer **espresso-tinted** (rgba(64,46,28,*));
-  night = fill-led + 1px inset warm top-light (`--shadow-card/-h/-pop/-modal/
-  -mockup` + the `-premium` pair compose on top). Glass: 16px blur + warm
+  night = fill-led + 1px inset warm top-light (`--shadow-card/-h/-pop/-modal`
+  + the `-premium` pair compose on top; P10-2: the phantom `-mockup` never
+  existed in globals.css). Glass: 16px blur + warm
   hairline (`--glass-*`).
 - Under `prefers-contrast: more`: elevations collapse to solid warm rings,
   borders strengthen, glass goes solid.

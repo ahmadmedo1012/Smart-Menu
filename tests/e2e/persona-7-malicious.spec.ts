@@ -31,7 +31,7 @@ test("P7: XSS — payload in item name renders escaped (never executes)", async 
   // Use the public menu page: verify no stored payload executes (window flag)
   await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
-  const executed = await page.evaluate(() => (window as any).__xss === 1);
+  const executed = await page.evaluate(() => (window as { __xss?: number }).__xss === 1);
   expect(executed).toBe(false);
   // Also verify no <script> tags injected into DOM from any item text
   const injected = await page.evaluate(() =>

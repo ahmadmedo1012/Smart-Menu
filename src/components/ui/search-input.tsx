@@ -96,7 +96,9 @@ export function SearchInput({
                                         onClick={handleClear}
                                         aria-label="مسح البحث"
                                         title="مسح البحث"
-                                        className="absolute end-2 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        // P10-2 (f): هدف لمس 44px (نمط r125 11-b) — size-7
+                                        // المرئي + طبقة before:-inset-2 تمدّد مساحة النقر.
+                                        className="absolute end-2 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 before:absolute before:-inset-2 before:content-['']"
                                 >
                                         <AnimatedX size={16} className="text-current" />
                                 </button>

@@ -102,7 +102,6 @@ describe('r140 — عقد هاتف الدفع الأسطولي الموحد (م�
 
   describe('غياب الحقل يبقى اختياريًا (مسار البنك بلا هاتف)', () => {
     it('الحقل نفسه يقبل undefined — رد البنك يمر بلا phone (createPaymentSchema يجرب في اختبارات المسار الكاملة)', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const r = paymentPhoneField.safeParse(undefined);
       expect(r.success).toBe(true);
     });

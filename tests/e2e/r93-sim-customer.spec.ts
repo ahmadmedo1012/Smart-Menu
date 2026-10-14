@@ -35,7 +35,6 @@ const pageErrors: string[] = [];
 let orderPostStatus = 0;
 let orderPostBody = "";
 let loyaltyPostStatus = 0;
-let loyaltyPostBody = "";
 
 test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة متصلة", () => {
   let context: BrowserContext;
@@ -56,11 +55,6 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
       }
       if (r.url().endsWith("/api/loyalty") && r.request().method() === "POST") {
         loyaltyPostStatus = r.status();
-        r.text()
-          .then((t) => {
-            loyaltyPostBody = t.slice(0, 300);
-          })
-          .catch(() => {});
       }
     });
     /* wa.me هدف خارجي — نstubه محليًا حتى لا يعتمد نجاح الرحلة على الشبكة

@@ -67,7 +67,7 @@ test("geometry: half-sheet dialogs never exceed 85vh on mobile", async ({ page }
     await addBtn.click();
     await page.waitForTimeout(1200);
     const dialogs = await page.evaluate(() => {
-      const out: any[] = [];
+      const out: { cls: string; h: number; vh: number }[] = [];
       document.querySelectorAll('[role="dialog"], [class*="sheet"], [class*="Sheet"]').forEach((el) => {
         const r = (el as HTMLElement).getBoundingClientRect();
         if (r.height > 0 && r.width > 100) {
