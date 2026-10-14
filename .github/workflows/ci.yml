@@ -332,6 +332,12 @@ jobs:
       # like the other reports.
       - name: Upload coverage report
         if: always()
+        # P13-2b: account-level artifact-storage quota (documented external
+        # blocker since Phase 8 — "Usage is recalculated every 6-12 hours")
+        # fails the UPLOAD, not any quality gate. Evidence shipping must not
+        # fail CI while the billing quota is exhausted; the upload still
+        # runs and records its outcome. Gates (lint/build/test) stay hard.
+        continue-on-error: true
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage-report
@@ -573,6 +579,9 @@ jobs:
         continue-on-error: true # never block deploys on flaky rate-limits
       - name: Upload production QA report
         if: always() && steps.prodqa.outcome != 'skipped'
+        # P13-2b: same account-level quota blocker as the coverage upload —
+        # see the note above. The prod-qa TEST steps above remain hard gates.
+        continue-on-error: true
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: prod-qa-report
