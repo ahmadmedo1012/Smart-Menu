@@ -47,9 +47,12 @@ describe('POST /api/seed — envelope + no internal leak (round89-A4)', () => {
                 expect(res.status).toBe(200);
                 const json = await res.json();
                 expect(json.success).toBe(true);
-                expect(json.data).toBe('تم تحديث الخطط بنجاح — خططتان (مجاني + مدفوعة)');
-                // both plans upserted, admin untouched (exists)
-                expect(mockPlanUpdate).toHaveBeenCalledTimes(2);
+                /* P13-2b ladder realignment: the seed now carries the production
+                 * 5-plan ladder — the message stopped hand-counting the plans
+                 * («خططتان: مجاني + مدفوعة» would be a lie again) and the upsert
+                 * count follows DEFAULT_PLANS (5). */
+                expect(json.data).toBe('تم تحديث الخطط بنجاح');
+                expect(mockPlanUpdate).toHaveBeenCalledTimes(5);
                 expect(mockPlanCreate).not.toHaveBeenCalled();
                 expect(mockUserFindUnique).toHaveBeenCalledWith({ where: { username: 'admin' } });
         });

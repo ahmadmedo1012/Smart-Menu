@@ -37,7 +37,11 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
 
                                 setUsage({
                                         current: stats.totalItems || 0,
-                                        max: rest.maxItems || 50,
+                                        /* P13-2b (T4): الاحتياط القديم 50 لم يكن يطابق أي خطة
+                                           في سلّم البذرة القديم — الاحتياط يشتعل فقط عند غياب
+                                           بيانات الخطة (لا خطة = مجاني افتراضيًا) فسقفه الفعلي
+                                           10، فلا يظهر المالك رصيدًا كاذبًا قبل وصول البيانات. */
+                                        max: rest.maxItems || 10,
                                         planName: rest.plan?.nameAr || 'مجاني',
                                 });
                                 setError(null);

@@ -144,3 +144,70 @@ const FEATURE_LABELS: Record<string, string> = {
 export function itemsPhrase(plan: ComparisonPlan): string {
         return `حتى ${toArabicNumber(plan.maxItems)} ${getArabicPlural(plan.maxItems, 'صنف', undefined, 'أصناف')}`;
 }
+
+/* ── P13-2b (T3) — in-card limit dedup: ONE limit surface per card ──────── */
+
+/**
+ * P13-2b (T3): plan cards used to state the enforced caps TWICE — once as
+ * the computed surface (/pricing stats grid, /subscribe itemsPhrase, the
+ * subscribe review recap) and again as DB feature strings that merely
+ * restate the same number («أصناف حتى 9999» under a stats row already
+ * saying «الأصناف: حتى 9999»). The DB stays the source of truth — this is
+ * a RENDER-layer filter shared by every plan-card surface (never
+ * triplicated): when a card already shows a computed cap, feature strings
+ * that exactly restate that cap are dropped from the rendered list.
+ */
+export type ShownCap = 'menus' | 'items' | 'orders';
+
+/** The numeric caps every ComparisonPlan carries. */
+type PlanCaps = Pick<ComparisonPlan, 'maxMenus' | 'maxItems' | 'maxOrders'>;
+
+const CAP_NOUNS: Record<ShownCap, { singular: string; plural: string }> = {
+        menus: { singular: 'منيو', plural: 'منيوهات' },
+        items: { singular: 'صنف', plural: 'أصناف' },
+        orders: { singular: 'طلب', plural: 'طلبات' },
+};
+
+const capValue = (plan: PlanCaps, cap: ShownCap): number =>
+        cap === 'menus' ? plan.maxMenus : cap === 'items' ? plan.maxItems : plan.maxOrders;
+
+/**
+ * Exact-match restatement candidates for one cap, built FROM the plan's own
+ * number (never a hardcoded phrase list — a ladder change can't orphan the
+ * filter). Covers the wording families the fleet's seeds/migrations use:
+ *   bare count      «10 أصناف» / «50 صنف»   (formatCap family, incl. the
+ *                   spelled-out 1/2 and the sentinel «حتى N صنف» forms)
+ *   r92-law style   «أصناف حتى 9999» / «منيوهات حتى 10» (noun ثم العدد)
+ *   computed style  «حتى 3 منيوهات» / «حتى 100 صنف» (itemsPhrase / capRows)
+ * Both noun spellings are covered because Arabic takes the plural noun for
+ * 3–10 counts and the singular for 11+.
+ */
+function capRestatements(plan: PlanCaps, cap: ShownCap): string[] {
+        const value = capValue(plan, cap);
+        const { singular, plural } = CAP_NOUNS[cap];
+        const n = toArabicNumber(value);
+        return [
+                formatCap(value, singular, plural),
+                `${plural} حتى ${n}`,
+                `${singular} حتى ${n}`,
+                `حتى ${n} ${singular}`,
+                `حتى ${n} ${plural}`,
+        ];
+}
+
+/**
+ * The features list minus the cap restatements of `shownCaps` — the render
+ * complement of the card's computed limit surface. Trims before matching so
+ * DB rows with stray whitespace never dodge the filter.
+ */
+export function filterLimitFeatures(
+        features: string[],
+        plan: PlanCaps,
+        shownCaps: readonly ShownCap[],
+): string[] {
+        const restatements = new Set<string>();
+        for (const cap of shownCaps) {
+                for (const phrase of capRestatements(plan, cap)) restatements.add(phrase.trim());
+        }
+        return features.filter((f) => !restatements.has(f.trim()));
+}

@@ -28,9 +28,13 @@ const formatters = new Map<number, Intl.NumberFormat>();
 function formatterFor(decimals: number): Intl.NumberFormat {
   let fmt = formatters.get(decimals);
   if (!fmt) {
+    // P13-2b (T4): numberingSystem 'latn' صريح — نفس عقد OrdersFilters.tsx:38-43.
+    // ICU ar-LY يحلّها latn ضمنيًا («12.345») لكن العقد الصريح يحصّن ضد أي
+    // بيئة ICU تحلّها لأرقام هندية (٠١٢٣) — سياسة الأرقام الغربية صريحة لا ضمنية.
     fmt = new Intl.NumberFormat('ar-LY', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
+      numberingSystem: 'latn',
     });
     formatters.set(decimals, fmt);
   }

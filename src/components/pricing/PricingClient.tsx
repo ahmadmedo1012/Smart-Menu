@@ -8,7 +8,7 @@ import type { Plan } from '@/lib/plan-types';
 import Link from 'next/link';
 import { m, useReducedMotion } from 'motion/react';
 import { springDefault } from '@/lib/motion';
-import {Star, Crown, Building2, Sparkles, ChevronDown, UtensilsCrossed, Zap, type LucideIcon} from 'lucide-react';
+import { ChevronDown, UtensilsCrossed, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CountUp } from '@/components/ui/CountUp';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -18,43 +18,17 @@ import { Footer } from '@/components/layout/Footer';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/format';
 import { fetchJson } from '@/lib/fetch-json';
+/* P13-2b (T4): خريطة عرض الخطط — وحدة واحدة لكل الأسطح (كانت هنا PLAN_META
+   محلية توأم PlanSelector/SubscribeForm). */
+import { PLAN_META, DEFAULT_PLAN_META } from '@/components/subscribe/plan-meta';
+/* P13-2b (T3): إزالة تكرار الحدود داخل البطاقة — قائد النقاط هو سطح الحد
+   الوحيد، وسلاسل الميزات التي تعيد ذكر نفس السقف تُفلتر من العرض. */
+import { filterLimitFeatures } from '@/components/subscribe/plan-comparison';
 
-// Map by plan name (not index) — Enterprise previously fell past the 4-item
-// arrays → blank white icon box on the 5th card.
-// r95: أُزيل حقلا gradient/glow الميتان — شريحة أيقونة SmartBot §5.4
-// (bg-accent-foreground/10) حلّت محل شريحة التدرّج/التوهج القديمة.
-const PLAN_META: Record<string, { icon: LucideIcon; badge: string; badgeColor: string }> = {
-        Free: {
-                icon: Sparkles,
-                badge: '',
-                badgeColor: '',
-        },
-        Basic: {
-                icon: Star,
-                /* r120 (U11-P2-4): توحيد الشارة مع /subscribe — «الأكثر شعبية» في
-                   كل مكان؛ «الأكثر طلباً» تعبير غير دقيق للخطط. */
-                badge: 'الأكثر شعبية',
-                badgeColor: 'bg-orange text-orange-foreground',
-        },
-        Premium: {
-                icon: Crown,
-                badge: 'الأفضل قيمة',
-                /* r128-F5 (§4 flat cards): شارة مسطّحة — تدرّجا الشارة
-                   أُزيلا (منع التدرّجات)، لون صلب واحد يكفي. */
-                badgeColor: 'bg-orange text-orange-foreground',
-        },
-        Pro: {
-                icon: Building2,
-                badge: '',
-                badgeColor: '',
-        },
-        Enterprise: {
-                icon: Building2,
-                badge: 'للشركات الكبرى',
-                badgeColor: 'bg-primary text-primary-foreground',
-        },
-};
-const DEFAULT_META = PLAN_META.Free;
+/* P13-2b (T4): PLAN_META استُخرج لـ components/subscribe/plan-meta.ts —
+   المصدر الوحيد المشترك مع /subscribe (كانت نسخة محلية ثالثة هنا).
+   r95: أُزيل حقلا gradient/glow الميتان — شريحة أيقونة SmartBot §5.4
+   (bg-accent-foreground/10) حلّت محل شريحة التدرّج/التوهج القديمة. */
 
 /* r121-P1 (backlog #34): الدفع السنوي اختلاق غير قابل للشراء — الخادم يرفض
    أي مبلغ ≠ plan.price (subscriptions/route.ts:88) والموافقة تمنح 30 يوماً
@@ -64,7 +38,10 @@ const DEFAULT_META = PLAN_META.Free;
    يدعمه) لا إصلاحًا يمتطي دفعة إصلاح. */
 function PlanCard({ plan, index }: { plan: Plan; index: number }) {
         const reduceMotion = useReducedMotion();
-        const meta = PLAN_META[plan.name] ?? DEFAULT_META;
+        /* P13-2b (T3): السقوف الثلاثة معروضة أعلاه كقائد نقاط مطبوع — سلاسل
+           الميزات التي تعيد ذكر نفس الأرقام تُفلتر (سطح حدّ واحد لكل بطاقة). */
+        const features = filterLimitFeatures(plan.features, plan, ['menus', 'items', 'orders']);
+        const meta = PLAN_META[plan.name] ?? DEFAULT_PLAN_META;
         const Icon = meta.icon;
         const periodLabel = plan.periodDays === 0 ? '' : '/الشهر';
         const isPopular = index === 1;
@@ -115,11 +92,10 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                                         /* r95: شريحة أيقونة SmartBot §5.4 — بلا حدّ، bg-accent-foreground/10
                                                            Phase 6 (r154): بئر الطبق — الدائرة الكاملة بحافة التراكوتا
                                                            1.5px (نفس عقد بطاقة KPI)؛ المجاني يظل محايدًا والمدفوع
-                                                           دافئًا (تراكوتا على غسلة دافئة). */
+                                                           دافئًا (تراكوتا على غسلة دافئة). P13-2b (T4): الصنف من
+                                                           plan-meta الموحّدة (كان شرطية isFree محلية توأمة). */
                                                         'flex size-11 items-center justify-center rounded-full ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 transition-[background-color,transform] duration-base group-hover:scale-110',
-                                                        isFree
-                                                                ? 'bg-muted text-muted-foreground'
-                                                                : 'bg-orange-muted text-orange'
+                                                        meta.chip
                                                 )}
                                         >
                                                 <Icon className="size-5" />
@@ -185,7 +161,10 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                 </div>
 
                                 <div className="space-y-3 mb-8 flex-1">
-                                        {plan.features.map((feature: string, i: number) => (
+                                        {/* P13-2b (T3): الميزات المصفّاة — قائد النقاط أعلاه هو سطح
+                                           الحدّ الوحيد في البطاقة، فسلاسل الميزات التي تعيد ذكر نفس
+                                           السقف (بنيت من حقول الخطة نفسها، لا قائمة صلبة) تُسقط. */}
+                                        {features.map((feature: string, i: number) => (
                                                 <div
                                                         key={i}
                                                         className="flex items-start gap-3 text-sm"
@@ -280,7 +259,9 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                 <>
                                                         <LoadingAnnouncer loading={loading} message="جارٍ تحميل الباقات…" />
                                                         <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
-                                                        {[...Array(4)].map((_, i) => (
+                                                        {/* P13-2b (T4): ٥ هياكل — سلّم الإنتاج خمس خطط (كانت ٤
+                                                           هياكل تحجب البطاقة الخامسة عن انتظار المستخدم). */}
+                                                        {[...Array(5)].map((_, i) => (
                                                                 /* r95: هياكل التحميل بنفس هندسة بطاقة SmartBot الجديدة
                                                                    Phase 6 (r154): هندسة الطبق — البطاقة 16 والبئر دائرة
                                                                    (تنعكس نفس القواعد في pricing/loading.tsx). */

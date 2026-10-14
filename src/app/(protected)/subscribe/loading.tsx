@@ -32,8 +32,9 @@ export default function SubscribeLoading() {
                                 </div>
 
                                 {/* بطاقات الباقات */}
+                                {/* P13-2b (T4): ٥ هياكل — سلّم الإنتاج خمس خطط (r131 كانت ٤). */}
                                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4" aria-hidden="true">
-                                        {[...Array(4)].map((_, i) => (
+                                        {[...Array(5)].map((_, i) => (
                                                 <div
                                                         key={i}
                                                         className="rounded-lg border border-border/50 p-5 animate-rise-in"

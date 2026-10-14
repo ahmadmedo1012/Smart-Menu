@@ -3,10 +3,13 @@
  *
  * Schema-level lock for the two money-path caps added to
  * src/lib/payment-schema.ts:
- *   1. tempRestaurants: array .max(5) + per-entry field caps (name ≤ 200,
+ *   1. tempRestaurants: array .max(10) + per-entry field caps (name ≤ 200,
  *      slug ≤ 100 + [a-z0-9-] regex) — mirrors the gated restaurant-create
  *      schema conventions. The array used to be UNBOUNDED (metadata JSONB
- *      bloat + N restaurants minted on approval).
+ *      bloat + N restaurants minted on approval); round91-F-B set .max(5)
+ *      and P13-2b (T1) raised it to 10 — the Enterprise plan cap (r120
+ *      ladder), so the schema never rejects a payload the buyer's own plan
+ *      allows (r121-C-12).
  *   2. receiptImageUrl: .max(2_000) with the Arabic cap message — joins the
  *      R90 image-cap family (items 200k / settings 20k / logo 2k / upload 5MB).
  *
@@ -16,6 +19,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { createPaymentSchema } from '@/lib/payment-schema';
+import { DEFAULT_PLANS } from '@/lib/default-plans';
 
 function base() {
         return {
@@ -42,36 +46,43 @@ const menu = (name: string, slug: string) => ({ name, slug });
 // ── 1. tempRestaurants array + entry caps (D2-#1) ────────────────────────
 
 describe('createPaymentSchema — tempRestaurants caps (round91-F-B)', () => {
-        it('5 menus (the highest bounded plan cap) → accepted', () => {
+        /* P13-2b (T1) ladder realignment: the bound follows the highest bounded
+         * plan (Enterprise maxMenus=10, r120 ladder) — was 5, one BELOW the top
+         * plan's own cap. r121-C-12: an Enterprise buyer could only request 5
+         * menus in the wizard and had to add the rest via the dashboard. */
+        it('10 menus (the Enterprise plan cap — highest bounded plan) → accepted', () => {
                 const r = createPaymentSchema.safeParse({
                         ...base(),
-                        tempRestaurants: [
-                                menu('فرع 1', 'branch-1'),
-                                menu('فرع 2', 'branch-2'),
-                                menu('فرع 3', 'branch-3'),
-                                menu('فرع 4', 'branch-4'),
-                                menu('فرع 5', 'branch-5'),
-                        ],
+                        tempRestaurants: Array.from({ length: 10 }, (_, i) => menu(`فرع ${i + 1}`, `branch-${i + 1}`)),
                 });
                 expect(r.success).toBe(true);
         });
 
-        it('6 menus → rejected with the Arabic array-cap message', () => {
+        it('11 menus → rejected with the Arabic array-cap message', () => {
                 const r = createPaymentSchema.safeParse({
                         ...base(),
-                        tempRestaurants: [
-                                menu('فرع 1', 'branch-1'),
-                                menu('فرع 2', 'branch-2'),
-                                menu('فرع 3', 'branch-3'),
-                                menu('فرع 4', 'branch-4'),
-                                menu('فرع 5', 'branch-5'),
-                                menu('فرع 6', 'branch-6'),
-                        ],
+                        tempRestaurants: Array.from({ length: 11 }, (_, i) => menu(`فرع ${i + 1}`, `branch-${i + 1}`)),
                 });
                 expect(r.success).toBe(false);
                 if (!r.success) {
-                        expect(r.error.issues[0].message).toBe('الحد الأقصى 5 مطاعم في طلب الدفع الواحد');
+                        expect(r.error.issues[0].message).toBe('الحد الأقصى 10 مطاعم في طلب الدفع الواحد');
                 }
+        });
+
+        it('P13-2b (T1): the schema bound ≥ the max maxMenus across DEFAULT_PLANS (ladder drift re-flags here)', () => {
+                // A future plan (or cap change) that raises maxMenus above the
+                // hard .max() bound would silently re-introduce the r121-C-12
+                // defect — Enterprise owners schema-rejected BELOW their plan
+                // cap. This pin parses a payload at the seed ladder's own
+                // ceiling, so the bound must move WITH the ladder.
+                const ceiling = Math.max(...DEFAULT_PLANS.map((p) => p.maxMenus));
+                const r = createPaymentSchema.safeParse({
+                        ...base(),
+                        tempRestaurants: Array.from({ length: ceiling }, (_, i) =>
+                                menu(`فرع ${i + 1}`, `branch-${i + 1}`)
+                        ),
+                });
+                expect(r.success).toBe(true);
         });
 
         it('name over 200 chars → rejected with the name-cap message', () => {

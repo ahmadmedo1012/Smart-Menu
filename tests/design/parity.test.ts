@@ -2933,7 +2933,14 @@ describe('phase6 P6-2-b2 — الشاشات الجزئية العامة: الأ�
     expect(p).toContain("['الطلبات', `حتى ${plan.maxOrders}`]");
     // plan icon wells are literal plates: rounded-full + the 1.5px terracotta rim
     expect(p).toContain("'flex size-11 items-center justify-center rounded-full ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30");
-    expect(p).toContain("'bg-orange-muted text-orange'");
+    /* P13-2b (T4) honest re-pin: the warm-well chip classes moved from a local
+       PLAN_META twin to the ONE shared map (components/subscribe/plan-meta.ts —
+       the chip pin follows its source; PricingClient still binds it via
+       meta.chip). Same invariant, same classes, new single home. */
+    expect(p).toContain('meta.chip');
+    const pm = cc('src/components/subscribe/plan-meta.ts');
+    expect(pm).toContain("'bg-orange-muted text-orange'");
+    expect(pm).toContain("'bg-muted text-muted-foreground'");
     // plate geometry 16 + Baloo plan names, FAQ and CTA headings
     expect(p).toContain('rounded-lg');
     expect(p).toContain('font-heading text-base sm:text-lg font-bold');

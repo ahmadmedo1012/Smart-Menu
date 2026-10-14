@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
-import { Loader2 } from 'lucide-react';
 import { getActivePlans } from '@/lib/plans-server';
 import { SubscribeClient } from './SubscribeClient';
+/* P13-2b (T5): بديل التعليق — نفس هيكل loading.tsx للطريق (حكم الأسطول:
+   هياكل بالشكل لا غزل مجرد). مستورد لا منسوخ: مصدر واحد لهيكل التحميل. */
+import SubscribeLoading from './loading';
 
 /**
  * r121-G-5 (X3-V1) — /subscribe is now the pricing twin (round86-B5 pattern):
@@ -21,16 +23,10 @@ import { SubscribeClient } from './SubscribeClient';
  * /api/plans fetch as a fallback for when the server data was missing.
  */
 export default async function SubscribePage() {
-	const initialPlans = await getActivePlans();
-	return (
-		<Suspense
-			fallback={
-				<div className="min-h-screen flex items-center justify-center">
-					<Loader2 className="size-8 animate-spin text-accent-foreground" />
-				</div>
-			}
-		>
-			<SubscribeClient initialPlans={initialPlans} />
-		</Suspense>
-	);
+        const initialPlans = await getActivePlans();
+        return (
+                <Suspense fallback={<SubscribeLoading />}>
+                        <SubscribeClient initialPlans={initialPlans} />
+                </Suspense>
+        );
 }

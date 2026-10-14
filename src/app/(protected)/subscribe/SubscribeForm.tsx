@@ -9,24 +9,20 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
-import { Sparkles, Star, Crown, Building2, Store, Loader2, type LucideIcon } from 'lucide-react';
+import { Store, Loader2 } from 'lucide-react';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons';
 import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import type { WizardStep } from './StepIndicator';
+/* P13-2b (T4): خريطة عرض الخطط من الوحدة الموحّدة — كانت PLAN_ICONS المحلية
+   (Sparkles + الأسماء الخمسة) النسخة الثالثة المبعثرة من نفس الخريطة. */
+import { PLAN_META, DEFAULT_PLAN_META } from '@/components/subscribe/plan-meta';
 
 /* Phase 6 (r154): خريطة التدرّجات الميتة أُحيلت للتقاعد — بئر الأيقونة
    أصبح طبقًا دائريًا صلبًا (bg-orange) بحافة تراكوتا، بلا تدرّج
-   (قانون منع التدرّجات r128-F5). */
-const PLAN_ICONS: Record<string, LucideIcon> = {
-        Free: Sparkles,
-        Basic: Star,
-        Premium: Crown,
-        Pro: Building2,
-        Enterprise: Building2,
-};
+   (قانون منع التدرّجات r128-F5). PLAN_ICONS انتقلت لـ plan-meta.ts. */
 
 export interface RestaurantInput {
         name: string;
@@ -247,19 +243,20 @@ export function SubscribeForm({
                                                     بحافة 1.5px (تدرّج PLAN_GRADIENTS المتقاعد أعلاه). */}
                                                 <div className="size-10 rounded-full bg-orange ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 flex items-center justify-center">
                                                         {(() => {
-                                                                const Icon = PLAN_ICONS[currentPlan.name] || Sparkles;
+                                                                /* P13-2b (T4): أيقونة الخطة من plan-meta الموحّدة
+                                                                   (fallback Free — لا بئر فارغة لاسم غير معروف). */
+                                                                const Icon = PLAN_META[currentPlan.name]?.icon ?? DEFAULT_PLAN_META.icon;
                                                                 return <Icon className="size-5 text-orange-foreground" />;
                                                         })()}
                                                 </div>
                                                 <div>
                                                         <p className="font-bold tabular-nums">{currentPlan.nameAr}</p>
+                                                        {/* P13-2b (T3): ذيل «حتى N صنف» أُزيل من هذه البطاقة — كان
+                                                            يكرر حدّ الأصناف الذي يعرضه «ملخص الاشتراك» في خطوة
+                                                            المراجعة على الشاشة نفسها (سطح حدّ واحد لكل بطاقة:
+                                                            شريحة الخطة = هوية وسعر؛ ملخص المراجعة = السقوف كلها). */}
                                                         <p className="text-xs text-muted-foreground">
                                                                 {Number(currentPlan.price) === 0 ? 'مجاني' : formatPrice(currentPlan.price, { suffix: ' د.ل/شهر' })}
-                                                                {' • '}
-                                                                {/* r143 (Phase-4 W1 D10): صدق الحدود — 9999 يُذكر بعدده
-                                                                    (r92: TEXT follows ENFORCEMENT؛ الحارس يرفض الصنف
-                                                                    9999 فلا وعد «غير محدود») */}
-                                                                {`حتى ${toArabicNumber(currentPlan.maxItems)} صنف`}
                                                         </p>
                                                 </div>
                                         </div>
@@ -527,7 +524,11 @@ export function SubscribeForm({
                                                         {/* Plan summary */}
                                                         {/* r95: ملخص الاشتراك — هندسة SmartBot بعائلة accent-foreground
                                                             Phase 6 (r154): القيم على قائد النقاط المطبوع (ملخص
-                                                            الطلب في لوحة المالك نفسها) بدل صفوف فراغية. */}
+                                                            الطلب في لوحة المالك نفسها) بدل صفوف فراغية.
+                                                            P13-2b (T3): هذا الملخص هو سطح السقوف الوحيد في المعالج —
+                                                            صفوف المنيوهات/الأصناف/الطلبات هنا (وسطر «حتى N صنف» الذي
+                                                            كان في شريحة الخطة أعلاه أُزيل لأنه كان يكررها على الشاشة
+                                                            نفسها في خطوة المراجعة). */}
                                                         <div className="rounded-lg bg-accent-foreground/[0.05] border border-accent-foreground/20 p-5">
                                                                 <h4 className="font-heading font-bold mb-3">ملخص الاشتراك</h4>
                                                                 <div className="space-y-2.5 text-sm">

@@ -29,7 +29,8 @@ const UpgradePlanSummary = dynamic(
 // Number("PREMIUM") is NaN, so the id/position lookups miss and the wizard
 // dead-ended on «تعذّر تحميل الخطة المحددة». Resolution order: exact id →
 // 1-based position in sortOrder (ids may shift in DB) → case-insensitive
-// plan name (DB names: Free/Basic/Premium/Pro/Business). Unknown values
+// plan name (DB names: Free/Basic/Premium/Pro/Enterprise — P13-2b: علّق
+// سلفًا «Business» الوهمية التي لا وجود لها في أي بيئة). Unknown values
 // still fall through to the existing retry error path.
 function resolvePreselectedPlan(plans: Plan[], value: string): Plan | undefined {
         const sorted = [...plans].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -387,7 +388,8 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                                 ))}
                                         </div>
                                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto" aria-hidden="true">
-                                                {[...Array(4)].map((_, i) => (
+                                                {/* P13-2b (T4): ٥ هياكل — سلّم الإنتاج خمس خطط (r131 كانت ٤). */}
+                                                {[...Array(5)].map((_, i) => (
                                                         <div key={i} className="rounded-lg border border-border/50 p-5 animate-rise-in" style={{ animationDelay: `${i * 60}ms` }}>
                                                                 <div className="size-10 rounded-full skeleton mb-3" />
                                                                 <div className="h-4 w-2/3 skeleton rounded-sm mb-3" />

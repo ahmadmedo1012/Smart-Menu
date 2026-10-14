@@ -65,16 +65,63 @@ describe('round92-A3/A4 — ci-seed DEFAULT_PLANS carry the corrected texts', ()
     }
   });
 
-  it('Premium items text matches its maxItems sentinel (9999)', () => {
+  it('Premium items text matches its enforced cap (P13-2b ladder realignment: 100, not the 9999 sentinel)', () => {
+    /* P13-2b ladder realignment: Premium in the production ladder is 29 د.ل
+     * (2/100/1000) — the 9999 sentinel moved up to Pro/Enterprise only. The
+     * feature text follows the enforced cap (r92 law: «أصناف حتى 100»). */
     const premium = DEFAULT_PLANS.find((p) => p.name === 'Premium');
-    expect(premium?.maxItems).toBe(9999);
-    expect(premium?.features).toContain('أصناف حتى 9999');
+    expect(premium?.maxItems).toBe(100);
+    expect(premium?.features).toContain('أصناف حتى 100');
+    // the sentinel now lives ONLY in the two top plans
+    for (const p of DEFAULT_PLANS.filter((p) => p.name !== 'Pro' && p.name !== 'Enterprise')) {
+      expect(`${p.name}: maxItems=${p.maxItems}`).not.toContain('9999');
+      expect(`${p.name}: maxMenus=${p.maxMenus}`).not.toContain('9999');
+    }
   });
 
   it('Free plan lines keep matching its caps (10 items)', () => {
     const free = DEFAULT_PLANS.find((p) => p.name === 'Free');
     expect(free?.maxItems).toBe(10);
     expect(free?.features).toContain('10 أصناف');
+  });
+});
+
+describe('P13-2b (T2) — the seed ladder mirrors the production 5-plan ladder', () => {
+  /* Production is the source of truth (live /api/plans rows — untouched):
+   * Free 0 (1/10/100) · Basic 19 (1/50/500) · Premium 29 (2/100/1000) ·
+   * Pro 129 (3/9999/99999) · Enterprise 299 (10/9999/99999), all 30-day.
+   * Before P13-2b the local/CI seed carried only 2 plans (Free + a Premium
+   * with the maxMenus=9999 sentinel) — every dev/e2e environment drifted
+   * from what production sells. This pin breaks the moment either side
+   * moves, so the drift can never re-appear silently. */
+  const LADDER = [
+    { name: 'Free', nameAr: 'مجاني', price: 0, maxMenus: 1, maxItems: 10, maxOrders: 100 },
+    { name: 'Basic', nameAr: 'الأساسية', price: 19, maxMenus: 1, maxItems: 50, maxOrders: 500 },
+    { name: 'Premium', nameAr: 'بريميوم', price: 29, maxMenus: 2, maxItems: 100, maxOrders: 1000 },
+    { name: 'Pro', nameAr: 'الاحترافية', price: 129, maxMenus: 3, maxItems: 9999, maxOrders: 99999 },
+    { name: 'Enterprise', nameAr: 'الشركات', price: 299, maxMenus: 10, maxItems: 9999, maxOrders: 99999 },
+  ];
+
+  it('five plans, in sortOrder, with the production prices, caps and period', () => {
+    expect(DEFAULT_PLANS.map((p) => p.name)).toEqual(LADDER.map((p) => p.name));
+    LADDER.forEach((expected, i) => {
+      const p = DEFAULT_PLANS[i];
+      expect(p.nameAr).toBe(expected.nameAr);
+      expect(p.price).toBe(expected.price);
+      expect(p.maxMenus).toBe(expected.maxMenus);
+      expect(p.maxItems).toBe(expected.maxItems);
+      expect(p.maxOrders).toBe(expected.maxOrders);
+      expect(p.periodDays).toBe(30);
+      expect(p.sortOrder).toBe(i + 1);
+    });
+  });
+
+  it('no plan carries the 9999 menus sentinel (r120 value-ladder collapse guard)', () => {
+    // zz_round120: Premium maxMenus 9999 → 2 — a cheap plan showing
+    // «unlimited menus» above Pro/Enterprise collapses the value ladder.
+    for (const p of DEFAULT_PLANS) {
+      expect(p.maxMenus).toBeLessThan(9999);
+    }
   });
 });
 
@@ -100,8 +147,10 @@ describe('r93-N2 — /api/seed يتغذى من المصدر المشترك نف�
         expect(`${p.name}: ${f}`).not.toContain('غير محدودة');
       }
     }
-    expect(API_DEFAULT_PLANS.find((p) => p.name === 'Premium')?.maxItems).toBe(9999);
-    expect(API_DEFAULT_PLANS.find((p) => p.name === 'Premium')?.features).toContain('أصناف حتى 9999');
+    // P13-2b ladder realignment: Premium follows the production ladder (100),
+    // not the old local 9999 sentinel
+    expect(API_DEFAULT_PLANS.find((p) => p.name === 'Premium')?.maxItems).toBe(100);
+    expect(API_DEFAULT_PLANS.find((p) => p.name === 'Premium')?.features).toContain('أصناف حتى 100');
   });
 });
 

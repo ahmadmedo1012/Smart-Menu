@@ -1,30 +1,18 @@
 'use client';
 
-import { Sparkles, Star, Crown, Building2, Flame } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { MotionCheck } from '@/components/ui/motion-icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
-import { itemsPhrase, type ComparisonPlan } from '@/components/subscribe/plan-comparison';
+import { itemsPhrase, filterLimitFeatures, type ComparisonPlan } from '@/components/subscribe/plan-comparison';
+/* P13-2b (T4): خريطة عرض الخطط من الوحدة الموحّدة (كانت PLAN_META محلية
+   ثالثة هنا). */
+import { PLAN_META, DEFAULT_PLAN_META } from '@/components/subscribe/plan-meta';
 
 type Plan = ComparisonPlan;
-
-// Map by plan name (not index) — survives plan reordering/adding.
-// Enterprise had no icon → blank white box on the 5th card.
-/* r128-F5 (§4 flat cards): شرائح أيقونة مسطّحة — بلا تدرّج ولا ظلّ. */
-const PLAN_META: Record<
-        string,
-        { icon: typeof Sparkles; chip: string; recommended?: boolean }
-> = {
-        Free: { icon: Sparkles, chip: 'bg-muted text-muted-foreground' },
-        Basic: { icon: Star, chip: 'bg-orange-muted text-orange', recommended: true },
-        Premium: { icon: Crown, chip: 'bg-orange-muted text-orange' },
-        Pro: { icon: Building2, chip: 'bg-orange-muted text-orange' },
-        Enterprise: { icon: Building2, chip: 'bg-orange-muted text-orange' },
-};
-const DEFAULT_META = { icon: Sparkles, chip: 'bg-muted text-muted-foreground' };
 
 export function PlanSelector({
         plans,
@@ -49,9 +37,13 @@ export function PlanSelector({
                         </h2>
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 max-w-4xl mx-auto">
                                 {visiblePlans.map((plan) => {
-                                        const meta = PLAN_META[plan.name] ?? DEFAULT_META;
+                                        const meta = PLAN_META[plan.name] ?? DEFAULT_PLAN_META;
                                         const Icon = meta.icon;
                                         const isSelected = selectedPlan === plan.id;
+                                        /* P13-2b (T3): itemsPhrase أعلاه هو سطح حدّ الأصناف الوحيد في
+                                           البطاقة — سلاسل الميزات التي تعيد ذكر نفس السقف تُسقط من
+                                           العرض (نفس قاعدة /pricing، نفس المساعد المشترك). */
+                                        const features = filterLimitFeatures(plan.features, plan, ['items']);
                                         return (
                                                 <button
                                                         key={plan.id}
@@ -112,18 +104,21 @@ export function PlanSelector({
                                                         </div>
                                                         <p className="text-xs text-muted-foreground mb-3">{itemsPhrase(plan)}</p>
                                                         <div className="space-y-1.5 mb-4 flex-1">
-                                                                {plan.features.slice(0, 4).map((f, j) => (
+                                                                {features.slice(0, 4).map((f, j) => (
                                                                         <div key={j} className="flex items-center gap-2 text-xs">
                                                                                 {/* r95: علامات الميزات — اللهب الأسطع */}
                                                                                 <MotionCheck className="size-3 text-accent-foreground shrink-0" />
                                                                                 <span>{f}</span>
                                                                         </div>
                                                                 ))}
-                                                                {plan.features.length > 4 && (
-                                                                        /* r95: مزيد الميزات — accent-foreground (AA) */
+                                                                {features.length > 4 && (
+                                                                        /* r95: مزيد الميزات — accent-foreground (AA).
+                                                                           P13-2b (T3): العدّ على القائمة المصفّاة (بعد إسقاط
+                                                                           تكرارات حدّ الأصناف) وإلا ادّعى البطاقة ميزات مخفية أكثر
+                                                                           من الموجود. */
                                                                         <p className="text-xs text-accent-foreground font-medium">
-                                                                                +{toArabicNumber(plan.features.length - 4)}{' '}
-                                                                                {getArabicPlural(plan.features.length - 4, 'ميزة أخرى', 'ميزتان أخريان', 'ميزات أخرى')}
+                                                                                +{toArabicNumber(features.length - 4)}{' '}
+                                                                                {getArabicPlural(features.length - 4, 'ميزة أخرى', 'ميزتان أخريان', 'ميزات أخرى')}
                                                                         </p>
                                                                 )}
                                                         </div>

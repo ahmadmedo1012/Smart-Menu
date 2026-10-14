@@ -93,11 +93,17 @@ export const createPaymentSchema = z
                         // per-plan cap is plan.maxMenus, enforced at approval time
                         // inside the decision transaction (subscription-decisions.ts —
                         // FOR UPDATE on the user row). This bound is aligned with the
-                        // highest bounded seeded plan (Business maxMenus=5; Free 1 /
-                        // Basic 2 / Pro 4 — Premium 9999 carries "unlimited" semantics
-                        // per plan-comparison.ts and stays governed by the
-                        // approval-time check).
-                        .max(5, 'الحد الأقصى 5 مطاعم في طلب الدفع الواحد')
+                        // highest bounded plan in the production ladder (Enterprise
+                        // maxMenus=10; Free 1 / Basic 1 / Premium 2 / Pro 3 —
+                        // zz_round120 migration), so an Enterprise buyer can request
+                        // every menu they paid for in the wizard itself instead of
+                        // hitting a schema rejection below their plan cap. The
+                        // r121-C-12 audit flagged the old .max(5) as BELOW Enterprise
+                        // (10) — its comment even documented a "Business" plan that
+                        // exists nowhere. P13-2b (T1) raised the bound to 10; the
+                        // payment-schema-caps test pins it ≥ the max maxMenus across
+                        // default-plans.json so a future ladder change re-flags drift.
+                        .max(10, 'الحد الأقصى 10 مطاعم في طلب الدفع الواحد')
                         .optional(),
                 // Bank transfer fields — only valid when provider === "bank"
                 senderAccountName: z.string().min(1).max(100).optional(),

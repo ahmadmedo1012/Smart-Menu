@@ -23,8 +23,10 @@ export default function PricingLoading() {
                                 </div>
 
                                 {/* بطاقات الباقات */}
+                                {/* P13-2b (T4): ٥ هياكل — سلّم الإنتاج خمس خطط (r95 كانت
+                                   ٤). */}
                                 <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                                        {[...Array(4)].map((_, i) => (
+                                        {[...Array(5)].map((_, i) => (
                                                 <div
                                                         key={i}
                                                         className="rounded-lg border border-border/50 p-5 sm:p-6 animate-rise-in"

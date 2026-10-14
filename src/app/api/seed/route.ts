@@ -42,7 +42,9 @@ export async function POST() {
     }
 
     // round89-A4: {success:true,data} envelope (was a bare {message})
-    return success("تم تحديث الخطط بنجاح — خططتان (مجاني + مدفوعة)");
+    // P13-2b (T2): كان النص يعدّ الخطط يدويًا («خططتان: مجاني + مدفوعة»)
+    // فصار كذبة مع سلّم الخمس خطط — النص الآن محايد تجاه العدد.
+    return success("تم تحديث الخطط بنجاح");
   } catch (e: unknown) {
     // round89-A4: the raw error (e.g. Prisma internals) stays server-side only —
     // the old apiError(e.message, 500) leaked it to the client (dx-4 #5)
