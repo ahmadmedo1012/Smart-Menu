@@ -54,7 +54,7 @@ export function RolesSection() {
           <RevealCssClass as="p" className="ln-chapter-lede" delay={2}>
             هذه ليست قائمة وعود — كل بند فيها وظيفة تعمل اليوم في المنتج،
             من أول رمز يُطبع حتى نقطة الولاء تُحصى. ابدأ مجاناً واقرأ
-            منيوك كما سيقرؤه زبائنك.
+            المنيو الخاص بك كما سيقرؤه زبائنك.
           </RevealCssClass>
           <RevealCssClass as="div" className="ln-owner-actions" delay={3}>
             <Link href="/pricing" className="ln-btn-ember">

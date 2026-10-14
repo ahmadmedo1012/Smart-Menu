@@ -17,13 +17,14 @@
      03 الرحلة               — من الطاولة إلى المطبخ: four numbered frames
      04 الأجواء              — huge quote + the two photographs
      05 لصاحب المطعم         — the owner's «قائمة الدورات» (honest benefits)
-     06 الختام               — the espresso back-cover («اجعل منيوك يتحدث»)
+     06 الختام               — the espresso back-cover («اجعل قائمتك تتحدث»)
      07 قبل أول طلب          — the FAQ spread on paper
 
    Discipline (inherited from the fleet contract, restated for r142):
      · Everything scoped under `.landing` — product tokens/pins in
-       globals.css are NEVER touched; the landing paints المائدة in
-       BOTH themes (intentional warm light stage).
+       globals.css are NEVER touched; the landing paints المائدة as a
+       warm LIGHT stage by default, with the deliberate warm NIGHT
+       stage opt-in (§19, P9/E3 — same grammar, stage values flip).
      · Colors are tokens only (--sm-*); ONE sanctioned gradient site
        (the hero's warm light pool) — everything else is flat grounds,
        hairlines and dotted leaders.
@@ -37,6 +38,9 @@
      · WCAG AA on paper: --sm-ink 14.1:1, --sm-ink-dim 6.5:1,
        --sm-ember-ink 5.8:1, --sm-ember (large text ≥24px only) 4.4:1,
        paper-on--sm-ember-deep 6.5:1.
+     · WCAG AA on night (§19): --sm-ink 15.2:1, --sm-ink-dim 8.8:1,
+       --sm-ember-ink 7.4:1 (6.4:1 on the raised card), --sm-ember
+       5.8:1, cocoa-on--sm-ember-deep 5.8:1 — every text pair ≥4.5:1.
    ═════════════════════════════════════════════════════════════════════ */
 
 /* ── 0 · scope base + المائدة tokens ─────────────────────────────────── */
@@ -486,6 +490,23 @@
 .landing .landing-nav-link:focus-visible { outline: 2px solid var(--sm-ink); outline-offset: 3px; border-radius: var(--sm-radius-pill); }
 
 .landing .landing-header-cta { display: flex; align-items: center; gap: var(--sp-2); }
+
+/* P9 (E3) — the theme toggle's slot: END of the rail at every breakpoint
+   (after the burger in DOM; the burger's ≤1080px auto-margin packs both
+   at the inline-end edge in RTL, and on desktop the burger hides so the
+   toggle closes the CTA cluster). The wrapper fixes the slot only — the
+   toggle itself is the family component (44px target, own mounted-guard,
+   own theme-aware product pill + focus ring). */
+.landing .landing-header-tools {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+/* the family ThemeToggle paints its own product focus ring
+   (focus-visible:ring-2 ring-ring/60, theme-aware) — suppress the
+   landing's espresso outline on it so keyboard focus is not
+   double-painted; visibility is deduplicated, never cut. */
+.landing .landing-theme-toggle:focus-visible { outline: none; }
 
 .landing .landing-burger {
   display: none;
@@ -1850,4 +1871,129 @@ html:has(.landing) {
   /* r149 (C2): 1.4px less block padding keeps the natural body under
      the 44px floor so the header pair lands EXACTLY on 44 = 44. */
   padding-block: 8.4px;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   19 · المطبخ الليلي — the warm NIGHT stage (P9/E3)
+   ─────────────────────────────────────────────────────────────────────
+   The r142 landing painted المائدة as cream paper in BOTH html themes
+   (there was no toggle to reach the dark class from the page itself).
+   Phase 9 wires the family ThemeToggle into the header — and with it a
+   DELIBERATE night stage: the same printed-menu grammar (Baloo, plates,
+   dotted leaders, hairline rules — zero structural change) with the
+   stage values flipped. The world stays warm culinary: cocoa ground in
+   the #241811 family, cream ink, luminous terracotta — the product's
+   own «مطبخ ليلي دافئ» night pair (#E07856 + cocoa fg), not a cold
+   slate. Gated on the REAL root convention: next-themes
+   attribute="class" (defaultTheme light) writes `.dark` on <html> —
+   globals.css paints the product shell the same way, so the toggle
+   flips the landing and the floating chrome in one motion.
+
+   Contrast ledger (measured, WCAG 2.1):
+     ink #F7EFE2       paper 15.2:1 · paper-2 14.2:1 · card 13.1:1
+     ink-dim #C9B69F   paper  8.8:1 · paper-2  8.2:1 · card  7.6:1
+     ember #E07856     paper  5.8:1 · paper-2  5.4:1 · card  5.0:1 (large/decor)
+     ember-ink #EC9372 paper  7.4:1 · paper-2  6.9:1 · card  6.4:1
+     ember-deep fill #E07856 + cocoa text #241811 = 5.8:1 (the product
+       dark-mode fill recipe — the deep grade inverts on night: the
+       fill goes LUMINOUS with dark ink on it, never terracotta+cream
+       which measured 2.6:1)
+     ember-bright #E89070 on the pinned back-cover #190F0A = 7.8:1
+   The back-cover (§12) KEEPS its espresso identity — one step DEEPER
+   than the night ground (#190F0A vs #241811) so the closing spread
+   still reads as the inversion of the world; its inner rules were
+   authored for cream-on-espresso and keep working, only the two
+   var(--sm-paper) text hooks flip back to cream explicitly below.
+   ═════════════════════════════════════════════════════════════════════ */
+
+/* the stage flip — token block mirrors §0 one-for-one. */
+html.dark .landing {
+  --sm-paper:      #241811;   /* dark cocoa — the night ground */
+  --sm-paper-2:    #2B1E15;   /* raised night band (marquee/trust/journey/footer) */
+  --sm-card:       #33241A;   /* raised card surface */
+  --sm-ink:        #F7EFE2;   /* cream — primary text · 15.2:1 */
+  --sm-ink-dim:    #C9B69F;   /* warm secondary text · 8.8:1 */
+  --sm-ember:      #E07856;   /* luminous terracotta — LARGE text (≥24px) + decor · 5.8:1 */
+  --sm-ember-ink:  #EC9372;   /* normal-size terracotta text · 7.4:1 */
+  --sm-ember-deep: #E07856;   /* filled surfaces — LUMINOUS on night, cocoa ink on it · 5.8:1 */
+  --sm-ember-bright: #E89070; /* terracotta text on the espresso back-cover · 7.8:1 */
+  --sm-ember-soft: rgb(224 120 86 / 0.15);  /* luminous warm wash (product dark accent) */
+  --sm-line:       rgb(245 237 221 / 0.17);
+  --sm-line-soft:  rgb(245 237 221 / 0.09);
+  --sm-line-strong:rgb(245 237 221 / 0.30); /* dotted price leaders */
+}
+
+/* raw-literal surfaces that can't ride the token flip — their espresso
+   values were authored against cream paper; the night twins carry the
+   same roles against cocoa. */
+
+/* header rail: scrolled backdrop = the night ground @ 92% (was paper) */
+html.dark .landing .landing-header.scrolled { background: rgb(36 24 17 / 0.92); }
+/* progress ribbon track: cream hairline grade */
+html.dark .landing .landing-progress { background: rgb(245 237 221 / 0.10); }
+/* scroll-spy + nav/burger hovers: warm cream washes (were espresso tints) */
+html.dark .landing header[data-active-section="menu"] .landing-nav-link[href="#menu"],
+html.dark .landing header[data-active-section="journey"] .landing-nav-link[href="#journey"],
+html.dark .landing header[data-active-section="ambience"] .landing-nav-link[href="#ambience"],
+html.dark .landing header[data-active-section="owner"] .landing-nav-link[href="#owner"] {
+  background: rgb(245 237 221 / 0.08);
+}
+html.dark .landing .landing-nav-link:hover { background: rgb(245 237 221 / 0.07); }
+html.dark .landing .landing-burger:hover { background: rgb(245 237 221 / 0.07); }
+/* the ghost pill: cream hairline + cream hover tint (was espresso) */
+html.dark .landing .ln-btn-ghost {
+  border-color: rgb(245 237 221 / 0.32);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+html.dark .landing .ln-btn-ghost:hover {
+  background: rgb(245 237 221 / 0.07);
+  border-color: rgb(245 237 221 / 0.50);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.30);
+}
+/* the ember fill hover LIFTS on night (the product's dark hover grade);
+   fill text stays cocoa #241811 on #E98F72 = 7.1:1 */
+html.dark .landing .ln-btn-ember:hover { background: #E98F72; }
+/* the printed-list row hover: quiet cream wash */
+html.dark .landing .ln-menu-row:hover { background: rgb(245 237 221 / 0.05); }
+
+/* the espresso back-cover KEEPS its identity — pinned one step deeper
+   than the night ground (#190F0A vs #241811) + hairline separation;
+   the two var(--sm-paper) text hooks flip back to cream (in this scope
+   --sm-ink IS cream) so the §12 rules keep reading correctly. */
+html.dark .landing .ln-cta { background: #190F0A; color: var(--sm-ink); }
+html.dark .landing .ln-cta-title em { color: var(--sm-ink); }
+html.dark .landing .ln-cta .ln-btn-ghost { color: var(--sm-ink); }
+html.dark .landing .ln-cta .ln-btn-ghost:hover { color: var(--sm-ink); }
+
+/* paper grain: the tile paints dark specks for cream paper — night gets
+   light specks (cream #F7EFE2 via the same feColorMatrix shape, same
+   200px stitchable tile, same veil opacity; its own rule so the light
+   twin's pinned tile stays byte-identical). */
+html.dark .landing .ln-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.97 0 0 0 0 0.94 0 0 0 0 0.89 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+
+/* RM press neutralizer, night grades (the §18 twin kept the press color
+   feedback when transforms die — the night fill presses to the hover
+   grade #E98F72, cocoa text 7.1:1; the ghost to the cream wash). */
+@media (prefers-reduced-motion: reduce) {
+  html.dark .landing .ln-btn-ember:active { background: #E98F72; }
+  html.dark .landing .ln-btn-ghost:active { background: rgb(245 237 221 / 0.07); }
+}
+
+/* night scrollbar: the paper-family espresso thumb would vanish on the
+   cocoa ground — cream grades while the landing is mounted (the light
+   twin pins the same pair for its paper world). */
+html.dark:has(.landing) {
+  --scrollbar-thumb: rgb(245 237 221 / 0.22);
+  --scrollbar-thumb-hover: rgb(245 237 221 / 0.36);
+}
+
+/* r149 (SM4) night twin: the floating family (WhatsApp bubble ·
+   scroll-to-top) stays terracotta — the PRODUCT dark pair (luminous
+   #E07856 + cocoa fg 5.84:1), the exact values the product shell uses
+   in .dark, so the pinned accent never argues with the night stage. */
+html.dark:has(.landing) {
+  --orange: #E07856;
+  --orange-foreground: #2A130D;
 }

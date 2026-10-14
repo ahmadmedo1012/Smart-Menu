@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Menu, X, ArrowLeft } from "lucide-react"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 /* r142 (task 2-b) — the landing header, rebuilt for «المائدة»: a warm
  * paper rail instead of the Orbit-Ink chrome. The mechanics survive the
@@ -21,7 +22,14 @@ import { Menu, X, ArrowLeft } from "lucide-react"
  *     with the safe-area inset on the drawer's bottom edge.
  * The r141 megamenu is retired with the dark world — the المائدة
  * narrative has exactly four anchors; a dropdown over four links is
- * chrome for chrome's sake. */
+ * chrome for chrome's sake.
+ * P9 (E3): the family ThemeToggle joins the rail — the landing finally
+ * ships the functional dark stage (landing.css §19). The toggle is the
+ * repo's shared client island (mounted-guard, 44px, own focus ring, own
+ * aria-label «الوضع الليلي/النهاري») — not a landing fork; the wrapper
+ * only fixes its slot (end of the rail at every breakpoint, after the
+ * burger so mobile keeps it beside the drawer button, not swallowed by
+ * the ≤1080px .landing-header-cta hide). */
 
 const SPY_SECTIONS = "#menu, #journey, #ambience, #owner"
 
@@ -138,6 +146,15 @@ export function LandingHeader() {
           >
             {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
           </button>
+
+          {/* P9 (E3): the theme toggle rides the rail END at every
+              breakpoint — on desktop it closes the CTA cluster, on mobile
+              (nav-links + header-cta hidden) it sits beside the burger.
+              DOM order after the burger + the burger's mobile auto-margin
+              keep it pinned to the inline-end edge in RTL. */}
+          <div className="landing-header-tools">
+            <ThemeToggle className="landing-theme-toggle" />
+          </div>
         </div>
 
         {menuOpen && (

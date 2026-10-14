@@ -183,7 +183,7 @@ export default function OwnerDashboard() {
                                 description={
                                         ownerSession?.pendingPaymentSince
                                                 ? `أرسلت طلب الدفع في ${formatDate(new Date(ownerSession.pendingPaymentSince))}. تتحقق الإدارة من التحويل وتفعّل حسابك — ستظهر لافتة «تم تفعيل اشتراكك» هنا فور الموافقة. لا يمكن إرسال طلب دفع جديد قبل البتّ في الطلب الحالي.`
-                                                : 'أكمل خطوة الدفع من صفحة الاشتراك لتفعيل منيوك — عند الموافقة ستظهر لافتة التفعيل هنا.'
+                                                : 'أكمل خطوة الدفع من صفحة الاشتراك لتفعيل المنيو الخاص بك — عند الموافقة ستظهر لافتة التفعيل هنا.'
                                 }
                                 action={
                                         ownerSession?.pendingPaymentSince ? (

@@ -101,7 +101,7 @@ function SubscriptionExpiryBanner({ days }: { days: number | null }) {
                                         </p>
                                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                                 {expired
-                                                        ? 'منيوك ما زال يعمل ويستقبل الطلبات، لكن تعديل الأصناف والأسعار متوقف حتى التجديد.'
+                                                        ? 'المنيو الخاص بك ما زال يعمل ويستقبل الطلبات، لكن تعديل الأصناف والأسعار متوقف حتى التجديد.'
                                                         : 'جدّد الآن حتى لا يتوقف تعديل المنيو عند انتهاء الصلاحية.'}
                                         </p>
                                         <div className="mt-3 flex flex-wrap items-center gap-2">

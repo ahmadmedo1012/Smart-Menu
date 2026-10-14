@@ -77,7 +77,7 @@ export function SubscriptionEventBanner({
                                         )}
                                         <p className="text-2xs text-muted-foreground/60 mt-2">
                                                 {approved
-                                                        ? 'حدّث الصفحة لتبدأ إدارة منيوك مباشرة.'
+                                                        ? 'حدّث الصفحة لتبدأ إدارة المنيو الخاص بك مباشرة.'
                                                         : 'يمكنك تعديل بيانات الدفع وإعادة المحاولة من صفحة الدفع'}
                                         </p>
                                         {approved && (

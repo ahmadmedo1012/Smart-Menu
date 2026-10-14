@@ -401,7 +401,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                         href="/subscribe"
                                                         className="font-semibold text-accent-foreground hover:underline underline-offset-4"
                                                 >
-                                                        أنشئ منيوك الآن
+                                                        أنشئ المنيو الخاص بك الآن
                                                 </Link>
                                         </p>
 

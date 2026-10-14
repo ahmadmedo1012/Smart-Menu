@@ -950,7 +950,7 @@ describe('r142 parity — المائدة token block (the --sm-* identity, verba
     );
   });
 
-  it('.landing base paints المائدة in both themes (background var(--sm-paper) / color var(--sm-ink))', () => {
+  it('.landing base paints المائدة (light default; §19 flips the night opt-in)', () => {
     expect(decl(landingTokenBlock, 'background')).toBe('var(--sm-paper)');
     expect(decl(landingTokenBlock, 'color')).toBe('var(--sm-ink)');
   });
@@ -1502,8 +1502,10 @@ describe('r142 parity — المائدة structure: hero card · المنيو ا
   });
 
   it('«الختام» is the espresso back-cover carrying the mandate line + the live stats with the honest fallback', () => {
-    expect(finaleRaw).toContain('اجعل منيوك');
-    expect(finaleRaw).toContain('يتحدث');
+    // phase9 (E2): the mandate line retired the colloquial possessive —
+    // «اجعل قائمتك تتحدث» (feminine agreement with قائمة).
+    expect(finaleRaw).toContain('اجعل قائمتك');
+    expect(finaleRaw).toContain('تتحدث');
     expect(finaleRaw).toMatch(/stats\s*\?/);
     expect(finaleRaw).toContain('أرقام المنصّة تُجلب الآن من قاعدة البيانات…');
     // the back-cover paints espresso ink + paper text
@@ -2978,5 +2980,158 @@ describe('phase6 P6-2-b2 — الشاشات الجزئية العامة: الأ�
     expect(l).toContain('rounded-lg');
     expect(l).toContain('size-20 rounded-full skeleton');
     expect(l).not.toContain('rounded-2xl');
+  });
+});
+
+// ── phase9 (P9-3-b, mission E2/E3) — the منيوك wording retirement + the
+// landing night stage. E2 was a user-explicit requirement: the colloquial
+// possessive «منيوك» (menuya-k) reads unprofessional in culinary Arabic;
+// every surface now speaks «المنيو الخاص بك» / «قائمتك». E3: the landing
+// finally ships the functional theme toggle (the family ThemeToggle twin)
+// and a deliberate warm night stage (landing.css §19) gated on the REAL
+// root convention (next-themes attribute="class" → html.dark), so the
+// stage flips without touching a single light-stage rule.
+
+const landingHeaderRaw = raw('src/components/landing/LandingHeader.tsx');
+const themeToggleRaw = raw('src/components/shared/ThemeToggle.tsx');
+const loginFormRaw = raw('src/app/(protected)/login/LoginForm.tsx');
+const ownerPageRaw = raw('src/app/(protected)/owner/page.tsx');
+const ownerShellRaw = raw('src/app/(protected)/owner/OwnerShell.tsx');
+const userBannerRaw = raw('src/components/owner/UserBannerNotifier.tsx');
+const mobileOwnerScreensRaw = raw('mobile/src/screens/owner/OwnerScreens.tsx');
+const mobileLandingRaw = raw('mobile/src/screens/public/LandingScreen.tsx');
+
+// the §19 night token block — parsed like the §0 light twin
+const landingNightDecls = parseDecls(
+  allTopLevelBlocks(landingCss, 'html.dark .landing')[0] ?? ''
+);
+
+describe('phase9 E2 — the colloquial «منيوك» is retired repo-wide (professional wording)', () => {
+  it('ZERO «منيوك» in any src/ or mobile/src/ source file (the audit docs are history, not surfaces)', () => {
+    const offenders = walkSrc('src')
+      .concat(walkSrc('mobile/src'))
+      .filter((p) => raw(p).includes('منيوك'));
+    expect(offenders, `«منيوك» survived in: ${offenders.join(', ')}`).toEqual([]);
+  });
+
+  it('the professional replacements landed on every confirmed surface', () => {
+    // web landing + login + owner surfaces
+    expect(loginFormRaw).toContain('أنشئ المنيو الخاص بك الآن');
+    expect(ownerPageRaw).toContain('لتفعيل المنيو الخاص بك');
+    expect(ownerShellRaw).toContain('المنيو الخاص بك ما زال يعمل');
+    expect(userBannerRaw).toContain('إدارة المنيو الخاص بك مباشرة');
+    expect(rolesRaw).toContain('المنيو الخاص بك كما سيقرؤه زبائنك');
+    expect(menuShowcaseRaw).toContain('هكذا يُقرأ المنيو الخاص بك على الجوال');
+    expect(menuShowcaseRaw).toContain('المنيو الخاص بك تديره كاملاً من لوحة التحكم');
+    expect(menuShowcaseRaw).toContain('أدر المنيو الخاص بك');
+    // the mandate line (hero aria + heading + sub) — feminine agreement
+    expect(finaleRaw).toContain('aria-label="اجعل قائمتك تتحدث"');
+    expect(finaleRaw).toContain('اجعل قائمتك <em>تتحدث</em>');
+    expect(finaleRaw).toContain('أنشئ قائمتك الرقمية اليوم');
+    // mobile surfaces
+    expect(mobileOwnerScreensRaw).toContain('رمز QR للمنيو الخاص بك');
+    expect(mobileLandingRaw).toContain('شارك المنيو الخاص بك');
+    // the landing.css anatomy comment follows the mandate wording
+    expect(landingCssRaw).toContain('«اجعل قائمتك تتحدث»');
+  });
+});
+
+describe('phase9 E3 — the functional landing theme toggle (the family twin)', () => {
+  it('LandingHeader renders the SHARED ThemeToggle (no landing fork) in the rail-end tools slot', () => {
+    expect(landingHeaderRaw).toContain(
+      'import { ThemeToggle } from "@/components/shared/ThemeToggle"'
+    );
+    expect(landingHeaderRaw).toContain('<div className="landing-header-tools">');
+    expect(landingHeaderRaw).toContain('<ThemeToggle className="landing-theme-toggle" />');
+    // the wrapper rule exists + the focus outline is deduplicated (the
+    // family component paints its own ring — visibility kept, never cut)
+    expect(landingCss).toContain('.landing .landing-header-tools {');
+    expect(landingCss).toContain('.landing .landing-theme-toggle:focus-visible { outline: none; }');
+  });
+
+  it('the toggle itself keeps the family contract: mounted-guard placeholder, 44px, aria-label, keyboard button', () => {
+    // mounted-guard: pre-hydration placeholder keeps the slot (no layout
+    // shift, no mismatched aria) — the round87-D4/round94 persistence
+    // specs locate exactly these labels.
+    expect(themeToggleRaw).toContain('aria-hidden="true"');
+    expect(themeToggleRaw).toContain('size-11');
+    expect(themeToggleRaw).toContain('aria-label={isDark ? "الوضع النهاري" : "الوضع الليلي"}');
+    expect(themeToggleRaw).toContain('m.button');
+    expect(themeToggleRaw).toContain('onClick={() => setTheme(isDark ? "light" : "dark")}');
+  });
+});
+
+describe('phase9 E3 — the warm night stage (landing.css §19, gated html.dark)', () => {
+  it.each(
+    [
+      ['--sm-paper', '#241811'],
+      ['--sm-paper-2', '#2B1E15'],
+      ['--sm-card', '#33241A'],
+      ['--sm-ink', '#F7EFE2'],
+      ['--sm-ink-dim', '#C9B69F'],
+      ['--sm-ember', '#E07856'],
+      ['--sm-ember-ink', '#EC9372'],
+      ['--sm-ember-deep', '#E07856'],
+      ['--sm-ember-bright', '#E89070'],
+      ['--sm-ember-soft', 'rgb(224 120 86 / 0.15)'],
+      ['--sm-line', 'rgb(245 237 221 / 0.17)'],
+      ['--sm-line-soft', 'rgb(245 237 221 / 0.09)'],
+      ['--sm-line-strong', 'rgb(245 237 221 / 0.30)'],
+    ] as const
+  )('night token %s', (token, expected) => {
+    expect(landingNightDecls[token], `landing.css §19 ${token} drifted`).toBe(expected);
+  });
+
+  it('the night stage mirrors the espresso back-cover one step deeper (#190F0A) with cream text hooks', () => {
+    expect(decl(landingRule('html.dark .landing .ln-cta'), 'background')).toBe('#190F0A');
+    expect(decl(landingRule('html.dark .landing .ln-cta'), 'color')).toBe('var(--sm-ink)');
+    expect(decl(landingRule('html.dark .landing .ln-cta-title em'), 'color')).toBe('var(--sm-ink)');
+    expect(decl(landingRule('html.dark .landing .ln-cta .ln-btn-ghost'), 'color')).toBe('var(--sm-ink)');
+  });
+
+  it('raw-literal chrome flips: scrolled rail backdrop, progress track, ghost hairline, ember hover, row/spy hovers', () => {
+    expect(decl(landingRule('html.dark .landing .landing-header.scrolled'), 'background')).toBe(
+      'rgb(36 24 17 / 0.92)'
+    );
+    expect(decl(landingRule('html.dark .landing .landing-progress'), 'background')).toBe(
+      'rgb(245 237 221 / 0.10)'
+    );
+    expect(decl(landingRule('html.dark .landing .ln-btn-ghost'), 'border-color')).toBe(
+      'rgb(245 237 221 / 0.32)'
+    );
+    expect(decl(landingRule('html.dark .landing .ln-btn-ember:hover'), 'background')).toBe('#E98F72');
+    expect(decl(landingRule('html.dark .landing .ln-menu-row:hover'), 'background')).toBe(
+      'rgb(245 237 221 / 0.05)'
+    );
+    // scroll-spy + nav hovers ride cream washes (spot-check the selector)
+    expect(landingCss).toContain(
+      'html.dark .landing header[data-active-section="menu"] .landing-nav-link[href="#menu"]'
+    );
+  });
+
+  it('night grain: light specks tile (the paper twin keeps its dark-speck pin untouched)', () => {
+    const grain = landingRule('html.dark .landing .ln-grain');
+    expect(grain).toContain('0 0 0 0 0.97');
+    // the light twin still paints dark specks (its own §0.1 pin)
+    expect(landingRule('.landing .ln-grain')).toContain('0 0 0 0 0.17');
+  });
+
+  it('night chrome reaches OUTSIDE .landing: scrollbar grades + the floating family product dark pair', () => {
+    const scrollbar = allTopLevelBlocks(landingCss, 'html.dark:has(.landing)');
+    expect(scrollbar.some((b) => b.includes('--scrollbar-thumb: rgb(245 237 221 / 0.22)'))).toBe(true);
+    expect(
+      scrollbar.some((b) => b.includes('--orange: #E07856') && b.includes('--orange-foreground: #2A130D'))
+    ).toBe(true);
+    // the light twin stays pinned (r149 SM4): the landing keeps the accent
+    // terracotta in BOTH stages — one family, two grades.
+    expect(landingCss).toContain('html:has(.landing) {\n  --orange: #C2452D;');
+  });
+
+  it('the night stage is a THEME opt-in, never a default: the light token block stays the resting cascade', () => {
+    // §0 still declares the light values at .landing scope; §19 only
+    // overlays under html.dark — the gate is the REAL next-themes class
+    // convention (attribute="class", defaultTheme light).
+    expect(decl(landingTokenBlock, 'background')).toBe('var(--sm-paper)');
+    expect(publicLayoutRaw).toContain('attribute="class" defaultTheme="light"');
   });
 });

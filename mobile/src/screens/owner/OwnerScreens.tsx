@@ -570,7 +570,7 @@ export function OwnerQrScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.page }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, alignItems: "center" }}>
-        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, marginBottom: 16 }}>رمز QR لمنيوك</Text>
+        <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 18, fontWeight: "700", color: colors.ink, marginBottom: 16 }}>رمز QR للمنيو الخاص بك</Text>
         {error ? (
           <ErrorState message={getErrorMessage(error, "تعذّر تحميل مطاعمك")} onRetry={() => { void refetch(); }} />
         ) : restaurants.length > 0 ? (

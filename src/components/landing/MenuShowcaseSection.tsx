@@ -74,7 +74,7 @@ export function MenuShowcaseSection() {
         </RevealCssClass>
         <RevealCssClass as="p" className="ln-chapter-lede" delay={2}>
           أصناف وأسعار حقيقية من منيو مقهى الواحة — مطعم تجريبي حي على
-          المنصة. هكذا يُقرأ منيوك على الجوال: أقسام واضحة، أسعار بلا غموض،
+          المنصة. هكذا يُقرأ المنيو الخاص بك على الجوال: أقسام واضحة، أسعار بلا غموض،
           وتفاصيل تكفي لقرار الطلب. جرّب الأقسام والأصناف بالأسفل.
         </RevealCssClass>
       </div>
@@ -151,7 +151,7 @@ export function MenuShowcaseSection() {
               <p className="ln-menu-note">
                 <Info size={15} aria-hidden="true" />
                 الأسماء والأسعار منسوخة حرفياً من منيو مقهى الواحة التجريبي
-                الحي على المنصة — منيوك أنت تديره كاملاً من لوحة التحكم:
+                الحي على المنصة — والمنيو الخاص بك تديره كاملاً من لوحة التحكم:
                 أصنافك وصورك وأسعارك.
               </p>
               <div className="ln-menu-card-actions">
@@ -160,7 +160,7 @@ export function MenuShowcaseSection() {
                   <ArrowLeft size={15} aria-hidden="true" />
                 </Link>
                 <Link href="/subscribe" className="ln-btn-ghost">
-                  أدر منيوك
+                  أدر المنيو الخاص بك
                 </Link>
               </div>
             </div>

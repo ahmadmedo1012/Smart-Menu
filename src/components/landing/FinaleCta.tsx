@@ -5,12 +5,14 @@ import { MagneticGoldLink } from "@/components/landing/MagneticGoldLink"
 /* r142 (task 2-b) — FinaleCta «الختام»: the back cover. The one inversion
  * of the whole المائدة world — the final spread flips to deep espresso
  * ink with paper text (every other chapter is cream paper), the way a
- * printed menu closes. The huge line is the mandate's own: «اجعل منيوك
- * يتحدث». The live stats line folds the platform's two REAL public
- * figures (passed down from HomePage — same payload, same honest
- * fallback: "—" when the live numbers are unavailable, never fabricated,
- * r82). The FAQ spread follows immediately on paper (LandingFaq) — the
- * two together read as the menu's last opened page.
+ * printed menu closes. The huge line is the mandate's own: «اجعل قائمتك
+ * تتحدث» (P9/E2: الصياغة الملكية العامّية للمنيو استُبدلت بصياغة مهنية —
+ * نفس الخط، نفس الموضع، القافية النسائية للقائمة). The live stats line folds the
+ * platform's two REAL public figures (passed down from HomePage — same
+ * payload, same honest fallback: "—" when the live numbers are
+ * unavailable, never fabricated, r82). The FAQ spread follows immediately
+ * on paper (LandingFaq) — the two together read as the menu's last opened
+ * page.
  *
  * Server component: pure markup.
  */
@@ -18,14 +20,14 @@ export function FinaleCta({ stats }: { stats: { totalRestaurants: number; totalU
   const year = new Date().getFullYear()
 
   return (
-    <section className="ln-cta" aria-label="اجعل منيوك يتحدث">
+    <section className="ln-cta" aria-label="اجعل قائمتك تتحدث">
       <div className="ln-cta-inner">
         <span className="ln-label">{"06 — الختام"}</span>
         <RevealCssClass as="h2" className="ln-cta-title" delay={1}>
-          اجعل منيوك <em>يتحدث</em>
+          اجعل قائمتك <em>تتحدث</em>
         </RevealCssClass>
         <RevealCssClass as="p" className="ln-cta-lede" delay={2}>
-          أنشئ منيوك الرقمي اليوم — أصناف تُشرح بصورها وأسعارها، وطلبات
+          أنشئ قائمتك الرقمية اليوم — أصناف تُشرح بصورها وأسعارها، وطلبات
           تصل على واتساب. ابدأ في دقائق، مجاناً وبدون بطاقة ائتمان.
         </RevealCssClass>
         <RevealCssClass as="div" className="ln-cta-actions" delay={3}>
