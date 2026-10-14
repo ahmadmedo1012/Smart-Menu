@@ -47,6 +47,19 @@ export async function GET() {
                 });
         }
 
+        // P10-4: ownership moved to the UserRestaurant join table (multi-restaurant
+        // migration) — /api/owner/restaurants reads the JOIN, but this route only
+        // mirrored User.restaurantId, so the demo owner landed on «لم يتم تفعيل
+        // حسابك بعد» with no activeId. Upsert the join row (isPrimary) so the
+        // demo session resolves through the same ownership path as real owners.
+        await prisma.userRestaurant.upsert({
+                where: {
+                        userId_restaurantId: { userId: user.id, restaurantId: user.restaurantId! },
+                },
+                update: { isPrimary: true },
+                create: { userId: user.id, restaurantId: user.restaurantId!, isPrimary: true },
+        });
+
         // Self-healing: ensure demo restaurant has categories and menu items
         const cats = await prisma.menuCategory.findMany({
                 where: { restaurantId: user.restaurantId! },
