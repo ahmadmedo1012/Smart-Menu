@@ -1,27 +1,21 @@
 import Image from 'next/image';
-import { DEMO_MENU } from './landing-data';
+import type { ReactNode } from 'react';
+import { DEMO_MENU, DEMO_MENU_URL } from './landing-data';
+import { HotspotPin } from './HotspotPin';
 
-/* r142 (task 2-b) — HeroTable «مائدة أول لقمة»: the hero's warm editorial
- * composition, replacing the r141 cinematic plate + floating chips (the
- * owner rejected that attempt as an incremental overlay).
+/* r142 (task 2-b) — HeroTable «مائدة أول لقمة», P12-2b (S1/S3) rework:
+ * the paper arch + photo plate gave way to the ORIGINAL three.js kitchen
+ * island — a floating wooden tea table (steaming teapot, bowls, amber
+ * tea glasses, parasol, lantern string) over the plum void, with a soft
+ * reflection sheen beneath. The REAL menu card stays exactly where it
+ * was — leaning against the world, now carrying the dish photo on its
+ * header (the one priority image) so the LCP story keeps a real photo.
  *
- * The composition is the المائدة concept itself in miniature:
- *   · .ln-hero-glow   — the ONE sanctioned warm radial (paper light pool
- *     behind the dish, α 0.12 — the new allowlist's single gradient site).
- *   · .ln-hero-dish   — the r141 hero photo (now hero-dish.webp) in a tall
- *     paper arch frame (قوس المائدة), melting into the page via inset
- *     veils, with two slow steam wisps (cream vapor on paper).
- *   · .ln-hero-card   — a REAL menu card leaning against the dish: a 3D
- *     CSS tilt (static perspective transform, no JS, no hover jitter)
- *     carrying four REAL rows from the platform's live demo menu
- *     (/menu/al-waha-cafe — مقهى الواحة, the seed rows in landing-data.ts),
- *     with dotted price leaders exactly like a printed menu. A gentle
- *     7s float breathes life into it; prefers-reduced-motion kills it.
- *
- * LCP doctrine: rendered AFTER the copy column, never gating it. The
- * dish is above the fold on desktop → `priority` with honest sizes; the
- * card is server-rendered HTML (no hydration gate). The glow/steam are
- * aria-hidden; the card and dish carry real content.
+ * The S3 hotspot pins are REAL links over the scene objects:
+ *   · المنيو الحي  → /menu/al-waha-cafe (the live demo — DEMO_MENU_URL)
+ *   · صاحب مطعم    → /subscribe (owner signup — the real CTA route)
+ *   · الأسعار      → /pricing (the real pricing route)
+ * Focusable, 44px hit floor, aria-labels — the canvas below is decor.
  *
  * Server component: no state, no effects, no 'use client'.
  */
@@ -30,28 +24,63 @@ import { DEMO_MENU } from './landing-data';
  * demo seed: one honest cross-section of the four live categories. */
 const HERO_ROWS = DEMO_MENU.map((c) => ({ cat: c, item: c.items[0]! }));
 
-export function HeroTable() {
+export function HeroTable({ scene }: { scene?: ReactNode }) {
   return (
     <div className="ln-hero-visual">
       <div className="ln-hero-stage">
-        <span className="ln-hero-glow" aria-hidden="true" />
+        {/* the floating island diorama in its rounded comic panel —
+            aria-hidden decor (hotspots, card, headline are the real layer) */}
+        <div className="ln-scene">
+          <div className="ln-island-frame" aria-hidden="true">
+            {scene}
+          </div>
 
-        <div className="ln-hero-dish">
-          <Image
-            src="/images/culinary/hero-dish.webp"
-            alt="مائدة دافئة بطبق رئيسي وإضاءة مسائية — اللقمة الأولى قبل أن تُقلب صفحة المنيو"
-            fill
-            priority
-            sizes="(max-width: 1024px) 92vw, 40vw"
-            className="ln-hero-dish-img"
-          />
-          <span className="ln-steam s1" aria-hidden="true" />
-          <span className="ln-steam s2" aria-hidden="true" />
+          {/* S3 — in-world hotspot pins over the scene objects (physical
+              anchors: left/top % over the canvas, direction-neutral) */}
+          <div className="ln-hotspots">
+            <HotspotPin
+              href={DEMO_MENU_URL}
+              icon="menu"
+              label="المنيو الحي"
+              title="جرّب المنيو الحي — منيو مقهى الواحة التجريبي"
+              style={{ left: '38%', top: '52%' }}
+              popDelay={0.45}
+            />
+            <HotspotPin
+              href="/subscribe"
+              icon="owner"
+              label="صاحب مطعم؟ ابدأ مجاناً"
+              title="أنشئ حساب مطعمك — ابدأ مجاناً بدون بطاقة ائتمان"
+              style={{ left: '64%', top: '24%' }}
+              popDelay={0.62}
+            />
+            <HotspotPin
+              href="/pricing"
+              icon="pricing"
+              label="الأسعار"
+              title="خطط الأسعار — تفاصيل الاشتراك"
+              style={{ left: '16%', top: '64%' }}
+              popDelay={0.79}
+            />
+          </div>
         </div>
 
         {/* the leaning menu card — real items, real prices, printed-menu
-            dotted leaders; the only 3D object on the page (static tilt) */}
+            dotted leaders; the dish photo rides its header (priority —
+            the page's one eager hero image) */}
         <aside className="ln-hero-card" aria-label="نموذج من منيو مقهى الواحة الحي">
+          <div className="ln-hero-card-photo">
+            <Image
+              src="/images/culinary/hero-dish.webp"
+              alt="مائدة دافئة بطبق رئيسي وإضاءة مسائية — اللقمة الأولى قبل أن تُقلب صفحة المنيو"
+              fill
+              priority
+              sizes="(max-width: 1024px) 88vw, 320px"
+              className="ln-hero-card-photo-img"
+            />
+            <span className="ln-steam s1" aria-hidden="true" />
+            <span className="ln-steam s2" aria-hidden="true" />
+          </div>
           <p className="ln-hero-card-kicker ln-mono">مقهى الواحة · منيو حي</p>
           <ul className="ln-hero-card-rows">
             {HERO_ROWS.map(({ cat, item }) => (

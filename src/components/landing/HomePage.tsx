@@ -1,5 +1,6 @@
 'use client';
 import { Fragment, useCallback, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Check, Languages, Smartphone } from 'lucide-react';
 // r142 (task 2-b) — «المائدة» landing layer: a warm editorial culinary
 // world (cream paper + ember + espresso ink) that replaces the Orbit-Ink
@@ -25,6 +26,12 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { CountUp } from '@/components/ui/CountUp';
 import { RevealCssClass } from '@/hooks/useReveal';
 import { fetchPublicStats, type PublicStats } from './landing-data';
+
+/* P12-2b (S1) — «جزيرة المطبخ»: the three.js diorama is client-only and
+ * must never block first paint (LCP doctrine) — HomePage is a client
+ * component, so dynamic + ssr:false is legal here; the scene fades in
+ * over the void while the headline/CTAs are already painted in HTML. */
+const IslandScene = dynamic(() => import('./KitchenIslandScene'), { ssr: false });
 
 /* Marquee vocabulary — the platform's real menu-domain names: the four
    default categories (the auto-seeded set every new menu starts with)
@@ -168,6 +175,25 @@ export function HomePage({
                                                         <span className="ln-hero-line">
                                                                 والطلبات على <em className="ln-hero-ember">واتساب</em>
                                                         </span>
+
+                                                        {/* S2 — star sparkles INSIDE the lockup (decor
+                                                            only, aria-hidden; RM freezes them; absolute so
+                                                            they never touch the text flow) */}
+                                                        <span className="ln-spark sp1" aria-hidden="true">
+                                                                <svg viewBox="0 0 24 24" width="100%" focusable="false">
+                                                                        <path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z" fill="currentColor" />
+                                                                </svg>
+                                                        </span>
+                                                        <span className="ln-spark sp2" aria-hidden="true">
+                                                                <svg viewBox="0 0 24 24" width="100%" focusable="false">
+                                                                        <path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z" fill="currentColor" />
+                                                                </svg>
+                                                        </span>
+                                                        <span className="ln-spark sp3" aria-hidden="true">
+                                                                <svg viewBox="0 0 24 24" width="100%" focusable="false">
+                                                                        <path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z" fill="currentColor" />
+                                                                </svg>
+                                                        </span>
                                                 </h1>
 
                                                 <p className="ln-hero-sub">
@@ -192,11 +218,12 @@ export function HomePage({
                                                 </RevealCssClass>
                                         </div>
 
-                                        {/* مائدة أول لقمة — the dish in its paper arch + the
-                                            leaning REAL menu card (r142 task 2-b). ≤1024px it
-                                            demotes to an in-flow block UNDER the copy — the
-                                            text column and LCP story stay first on phones. */}
-                                        <HeroTable />
+                                        {/* مائدة أول لقمة — P12-2b: the floating kitchen
+                                            island diorama + the leaning REAL menu card
+                                            (r142 task 2-b) + the S3 hotspot pins. ≤1024px
+                                            the visual demotes to an in-flow block UNDER the
+                                            copy — the LCP story stays first on phones. */}
+                                        <HeroTable scene={<IslandScene />} />
 
                                         {/* scroll invitation */}
                                         <a href="#menu" className="ln-hero-scroll" aria-label="تابع القراءة">

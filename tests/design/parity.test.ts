@@ -930,8 +930,20 @@ describe('r142 parity — المائدة token block (the --sm-* identity, verba
       ['--sm-line-strong', 'rgb(43 32 20 / 0.30)'],
       ['--sm-grain-op', '0.05'],
       ['--sm-radius-pill', 'var(--r-full)'],
-      ['--sm-h1', 'clamp(2.6rem, 6.6vw, 5.4rem)'],
+      // P12-2b (S2) honest re-pin: the comic display scale — Banzai-style
+      // clamp(44px, 8vw, 120px) in rem terms (2.75rem/7.5rem).
+      ['--sm-h1', 'clamp(2.75rem, 8vw, 7.5rem)'],
       ['--sm-h1-lh', '1.14'],
+      // P12-2b «جزيرة المطبخ»: display face + sticker pair + scene world colors.
+      ['--sm-display', "'Baloo Bhaijaan 2', 'IBM Plex Sans Arabic', system-ui, sans-serif"],
+      ['--sm-sticker-fill', '#FFFDF7'],
+      ['--sm-sticker-ink', '#2B2014'],
+      ['--sm-sticker-shadow', '#C2452D'],
+      ['--sm-sticker-accent-ink', '#FBF7F0'],
+      ['--sm-void-1', '#20122E'],
+      ['--sm-void-2', '#2A1840'],
+      ['--sm-scene-day-1', '#F6EEDD'],
+      ['--sm-scene-day-2', '#E7D9BC'],
       ['--sm-t-fast', 'var(--t-fast)'],
       ['--sm-t-base', 'var(--t-base)'],
       ['--sm-t-slow', 'var(--t-slow)'],
@@ -981,13 +993,19 @@ describe('r142 parity — the marquee kit (kept seam contract from the r128 kit)
     );
   });
 
-  it('marquee band is flat: hairline border-block var(--sm-line) on ground var(--sm-paper-2), no gradient', () => {
+  it('marquee band: P12-2b honest re-pin — the vivid TERRACOTTA-RED FLOOD (#C2452D→#D93A22, spec S4) with the hairline border-block kept', () => {
     const band = landingRule('.landing .ln-marquee');
     expect(decl(band, 'border-block')).toBe('1px solid var(--sm-line)');
-    expect(decl(band, 'background')).toBe('var(--sm-paper-2)');
-    expect(landingCss.slice(landingCss.indexOf('.landing .ln-marquee {'))).not.toMatch(
-      /\.landing \.ln-marquee\s*{[^}]*gradient/
+    expect(decl(band, 'background')).toBe(
+      'linear-gradient(180deg, #C2452D 0%, #D93A22 100%)'
     );
+    // the ONLY gradient in the band block is the flood itself — no other
+    // decorative gradient may ride the strip
+    const bandBlock = landingCss.slice(
+      landingCss.indexOf('.landing .ln-marquee {'),
+      landingCss.indexOf('}', landingCss.indexOf('.landing .ln-marquee {'))
+    );
+    expect((bandBlock.match(/gradient/g) ?? []).length).toBe(1);
   });
 
   it('prefers-reduced-motion kills the marquee (animation: none off-switch)', () => {
@@ -1296,8 +1314,10 @@ describe('r142 parity — المائدة chrome locks (gradient allowlist · but
     );
   });
 
-  it('gradient allowlist: ZERO gradient occurrences outside the ONE sanctioned site (the hero light pool)', () => {
-    const ALLOWED = ['.landing .ln-hero::before'];
+  it('gradient allowlist: the hero light pool + the P12-2b marquee flood are the sanctioned gradient sites', () => {
+    // P12-2b honest re-pin: S4 mandates the terracotta-red flood band —
+    // it joins the ONE r142 radial as the second sanctioned site.
+    const ALLOWED = ['.landing .ln-hero::before', '.landing .ln-marquee'];
     const sites = new Set<string>();
     for (const m of landingCss.matchAll(/([^{}]+)\{[^{}]*gradient/g)) {
       for (const sel of m[1].split(',')) {
@@ -1704,15 +1724,23 @@ describe('r142 parity — the hero LCP contract + the leaning card (word-stagger
     expect(homePageRaw).not.toContain('ln-hero-gold');
   });
 
-  it('the hero title is flat espresso at rest — no text-shadow games on paper', () => {
+  it('P12-2b (S2) honest re-pin: the hero title is the STICKER lockup at rest — cream fill + espresso outline + ember offset (text-shadow stack)', () => {
     const title = landingRule('.landing .ln-hero-title');
-    expect(decl(title, 'color')).toBe('var(--sm-ink)');
-    expect(title).not.toContain('text-shadow');
+    expect(decl(title, 'color')).toBe('var(--sm-sticker-fill)');
+    expect(title).toContain('text-shadow');
+    // the outline rides the sticker-ink token and the offset the ember family
+    expect(title).toContain('var(--sm-sticker-ink)');
+    expect(title).toContain('var(--sm-sticker-shadow)');
+    // LCP doctrine intact: the pop is transform-only (no opacity gate)
+    expect(landingCss).toContain('@keyframes ln-sticker-pop');
   });
 
-  it('the ONE ember word rides the LARGE-text ember token (h1 sizes ≥24px — 4.4:1 passes AA-large)', () => {
+  it('P12-2b (S2) honest re-pin: the ONE ember word is the rotated STICKER pill — ember fill + cream ink (AA-large 4.7:1)', () => {
     expect(homePageRaw).toContain('ln-hero-ember');
-    expect(decl(landingRule('.landing .ln-hero-title em'), 'color')).toBe('var(--sm-ember)');
+    const em = landingRule('.landing .ln-hero-title em');
+    expect(decl(em, 'background')).toBe('var(--sm-ember)');
+    expect(decl(em, 'color')).toBe('var(--sm-sticker-accent-ink)');
+    expect(decl(em, 'transform')).toBe('rotate(-3deg)');
   });
 
   it('the leaning card: static 3D tilt (perspective, no JS) + 7s float + RM/returning-visitor off-switches', () => {
@@ -3260,5 +3288,93 @@ describe('phase10 P10-2 — family (h): every shell exposes the shared ThemeTogg
     // the shells that consume LayoutHeader (the toggle rides them for free)
     expect(p10cc('src/app/(protected)/owner/OwnerShell.tsx')).toContain('<LayoutHeader');
     expect(p10cc('src/app/(protected)/admin/AdminShell.tsx')).toContain('<LayoutHeader');
+  });
+});
+
+/* ── P12-2b «جزيرة المطبخ» — the Banzai-direction wave pins (S1–S5) ─────
+   The reference-locked rebuild: original three.js diorama, comic display
+   lockup, in-world hotspot navigation, terracotta-red flood, floating
+   dish cards. Real content/routes untouched; honest re-pins above
+   document every contract that legitimately changed. */
+const kitchenSceneRaw = raw('src/components/landing/KitchenIslandScene.tsx');
+const hotspotRaw = raw('src/components/landing/HotspotPin.tsx');
+
+describe('P12-2b parity — the kitchen-island world (S1 diorama · S3 hotspots · S5 cards · S4 flood)', () => {
+  it('S1: the diorama is dynamic-imported client-only (ssr:false) from the client HomePage — never blocking paint', () => {
+    expect(homePageRaw).toContain("dynamic(() => import('./KitchenIslandScene')");
+    expect(homePageRaw).toContain('ssr: false');
+    expect(kitchenSceneRaw).toContain("'use client'");
+  });
+
+  it('S1: the scene ships the spec mechanics — DPR cap 2, drag inertia, parallax lerp, RM static render, full dispose', () => {
+    expect(kitchenSceneRaw).toContain('Math.min(window.devicePixelRatio || 1, 2)');
+    expect(kitchenSceneRaw).toContain('dragVel *= 0.93'); // inertia decay
+    expect(kitchenSceneRaw).toContain('pointer.x * 0.28'); // camera parallax lerp target
+    expect(kitchenSceneRaw).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
+    expect(kitchenSceneRaw).toContain('renderer.dispose()');
+    expect(kitchenSceneRaw).toContain('new IntersectionObserver'); // offscreen pause
+    expect(kitchenSceneRaw).toContain('visibilitychange'); // hidden-tab pause
+  });
+
+  it('S1: the props are the original Libyan tea-table world — teapot, bowls, glasses, parasol, lanterns, steam, sheen', () => {
+    for (const token of ['ConeGeometry', 'TorusGeometry', 'SphereGeometry', 'SpriteMaterial', 'AdditiveBlending', 'PointLight', 'QuadraticBezierCurve3']) {
+      expect(kitchenSceneRaw).toContain(token);
+    }
+    // NO Banzai vocabulary may ever leak into the world (adaptation rules)
+    expect(kitchenSceneRaw).not.toContain('yatai');
+    expect(kitchenSceneRaw).not.toContain('Banzai');
+  });
+
+  it('S1: theme-aware — stage read from the real --sm-paper CSS var + world colors from the landing-scoped vars + MutationObserver', () => {
+    expect(kitchenSceneRaw).toContain('--sm-paper');
+    expect(kitchenSceneRaw).toContain('MutationObserver');
+    expect(kitchenSceneRaw).toContain('--sm-void-1');
+    expect(kitchenSceneRaw).toContain('--sm-scene-day-1');
+  });
+
+  it('S3: hotspot pins are REAL focusable links to the REAL routes with 44px floors and aria-labels', () => {
+    expect(heroTableRaw).toContain("from './HotspotPin'");
+    expect(heroTableRaw).toContain('href={DEMO_MENU_URL}');
+    expect(heroTableRaw).toContain('href="/subscribe"');
+    expect(heroTableRaw).toContain('href="/pricing"');
+    expect(hotspotRaw).toContain('aria-label={title}');
+    const hs = landingRule('.landing .ln-hotspot');
+    expect(decl(hs, 'min-inline-size')).toBe('44px');
+    expect(decl(hs, 'min-block-size')).toBe('44px');
+    expect(landingCss).toContain('.landing .ln-hotspot:focus-visible');
+  });
+
+  it('S5: the dish rows are floating rounded cards — ±1.5° tilts + hover lift-and-straighten', () => {
+    expect(landingCss).toContain('--ln-tilt: 1.5deg');
+    expect(landingCss).toContain('--ln-tilt: -1.5deg');
+    expect(decl(lastRule('.landing .ln-menu-row'), 'border-radius')).toBe('var(--r-2xl)');
+    expect(lastRule('.landing .ln-menu-row:hover')).toContain('rotate(0deg) translateY(-4px)');
+  });
+
+  it('S4: the flood band text is cream bubble Baloo 19px/700 on the red family', () => {
+    const item = landingRule('.landing .ln-marquee-item');
+    expect(decl(item, 'color')).toBe('#FBF7F0');
+    expect(decl(item, 'font-size')).toBe('19px');
+    expect(decl(item, 'font-family')).toBe('var(--sm-display)');
+    expect(decl(landingRule('.landing .ln-marquee-sep'), 'background')).toBe('#FBF7F0');
+  });
+
+  it('S1/S4: the scene stage + honest intro — rounded comic panel, canvas fade, pin pops, RM switches', () => {
+    expect(landingCss).toContain('.landing .ln-scene {');
+    expect(landingCss).toContain('.landing .ln-island-host');
+    expect(landingCss).toContain('@keyframes ln-pin-pop');
+    expect(landingCss).toContain('@keyframes ln-sticker-pop');
+    expect(landingCss).toContain('@keyframes ln-sparkle');
+    const prm = allTopLevelBlocks(landingCss, '@media (prefers-reduced-motion: reduce)');
+    expect(prm.some((b) => b.includes('.landing .ln-hero-line { animation: none; }'))).toBe(true);
+    expect(prm.some((b) => b.includes('.landing .ln-hotspot-marker { animation: none; }'))).toBe(true);
+    expect(prm.some((b) => b.includes('.landing .ln-spark { animation: none;'))).toBe(true);
+  });
+
+  it('S5: the section headers join the display voice + rounded card grammar (night twin flips the sticker pair)', () => {
+    expect(landingCss).toContain('.landing .ln-chapter-title,');
+    expect(landingCss).toContain("html.dark .landing {\n  --sm-sticker-fill: #F7EFE2;");
+    expect(landingCss).toContain('.landing .ln-owner-course {');
+    expect(landingCss).toContain('.landing .ln-faq-item {');
   });
 });

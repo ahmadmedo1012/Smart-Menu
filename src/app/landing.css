@@ -65,8 +65,22 @@
   --sm-line-strong:rgb(43 32 20 / 0.30);   /* dotted price leaders */
   --sm-grain-op:   0.05;  /* paper tooth — darker specks at low opacity */
   --sm-radius-pill: var(--r-full);
-  --sm-h1:         clamp(2.6rem, 6.6vw, 5.4rem);
+  /* P12-2b (S2/S4): the comic display scale — Banzai-style display size
+     clamp(44px, 8vw, 120px) in rem terms; re-pinned in parity.test.ts. */
+  --sm-h1:         clamp(2.75rem, 8vw, 7.5rem);
   --sm-h1-lh:      1.14;
+  /* P12-2b «جزيرة المطبخ» — the display face (self-hosted Baloo Bhaijaan 2,
+     /fonts/fonts.css) + sticker pair + the scene's void/day world colors
+     (the three.js diorama reads these live). */
+  --sm-display:    'Baloo Bhaijaan 2', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --sm-sticker-fill: #FFFDF7;   /* comic cream fill */
+  --sm-sticker-ink:  #2B2014;   /* thick dark outline */
+  --sm-sticker-shadow: #C2452D; /* offset sticker shadow */
+  --sm-sticker-accent-ink: #FBF7F0; /* text on the ember sticker word */
+  --sm-void-1: #20122E;   /* deep plum void — night stage sky top */
+  --sm-void-2: #2A1840;   /* plum void — night stage sky bottom */
+  --sm-scene-day-1: #F6EEDD; /* cream daylight — light stage sky top */
+  --sm-scene-day-2: #E7D9BC; /* cream daylight — light stage sky bottom */
   --sm-t-fast:      var(--t-fast);    /* 160ms */
   --sm-t-base:      var(--t-base);    /* 240ms */
   --sm-t-slow:      var(--t-slow);    /* 380ms */
@@ -211,7 +225,11 @@
   overflow: hidden;
   border-block: 1px solid var(--sm-line);
   padding-block: 18px;
-  background: var(--sm-paper-2);
+  /* P12-2b (S4): the vocabulary ring became the vivid TERRACOTTA-RED
+     FLOOD — Banzai's band language translated to the platform's own
+     two-stop family (#C2452D → #D93A22), cream bubble text on it.
+     Re-pinned in parity.test.ts (the band pin + gradient allowlist). */
+  background: linear-gradient(180deg, #C2452D 0%, #D93A22 100%);
   user-select: none;
 }
 .landing .ln-marquee-track {
@@ -237,18 +255,21 @@
   align-items: center;
   white-space: nowrap;
   flex-shrink: 0;
-  font-size: 15px;
-  font-weight: var(--fw-medium);
-  color: var(--sm-ink-dim);
+  /* P12-2b (S4): bubble letters on the flood — Baloo 19px/700 cream
+     (large-text tier: cream ≥ 4.27:1 on the flood's darkest stop). */
+  font-family: var(--sm-display);
+  font-size: 19px;
+  font-weight: var(--fw-bold);
+  color: #FBF7F0;
 }
-/* ember dot separator — the "·" glyph is hidden, a true dot is drawn */
+/* cream dot separator on the flood — the "·" glyph is hidden, a true dot is drawn */
 .landing .ln-marquee-sep {
   font-size: 0;
-  inline-size: 5px;
-  block-size: 5px;
+  inline-size: 6px;
+  block-size: 6px;
   margin-inline-start: 48px; /* evens text↔dot↔next-text rhythm */
   border-radius: var(--sm-radius-pill);
-  background: var(--sm-ember);
+  background: #FBF7F0;
   flex-shrink: 0;
 }
 /* token zeroing does not stop a raw-duration loop — explicit off-switch */
@@ -585,15 +606,26 @@
 .landing .ln-hero-eyebrow { margin-block-end: var(--sp-6); }
 .landing .ln-hero-eyebrow .ln-mono { font-size: 12.5px; }
 
-/* the opening line — huge espresso display, instant (no reveal gate,
-   no entrance animation: the LCP story paints with the HTML). */
+/* the opening line — P12-2b (S2): the comic display voice. Baloo
+   Bhaijaan 2 at the display scale with a STICKER treatment: cream fill,
+   thick espresso outline (text-shadow stack — Arabic joins can't take a
+   stroke) and a terracotta offset shadow. Instant paint (transform-only
+   pop below — no opacity gate, LCP doctrine intact). */
 .landing .ln-hero-title {
+  position: relative; /* the S2 sparkles anchor to the lockup itself */
   margin: 0 0 var(--sp-7);
+  font-family: var(--sm-display);
   font-size: var(--sm-h1);
   line-height: var(--sm-h1-lh);
   font-weight: var(--fw-bold);
   letter-spacing: 0; /* Arabic joins — never negative tracking */
-  color: var(--sm-ink);
+  color: var(--sm-sticker-fill);
+  text-shadow:
+    3px 0 0 var(--sm-sticker-ink), -3px 0 0 var(--sm-sticker-ink),
+    0 3px 0 var(--sm-sticker-ink), 0 -3px 0 var(--sm-sticker-ink),
+    2px 2px 0 var(--sm-sticker-ink), -2px 2px 0 var(--sm-sticker-ink),
+    2px -2px 0 var(--sm-sticker-ink), -2px -2px 0 var(--sm-sticker-ink),
+    7px 7px 0 -1px var(--sm-sticker-shadow);
   max-inline-size: 14ch;
   text-wrap: balance;
 }
@@ -606,10 +638,17 @@
    splits at 1440/390). */
 .landing .ln-hero-line { display: block; text-wrap: wrap; }
 
-/* the ONE ember word — the accent stays single */
+/* the ONE ember word — P12-2b: the playfully ROTATED sticker accent
+   (ember fill pill, cream ink, offset shadow, -3° tilt) */
 .landing .ln-hero-title em {
   font-style: normal;
-  color: var(--sm-ember);
+  display: inline-block;
+  background: var(--sm-ember);
+  color: var(--sm-sticker-accent-ink);
+  padding: 0 0.16em;
+  border-radius: 0.16em;
+  transform: rotate(-3deg);
+  box-shadow: 5px 5px 0 -1px var(--sm-sticker-shadow);
   white-space: nowrap;
 }
 
@@ -704,49 +743,15 @@
 .landing .ln-hero-stage {
   position: relative;
   inline-size: 100%;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 4 / 5; /* P12-2b: taller stage — island + void + sheen below */
 }
-/* the warm light pool — one blurred solid circle (not a gradient site) */
-.landing .ln-hero-glow {
-  position: absolute;
-  inline-size: 66%;
-  aspect-ratio: 1;
-  border-radius: var(--r-full);
-  background: rgb(224 154 95 / 0.35);
-  filter: blur(72px);
-  inset-block-start: -6%;
-  inset-inline-end: -6%;
-  z-index: 0;
-  pointer-events: none;
-}
-/* the dish in its paper arch — قوس المائدة (pill top, square base) */
-.landing .ln-hero-dish {
-  position: absolute;
-  inset-inline-start: 0;
-  inset-block-start: 0;
-  inline-size: 78%;
-  block-size: 92%;
-  border-radius: 999px 999px var(--r-3xl) var(--r-3xl);
-  overflow: hidden;
-  border: 1px solid var(--sm-line);
-  background: var(--sm-paper-2);
-  box-shadow: 0 24px 48px -24px rgb(43 32 20 / 0.35);
-  z-index: 1;
-}
-.landing .ln-hero-dish-img { object-fit: cover; }
-/* melt into the paper — inset shadow veils (no gradient site) */
-.landing .ln-hero-dish::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 -72px 56px -36px rgb(43 32 20 / 0.55), inset 0 28px 44px -40px rgb(43 32 20 / 0.4);
-  pointer-events: none;
-  z-index: 2;
-}
+/* P12-2b: the paper arch + its photo plate retired with the diorama —
+   the scene canvas claims the whole stage (§20 .ln-island-frame). The
+   dish photo itself moved onto the leaning menu card's header. */
 
 /* steam — two slow blurred wisps rising off the dish (cream vapor over
-   the warm photo; RM: gone) */
+   the warm photo; RM: gone). P12-2b: re-parented onto the menu card's
+   photo header — positions overridden in §20. */
 .landing .ln-steam {
   position: absolute;
   inline-size: 84px;
@@ -1996,4 +2001,309 @@ html.dark:has(.landing) {
 html.dark:has(.landing) {
   --orange: #E07856;
   --orange-foreground: #2A130D;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   20 · P12-2b «جزيرة المطبخ» — the Banzai-direction wave (S1–S5)
+   ─────────────────────────────────────────────────────────────────────
+   The reference-locked rebuild: an ORIGINAL three.js diorama (floating
+   wooden tea-table island over a plum void) replaces the paper arch as
+   the hero's dimensional centerpiece; the display type goes comic
+   (Baloo Bhaijaan 2 sticker lockup, rotated accent word, sparkles);
+   navigation gains in-world hotspot pins; the vocabulary ring becomes
+   the vivid terracotta-red flood; the «المنيو الحي» rows become
+   floating rounded dish cards; every section header joins the display
+   voice. Real content, real routes, RTL, theme flip and RM switches
+   all preserved — the intro is an honest fade/sticker-pop sequence
+   (content paints with the HTML; NO loading screen).
+   ═════════════════════════════════════════════════════════════════════ */
+
+/* ── 20.1 · the scene stage (S1) ────────────────────────────────────── */
+.landing .ln-scene {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-3xl);
+  overflow: hidden;
+  border: 1px solid var(--sm-line);
+  box-shadow: 0 36px 64px -34px rgb(43 32 20 / 0.45);
+  background: var(--sm-void-1); /* paint-before-WebGL floor (token) */
+}
+.landing .ln-island-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.landing .ln-island-host {
+  position: absolute;
+  inset: 0;
+}
+.landing .ln-island-frame canvas {
+  inline-size: 100%;
+  block-size: 100%;
+  touch-action: pan-y; /* horizontal drag rotates the island, vertical scrolls */
+}
+
+/* ── 20.2 · hotspot pins (S3) ────────────────────────────────────────── */
+.landing .ln-hotspots {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none; /* the canvas drag underneath stays live */
+}
+.landing .ln-hotspot {
+  pointer-events: auto;
+  position: absolute; /* physical anchor over a scene object (direction-neutral) */
+  min-inline-size: 44px; /* hit floor */
+  min-block-size: 44px;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  border-radius: var(--sm-radius-pill);
+}
+.landing .ln-hotspot:focus-visible {
+  outline: 2px solid var(--sm-ember);
+  outline-offset: 3px;
+}
+.landing .ln-hotspot-ring { fill: var(--sm-sticker-fill); stroke: var(--sm-sticker-ink); stroke-width: 2.5; }
+.landing .ln-hotspot-core { fill: var(--sm-ember); }
+.landing .ln-hotspot-tail { fill: var(--sm-sticker-fill); stroke: var(--sm-sticker-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.landing .ln-hotspot-outline { stroke: var(--sm-sticker-ink); stroke-width: 2.5; }
+.landing .ln-hotspot-glyph { fill: var(--sm-sticker-accent-ink); }
+.landing .ln-hotspot-marker {
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 6px rgb(43 32 20 / 0.35));
+  animation: ln-pin-pop 480ms var(--sm-ease-spring) both;
+}
+@keyframes ln-pin-pop {
+  0% { transform: scale(0) rotate(-14deg); }
+  70% { transform: scale(1.14) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.landing .ln-hotspot-label {
+  position: absolute;
+  inset-block-end: calc(100% + 10px);
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  padding: 7px 13px;
+  border-radius: var(--r-xl);
+  background: var(--sm-sticker-fill);
+  color: var(--sm-ink);
+  border: 1.5px solid var(--sm-sticker-ink);
+  box-shadow: 3px 3px 0 -0.5px var(--sm-sticker-shadow);
+  font-size: 12.5px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale(0.7);
+  transform-origin: bottom center;
+  transition: opacity var(--sm-t-fast) var(--sm-ease-out), transform var(--sm-t-fast) var(--sm-ease-spring);
+  pointer-events: none;
+}
+.landing .ln-hotspot:hover .ln-hotspot-label,
+.landing .ln-hotspot:focus-visible .ln-hotspot-label {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── 20.3 · the comic intro (S4) — honest, instant, transform-only ──── */
+@keyframes ln-sticker-pop {
+  0% { transform: scale(0.94) rotate(-1.2deg); }
+  70% { transform: scale(1.03) rotate(0.4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.landing .ln-hero-line {
+  animation: ln-sticker-pop 560ms var(--sm-ease-spring) both;
+}
+.landing .ln-hero-line:nth-child(2) { animation-delay: 140ms; }
+.landing[data-intro-seen='true'] .ln-hero-line { animation: none; }
+
+/* star sparkles over the lockup (S2) */
+.landing .ln-spark {
+  position: absolute;
+  color: var(--sm-ember);
+  pointer-events: none;
+  animation: ln-sparkle 6s var(--sm-ease-soft) infinite;
+}
+.landing .ln-spark svg { display: block; }
+.landing .ln-spark.sp1 { inset-block-start: -14px; inset-inline-end: 6%; inline-size: 26px; }
+.landing .ln-spark.sp2 { inset-block-start: 34%; inset-inline-start: 4%; inline-size: 18px; animation-delay: 1.6s; }
+.landing .ln-spark.sp3 { inset-block-end: -6px; inset-inline-end: 22%; inline-size: 22px; animation-delay: 3.2s; }
+@keyframes ln-sparkle {
+  0%, 100% { transform: scale(0.75) rotate(0deg); opacity: 0.55; }
+  50% { transform: scale(1.08) rotate(24deg); opacity: 1; }
+}
+
+/* ── 20.4 · the leaning card's photo header (priority image lives here) */
+.landing .ln-hero-card-photo {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin-block-end: var(--sp-3);
+}
+.landing .ln-hero-card-photo-img { object-fit: cover; }
+.landing .ln-hero-card-photo .ln-steam.s1 { inset-inline-start: 22%; bottom: 22%; inline-size: 64px; block-size: 104px; }
+.landing .ln-hero-card-photo .ln-steam.s2 { inset-inline-start: 48%; bottom: 16%; }
+
+/* ── 20.5 · «المنيو الحي» floating dish cards (S5) ──────────────────── */
+.landing .ln-menu-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+.landing .ln-menu-row {
+  display: grid;
+  grid-template-areas: 'name price';
+  align-items: center;
+  gap: var(--sp-3);
+  min-block-size: 64px;
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-2xl);
+  background: var(--sm-card);
+  border: 1px solid var(--sm-line-soft);
+  box-shadow: 0 16px 30px -20px rgb(43 32 20 / 0.38);
+  transform: rotate(var(--ln-tilt, 0deg));
+  transition:
+    transform var(--sm-t-base) var(--sm-ease-spring),
+    box-shadow var(--sm-t-base) var(--sm-ease-soft),
+    border-color var(--sm-t-base) var(--sm-ease-soft);
+}
+.landing .ln-menu-row:nth-child(3n + 1) { --ln-tilt: 1.5deg; }
+.landing .ln-menu-row:nth-child(3n + 2) { --ln-tilt: -1.5deg; }
+.landing .ln-menu-row:hover {
+  transform: rotate(0deg) translateY(-4px); /* lift + straighten */
+  box-shadow: 0 24px 42px -20px rgb(43 32 20 / 0.5);
+  border-color: var(--sm-ember);
+}
+.landing .ln-menu-row:focus-visible {
+  transform: rotate(0deg) translateY(-4px);
+  box-shadow: 0 24px 42px -20px rgb(43 32 20 / 0.5);
+  border-color: var(--sm-ember);
+}
+.landing .ln-menu-row-name {
+  grid-area: name;
+  color: var(--sm-ink);
+  font-weight: var(--fw-bold);
+  white-space: normal;
+}
+.landing .ln-menu-row-price {
+  grid-area: price;
+  font-family: var(--sm-mono);
+  font-size: 13px;
+  font-weight: var(--fw-bold);
+  color: var(--sm-ember-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.landing .ln-menu-row-dot,
+.landing .ln-menu-row-leader { display: none; }
+/* the live dish detail joins the floating grammar (soft rotation; the
+   pinned quiet espresso depth recipe is restated verbatim so the LAST
+   rule keeps the contract) */
+.landing .ln-menu-detail-card {
+  transform: rotate(-0.8deg);
+  box-shadow: 0 10px 24px -16px rgb(43 32 20 / 0.24);
+}
+.landing .ln-menu-plate { transform: rotate(0.9deg); }
+
+/* ── 20.6 · section headers join the display voice (S5 playful restyle) */
+.landing .ln-chapter-title,
+.landing .ln-cta-title,
+.landing .ln-amb-quote {
+  font-family: var(--sm-display);
+}
+.landing .ln-owner-course {
+  border-radius: var(--r-2xl);
+  border: 1px solid var(--sm-line-soft);
+}
+.landing .ln-faq-item {
+  border-radius: var(--r-2xl);
+  border: 1px solid var(--sm-line-soft);
+}
+.landing .ln-faq-q { border-radius: var(--r-xl) var(--r-xl) 0 0; }
+.landing .ln-amb-media { border-radius: var(--r-2xl); }
+
+/* ── 20.7 · night stage — the sticker pair flips (cream letters, cocoa
+   outline, luminous ember shadow); the scene repaints itself from the
+   CSS vars (void tokens) via its own MutationObserver. ───────────── */
+html.dark .landing {
+  --sm-sticker-fill: #F7EFE2;
+  --sm-sticker-ink: #241811;
+  --sm-sticker-shadow: #E07856;
+  --sm-sticker-accent-ink: #241811;
+}
+html.dark .landing .ln-hero-title em {
+  background: var(--sm-ember);
+  color: var(--sm-sticker-accent-ink); /* cocoa on luminous terracotta · 5.8:1 */
+}
+html.dark .landing .ln-hotspot-label {
+  color: var(--sm-ink);
+}
+html.dark .landing .ln-scene {
+  box-shadow: 0 36px 64px -34px rgb(0 0 0 / 0.6);
+}
+
+/* ── 20.8 · responsive — the island becomes the top backdrop; the pins
+   stack as a button row over its foot; the card flows below. ───────── */
+@media (max-width: 640px) {
+  .landing .ln-scene { aspect-ratio: 4 / 3; }
+  .landing .ln-hero-visual { max-inline-size: 100%; }
+  .landing .ln-hotspots {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-end;
+    justify-content: center;
+    gap: var(--sp-2);
+    padding: var(--sp-3);
+  }
+  .landing .ln-hotspot { position: static; }
+  .landing .ln-hotspot-marker { animation: none; }
+  .landing .ln-hotspot-label {
+    position: static;
+    inset-block-end: auto;
+    inset-inline-start: auto;
+    translate: none;
+    transform: none;
+    opacity: 1;
+    box-shadow: none;
+    font-size: 12px;
+  }
+  .landing .ln-hotspot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--sm-radius-pill);
+    background: var(--sm-sticker-fill);
+    border: 1.5px solid var(--sm-sticker-ink);
+    box-shadow: 3px 3px 0 -0.5px var(--sm-sticker-shadow);
+  }
+  .landing .ln-hero-card {
+    position: static;
+    inline-size: 100%;
+    margin-block-start: var(--sp-5);
+    transform: perspective(1100px) rotateX(4deg) rotate(-1.2deg);
+  }
+  .landing .ln-menu-list { grid-template-columns: 1fr; }
+  .landing .ln-spark.sp2 { display: none; }
+}
+
+/* ── 20.9 · RM off-switches for the new verbs (pop, sparkle, pin) ──── */
+@media (prefers-reduced-motion: reduce) {
+  .landing .ln-hero-line { animation: none; }
+  .landing .ln-spark { animation: none; opacity: 0.7; }
+  .landing .ln-hotspot-marker { animation: none; }
+  .landing .ln-hotspot-label {
+    transition: none;
+    transform: none;
+  }
+  .landing .ln-menu-row,
+  .landing .ln-menu-row:hover,
+  .landing .ln-menu-row:focus-visible {
+    transform: none;
+    transition: none;
+  }
+  .landing .ln-hotspots { transition: none; }
 }
