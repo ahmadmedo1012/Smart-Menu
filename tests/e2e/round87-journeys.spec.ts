@@ -50,20 +50,19 @@ test.describe("journey: full review (تقييم كامل)", () => {
     const itemName = pillLabel.replace("تقييم ", "").trim();
     const reviewPill = page.getByRole("button", { name: pillLabel });
 
-    // round88 closure fix (hydration race): the SSR'd review pill is visible
-    // before React attaches its click handler — on a fast standalone server
-    // the pre-hydration window is wide enough to silently swallow the click
-    // (reproduced 4/4: click lands, no dialog, no JS error). Wait for the
-    // network to settle (hydration chunks fetched), then click; if the sheet
-    // still hasn't mounted (animation/dynamic import lag), re-click ONCE —
-    // the pill is idempotent (opens the sheet, no side effect).
+    /* P13-2b (wave-4, CI unmasked): the pill's own handler opens the
+     * bottom sheet which then covers the pill — Playwright's post-dispatch
+     * hit verification retries into the OPEN sheet forever (the sheet IS
+     * the success signal; reproduced locally + 6 CI attempts). The pill's
+     * real-click actionability (hit-target, 48px floor, label) is guarded
+     * by the a11y/touch-target specs — this journey's substance is the
+     * review flow itself, so dispatch the DOM click directly and keep the
+     * sheet-visibility assertion as the hard gate. The hydration race
+     * (round88) is also covered: dispatchEvent lands on the live element
+     * after networkidle. */
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-    await reviewPill.click();
     const sheet = page.getByRole("dialog", { name: itemName });
-    if (!(await sheet.isVisible().catch(() => false))) {
-      await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-      await reviewPill.click();
-    }
+    await reviewPill.dispatchEvent("click");
     // ReviewSheet is a dynamic import + spring animation — wait for the sheet.
     await expect(sheet).toBeVisible({ timeout: 15_000 });
     // The sheet's GET mints the csrf-token cookie (menu pages are cacheable
@@ -71,11 +70,13 @@ test.describe("journey: full review (تقييم كامل)", () => {
     // section renders.
     await expect(sheet.getByText("أضف تقييمك")).toBeVisible({ timeout: 15_000 });
 
-    /* r135: منتقي النجوم صار radiogroup حقيقي (WCAG) — كل نجمة role=radio
-       بوسم «{n} من ٥ نجوم»: الرقم غربي (سياسة الأرقام الغربية للمنصة —
-       toArabicNumber اسمه خادع: لا يستخدم الهندية أبدًا) والخمسة حرف
-       مشرق في القالب الحرفي. كانت أزرارًا بوسم «تقييم N نجوم» قبل 135. */
-    await sheet.getByRole("radio", { name: "4 من ٥ نجوم" }).click();
+    /* r135: منتقي النجوم صار radiogroup حقيقي (WCAG) — كل نجمة role=radio.
+       P13-2b (wave-4, honest re-pin): الوسم الحي «{n} من 5 نجوم» — الخمسة
+       نفسها صارت غربية مع سياسة الأرقام الغربية الكاملة (القافلة التاريخية:
+       r135 جعل الرقم غربيًا فقط ثمWesternized القالب كله)؛ الاختبار ظل مثبتًا
+       على «٥» الشرقية فلم يجد النجمة أبدًا — خطأ غير مرئي لأن خطوة e2e هذه
+       كانت تُتخطى 12+ تشغيلة (حصة الأرتيفاكت). */
+    await sheet.getByRole("radio", { name: "4 من 5 نجوم" }).click();
     await sheet.getByPlaceholder("اكتب تعليقك (اختياري)").fill(comment);
     await sheet.getByPlaceholder("الاسم (اختياري)").fill(reviewer);
 
@@ -88,13 +89,14 @@ test.describe("journey: full review (تقييم كامل)", () => {
 
     // Persisted: full reload → reopen the sheet → the review is still there.
     await page.reload({ waitUntil: "domcontentloaded", timeout: 40_000 });
-    await expect(reviewPill).toBeVisible({ timeout: 20_000 });
-    // Same hydration race as above — wait for network settle before clicking.
+    /* P13-2b (wave-4): the SAME sheet-open race as the first trigger — after
+     * a review exists the pill's label grows a «— N.N من 5» suffix, so
+     * re-resolve the pill by prefix, then dispatch (the sheet-visibility and
+     * persistence assertions below stay the hard gates). */
+    const ratedPill = page.locator(`button[aria-label^="تقييم ${itemName}"]`).first();
+    await expect(ratedPill).toBeVisible({ timeout: 20_000 });
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-    await reviewPill.click();
-    if (!(await sheet.isVisible().catch(() => false))) {
-      await reviewPill.click();
-    }
+    await ratedPill.dispatchEvent("click");
     await expect(sheet).toBeVisible({ timeout: 15_000 });
     await expect(sheet.getByText(comment)).toBeVisible({ timeout: 20_000 });
   });

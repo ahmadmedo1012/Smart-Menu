@@ -30,6 +30,13 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || "http://localhost:3000",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
+    /* P13-2b (wave-4 diagnosis): the sandbox can't reach the Playwright CDN
+     * (download blocked) but carries a full Chrome via the agent-browser
+     * cache. E2E_CHROME_BIN routes every project to that binary — env-gated
+     * so CI (own browsers) is untouched. */
+    launchOptions: process.env.E2E_CHROME_BIN
+      ? { executablePath: process.env.E2E_CHROME_BIN, args: ["--no-sandbox"] }
+      : undefined,
   },
   projects: [
     {

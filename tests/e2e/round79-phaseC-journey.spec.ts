@@ -444,7 +444,11 @@ for (const cell of MATRIX) {
     // 375px lands on the add/edit buttons at the end edge — RTL gotcha)
     const myCatHeader = page.locator("div.cursor-pointer", { hasText: "مشروبات المرحلة C" }).first();
     await expect(myCatHeader).toBeVisible({ timeout: 10000 });
-    const myCatCard = page.locator("div.rounded-md", { hasText: "مشروبات المرحلة C" }).last();
+    /* P13-2b (wave-4): the category card canon moved to rounded-lg in r131's
+   * design-system realignment — the E2E deep-journeys step had been silently
+   * SKIPPED by the artifact-quota failure for 12+ runs, so this locator was
+   * never re-based. Honest re-pin to the current card class. */
+    const myCatCard = page.locator("div.rounded-lg", { hasText: "مشروبات المرحلة C" }).last();
 
     const items = [
       { name: "لاتيه مرحلة C", price: "12.5", rank: "1", tag: "اختيار المرحلة" },
@@ -453,7 +457,10 @@ for (const cell of MATRIX) {
     for (const it of items) {
       // guard: no lingering dialog portal may intercept the click
       await expect(page.locator('[role="dialog"]')).toHaveCount(0, { timeout: 10000 });
-      await myCatHeader.locator('button[aria-label="إضافة صنف"]').click();
+      /* P13-2b (wave-4): the a11y fix moved the action buttons OUT of the
+       * interactive header (axe nested-interactive) — they're siblings now,
+       * so scope to the CARD, not the cursor-pointer trigger. */
+      await myCatCard.locator('button[aria-label="إضافة صنف"]').click();
       const itemDlg = page.locator('[role="dialog"]');
       await expect(itemDlg).toBeVisible();
       await itemDlg.getByPlaceholder("كابتشينو").fill(it.name);

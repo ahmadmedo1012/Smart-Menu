@@ -79,19 +79,26 @@ export function CategoriesList({
                                                     البطاقة تحوي أزرار إضافة/تعديل/حذف داخلية (لا يجوز تداخل
                                                     <button> داخل <button>؛ الحلقة focus-within على البطاقة
                                                     تمنح حلقة التركيز المرئية). */}
-                                                <div
-                                                        className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20"
-                                                        onClick={() => onToggleCategory(cat.id)}
-                                                        role="button"
-                                                        tabIndex={0}
-                                                        aria-expanded={expandedCatId === cat.id}
-                                                        onKeyDown={(e) => {
-                                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                                        e.preventDefault();
-                                                                        onToggleCategory(cat.id);
-                                                                }
-                                                        }}
-                                                >
+                                                <div className="flex items-center justify-between px-5 py-4 hover:bg-muted/20">
+                                                        {/* P13-2b (wave-4 axe): r150's div[role=button] header NESTED the
+                                                            action <Button>s — axe nested-interactive (serious). The
+                                                            disclosure pattern splits: the name cluster IS the trigger
+                                                            (role=button, no interactive descendants); the actions row
+                                                            are siblings, never children. Keyboard expansion keeps
+                                                            Enter/Space; the card's focus-within ring is unchanged. */}
+                                                        <div
+                                                                className="flex items-center gap-3 cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 min-h-11"
+                                                                onClick={() => onToggleCategory(cat.id)}
+                                                                role="button"
+                                                                tabIndex={0}
+                                                                aria-expanded={expandedCatId === cat.id}
+                                                                onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                                                e.preventDefault();
+                                                                                onToggleCategory(cat.id);
+                                                                        }
+                                                                }}
+                                                        >
                                                         <div className="flex items-center gap-3">
                                                                 {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
                                                                         (() => {
@@ -112,6 +119,7 @@ export function CategoriesList({
                                                                                 {toArabicNumber(cat._count?.items ?? cat.items?.length ?? 0)} صنف
                                                                         </span>
                                                                 </div>
+                                                        </div>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                                 <Button
