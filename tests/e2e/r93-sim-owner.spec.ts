@@ -136,10 +136,16 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
     // هو ترويسة role="button" بـ aria-expanded (r150 §8) فنستهدفها هي؛
     // النقر على اسم الفئة داخلها يفجّر onClick نفسه (توسيع) بلا التقاط
     // أزرار الترويسة الثلاثة بـ stopPropagation.
-    const catCard = ownerPage.getByRole("button", { name: CAT_NAME }).first();
-    await catCard.getByText(CAT_NAME, { exact: true }).click();
-    // الزر داخل الترويسة مكشوف دائمًا (والجسم الموسّع الفارغ يحمل نسخة
-    // ثانية خارجه) — أول واحد هو زر الترويسة (r93 تشخيص)
+    const catTrigger = ownerPage.getByRole("button", { name: CAT_NAME }).first();
+    await catTrigger.getByText(CAT_NAME, { exact: true }).click();
+    /* P13-2b-R2 (a11y split): the nested-interactive fix moved the action
+     * buttons OUT of the role=button header trigger — they are siblings
+     * inside the card now. Scope to the enclosing rounded-lg card: the
+     * trigger's expanded state reveals the body which (empty) also carries
+     * its own «إضافة صنف» copy — first() still resolves the exposed one. */
+    const catCard = ownerPage
+      .locator("div.rounded-lg", { hasText: CAT_NAME })
+      .first();
     await catCard.getByRole("button", { name: "إضافة صنف" }).first().click();
 
     const itemDialog = ownerPage.locator('[role="dialog"]').first();
