@@ -455,6 +455,12 @@ jobs:
       # round85-D2: keep the HTML report + traces when e2e fails (was lost)
       - name: Upload Playwright report
         if: always()
+        # P13-2b-R2: the third upload step hit the same account-level
+        # artifact-storage quota (billing recalc window) — same documented
+        # external blocker as the coverage/prod-qa uploads. The e2e STEPS
+        # above (core + deep journeys) remain hard gates; this ships
+        # evidence only.
+        continue-on-error: true
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: playwright-report
