@@ -184,7 +184,14 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                                 className={cn(
                                                         /* r128-F5: زر مسطّح — بلا ظلّ */
                                                         'w-full h-12',
-                                                        isPopular ? 'bg-orange text-orange-foreground' : ''
+                                                        /* P18-W2-c (CTA hierarchy): one dominant CTA on the page —
+                                                           the recommended plan's button keeps its filled orange
+                                                           verb + a hairline ring lift; every other plan rides the
+                                                           quiet outline verb (equal SIZE and 44px targets, unequal
+                                                           visual weight — the ladder reads as a ladder). */
+                                                        isPopular
+                                                                ? 'bg-orange text-orange-foreground ring-1 ring-accent-foreground/20'
+                                                                : 'font-semibold'
                                                 )}
                                                 variant={isPopular ? 'orange' : 'outline'}
                                         >
@@ -258,7 +265,17 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                         {loading ? (
                                                 <>
                                                         <LoadingAnnouncer loading={loading} message="جارٍ تحميل الباقات…" />
-                                                        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-4 max-w-7xl mx-auto">
+                                                <div
+                                                        className={cn(
+                                                                /* P18-W2-c (ladder law): the 5-plan ladder on a 4-column
+                                                                   lg grid ORPHANS the 5th card visually (P15-4b fixed
+                                                                   the *top* plan only). The production ladder is 5 rows
+                                                                   (Free→Enterprise) — lg now composes 3+2 on two centered
+                                                                   rows (no lone tail card); xl keeps 5-in-a-row for
+                                                                   full-width comfort. */
+                                                                'flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-4 max-w-7xl mx-auto'
+                                                        )}
+                                                >
                                                         {/* P13-2b (T4): ٥ هياكل — سلّم الإنتاج خمس خطط (كانت ٤
                                                            هياكل تحجب البطاقة الخامسة عن انتظار المستخدم). */}
                                                         {[...Array(5)].map((_, i) => (
@@ -315,7 +332,14 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                         }
                                                 />
                                         ) : (
-                                                <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-4 max-w-7xl mx-auto">
+                                                <div
+                                                        className={cn(
+                                                                /* P18-W2-c (ladder law): same 3/5 ladder as the skeleton
+                                                                   state — the skeletons mirror the REAL composition so the
+                                                                   swap is not a layout shift. */
+                                                                'flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-4 max-w-7xl mx-auto'
+                                                        )}
+                                                >
                                                         {plans.map((plan, i) => (
                                                                 <PlanCard key={plan.id} plan={plan} index={i} />
                                                         ))}

@@ -129,7 +129,7 @@ const MenuItemCard = memo(function MenuItemCard({
                            نوابض hover/tap التوأمة أدناه. */
                         /* r135-B: لا رفع/ضغط hover للبطاقة المعطّلة (نافذة) */
                         whileHover={soldOut ? undefined : { y: -3, transition: HOVER_SPRING }}
-                        whileTap={soldOut ? undefined : { scale: 0.99, transition: HOVER_SPRING }}
+                        whileTap={soldOut ? undefined : { scale: 0.985, y: 0, transition: HOVER_SPRING }}
                         /* r133 (A10): the stacked focus-visible ring+offset retired — the ONE
                            unlayered :focus-visible outline (globals.css) is the single indicator. */
                         className={cn(
@@ -141,13 +141,22 @@ const MenuItemCard = memo(function MenuItemCard({
                                    473 بجانب 522 في الصف نفسه على 768). جذر flex-col
                                    يدفع أفعال البطاقة إلى قاع موحد في كل صف —
                                    نمط بطاقات Toast/Airbnb. */
-                                'group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-base',
+                                /* P18-W2-c (Banzai P1 → Smart Menu «طبق على مائدة»):
+                                   البطاقة = طبق حقيقي على سطح — عمود رفع مادي (ظل الطبق
+                                   الدافئ من عائلة --elev-*) + هالة اتجاهية دافئة خفيفة
+                                   (key-light من الأعلى: الطبق يُستقبِل الضوء لا يطفو في
+                                   الفراغ). الرف يبقى صغيرًا (y=-3 كما كان) — وحي الطبق
+                                   لا وحي البطاقة العائمة. */
+                                'group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card outline-none',
+                                'shadow-[var(--shadow-card-premium)] transition-[transform,box-shadow,border-color] duration-base',
                                 /* r95: توهج SmartBot §5.1 — accent-foreground بدل orange على الحدود/الظل
-                                   (r135-B: يُلغى للصنف النافذ — لا وهم قابلية للطلب) */
+                                   (r135-B: يُلغى للصنف النافذ — لا وهم قابلية للطلب)
+                                   P18-W2-c: hover = رفع الطبق الدرجة القانونية
+                                   (shadow-card-premium-h) لا ظل hover ملوّن سريع الزوال. */
                                 !soldOut &&
-                                        'cursor-pointer hover:border-accent-foreground/30 hover:shadow-lg hover:shadow-accent-foreground/10',
+                                        'cursor-pointer hover:border-accent-foreground/30 hover:shadow-[var(--shadow-card-premium-h)]',
                                 isFeatured && 'md:col-span-2',
-                                soldOut && 'cursor-default'
+                                soldOut && 'cursor-default shadow-sm'
                         )}
                         tabIndex={0}
                         onClick={soldOut ? undefined : () => onOrder(item)}
@@ -161,8 +170,18 @@ const MenuItemCard = memo(function MenuItemCard({
                         // and "أضف" buttons remain the primary, fully-labelled controls and
                         // stopPropagation keeps card activation from double-firing.
                 >
-                        {/* Image — aspect-4/3 with zoom (r135-B: النافذ بلا zoom + رمادي) */}
+                        {/* Image — aspect-4/3 with zoom (r135-B: النافذ بلا zoom + رمادي)
+                            P18-W2-c (Banzai P1 directional key-light): the plate's photo
+                            receives a warm key from ABOVE-START (a soft terracotta wash
+                            fading to transparent — a candle over the dish, not a flat
+                            void). Paint-only, pointer-events-none, theme-agnostic. */}
                         <div className="relative w-full aspect-[4/3] overflow-hidden">
+                                {/* the key-light wash — warm terracotta 10% from the top,
+                                    fading out by 60% (never touches the bottom scrim) */}
+                                <div
+                                        aria-hidden="true"
+                                        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(120%_80%_at_50%_-20%,rgba(194,69,45,0.10),transparent_60%)]"
+                                />
                                 <div
                                         className={cn(
                                                 'absolute inset-0 transition-transform duration-base ease-out',
@@ -204,7 +223,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
                                 {/* Phase 5 (r152): warm food-imagery grade — espresso scrim
                                         (كان أسودًا باردًا); text-on-image stays in-world. */}
-                                <div className="absolute inset-0 warm-scrim pointer-events-none" />
+                                <div className="absolute inset-0 warm-scrim pointer-events-none z-[2]" />
 
                                 {/* Badges — top-start with glass backdrop */}
                                 <div className="absolute top-3 start-3 flex flex-col gap-1.5 z-10">

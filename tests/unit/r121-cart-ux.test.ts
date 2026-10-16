@@ -293,7 +293,10 @@ describe('r138 J9 — quick-note toggle composes cleanly (no dangling comma)', (
 describe('r138 J13 — OrderDialog image-header item name is a single clamped line', () => {
         it('the header h3 carries line-clamp-1 + title (MenuItemCard name pattern)', () => {
                 const s = src('src/components/menu/OrderDialog.tsx');
-                expect(s).toContain('text-xl drop-shadow-lg line-clamp-1');
+                // P18-W2-c (value re-anchor): the title became Baloo (font-display,
+                // the P5 two-voice law) at text-2xl — the pinned properties (one
+                // clamped line + drop-shadow + full name via title) are intact.
+                expect(s).toContain('font-display text-2xl font-bold text-white line-clamp-1 drop-shadow-lg');
                 expect(s).toContain('title={displayName}');
                 // the r121 Q-3 mobile-header pin stays intact (height unchanged)
                 expect(s).toContain('h-28 sm:h-52');

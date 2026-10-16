@@ -32,7 +32,11 @@ describe('r145 P1 — menu grids declare an explicit sub-640 column (no implicit
         const skeleton = src('src/components/menu/MenuSkeleton.tsx');
 
         it('the popular grid starts at grid-cols-1 (minmax(0,1fr) clamps the track)', () => {
-                expect(page).toContain('"grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"');
+                // P18-W2-c (fold law): the popular grid's mobile ride compressed to
+                // gap-3 + md:gap-4 (desktop unchanged); the pinned VALUE is re-anchored
+                // to the new literal — the tracked property (explicit sub-640 column)
+                // is intact: grid-cols-1 first, sm:grid-cols-2 next.
+                expect(page).toContain('"grid grid-cols-1 gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"');
         });
 
         it('the normal grid starts at grid-cols-1 (minmax(0,1fr) clamps the track)', () => {

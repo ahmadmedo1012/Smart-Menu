@@ -1023,9 +1023,13 @@ html.high-contrast :focus-visible {
 .menu-leader-rule {
         flex: 1 1 auto;
         min-width: 1.5rem;
-        border-block-end: 2px dotted var(--menu-leader);
+        /* P18-W2-c: the leader is INK, not decoration — 2px→2.5px + full
+           opacity. The tan on cream was ~1.8:1 as a 2px/90% hairline
+           (invisible at AA glance); 2.5px solid dots at 1.0 read as the
+           printed menu's dotted rule (the motif's whole point). Same token. */
+        border-block-end: 2.5px dotted var(--menu-leader);
         transform: translateY(-0.25em);
-        opacity: 0.9;
+        opacity: 1;
 }
 
 /* ══════════════════════════════════════════════════════════════

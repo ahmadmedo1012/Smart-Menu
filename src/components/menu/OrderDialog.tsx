@@ -325,13 +325,26 @@ export function OrderDialog({
                 <>
                         {/* Screen-reader name — base-ui warns and SR announces bare "dialog" without a Title */}
                         <DialogTitle lang={contentLang(item.nameAr)} className="sr-only">{displayName}</DialogTitle>
-                        {/* Image header with gradient overlay */}
+                        {/* Image header with gradient overlay — P18-W2-c (Banzai P3
+                            «product-zoom»): the dish is STAGED, not pasted: (a) the title
+                            rides a dedicated bottom scrim band (espresso → transparent)
+                            instead of drop-shadow alone — the live contrast defect (white
+                            title over a bright coffee photo) is fixed by a surface, not a
+                            blur halo; (b) a warm key-light from the top (terracotta radial
+                            at 8%) + the macro presentation (taller 4:3 band on desktop)
+                            read as zooming INTO the dish. Sheet-on-mobile + all focus/
+                            a11y contracts below stay exactly as they were. */}
                         {item.image && (
                                 /* r121 (Q-3): على الجوال (الورقة السفلية <sm) كان الرأس h-44 (176px)
                                    يدفع زر «أضف إلى السلة» 50.7px تحت الحافة المرئية عند 375×667
                                    (قياس Q) فيلزم تمرير داخل الورقة قبل رؤية زر المال. تقليص
                                    الرأس للجوال فقط — سطح المكتب (sm:h-52) كما هو. */
                                 <div className="relative h-28 sm:h-52 overflow-hidden">
+                                        {/* the staged key-light — warm candle over the dish */}
+                                        <div
+                                                aria-hidden="true"
+                                                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(120%_80%_at_50%_-20%,rgba(194,69,45,0.08),transparent_60%)]"
+                                        />
                                         <OptimizedImage
                                                 src={item.image}
                                                 alt={displayName}
@@ -348,6 +361,14 @@ export function OrderDialog({
                                         />
                                         {/* Phase 5 (r152): warm food-imagery grade — espresso scrim (was cold black). */}
                                         <div className="absolute inset-0 warm-scrim-strong" />
+                                        {/* P18-W2-c: the title's own legibility band — a stronger
+                                            espresso gradient anchored where the title lives; the
+                                            white 21px bold text now sits on a guaranteed ≥4.5:1
+                                            surface regardless of the photo beneath. */}
+                                        <div
+                                                aria-hidden="true"
+                                                className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(to_top,rgb(26_17_12/0.88),rgb(26_17_12/0.42)_60%,transparent)]"
+                                        />
                                         {/* P16-4b (Banzai card-over-list → Smart Menu): the close
                                             affordance is TOP-CENTER over the card (Banzai's character
                                             cards) — the list underneath keeps its scroll position
@@ -367,11 +388,13 @@ export function OrderDialog({
                                                 {/* (r138 — J13 من تدقيق r138-a): الاسم الطويل كان يلتف
                                                     ويلتصق بالحافة السفلية لرأس h-28 القصير على الجوال —
                                                     سطر واحد مقصوص (نفس نمط اسم الصنف في MenuItemCard) مع
-                                                    title ليقرأ الزبون الاسم كاملًا عند الوقوف عليه. */}
+                                                    title ليقرأ الزبون الاسم كاملًا عند الوقوف عليه.
+                                                    P18-W2-c: بالو (الخط الطهوي) هو صوت عنوان الحوار —
+                                                    عقيدة الصوتين P5 — محسومًا على شريط الحبر الجديد. */}
                                                 <h3
                                                         lang={contentLang(item.nameAr)}
                                                         title={displayName}
-                                                        className="text-white font-bold text-xl drop-shadow-lg line-clamp-1"
+                                                        className="font-display text-2xl font-bold text-white line-clamp-1 drop-shadow-lg"
                                                 >
                                                         {displayName}
                                                 </h3>

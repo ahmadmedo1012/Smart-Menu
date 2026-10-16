@@ -147,7 +147,16 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                 <div className="relative flex min-h-dvh items-center justify-center px-4 py-20 sm:px-6">
                         {/* r128-F5 (§4 login) → Phase 5 (r152): إزالة التدرّجات — لا غسلة لهبية ولا توهج
                            ضبابي؛ الأرض المسطّحة هي أرض المنتج نفسها (كريم #FBF7F0
-                           في الفاتح الافتراضي). صفحة هادئة بتصميمها. */}
+                           في الفاتح الافتراضي). صفحة هادئة بتصميمها.
+                           P18-W2-c (Banzai P1/P6 «طبق مسرحي»): الأرض المسطّحة وحدها كانت
+                           «شبكة عقيمة» — طبخة دافئة: هالة تراكوتا شعاعية خافتة (8%) خلف
+                           البطاقة + حجاب الحبيبات الورقية (grain-overlay نفسه الذي يركب
+                           الأسطح العامة) — جو مطبخ دافئ بلا تدرّجات صاخبة، وبلا أي حركة. */}
+                        <div
+                                aria-hidden="true"
+                                className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_360px_at_50%_38%,rgba(194,69,45,0.08),transparent_70%)]"
+                        />
+                        <div className="grain-overlay" aria-hidden="true" />
 
                         {/* Back to home + ThemeToggle */}
                         <div className="fixed start-4 top-4 z-50 flex items-center gap-2">
@@ -172,8 +181,11 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                            transparent→accent→transparent، نصف قطر 2px)،
                            حشوة البطاقة clamp(32px,4vw,48px) (auth.css:145).
                            Phase 6 (r154): الطبق 16 — تجاوز rounded-2xl (24px) أُزيل
-                           فيرث Card درجته القانونية (rounded-lg = طبق 16). */}
-                        <Card className="animate-scale-in relative z-10 w-full max-w-[27.5rem] border-border/50 bg-card p-0">
+                           فيرث Card درجته القانونية (rounded-lg = طبق 16).
+                           P18-W2-c (الطبق المسرحي): البطاقة الآن مرتفعة ماديًا —
+                           --shadow-card-premium (عائلة --elev الدافئة) بدل الظل المسطح،
+                           فتقرأ كطبق موضوع على المائدة لا ككارت ثنائي الأبعاد على شبكة. */}
+                        <Card className="animate-scale-in relative z-10 w-full max-w-[27.5rem] border-border/50 bg-card p-0 shadow-[var(--shadow-card-premium)]">
                                 {/* canonical .auth-card::before — the short copper hairline */}
                                 <span
                                         aria-hidden="true"

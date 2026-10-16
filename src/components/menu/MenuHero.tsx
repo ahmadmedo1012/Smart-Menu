@@ -53,7 +53,14 @@ export function MenuHero({
 }) {
     return (
         <>
-            <header className="relative min-h-[80vh] md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background before:pointer-events-none before:absolute before:inset-0 before:bg-[var(--menu-glow-strong)]">
+            {/* P18-W2-c (fold law, brief §5): the QR customer's first «أضف» must
+                be ≤~1.2 viewports deep at 390×844 (measured live before: y=2113 ≈ 2.5
+                viewports). The hero's 80vh mobile block was the biggest single
+                contributor after the showcase. Mobile now gets a compact composed
+                band (no forced viewport height — content-driven), while ≥md keeps
+                the immersive 70vh stage (immersion is a desktop luxury; speed is
+                the mobile law). */}
+            <header className="relative min-h-0 md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background before:pointer-events-none before:absolute before:inset-0 before:bg-[var(--menu-glow-strong)]">
                 {/* ── Ambient floating orbs — 2 max: blur layers are expensive on mobile
                      GPUs; reduced-motion users get them fully disabled via globals.css.
                      r121-G-6: the orbs moved into the OrbField client island so their
@@ -68,10 +75,11 @@ export function MenuHero({
                 {/* ── Bottom gradient fade ── */}
                 <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-background/30 to-background pointer-events-none" />
 
-                {/* ── Hero content ── */}
-                <div className="relative z-10 max-w-4xl mx-auto px-4 pt-24 pb-12 md:pt-28 md:pb-16 text-center">
+                {/* ── Hero content — P18-W2-c: mobile paddings compressed
+                   (pt-24→pt-16, pb-12→pb-6; md keeps the immersive rhythm). ── */}
+                <div className="relative z-10 max-w-4xl mx-auto px-4 pt-16 pb-6 md:pt-28 md:pb-16 text-center">
                     {restaurant.logo ? (
-                        <div className="relative mx-auto mb-6 w-fit group">
+                        <div className="relative mx-auto mb-4 md:mb-6 w-fit group">
                             {/* P16-4b: the steam shimmer rides the logo plate (the hero's dish area) */}
                             <HeroSteam />
                             {/* QR-corner signature — owner's QR mark behind the logo */}
@@ -122,7 +130,7 @@ export function MenuHero({
                         Baloo Bhaijaan 2 (warm rounded culinary voice, self-hosted
                         600/700), Plex Sans Arabic behind it in the stack, warm
                         gradient via the hero token */}
-                    <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-semibold mb-3 text-balance leading-[1.3] text-gradient-hero drop-shadow-sm">
+                    <h1 className="font-display text-3xl md:text-6xl lg:text-7xl font-semibold mb-2 md:mb-3 text-balance leading-[1.3] text-gradient-hero drop-shadow-sm">
                         {restaurant.name}
                     </h1>
 
@@ -133,7 +141,7 @@ export function MenuHero({
                     )}
 
                     {/* Decorative divider */}
-                    <div className="mx-auto mt-5 mb-5 flex items-center justify-center gap-3">
+                    <div className="mx-auto mt-3 mb-3 md:mt-5 md:mb-5 flex items-center justify-center gap-3">
                         <span className="block w-12 h-[1px] bg-gradient-to-l from-orange/0 via-orange/40 to-orange/0" />
                         <span className="block size-1.5 rounded-full bg-orange/40" />
                         <span className="block w-12 h-[1px] bg-gradient-to-r from-orange/0 via-orange/40 to-orange/0" />
@@ -142,7 +150,7 @@ export function MenuHero({
                     {/* Glass-pill action bar — ACTIONS only (P16-4b: share +
                         print stay pills; the INFO moved to the sign plate
                         below so utility content stops being scattered chrome) */}
-                    <div className="flex flex-wrap items-center justify-center gap-2.5 mt-4">
+                    <div className="flex flex-wrap items-center justify-center gap-2.5 mt-3 md:mt-4">
                         <ShareButtonIsland url={`${origin}/menu/${slug}`} title={`منيو ${restaurant.name}`} />
                         <a
                             href={`/menu/${slug}/print`}
@@ -165,7 +173,7 @@ export function MenuHero({
                         only from the owner's real data. */}
                     {(hasContact || restaurant.workingHours || (restaurant.hours?.length ?? 0) > 0) && (
                         <div
-                            className="relative mx-auto mt-6 w-fit max-w-full rounded-xl border-2 border-orange/30 bg-card/70 dark:bg-card/50 ring-1 ring-orange/10 shadow-lg shadow-orange/10 px-4 py-2 text-start"
+                            className="relative mx-auto mt-4 md:mt-6 w-fit max-w-full rounded-xl border-2 border-orange/30 bg-card/70 dark:bg-card/50 ring-1 ring-orange/10 shadow-lg shadow-orange/10 px-4 py-2 text-start"
                         >
                             {/* decorative mount screws — the plate reads as hung in the scene */}
                             <span aria-hidden="true" className="absolute top-2 start-2 size-1.5 rounded-full bg-orange/40" />

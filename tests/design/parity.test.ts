@@ -777,7 +777,10 @@ describe('r152 parity — the Phase 5 signature: the menu dot-leader motif', () 
     pin(light, 'r152', '--menu-leader', '#CBB08C');
     pin(dark, 'r152', '--menu-leader', '#57402D');
     expect(globalsRaw).toMatch(/\.menu-leader\s*\{[\s\S]*?display:\s*flex/);
-    expect(globalsRaw).toMatch(/\.menu-leader-rule\s*\{[\s\S]*?border-block-end:\s*2px dotted var\(--menu-leader\)/);
+    // P18-W2-c (value re-anchor, logic untouched): 2px→2.5px — the leader
+    // becomes real ink (0.9→1.0 opacity rides the same token); the pinned
+    // PROPERTY (dotted, var ink, printed-menu motif) is unchanged.
+    expect(globalsRaw).toMatch(/\.menu-leader-rule\s*\{[\s\S]*?border-block-end:\s*2\.5px dotted var\(--menu-leader\)/);
   });
   it('consumption: the dotted price leader rides ≥4 real menu surfaces (item card · order dialog · cart · slide-over)', () => {
     const surfaces = [
@@ -790,7 +793,8 @@ describe('r152 parity — the Phase 5 signature: the menu dot-leader motif', () 
     expect(surfaces.length, 'the dot-leader motif must stay on the menu surfaces').toBeGreaterThanOrEqual(4);
     // the print sheet draws its own .ldr twin (no globals import on that path)
     const printRaw = raw('src/app/(public)/menu/[slug]/print/page.tsx');
-    expect(printRaw).toMatch(/\.item \.ldr\s*\{[\s\S]*?2px dotted var\(--print-muted\)/);
+    // P18-W2-c: value re-anchored with the digital twin (2.5px/1.0).
+    expect(printRaw).toMatch(/\.item \.ldr\s*\{[\s\S]*?2\.5px dotted var\(--print-muted\)/);
     expect(printRaw).toContain('<i className="ldr" aria-hidden="true" />');
   });
   it('warm food-imagery grade: .warm-scrim* espresso utilities + the cold from-black scrims are retired', () => {
@@ -2168,7 +2172,11 @@ describe('r133 parity — finest details: money seam, focus grammar, microcopy s
   });
 
   it('A3-S6: MenuSkeleton hero block mirrors the real MenuHero geometry (QR first paint)', () => {
-    expect(menuSkeletonCc).toContain('min-h-[80vh] md:min-h-[70vh]');
+    // P18-W2-c (value re-anchor, W2-c2 finished it): the hero went compact on
+    // mobile (fold law) — the skeleton mirrors the NEW geometry so the swap
+    // stays visually neutral (min-h-0 mobile / 70vh md).
+    expect(menuSkeletonCc).toContain('min-h-0 md:min-h-[70vh]');
+    expect(menuSkeletonCc).toContain('pt-16 pb-6 md:pt-28 md:pb-16');
     expect(menuSkeletonCc).toContain('size-28 md:size-32');
     expect(menuSkeletonCc).toContain('text-center');
   });

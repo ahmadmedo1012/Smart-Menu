@@ -25,6 +25,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { useReducedMotion } from "motion/react"
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string }
 
@@ -108,6 +109,11 @@ export function CategoryTabs({
   className,
 }: CategoryTabsProps) {
   const [open, setOpen] = useState(false)
+  /* P18-W2-c (Banzai P5 two-voice + row weight): the drawer's typographic
+     craft — the active row is a WEIGHT change (Baloo bold + accent ink),
+     not a tint wash; rows get a physical hover nudge. reduceMotion gates
+     the nudges (never the state). */
+  const reduceMotion = useReducedMotion()
   /* Same lazy CSS-media surface detection as OrderDialog (r134-W2 #12):
      ≥640px gets the side panel, below it the bottom sheet. SSR-safe guard;
      the sheet only ever renders OPEN on client interaction, so hydration
@@ -192,7 +198,10 @@ export function CategoryTabs({
         {/* side="left" pins to inset-inline-start:0 — the physical RIGHT edge
             in RTL (the natural opening side, mirrored from Banzai's panel);
             it slides in from that edge via the rtl: translate mirror classes
-            in ui/sheet (r93-W2a). ≤640px becomes the bottom sheet. */}
+            in ui/sheet (r93-W2a). ≤640px becomes the bottom sheet.
+            P18-W2-c (drawer craft): radius unification — the shell keeps its
+            fleet sheet corners (20px), while every INNER row/badge/tile now
+            rides the single rounded-lg (12px) rung; no mixed radii per row. */}
         <SheetContent
           side={isDesktop ? "left" : "bottom"}
           className={cn(
@@ -206,8 +215,8 @@ export function CategoryTabs({
             "data-[side=bottom]:max-h-[78dvh]"
           )}
         >
-          <SheetHeader className="border-b border-border/60 pb-3">
-            <SheetTitle className="text-base font-semibold">الفئات</SheetTitle>
+          <SheetHeader className="border-b border-border/60 pt-4 pb-3">
+            <SheetTitle className="font-heading text-lg font-bold">الفئات</SheetTitle>
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto overscroll-contain p-3">
@@ -237,6 +246,7 @@ export function CategoryTabs({
                 label="الكل"
                 count={itemCounts.get(null) ?? 0}
                 isActive={activeCategory === null}
+                reduceMotion={reduceMotion}
                 onClick={() => handleSelect(null)}
               />
               {categories.map((cat) => (
@@ -246,6 +256,7 @@ export function CategoryTabs({
                   icon={cat.icon}
                   count={itemCounts.get(cat.id) ?? 0}
                   isActive={activeCategory === cat.id}
+                  reduceMotion={reduceMotion}
                   onClick={() => handleSelect(cat.id)}
                 />
               ))}
@@ -262,12 +273,14 @@ function CategoryRow({
   icon,
   count,
   isActive,
+  reduceMotion,
   onClick,
 }: {
   label: string
   icon?: string
   count: number
   isActive: boolean
+  reduceMotion: boolean | null
   onClick: () => void
 }) {
   return (
@@ -277,19 +290,32 @@ function CategoryRow({
       aria-pressed={isActive}
       className={cn(
         "group relative flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start",
-        "min-h-11 transition-colors duration-fast",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2",
-        isActive
-          ? "bg-orange/10"
-          : "hover:bg-accent/50"
+        "min-h-11 transition-[background-color,transform] duration-fast",
+        /* P18-W2-c (Banzai drawer weight): the row nudges toward its chevron
+           on hover (a 1px drift — physical, mirrored from Banzai's row
+           grammar) and the ACTIVE row carries a start-edge accent bar —
+           typographic + geometric state, not a tint wash. Disabled under
+           reduced-motion. */
+        !reduceMotion && "hover:-translate-x-0.5",
+        isActive ? "bg-orange/10" : "hover:bg-accent/50"
       )}
     >
+      {/* the active accent bar — 3px start-edge, the active row's spine */}
+      {isActive && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-[var(--accent-solid)]"
+        />
+      )}
+
       {/* Banzai row grammar: thumbnail tile (the mascot-equivalent — lucide
-          category icon, same ICON_MAP/EMOJI_MAP as the old tabs) */}
+          category icon, same ICON_MAP/EMOJI_MAP as the old tabs).
+          P18-W2-c: size-9→size-10 + rounded-lg — icon and text centers now
+          align on one optical line (the chevron "snail" misalignment fix). */}
       <span
         aria-hidden="true"
         className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-lg border",
+          "flex size-10 shrink-0 items-center justify-center rounded-lg border transition-colors duration-fast",
           isActive
             ? "border-orange/40 bg-orange/15 text-accent-foreground"
             : "border-border/60 bg-muted/40 text-muted-foreground"
@@ -304,11 +330,14 @@ function CategoryRow({
 
       <span className="flex min-w-0 flex-1 items-center gap-2">
         {/* precise hover underline (Banzai's menu rows) — under the label
-            only, never the whole row */}
+            only, never the whole row.
+            P18-W2-c (P5 two-voice): the ACTIVE label gains Baloo weight
+            (font-heading 700) — the voice change IS the state; passive rows
+            stay 600. */}
         <span
           className={cn(
-            "truncate text-sm font-medium decoration-orange/70 decoration-1 underline-offset-4 group-hover:underline",
-            isActive && "text-accent-foreground"
+            "truncate font-heading text-sm font-semibold leading-6 decoration-orange/70 decoration-1 underline-offset-4 group-hover:underline",
+            isActive ? "font-bold text-accent-foreground" : "text-foreground"
           )}
         >
           {label}
@@ -316,11 +345,14 @@ function CategoryRow({
         <span
           className={cn(
             /* r95 counter ink law: non-active counts ride accent-foreground
-               (the old strip's chip ink, 3.9:1 → AA). */
-            "inline-flex shrink-0 items-center justify-center size-5 rounded-sm text-2xs font-bold",
+               (the old strip's chip ink, 3.9:1 → AA).
+               P18-W2-c: rounded-lg rung (was rounded-sm) — one radius family
+               in the row; ms-auto keeps the count pinned to the chevron side
+               (kills the dead gap). */
+            "ms-auto inline-flex shrink-0 items-center justify-center size-5 rounded-lg text-2xs font-bold tabular-nums font-mono",
             isActive
               ? "bg-orange text-orange-foreground"
-              : "bg-muted/50 text-accent-foreground"
+              : "bg-muted/60 text-accent-foreground"
           )}
         >
           {toArabicNumber(count)}
@@ -328,10 +360,13 @@ function CategoryRow({
       </span>
 
       {/* RTL drill-down chevron — points LEFT (the reading direction's
-          "into the list" arrow; mirrored from Banzai's → rows) */}
+          "into the list" arrow; mirrored from Banzai's → rows).
+          P18-W2-c: the chevron rides flex items-center with the row (not
+          baseline) so it centers on the label's optical line. */}
       <ChevronLeft
         className={cn(
-          "size-4 shrink-0",
+          "size-4 shrink-0 transition-transform duration-fast",
+          !reduceMotion && "group-hover:-translate-x-0.5",
           isActive ? "text-accent-foreground" : "text-muted-foreground/70"
         )}
         aria-hidden="true"

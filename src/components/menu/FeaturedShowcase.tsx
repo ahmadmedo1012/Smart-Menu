@@ -230,12 +230,17 @@ export function FeaturedShowcase<T extends FeaturedItem>({
 
                         {/* §2.1 — the SCENE: full parent-container width (breaks the px-4
                                         gutter), 70vh/80vh minimum, bottom-only rounding, and the §2.2
-                                        per-item wash that animates on every navigation. */}
+                                        per-item wash that animates on every navigation.
+                                        P18-W2-c (fold law): the 70vh mobile minimum is retired — the
+                                        QR customer's first «أضف» must be ≤~1.2 viewports deep at
+                                        390×844 (measured 2113px before). Mobile scene is now
+                                        content-driven (image at 75% width still centered, text
+                                        block compact); ≥md keeps the 80vh cinematic stage. */}
                         <div
                                 style={sceneVars}
                                 onTouchStart={onTouchStart}
                                 onTouchEnd={onTouchEnd}
-                                className="group/showcase -mx-4 relative flex min-h-[70vh] flex-col overflow-hidden rounded-b-3xl bg-[var(--scene-wash)] transition-colors duration-cinema motion-reduce:transition-none md:min-h-[80vh]"
+                                className="group/showcase -mx-4 relative flex min-h-0 flex-col overflow-hidden rounded-b-3xl bg-[var(--scene-wash)] transition-colors duration-cinema motion-reduce:transition-none md:min-h-[80vh]"
                         >
                                 {/* Ambient glow behind the image — same accent, radial fade */}
                                 <div
@@ -299,7 +304,7 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                         >
                                                 {/* §2.1 — image zone: centered OVERLAY (not a flex column),
                                                         >=75% scene width mobile / >=55% md. */}
-                                                <div className="relative flex flex-1 items-center justify-center px-4 py-10 md:py-14">
+                                                <div className="relative flex flex-1 items-center justify-center px-4 py-6 md:py-14">
                                                         <div className="relative w-[75%] max-w-[540px] md:w-[55%]">
                                                                 <div
                                                                         aria-hidden="true"
@@ -366,10 +371,10 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                 <div
                                                         className={cn(
                                                                 'relative z-10 mx-auto w-full max-w-2xl px-4 pt-1 text-center',
-                                                                tappable ? 'pb-24 md:pb-28' : 'pb-14 md:pb-20'
+                                                                tappable ? 'pb-16 md:pb-28' : 'pb-10 md:pb-20'
                                                         )}
                                                 >
-                                                        <h3 className="text-3xl font-bold text-foreground md:text-5xl">{displayName}</h3>
+                                                        <h3 className="text-2xl font-bold text-foreground md:text-5xl">{displayName}</h3>
                                                         {description && (
                                                                 <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-foreground/75 line-clamp-2 md:text-base">
                                                                         {description}
@@ -423,7 +428,7 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                         وبنمط أسهم المشهد الزجاجي نفسه */}
                                                 <span
                                                         className={cn(
-                                                                'absolute bottom-12 end-4 inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-bold backdrop-blur-sm transition-colors duration-base',
+                                                                'absolute bottom-3 end-4 md:bottom-12 inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-bold backdrop-blur-sm transition-colors duration-base',
                                                                 'border-[color-mix(in_oklab,var(--scene-accent)_50%,transparent)]',
                                                                 'bg-[color-mix(in_oklab,var(--scene-wash)_88%,var(--background))] text-[var(--scene-accent)]',
                                                                 'hover:bg-[var(--scene-accent)]/15'
@@ -464,7 +469,7 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                         now first-class named controls: each carries the item's
                                                         name + position, keyboard focusable, aria-current on the
                                                         active one (the sr-only live counter above stays). */}
-                                                <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex items-center gap-0.5">
+                                                <div className="absolute bottom-0.5 md:bottom-3 left-1/2 z-20 -translate-x-1/2 flex items-center gap-0.5">
                                                         {featured.map((f, i) => (
                                                                 // r151 (LIVE-AUDIT-SM1 P2-2): the button box is now
                                                                 // 44×44 (fleet touch canon — was the r115-F121 24×24

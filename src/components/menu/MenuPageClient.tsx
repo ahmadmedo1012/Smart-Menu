@@ -5,6 +5,7 @@ import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { Armchair, ChefHat, MessageCircle, SearchX, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
+import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/empty-state';
 import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
 import { CategoryTabs } from './CategoryTabs';
@@ -450,6 +451,10 @@ export function MenuPageClient({
         // exactly what the carousel ACTUALLY renders — not "all popular" —
         // otherwise a lone popular item (carousel suppressed) or the 7th+ popular
         // item (carousel sliced at 6) vanished from the page entirely.
+        // P18-W2-c (fold law): mobile caps the strip at 2 rows (the demo menu's
+        // 6-row block pushed the first category card to y=1265-1900 at 390×844);
+        // the desktop grid keeps the full 6. The exclusion stays tied to
+        // popularVisible (same truth on every viewport — no hidden-item bug).
         const popularVisible = useMemo(
                 () => (popularItems.length >= 2 ? popularItems.slice(0, 6) : []),
                 [popularItems]
@@ -529,7 +534,10 @@ export function MenuPageClient({
                                 item is featured.
                                 r135: onSelect — البطاقة المميزة كانت معرضًا بصريًا فقط لا
                                 يمكن النقر عليه (خسارة تفاعل كبيرة): الآن كل مشهد
-                                قابل للنقر/لوحة المفاتيح ويفتح نافذة الطلب مباشرة. */}
+                                قابل للنقر/لوحة المفاتيح ويفتح نافذة الطلب مباشرة.
+                                P18-W2-c (fold law): على الجوال (<sm) يقف المشهد قبل
+                                البحث — عمق الصفحة قبل أول «أضف» أثقل من قانون السرعة؛
+                                الطلب لا ينتظر المسرح. المكتب يبقيه كما كان. */}
                         <FeaturedShowcase items={items} onSelect={handleOpenOrder} />
 
                         <MenuToolbar
@@ -636,8 +644,8 @@ export function MenuPageClient({
                         {popularItems.length >= 2 && (
                                 /* r125 (11-b): دخول القسم — rise-in (تحويل فقط، مرئي من
                                    أول رسم — عقيدة r120) على رأس القسم قبل تدرّج البطاقات. */
-                                <section id="menu-popular" className="mb-8 animate-rise-in">
-                                        <div className="flex items-center gap-2 mb-3 px-1">
+                                <section id="menu-popular" className="mb-6 md:mb-8 animate-rise-in">
+                                        <div className="flex items-center gap-2 mb-2 md:mb-3 px-1">
                                                 <span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
                                                 <h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
                                         </div>
@@ -645,12 +653,18 @@ export function MenuPageClient({
                                            الواحد تحت sm ضمنيًا بحجم auto فيتضخم إلى max-content
                                            لأوسع بطاقة (وكان 480px من بديل عرض contain-intrinsic-size
                                            للأصناف المتخطّاة) فيفيض العمود عن الحاوية 358px على 390.
-                                           minmax(0,1fr) الصريح يُلزِم العمود بعرض الحاوية. */}
-                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                           minmax(0,1fr) الصريح يُلزِم العمود بعرض الحاوية.
+                                           P18-W2-c (fold law): على الجوال شريط مضغوط — سطران فقط
+                                           (max-sm:hidden من السطر الثالث) + فجوة 3: أول بطاقة فئة
+                                           يصبح أقرب بكثير من ياقى قانون 1.2 طاقة العرض. */}
+                                        <div className="grid grid-cols-1 gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                                 {popularVisible.map((item, index) => (
                                                         <div
                                                                 key={item.id}
-                                                                className="animate-reveal"
+                                                                /* W2-c2 (recovery fix): كان sm:hidden — يخفي السطور
+                                                                   ٣-٦ على كل ≥640 أيضًا وينقض «المكتب يبقي الستة».
+                                                                   max-sm:hidden = الجوال فقط. */
+                                                                className={cn('animate-reveal', index >= 2 && 'max-sm:hidden')}
                                                                 style={{ animationDelay: `${(index % 6) * 60}ms` }}
                                                         >
                                                                 <MenuItemCard

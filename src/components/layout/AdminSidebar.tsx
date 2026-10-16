@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import {LayoutDashboard, UtensilsCrossed, ScrollText, Settings, QrCode, Store, Users, Activity, DollarSign, MessageCircle, Shield} from 'lucide-react';
+import {LayoutDashboard, UtensilsCrossed, ScrollText, Settings, QrCode, Store, Users, Activity, DollarSign, MessageCircle, Shield, Radio} from 'lucide-react';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedLogOut from "@/components/ui/logout-icon"
 import { performLogout } from "@/lib/logout"
@@ -25,6 +25,12 @@ export const allNavItems: NavItem[] = [
   { href: "/admin/subscriptions", label: "المدفوعات", icon: DollarSign, permission: "MANAGE_SUBSCRIPTIONS" },
   { href: "/admin/telegram", label: "التليجرام", icon: MessageCircle, permission: "EDIT_SETTINGS" },
   { href: "/admin/audit-logs", label: "سجل التدقيق", icon: Activity, permission: "VIEW_ANALYTICS" },
+  /* P18-W2-c (W1-c defect §2.7): the system-events page/route/client are
+     complete but were ORPHANED from this list — discoverable only by URL.
+     Same permission family as the audit trail it sits beside
+     (VIEW_ANALYTICS — the API route's own gate), so the visibility rule
+     matches the server's authorization exactly. */
+  { href: "/admin/system-events", label: "أحداث النظام", icon: Radio, permission: "VIEW_ANALYTICS" },
   { href: "/admin/settings", label: "الإعدادات", icon: Settings, permission: "EDIT_SETTINGS" },
 ];
 

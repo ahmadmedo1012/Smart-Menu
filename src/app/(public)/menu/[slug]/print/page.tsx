@@ -169,8 +169,10 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
           .print-sheet .cat h2 { font-size: 1.1rem; color: var(--print-amber-700); border-bottom: 1px solid var(--print-border); padding-bottom: 0.3rem; }
           .print-sheet .item { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.3rem 0; font-size: 0.95rem; }
           /* Phase 5 (r152): قائد النقاط المطبوع — dotted price leader بين
-             الاسم والسعر (نفس بصمة المنيو الرقمي: .menu-leader). */
-          .print-sheet .item .ldr { flex: 1 1 auto; min-width: 1.5rem; border-block-end: 2px dotted var(--print-muted); transform: translateY(-0.3em); opacity: 0.7; }
+             الاسم والسعر (نفس بصمة المنيو الرقمي: .menu-leader).
+             P18-W2-c: same ink-weight re-anchor as the digital twin —
+             2.5px/1.0 so the printed rule actually prints. */
+          .print-sheet .item .ldr { flex: 1 1 auto; min-width: 1.5rem; border-block-end: 2.5px dotted var(--print-muted); transform: translateY(-0.3em); opacity: 1; }
           .print-sheet .item .nm { font-weight: 500; }
           .print-sheet .item .pr { font-weight: 700; color: var(--print-primary); white-space: nowrap; }
           .print-sheet .item .old { text-decoration: line-through; color: var(--print-muted); font-weight: 400; }

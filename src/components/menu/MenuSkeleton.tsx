@@ -29,19 +29,22 @@ export function MenuSkeleton() {
                         <div className="fixed inset-x-0 top-0 z-30 h-14" aria-hidden="true" />
 
                         {/* r133 (A3 S6): البطل المضغوط السابق (‎~150px‎ مسافة يسارية) لم يكن
-                            يحاكي بطل MenuHero الحقيقي ‎(‎min-h-[80vh]‎ مركزي: شعار ‎size-28‎ + عنوان
+                            يحاكي بطل MenuHero الحقيقي (شعار ‎size-28‎ + عنوان
                             ضخم + وصف + فاصل + صف أزرار)‎ — فكانت أول زيارة بمسح QR تقفز صفحة
                             كاملة عند استبدال الهيكل. الكتلة الأولى الآن تعكس هندسة البطل
-                            الحقيقية (نفس ‎min-h‎/التوسيط/البنية) فالاستبدال مرئيًا محايد. */}
-                        <header className="relative min-h-[80vh] md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background animate-rise-in" aria-hidden="true">
-                                <div className="relative z-10 max-w-4xl mx-auto px-4 pt-24 pb-12 md:pt-28 md:pb-16 text-center">
-                                        {/* الشعار الزجاجي — نفس ‎size-28 md:size-32‎ للحاوية الحقيقية */}
-                                        <div className="mx-auto mb-6 size-28 md:size-32 rounded-2xl skeleton" />
-                                        {/* العنوان الضخم (‎text-4xl→7xl‎) + الوصف */}
-                                        <div className="h-10 md:h-14 w-72 max-w-full mx-auto rounded-lg skeleton" />
+                            الحقيقية (نفس ‎min-h‎/التوسيط/البنية) فالاستبدال مرئيًا محايد.
+                            P18-W2-c (W2-c2 أكمل الإرساء): MenuHero صار مضغوطًا على الجوال
+                            (‎min-h-0‎ + ‎pt-16 pb-6‎ — قانون الطية ≤1.2 شاشة) — الهيكل يطابق
+                            الهندسة الجديدة وإلا عاد قفز الاستبدال. */}
+                        <header className="relative min-h-0 md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background animate-rise-in" aria-hidden="true">
+                                <div className="relative z-10 max-w-4xl mx-auto px-4 pt-16 pb-6 md:pt-28 md:pb-16 text-center">
+                                        {/* الشعار الزجاجي — نفس ‎size-28 md:size-32‎ + ‎mb-4 md:mb-6‎ للحاوية الحقيقية */}
+                                        <div className="mx-auto mb-4 md:mb-6 size-28 md:size-32 rounded-2xl skeleton" />
+                                        {/* العنوان (‎text-3xl→7xl‎) + الوصف */}
+                                        <div className="h-9 md:h-14 w-72 max-w-full mx-auto rounded-lg skeleton" />
                                         <div className="h-4 w-56 max-w-full mx-auto mt-3 rounded-md skeleton" />
-                                        {/* الفاصل الزخرفي — نفس ‎mt-5 mb-5‎ */}
-                                        <div className="mx-auto mt-5 mb-5 flex items-center justify-center gap-3">
+                                        {/* الفاصل الزخرفي — نفس ‎mt-3 mb-3 md:mt-5 md:mb-5‎ */}
+                                        <div className="mx-auto mt-3 mb-3 md:mt-5 md:mb-5 flex items-center justify-center gap-3">
                                                 <div className="w-12 h-px bg-border/60" />
                                                 <div className="size-1.5 rounded-full bg-border" />
                                                 <div className="w-12 h-px bg-border/60" />
