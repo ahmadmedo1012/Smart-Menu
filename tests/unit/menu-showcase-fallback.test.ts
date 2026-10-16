@@ -269,4 +269,25 @@ describe('r135 — sold-out items cross the wire (disable, don\'t hide)', () => 
                 expect(group.options.find((o) => o.id === 902)).toMatchObject({ isAvailable: false, priceDelta: 2.5 });
                 expect(group.options.find((o) => o.id === 901)).toMatchObject({ isAvailable: true });
         });
+
+        it('P16-4b honesty guard: a sold-out item never LEADS its category (the P15 partition stands)', async () => {
+                // المهمة P16-4b: درج الفئات وبطاقة الصنف فوق القائمة لا يلمسان
+                // ترتيب المسلسِل — الصنف المنتهي الذي يتقدم في الـDB (sortOrder 1)
+                // يجب أن يظل يُصدَّر أخيرًا في فئته (قسمة P15-4b: المتاح أولًا
+                // بترتيبه، ثم المنتهي بترتيبه) كي لا يتصدّر القائمة الرمادية.
+                const soldOutLeader = { ...item(1, 1), status: 'unavailable' as const }; // sortOrder 1 — يقود في الـDB
+                const available = item(2, 1); // sortOrder 2 — متاح
+                mockItemFindMany.mockResolvedValue([soldOutLeader, available, item(5, 2)]);
+
+                const tree = await renderPage();
+                const client = findElementsByProp(tree, 'serializedItems')[0];
+                const items = client.props.serializedItems as Array<Record<string, unknown>>;
+                const cat1 = items.filter((i) => i.categoryId === 1);
+
+                // المتاح (id 2) يسبق المنتهي (id 1) رغم أن المنتهي أصغر sortOrder
+                expect(cat1.map((i) => i.id)).toEqual([2, 1]);
+                expect(cat1[1]).toMatchObject({ id: 1, isAvailable: false });
+                // فئة أخرى بلا منتهي تحافظ على ترتيبها الأصلي
+                expect(items.filter((i) => i.categoryId === 2).map((i) => i.id)).toEqual([5]);
+        });
 });

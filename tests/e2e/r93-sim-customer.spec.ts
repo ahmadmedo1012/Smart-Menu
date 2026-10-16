@@ -95,6 +95,10 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
 
   /* ── 2. تصفية بفئة: النتائج تنحصر والجمع العربي صحيح ── */
   test("تصفية بفئة «المشروبات الساخنة»: 3 أصناف فقط", async () => {
+    // P16-4b (Banzai drawer re-anchor): category browsing became a slide-in
+    // drawer over the menu — the group renders inside the sheet, so open the
+    // drawer first (the trigger is the sticky «الفئات» button).
+    await page.getByRole("button", { name: "الفئات" }).click();
     // r134-W2 (#7): القسم → الفئة — the category filter group label unified on فئة
     const catGroup = page.getByRole("group", { name: "تصفية الأصناف حسب الفئة" });
     await expect(catGroup).toBeVisible({ timeout: 15000 });
@@ -112,6 +116,8 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await page.screenshot({ path: `${SHOTS}/sim-customer-02-category-filter.png` });
 
     // إعادة «الكل» تُرجع القائمة كاملة ويختفي عدّاد التصفية
+    // P16-4b: selecting a row closes the drawer — reopen it for the reset
+    await page.getByRole("button", { name: "الفئات" }).click();
     await catGroup.locator('button:has-text("الكل")').first().click();
     await expect(page.getByText("عُثر على")).toBeHidden({ timeout: 10000 });
     await expect(gridItem(page, "عصير مانجو")).toBeVisible();

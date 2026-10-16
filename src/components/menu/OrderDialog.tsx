@@ -348,13 +348,17 @@ export function OrderDialog({
                                         />
                                         {/* Phase 5 (r152): warm food-imagery grade — espresso scrim (was cold black). */}
                                         <div className="absolute inset-0 warm-scrim-strong" />
+                                        {/* P16-4b (Banzai card-over-list → Smart Menu): the close
+                                            affordance is TOP-CENTER over the card (Banzai's character
+                                            cards) — the list underneath keeps its scroll position
+                                            because this is an overlay, never a route change. */}
                                         <button
                                                 type="button"
                                                 onClick={() => onOpenChange(false)}
                                                 /* r138 (P2): الخلفية أسود/45 بدل /30 — الأيقونة
                                                    البيضاء فوق صورة فاتحة كانت 2.10:1 (1.4.11
                                                    للرسوميات) والآن 3.36:1 في أسوأ حالة. */
-                                                className="absolute top-3 start-3 size-11 rounded-lg bg-black/45 text-white hover:bg-black/65 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                className="absolute top-3 left-1/2 -translate-x-1/2 size-11 rounded-lg bg-black/45 text-white hover:bg-black/65 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 aria-label="إغلاق"
                                         >
                                                 <AnimatedX className="size-4" />
@@ -378,7 +382,22 @@ export function OrderDialog({
                         {confirmed ? (
                                 <ConfirmedBlock />
                         ) : (
-                                <div className={cn('p-4 sm:p-5 space-y-3 sm:space-y-4', !item.image && 'pt-8')}>
+                                <div className={cn('p-4 sm:p-5 space-y-3 sm:space-y-4')}>
+                                        {/* P16-4b: no-image path gets the same TOP-CENTER close —
+                                            a dedicated 44px strip replaces the old corner button
+                                            (showCloseButton=false on both shells below). */}
+                                        {!item.image && (
+                                                <div className="relative h-11 -mt-1">
+                                                        <button
+                                                                type="button"
+                                                                onClick={() => onOpenChange(false)}
+                                                                aria-label="إغلاق"
+                                                                className="absolute top-0 left-1/2 -translate-x-1/2 flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-fast hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                        >
+                                                                <AnimatedX className="size-4" />
+                                                        </button>
+                                                </div>
+                                        )}
                                         <ItemSummary item={item} displayName={displayName} />
 
                                         {/* Restaurant info bar — glass-card */}
@@ -518,7 +537,7 @@ export function OrderDialog({
                                 /* r121 (Q-3): 94dvh بدل 90dvh — يرفع الحافة المرئية ~27px
                                    على 667px فلا يختفي زر «أضف إلى السلة» عند الفتح الأول. */
                                 className="gap-0 p-0 max-h-[94dvh] overflow-y-auto rounded-t-2xl glass-strong"
-                                showCloseButton={!item?.image}
+                                showCloseButton={false}
                         >
                                 {innerContent}
                         </SheetContent>
@@ -527,7 +546,7 @@ export function OrderDialog({
                 <Dialog {...sharedProps}>
                         <DialogContent
                                 className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-2xl glass-strong max-h-[90dvh] overflow-y-auto"
-                                showCloseButton={!item?.image}
+                                showCloseButton={false}
                         >
                                 {innerContent}
                         </DialogContent>

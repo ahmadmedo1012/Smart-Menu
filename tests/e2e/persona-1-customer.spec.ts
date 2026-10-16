@@ -21,6 +21,9 @@ test("P1: real customer order journey", async ({ page }) => {
   // ── 1. Browse menu, category filter ──
   await page.goto(MENU, { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
+  // P16-4b (Banzai drawer re-anchor): categories became a slide-in drawer —
+  // open it before the category rows are clickable.
+  await page.getByRole("button", { name: "الفئات" }).click();
   const cat = page.locator('button:has-text("مشروبات ساخنة")').first();
   if (await cat.count()) {
     await cat.click();
@@ -32,6 +35,8 @@ test("P1: real customer order journey", async ({ page }) => {
   console.log(`P1 category filter hides cold drinks: ${hasColdHidden}`);
 
   // ── 2. Add specific items (coffee + dessert) ──
+  // P16-4b: the drawer auto-closed on selection — reopen it for the «الكل» reset
+  await page.getByRole("button", { name: "الفئات" }).click();
   await page.locator('button:has-text("الكل")').first().click();
   await page.waitForTimeout(1000);
   // Add two different items by locating their cards

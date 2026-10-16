@@ -1488,6 +1488,15 @@ textarea:autofill {
         50% { transform: translate(-12px, -6px) rotate(-1deg); }
         75% { transform: translate(22px, -12px) rotate(3deg); }
 }
+/* P16-4b (Banzai ambient idle → Smart Menu): the hero steam shimmer — a wisp
+   rises ~64px over the logo plate, fading in/out with a slight drift + widen.
+   Duration rides the ambient-drift ladder token so the RM token zeroing and
+   the off-switch list below both kill it. */
+@keyframes hero-steam {
+        0%   { transform: translateY(10px) translateX(0) scaleX(0.8); opacity: 0; }
+        25%  { opacity: 1; }
+        100% { transform: translateY(-64px) translateX(4px) scaleX(1.5); opacity: 0; }
+}
 @keyframes confetti {
         0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
         100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
@@ -1555,6 +1564,13 @@ textarea:autofill {
 
 .animate-orb-float { animation: orb-float var(--motion-duration-ambient-scene, 22s) ease-in-out infinite; }
 .animate-orb-float-delayed { animation: orb-float var(--motion-duration-ambient-scene, 22s) ease-in-out infinite 4s; }
+
+/* P16-4b: the hero steam wisps — same full-shorthand + built-in delay pattern
+   as the orb twins above (no class-order dependency). The HeroSteam island
+   flips animation-play-state via inline style for the idle/visibility gates. */
+.animate-hero-steam { animation: hero-steam var(--motion-duration-ambient-drift, 6s) ease-in-out infinite; }
+.animate-hero-steam-delayed { animation: hero-steam var(--motion-duration-ambient-drift, 6s) ease-in-out infinite 2s; }
+.animate-hero-steam-late { animation: hero-steam var(--motion-duration-ambient-drift, 6s) ease-in-out infinite 4s; }
 
 
 .animate-confetti {
@@ -1715,6 +1731,11 @@ textarea:autofill {
         .animate-float,
         .animate-float-delayed,
         .animate-breath { animation: none; }
+        /* P16-4b: the hero steam wisps join the per-class off-switches
+           (HeroSteam's own motion-reduce:hidden is the second layer). */
+        .animate-hero-steam,
+        .animate-hero-steam-delayed,
+        .animate-hero-steam-late { animation: none; }
         /* r121-I-6: the .glow-border reduced-motion opt-out died with the utility.
            r132 (A3 §3.1): the .animate-pulse-dot / .animate-float-slow /
            .aurora-wash::after opt-outs died with their (dead) classes. */

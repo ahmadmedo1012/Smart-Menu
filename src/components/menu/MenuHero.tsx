@@ -20,6 +20,10 @@ import AnimatedClock from '@/components/ui/clock-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { HeroDecor } from './HeroDecor';
 import { OrbField } from './OrbField';
+/* P16-4b (Banzai ambient idle → Smart Menu): the ONE ambient idle element —
+ * a gentle steam shimmer rising over the logo plate; the island pauses it
+ * on reduced-motion (CSS), document.hidden, 30s idle, and offscreen. */
+import { HeroSteam } from './HeroSteam';
 import { ShareButtonIsland, GalleryIsland } from './MenuIslands';
 
 export type MenuHeroRestaurant = {
@@ -68,6 +72,8 @@ export function MenuHero({
                 <div className="relative z-10 max-w-4xl mx-auto px-4 pt-24 pb-12 md:pt-28 md:pb-16 text-center">
                     {restaurant.logo ? (
                         <div className="relative mx-auto mb-6 w-fit group">
+                            {/* P16-4b: the steam shimmer rides the logo plate (the hero's dish area) */}
+                            <HeroSteam />
                             {/* QR-corner signature — owner's QR mark behind the logo */}
                             <div aria-hidden="true" className="absolute -top-5 -end-5 -z-10 opacity-60">
                                 <QrCornerMark label="" size={52} />
@@ -103,6 +109,8 @@ export function MenuHero({
                         </div>
                     ) : (
                         <div className="relative mx-auto mb-6">
+                            {/* P16-4b: the steam shimmer rides the fallback plate too */}
+                            <HeroSteam />
                             <div className="absolute -inset-4 rounded-full bg-orange/5 blur-[40px]" />
                             <div className="relative size-20 rounded-2xl bg-gradient-to-br from-orange to-saffron/80 flex items-center justify-center shadow-xl shadow-orange/25 ring-2 ring-white/10 gpu-layer">
                                 <Store className="size-10 text-orange-foreground" />
@@ -118,13 +126,6 @@ export function MenuHero({
                         {restaurant.name}
                     </h1>
 
-                    {/* r137: شارة «مفتوح الآن · يغلق 23:00» — تحسب على العميل
-                        فقط (الصفحة مخبأة ISR — الحالة الخادمية كانت ستكذب بلحظة
-                        الخبز). لا ساعات مهيكلة → لا شارة (غياب صادق). */}
-                    <div className="flex justify-center mb-1">
-                        <OpenStatusBadge hours={restaurant.hours} />
-                    </div>
-
                     {restaurant.description && (
                         <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
                             {restaurant.description}
@@ -138,16 +139,10 @@ export function MenuHero({
                         <span className="block w-12 h-[1px] bg-gradient-to-r from-orange/0 via-orange/40 to-orange/0" />
                     </div>
 
-                    {/* Glass-pill action bar */}
+                    {/* Glass-pill action bar — ACTIONS only (P16-4b: share +
+                        print stay pills; the INFO moved to the sign plate
+                        below so utility content stops being scattered chrome) */}
                     <div className="flex flex-wrap items-center justify-center gap-2.5 mt-4">
-                        {restaurant.workingHours && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground glass-card px-3.5 py-2 rounded-full backdrop-blur-md border border-white/5 dark:border-white/[0.04]">
-                                <AnimatedClock className="size-3.5" />
-                                {/* r137: النص الحر صار «ملاحظات دوام إضافية» بجانب
-                                    الساعات المهيكلة — يبقى يُعرض كما هو تماماً. */}
-                                {restaurant.workingHours}
-                            </span>
-                        )}
                         <ShareButtonIsland url={`${origin}/menu/${slug}`} title={`منيو ${restaurant.name}`} />
                         <a
                             href={`/menu/${slug}/print`}
@@ -161,70 +156,104 @@ export function MenuHero({
                         </a>
                     </div>
 
-                    {/* Glass-pill contacts row */}
-                    {hasContact && (
-                        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-                            {restaurant.phone && (
-                                <a
-                                    /* r136 (ليبي أولاً): الرابط يُبنى من الرقم المطوّع —
-                                       الفواصل والأرقام الشرقية في الرقم المخزّن كانت تُفسد
-                                       tel: على معظم الأجهزة. العرض يبقى بصيغة المالك كما هي
-                                       (نفس نمط شريحة واتساب أعلاه: href مطوّع، عرض خام). */
-                                    href={`tel:${normalizeCustomerPhone(restaurant.phone) ?? restaurant.phone}`}
-                                    dir="ltr"
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-base backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                >
-                                    {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
-                                    <Phone className="size-3.5" aria-hidden="true" />
-                                    {restaurant.phone}
-                                </a>
-                            )}
-                            {/* r103-F8: an invalid stored number (<8 digits after
-                                normalization) must not render a dead wa.me/null
-                                link — normalize first, render on a valid value */}
-                            {(() => {
-                                const wa = normalizeWaNumber(restaurant.whatsapp);
-                                return wa ? (
+                    {/* P16-4b (Banzai «diegetic info surfaces» → Smart Menu):
+                        hours/phone/location as ONE in-scene sign — a bordered
+                        plate mounted into the hero (mount screws included) —
+                        instead of the old scattered glass-pill rows. The phone
+                        number rides LTR mono numerals (DESIGN.md digital-
+                        content law). Nothing is invented: every row renders
+                        only from the owner's real data. */}
+                    {(hasContact || restaurant.workingHours || (restaurant.hours?.length ?? 0) > 0) && (
+                        <div
+                            className="relative mx-auto mt-6 w-fit max-w-full rounded-xl border-2 border-orange/30 bg-card/70 dark:bg-card/50 ring-1 ring-orange/10 shadow-lg shadow-orange/10 px-4 py-2 text-start"
+                        >
+                            {/* decorative mount screws — the plate reads as hung in the scene */}
+                            <span aria-hidden="true" className="absolute top-2 start-2 size-1.5 rounded-full bg-orange/40" />
+                            <span aria-hidden="true" className="absolute top-2 end-2 size-1.5 rounded-full bg-orange/40" />
+                            <div className="flex flex-col divide-y divide-border/40">
+                                {/* hours row — r137: شارة «مفتوح الآن · يغلق 23:00»
+                                    تحسب على العميل فقط (الصفحة مخبأة ISR — الحالة
+                                    الخادمية كانت ستكذب لحظة الخبز). لا ساعات مهيكلة
+                                    ولا نص حر → الصف كله لا يُرسم (غياب صادق). */}
+                                {(restaurant.workingHours || (restaurant.hours?.length ?? 0) > 0) && (
+                                    <div className="flex min-h-11 flex-wrap items-center gap-x-2.5 gap-y-1 px-1.5 py-1">
+                                        <AnimatedClock className="size-3.5 shrink-0 text-accent-foreground" aria-hidden="true" />
+                                        <OpenStatusBadge hours={restaurant.hours} />
+                                        {restaurant.workingHours && (
+                                            <span className="text-xs text-muted-foreground">
+                                                {/* r137: النص الحر صار «ملاحظات دوام إضافية» بجانب
+                                                    الساعات المهيكلة — يبقى يُعرض كما هو تماماً. */}
+                                                {restaurant.workingHours}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+                                {restaurant.phone && (
                                     <a
-                                    href={`https://wa.me/${wa}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    /* r140 (A140-SM #4): عزل bidi للرقم الخام — قانون DESIGN.md
-                                       «المحتوى الرقمي يحصل على dir=ltr أو عزل bdi»؛ توأم
-                                       رابط tel المجاور الذي يحملها منذ البداية. */
-                                    dir="ltr"
-                                    /* r138 (P1-1): حبر رقم واتساب في الفاتح — success-ink
-                                       ≈9.1:1 على الزجاج فوق تدرّج الهيرو (كان 2.87:1)؛ الداكن كما هو. */
-                                    className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-success/15 transition-colors duration-base backdrop-blur-md border border-success/30 text-success-ink shadow-lg shadow-success/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                >
-                                    <span className="relative flex size-2">
-                                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-whatsapp opacity-60" />
-                                        <span className="relative inline-flex size-2 rounded-full bg-whatsapp" />
-                                    </span>
-                                    <svg className="size-3.5" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
-                                    </svg>
-                                    {restaurant.whatsapp}
+                                        /* r136 (ليبي أولاً): الرابط يُبنى من الرقم المطوّع —
+                                           الفواصل والأرقام الشرقية في الرقم المخزّن كانت تُفسد
+                                           tel: على معظم الأجهزة. العرض يبقى بصيغة المالك كما هي
+                                           (href مطوّع، عرض خام). */
+                                        href={`tel:${normalizeCustomerPhone(restaurant.phone) ?? restaurant.phone}`}
+                                        className="flex min-h-11 items-center gap-2.5 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-orange-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                    >
+                                        {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
+                                        <Phone className="size-3.5 shrink-0 text-accent-foreground" aria-hidden="true" />
+                                        {/* r140 (A140-SM #4): عزل bidi للرقم الخام — قانون
+                                            DESIGN.md «المحتوى الرقمي يحصل على dir=ltr أو عزل
+                                            bdi»؛ P16-4b: الأرقام monospace (لوحة اللافتة). */}
+                                        <span dir="ltr" className="font-mono text-xs sm:text-sm tabular-nums tracking-wide break-words">
+                                            {restaurant.phone}
+                                        </span>
                                     </a>
-                                ) : null;
-                            })()}
-                            {restaurant.email && (
-                                <a
-                                    href={`mailto:${restaurant.email}`}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-base backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                >
-                                    {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
-                                    <Mail className="size-3.5" aria-hidden="true" />
-                                    {restaurant.email}
-                                </a>
-                            )}
-                        </div>
-                    )}
-
-                    {restaurant.address && (
-                        <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-muted-foreground glass-card px-3.5 py-2 rounded-full backdrop-blur-md border border-white/5 dark:border-white/[0.04] mx-auto w-fit">
-                            <AnimatedMapPin className="size-3.5" />
-                            {restaurant.address}
+                                )}
+                                {/* r103-F8: an invalid stored number (<8 digits after
+                                    normalization) must not render a dead wa.me/null
+                                    link — normalize first, render on a valid value */}
+                                {(() => {
+                                    const wa = normalizeWaNumber(restaurant.whatsapp);
+                                    return wa ? (
+                                        <a
+                                            href={`https://wa.me/${wa}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex min-h-11 items-center gap-2.5 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-success/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        >
+                                            <span className="relative flex size-2 shrink-0" aria-hidden="true">
+                                                <span className="absolute inline-flex size-full animate-ping rounded-full bg-whatsapp opacity-60" />
+                                                <span className="relative inline-flex size-2 rounded-full bg-whatsapp" />
+                                            </span>
+                                            <svg className="size-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
+                                            </svg>
+                                            {/* r138 (P1-1): حبر رقم واتساب في الفاتح — success-ink
+                                                (نفس دلالة الشريحة السابقة على الزجاج). عزل bidi
+                                                بالرقم نفسه (r140 A140-SM #4). */}
+                                            <span dir="ltr" className="font-mono text-xs sm:text-sm font-bold tabular-nums tracking-wide text-success-ink break-words">
+                                                {restaurant.whatsapp}
+                                            </span>
+                                        </a>
+                                    ) : null;
+                                })()}
+                                {restaurant.email && (
+                                    <a
+                                        href={`mailto:${restaurant.email}`}
+                                        className="flex min-h-11 items-center gap-2.5 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-orange-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                    >
+                                        {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
+                                        <Mail className="size-3.5 shrink-0 text-accent-foreground" aria-hidden="true" />
+                                        <span dir="ltr" className="font-mono text-xs sm:text-sm tracking-wide break-words">
+                                            {restaurant.email}
+                                        </span>
+                                    </a>
+                                )}
+                                {restaurant.address && (
+                                    <div className="flex min-h-11 items-center gap-2.5 px-1.5 py-1 text-sm text-muted-foreground">
+                                        <AnimatedMapPin className="size-3.5 shrink-0" aria-hidden="true" />
+                                        <span className="text-xs sm:text-sm break-words">{restaurant.address}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
