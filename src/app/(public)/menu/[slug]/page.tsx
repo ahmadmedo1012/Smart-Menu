@@ -233,7 +233,23 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 updatedAt: c.updatedAt.toISOString(),
         }));
 
-        const serializedItems = items.map(
+        // 4-b (P15, 3-b audit «sold-out leads the menu»): the wire order was the
+        // raw DB sortOrder — a sold-out/QA item with a low sortOrder LED its
+        // category (the live demo menus render «TestLimitItem» first, greyed
+        // but on top). The customer grid's reading order should never let an
+        // unorderable item outrank an orderable one: partition per category,
+        // available first (by their own sortOrder), unavailable last (by
+        // theirs). r135's greyed-out rendering is untouched — only the ORDER
+        // changes; the ORDER API's server-side status checks remain the truth.
+        const availabilityRank = (i: { status: string }) => (i.status === 'available' ? 0 : 1);
+        const serializedItems = [...items]
+                .sort(
+                        (a, b) =>
+                                availabilityRank(a) - availabilityRank(b) ||
+                                a.sortOrder - b.sortOrder ||
+                                a.id - b.id,
+                )
+                .map(
                 ({ price, discountedPrice, avgRating, ratingCount, createdAt, status, ...rest }) => ({
                         id: rest.id,
                         name: rest.name,

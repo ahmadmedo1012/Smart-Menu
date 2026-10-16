@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Plan } from '@/lib/plan-types';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
@@ -89,7 +89,26 @@ export function SubscribeForm({
 }) {
         const [fieldTouched, setFieldTouched] = useState<Record<string, boolean>>({});
         const [submitted, setSubmitted] = useState(false);
+        const rootRef = useRef<HTMLDivElement>(null);
         const reduceMotion = useReducedMotion();
+
+        /* 4-b (P15, 3-b audit «no focus-after-error, inconsistent with
+         * /login»): r126-D2 carried the focus contract only to LoginForm.
+         * A generic first-invalid focuser — after a failed goNext the
+         * re-render paints aria-invalid on the offending inputs; one rAF
+         * later the first of them receives focus (keyboard + SR users
+         * land on the error, not on <body>). Works for BOTH step 2
+         * (menu data) and step 3 (credentials) with zero new refs. */
+        const focusFirstInvalid = () => {
+                requestAnimationFrame(() => {
+                        const root = rootRef.current;
+                        if (!root) return;
+                        const first = root.querySelector<HTMLElement>(
+                                'input[aria-invalid="true"], textarea[aria-invalid="true"]',
+                        );
+                        first?.focus();
+                });
+        };
 
         const touchField = (field: string) => setFieldTouched((prev) => ({ ...prev, [field]: true }));
         const fieldError = (field: string) => {
@@ -143,6 +162,7 @@ export function SubscribeForm({
                 if (step === 'menu') {
                         if (!menusValid) {
                                 setSubmitted(true);
+                                focusFirstInvalid(); // 4-b: focus contract — same law as /login
                                 return;
                         }
                         // Pre-flight duplicate check: slug availability BEFORE advancing
@@ -176,6 +196,7 @@ export function SubscribeForm({
                 } else if (step === 'account') {
                         if (!accountValid) {
                                 setSubmitted(true);
+                                focusFirstInvalid(); // 4-b: focus contract — same law as /login
                                 return;
                         }
                         // Pre-flight: username availability BEFORE advancing
@@ -228,7 +249,7 @@ export function SubscribeForm({
         }
 
         return (
-                <div className="animate-fade-in max-w-lg mx-auto">
+                <div ref={rootRef} className="animate-fade-in max-w-lg mx-auto">
                         {/* Selected plan summary */}
                         <div
                                 className={cn(

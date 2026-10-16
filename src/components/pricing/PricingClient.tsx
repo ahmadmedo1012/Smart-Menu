@@ -258,7 +258,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                         {loading ? (
                                                 <>
                                                         <LoadingAnnouncer loading={loading} message="جارٍ تحميل الباقات…" />
-                                                        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+                                                        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-4 max-w-7xl mx-auto">
                                                         {/* P13-2b (T4): ٥ هياكل — سلّم الإنتاج خمس خطط (كانت ٤
                                                            هياكل تحجب البطاقة الخامسة عن انتظار المستخدم). */}
                                                         {[...Array(5)].map((_, i) => (
@@ -315,7 +315,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                         }
                                                 />
                                         ) : (
-                                                <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+                                                <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-4 max-w-7xl mx-auto">
                                                         {plans.map((plan, i) => (
                                                                 <PlanCard key={plan.id} plan={plan} index={i} />
                                                         ))}

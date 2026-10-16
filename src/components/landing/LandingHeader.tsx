@@ -81,11 +81,25 @@ export function LandingHeader() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        /* Collect all entries first, then pick the one with most overlap. */
+        /* Collect all entries first, then pick the one with most overlap.
+         *
+         * 4-b (P15, 3-b audit «scroll-spy structurally dead for the tall
+         * chapters»): the old ratio>0.35 filter could NEVER fire for the big
+         * sections — #menu (1360px) and #ambience (1400px) against a
+         * −20%/−40% shrunk root (360px band on a 900px viewport) max out at
+         * ratio ≈ 0.26 (instrumented live: menu 0, ambience 0.254 — only
+         * journey/owner ever activated). Coverage replaces ratio: the share
+         * of the OBSERVATION BAND a section occupies (intersectionRect
+         * height ÷ root height) is scale-independent — a 1400px section
+         * filling the whole 360px band scores 1.0, exactly like a short
+         * one; the 0.35 floor is preserved as the same relative bar. */
         const visible: Array<{ id: string; ratio: number }> = []
         for (const entry of entries) {
-          if (entry.intersectionRatio > 0.35) {
-            visible.push({ id: entry.target.id, ratio: entry.intersectionRatio })
+          const coverage = entry.rootBounds
+            ? entry.intersectionRect.height / entry.rootBounds.height
+            : entry.intersectionRatio
+          if (coverage > 0.35) {
+            visible.push({ id: entry.target.id, ratio: coverage })
           }
         }
         /* Pick the section with the most viewport coverage; tie-break by order. */
@@ -96,7 +110,7 @@ export function LandingHeader() {
           delete header.dataset.activeSection
         }
       },
-      { threshold: [0, 0.35, 0.5, 0.65, 1], rootMargin: "-20% 0px -40% 0px" },
+      { threshold: [0, 0.25, 0.5, 0.75, 1], rootMargin: "-20% 0px -40% 0px" },
     )
 
     for (const s of sections) observer.observe(s)
