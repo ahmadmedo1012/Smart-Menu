@@ -90,7 +90,7 @@ export type PublicStats = {
   totalUsers: number;
 };
 
-export async function fetchPublicStats(): Promise<PublicStats> {
+export async function fetchPublicStats(): Promise<PublicStats | null> {
   try {
     // Absolute URL so the fetch works in every context (dev, prod, SSR edge).
     const base = typeof window !== "undefined" ? window.location.origin : "";
@@ -126,7 +126,12 @@ export async function fetchPublicStats(): Promise<PublicStats> {
     }
     return payload;
   } catch {
-    // Keep the section in its loading state rather than fabricating numbers.
-    return { totalRestaurants: 0, totalUsers: 0 };
+    // P19-B2: resolve null on failure so the landing keeps its honest fallback
+    // state (HomePage "—" cells + the retry affordance). The old {0,0} return
+    // rendered "+0 مطعم مسجل / +0 صاحب مطعم" in the both-paths-fail case — a
+    // live-count assertion no source confirmed (r82 never-fabricate). HomePage's
+    // existing !s guard (HomePage.tsx `if (!s || ...) throw`) routes null into
+    // the failure path unchanged.
+    return null;
   }
 }

@@ -26,8 +26,10 @@ export interface PublicStats {
 /** The honest fallback figure — an em-dash, never a fake number. */
 export const TRUST_FALLBACK_VALUE = "—";
 
-/** The web trust labels (HomePage.tsx trustCells). */
-const TRUST_LABELS = { restaurants: "مطعم مسجل", users: "حساب نشط" } as const;
+/** The web trust labels (HomePage.tsx trustCells). P19-B2: «حساب نشط» →
+ *  «صاحب مطعم» — the payload counts User.role:'owner' only (the web r143
+ *  D6 relabel); the old label mislabeled the live figure. */
+const TRUST_LABELS = { restaurants: "مطعم مسجل", users: "صاحب مطعم" } as const;
 
 /** .ln-trust-sep — 26×1 hairline separator. */
 const SEP_WIDTH = 26;
