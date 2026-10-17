@@ -1318,10 +1318,13 @@ describe('r142 parity — المائدة chrome locks (gradient allowlist · but
     );
   });
 
-  it('gradient allowlist: the hero light pool + the P12-2b marquee flood are the sanctioned gradient sites', () => {
+  it('gradient allowlist: the hero light pool + the P12-2b marquee flood + the P21-B scene veil are the sanctioned gradient sites', () => {
     // P12-2b honest re-pin: S4 mandates the terracotta-red flood band —
     // it joins the ONE r142 radial as the second sanctioned site.
-    const ALLOWED = ['.landing .ln-hero::before', '.landing .ln-marquee'];
+    // P21-B honest re-pin: the restaurant window's legibility veil
+    // (base scrim + top fade over the ambience photo) joins them —
+    // the photo lights itself, the veil only grounds the chip/kanban.
+    const ALLOWED = ['.landing .ln-hero::before', '.landing .ln-marquee', '.landing .ln-scene-veil'];
     const sites = new Set<string>();
     for (const m of landingCss.matchAll(/([^{}]+)\{[^{}]*gradient/g)) {
       for (const sel of m[1].split(',')) {
@@ -1429,6 +1432,8 @@ describe('r142 parity — المائدة structure: hero card · المنيو ا
       'src/components/landing/RestaurantsSection.tsx',
       'src/components/landing/HeroPlate.tsx',
       'src/components/landing/JourneyLightPath.tsx',
+      'src/components/landing/KitchenIslandScene.tsx', // P21-B: the three.js diorama is retired (owner rejection)
+      'src/components/landing/HotspotPin.tsx', // P21-B: the comic pins retired with the diorama
     ]) {
       expect(existsSync(f), `${f} must stay retired`).toBe(false);
     }
@@ -1541,9 +1546,11 @@ describe('r142 parity — المائدة structure: hero card · المنيو ا
   it('returning-visitor calm kept: product-scoped sessionStorage key smartmenu.intro.seen + data-intro-seen on the hero card', () => {
     expect(homePageRaw).toContain("'smartmenu.intro.seen'");
     expect(homePageRaw).toContain("data-intro-seen={introSeen ? 'true' : undefined}");
-    expect(
-      ruleBlock(landingCss, ".landing[data-intro-seen='true'] .ln-hero-card")
-    ).toContain('animation: ln-float 7s var(--sm-ease-soft) infinite');
+    // P21-B honest re-pin: the 7s breathing float is retired (static
+    // tension); returning visitors get NO card animation at all.
+    expect(ruleBlock(landingCss, ".landing[data-intro-seen='true'] .ln-hero-card")).toContain(
+      'animation: none'
+    );
   });
 });
 
@@ -1561,11 +1568,13 @@ describe('r142 parity — the hero menu-card entrance + the intro-seen calm cont
     ).toBe(true);
   });
 
-  it('the hero-card family ships: breathing float + RM off-switch (the old canvas CSS grammar is retired with the engine)', () => {
+  it('the hero-card family ships: static lean + RM off-switch (the engines before it are retired with their CSS grammar)', () => {
     expect(landingCss).toContain('.landing .ln-hero-card');
     expect(landingCss).not.toContain('@keyframes ln-scene-in {');
+    expect(landingCss).not.toContain('@keyframes ln-float {'); // P21-B: no breathing float
     expect(existsSync('src/components/landing/OrbitScene.tsx')).toBe(false);
     expect(existsSync('src/components/landing/HeroOrbits.tsx')).toBe(false);
+    expect(existsSync('src/components/landing/KitchenIslandScene.tsx')).toBe(false); // P21-B
   });
 });
 
@@ -1747,12 +1756,13 @@ describe('r142 parity — the hero LCP contract + the leaning card (word-stagger
     expect(decl(em, 'transform')).toBe('rotate(-3deg)');
   });
 
-  it('the leaning card: static 3D tilt (perspective, no JS) + 7s float + RM/returning-visitor off-switches', () => {
+  it('the printed card: static 3D tilt (perspective, no JS) + one-shot entrance + RM/returning-visitor off-switches (P21-B: float retired)', () => {
     const card = landingRule('.landing .ln-hero-card');
     expect(decl(card, 'transform')).toBe(
       'perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg)'
     );
-    expect(card).toContain('ln-float 7s var(--sm-ease-soft)');
+    expect(card).toContain('ln-card-in var(--sm-t-slow) var(--sm-ease-out) both');
+    expect(card).not.toContain('ln-float');
     const prm = allTopLevelBlocks(landingCss, '@media (prefers-reduced-motion: reduce)');
     expect(
       prm.some((b) => b.includes('.ln-hero-card') && /animation:\s*none/.test(b)),
@@ -1764,12 +1774,15 @@ describe('r142 parity — the hero LCP contract + the leaning card (word-stagger
     expect(m1024).toContain('transform: none');
   });
 
-  it('the steam wisps + dish arch + inset veils: all die or flatten under RM; the steam never survives it', () => {
-    const prm = allTopLevelBlocks(landingCss, '@media (prefers-reduced-motion: reduce)');
-    expect(
-      prm.some((b) => b.includes('.ln-steam') && /opacity:\s*0/.test(b))
-    ).toBe(true);
-    expect(landingCss).toContain('@keyframes ln-steam-rise');
+  it('P21-B static tension: the steam wisps + star sparkles + card float are ALL retired (no keyframes, no rules)', () => {
+    // owner rejection: causeless bobbing / drifting vapor / twinkle —
+    // the verbs are deleted from the stylesheet, not just RM-muted.
+    expect(landingCss).not.toContain('@keyframes ln-steam-rise');
+    expect(landingCss).not.toContain('@keyframes ln-sparkle');
+    expect(landingCss).not.toContain('@keyframes ln-float');
+    expect(landingCss).not.toContain('.ln-steam');
+    expect(landingCss).not.toContain('.ln-spark');
+    expect(landingCss).not.toContain('.ln-hotspot');
   });
 });
 
@@ -3306,60 +3319,64 @@ describe('phase10 P10-2 — family (h): every shell exposes the shared ThemeTogg
   });
 });
 
-/* ── P12-2b «جزيرة المطبخ» — the Banzai-direction wave pins (S1–S5) ─────
-   The reference-locked rebuild: original three.js diorama, comic display
-   lockup, in-world hotspot navigation, terracotta-red flood, floating
-   dish cards. Real content/routes untouched; honest re-pins above
-   document every contract that legitimately changed. */
-const kitchenSceneRaw = raw('src/components/landing/KitchenIslandScene.tsx');
-const hotspotRaw = raw('src/components/landing/HotspotPin.tsx');
-
-describe('P12-2b parity — the kitchen-island world (S1 diorama · S3 hotspots · S5 cards · S4 flood)', () => {
-  it('S1: the diorama is dynamic-imported client-only (ssr:false) from the client HomePage — never blocking paint', () => {
-    expect(homePageRaw).toContain("dynamic(() => import('./KitchenIslandScene')");
-    expect(homePageRaw).toContain('ssr: false');
-    expect(kitchenSceneRaw).toContain("'use client'");
+/* ── P21-B «نافذة المطعم» — the Banzai re-read pins ────────────────────
+   The owner rejected the P12-2b three.js kitchen-island diorama (idle
+   bob, drag-spin, floating food props). The reference re-read
+   (p21-research/banzai: VLM-BANZAI + GAP-SMARTMENU) retired the diorama
+   and its comic clutter; what ships is ONE framed photographic window
+   (the real ambience photo — self-lit, statically tensioned), ONE real
+   caption link, a kanban-style vertical mono tag, and the sticker
+   lockup WITHOUT sparkles. The S4 marquee flood + S5 dish-card grammar
+   survive untouched (still pinned below). Every contract that
+   legitimately changed is honestly re-pinned here. */
+describe('P21-B parity — the restaurant window (retired diorama · photo staging · static tension · caption link)', () => {
+  it('the three.js diorama is GONE: no scene file, no dynamic import, no WebGL on the landing', () => {
+    expect(existsSync('src/components/landing/KitchenIslandScene.tsx')).toBe(false);
+    expect(existsSync('src/components/landing/HotspotPin.tsx')).toBe(false);
+    expect(homePageRaw).not.toContain('KitchenIslandScene');
+    expect(homePageRaw).not.toContain('IslandScene');
+    expect(homePageRaw).not.toContain("dynamic(() => import('./KitchenIslandScene')");
+    expect(heroTableRaw).not.toContain("from 'three'");
   });
 
-  it('S1: the scene ships the spec mechanics — DPR cap 2, drag inertia, parallax lerp, RM static render, full dispose', () => {
-    expect(kitchenSceneRaw).toContain('Math.min(window.devicePixelRatio || 1, 2)');
-    expect(kitchenSceneRaw).toContain('dragVel *= 0.93'); // inertia decay
-    expect(kitchenSceneRaw).toContain('pointer.x * 0.28'); // camera parallax lerp target
-    expect(kitchenSceneRaw).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
-    expect(kitchenSceneRaw).toContain('renderer.dispose()');
-    expect(kitchenSceneRaw).toContain('new IntersectionObserver'); // offscreen pause
-    expect(kitchenSceneRaw).toContain('visibilitychange'); // hidden-tab pause
+  it('the window holds the REAL ambience photograph as the ONE priority image (LCP story)', () => {
+    expect(heroTableRaw).toContain('src="/images/culinary/ambience.webp"');
+    expect(heroTableRaw).toContain('priority');
+    expect(heroTableRaw).toContain('fill');
+    // the printed card keeps the appetite close-up as the detail shot
+    expect(heroTableRaw).toContain('src="/images/culinary/hero-dish.webp"');
+    expect(heroTableRaw).toContain('DEMO_MENU.map((c) => ({ cat: c, item: c.items[0]! }))');
   });
 
-  it('S1: the props are the original Libyan tea-table world — teapot, bowls, glasses, parasol, lanterns, steam, sheen', () => {
-    for (const token of ['ConeGeometry', 'TorusGeometry', 'SphereGeometry', 'SpriteMaterial', 'AdditiveBlending', 'PointLight', 'QuadraticBezierCurve3']) {
-      expect(kitchenSceneRaw).toContain(token);
-    }
-    // NO Banzai vocabulary may ever leak into the world (adaptation rules)
-    expect(kitchenSceneRaw).not.toContain('yatai');
-    expect(kitchenSceneRaw).not.toContain('Banzai');
-  });
-
-  it('S1: theme-aware — stage read from the real --sm-paper CSS var + world colors from the landing-scoped vars + MutationObserver', () => {
-    expect(kitchenSceneRaw).toContain('--sm-paper');
-    expect(kitchenSceneRaw).toContain('MutationObserver');
-    expect(kitchenSceneRaw).toContain('--sm-void-1');
-    expect(kitchenSceneRaw).toContain('--sm-scene-day-1');
-  });
-
-  it('S3: hotspot pins are REAL focusable links to the REAL routes with 44px floors and aria-labels', () => {
-    expect(heroTableRaw).toContain("from './HotspotPin'");
+  it('the caption chip is a REAL link to the live demo menu with a 44px hit floor + focus ring', () => {
     expect(heroTableRaw).toContain('href={DEMO_MENU_URL}');
-    expect(heroTableRaw).toContain('href="/subscribe"');
-    expect(heroTableRaw).toContain('href="/pricing"');
-    expect(hotspotRaw).toContain('aria-label={title}');
-    const hs = landingRule('.landing .ln-hotspot');
-    expect(decl(hs, 'min-inline-size')).toBe('44px');
-    expect(decl(hs, 'min-block-size')).toBe('44px');
-    expect(landingCss).toContain('.landing .ln-hotspot:focus-visible');
+    expect(heroTableRaw).toContain('ln-scene-caption');
+    const cap = landingRule('.landing .ln-scene-caption');
+    expect(decl(cap, 'min-inline-size')).toBe('44px');
+    expect(decl(cap, 'min-block-size')).toBe('44px');
+    expect(landingCss).toContain('.landing .ln-scene-caption:focus-visible');
   });
 
-  it('S5: the dish rows are floating rounded cards — ±1.5° tilts + hover lift-and-straighten', () => {
+  it('static tension: the window has ONE motion — a one-shot transform-only entrance, RM-off + intro-seen-calm', () => {
+    expect(landingCss).toContain('@keyframes ln-window-in');
+    expect(landingCss).toContain('from { transform: translateY(14px) scale(0.985); }');
+    const win = landingRule('.landing .ln-scene');
+    expect(decl(win, 'animation')).toBe('ln-window-in var(--sm-t-slow) var(--sm-ease-out) both');
+    expect(landingCss).toContain(".landing[data-intro-seen='true'] .ln-scene { animation: none; }");
+    const prm = allTopLevelBlocks(landingCss, '@media (prefers-reduced-motion: reduce)');
+    expect(prm.some((b) => b.includes('.landing .ln-scene { animation: none; }'))).toBe(true);
+    // no opacity gate on the window (LCP paints on arrival)
+    expect(landingCss).not.toContain('from { opacity: 0; transform: translateY(14px) scale(0.985); }');
+  });
+
+  it('the veil grounds the chip/kanban but is never a light source (two gradient stops, allowlisted)', () => {
+    const veil = landingRule('.landing .ln-scene-veil');
+    expect(decl(veil, 'pointer-events')).toBe('none');
+    expect(landingCss).toContain('.landing .ln-scene-kanban');
+    expect(decl(landingRule('.landing .ln-scene-kanban'), 'writing-mode')).toBe('vertical-rl');
+  });
+
+  it('S5: the dish rows keep the floating rounded cards — ±1.5° tilts + hover lift-and-straighten', () => {
     expect(landingCss).toContain('--ln-tilt: 1.5deg');
     expect(landingCss).toContain('--ln-tilt: -1.5deg');
     expect(decl(lastRule('.landing .ln-menu-row'), 'border-radius')).toBe('var(--r-2xl)');
@@ -3374,19 +3391,17 @@ describe('P12-2b parity — the kitchen-island world (S1 diorama · S3 hotspots 
     expect(decl(landingRule('.landing .ln-marquee-sep'), 'background')).toBe('#FBF7F0');
   });
 
-  it('S1/S4: the scene stage + honest intro — rounded comic panel, canvas fade, pin pops, RM switches', () => {
+  it('S1/S4 honest intro: the sticker-pop line entrances survive; the pin/sparkle/canvas grammar is gone', () => {
     expect(landingCss).toContain('.landing .ln-scene {');
-    expect(landingCss).toContain('.landing .ln-island-host');
-    expect(landingCss).toContain('@keyframes ln-pin-pop');
+    expect(landingCss).not.toContain('.landing .ln-island-host');
+    expect(landingCss).not.toContain('@keyframes ln-pin-pop');
     expect(landingCss).toContain('@keyframes ln-sticker-pop');
-    expect(landingCss).toContain('@keyframes ln-sparkle');
+    expect(landingCss).not.toContain('@keyframes ln-sparkle');
     const prm = allTopLevelBlocks(landingCss, '@media (prefers-reduced-motion: reduce)');
     expect(prm.some((b) => b.includes('.landing .ln-hero-line { animation: none; }'))).toBe(true);
-    expect(prm.some((b) => b.includes('.landing .ln-hotspot-marker { animation: none; }'))).toBe(true);
-    expect(prm.some((b) => b.includes('.landing .ln-spark { animation: none;'))).toBe(true);
   });
 
-  it('S5: the section headers join the display voice + rounded card grammar (night twin flips the sticker pair)', () => {
+  it('S5: the section headers keep the display voice + rounded card grammar (night twin flips the sticker pair)', () => {
     expect(landingCss).toContain('.landing .ln-chapter-title,');
     expect(landingCss).toContain("html.dark .landing {\n  --sm-sticker-fill: #F7EFE2;");
     expect(landingCss).toContain('.landing .ln-owner-course {');

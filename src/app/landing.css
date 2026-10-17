@@ -739,7 +739,10 @@
   70%, 100% { transform: translateY(260%); }
 }
 
-/* ── 6.1 · the hero composition — dish arch + leaning menu card ─────── */
+/* ── 6.1 · the hero composition — the restaurant window + printed card ─ */
+/* P21-B: the composition keeps its exact geometry (no CLS, no reflow) —
+   only the verbs changed. The window (§20.1) holds the ambience
+   photograph; the card rests on its corner in STATIC tension. */
 .landing .ln-hero-visual {
   position: relative;
   z-index: 0;
@@ -751,47 +754,17 @@
 .landing .ln-hero-stage {
   position: relative;
   inline-size: 100%;
-  aspect-ratio: 4 / 5; /* P12-2b: taller stage — island + void + sheen below */
+  aspect-ratio: 4 / 5; /* the window's portrait stage */
 }
-/* P12-2b: the paper arch + its photo plate retired with the diorama —
-   the scene canvas claims the whole stage (§20 .ln-island-frame). The
-   dish photo itself moved onto the leaning menu card's header. */
+/* P21-B: the P12-2b steam wisps are RETIRED — floating vapor was
+   directionless motion (owner rejection); the ambience photo carries its
+   own candle warmth and the @keyframes ln-steam-rise block is gone. */
 
-/* steam — two slow blurred wisps rising off the dish (cream vapor over
-   the warm photo; RM: gone). P12-2b: re-parented onto the menu card's
-   photo header — positions overridden in §20. */
-.landing .ln-steam {
-  position: absolute;
-  inline-size: 84px;
-  block-size: 140px;
-  border-radius: var(--r-full);
-  background: rgb(247 241 227 / 0.22);
-  filter: blur(16px);
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0;
-  animation: ln-steam-rise 12s var(--sm-ease-linear) infinite;
-}
-.landing .ln-steam.s1 { inset-inline-start: 24%; bottom: 26%; }
-.landing .ln-steam.s2 {
-  inset-inline-start: 46%;
-  bottom: 20%;
-  inline-size: 62px;
-  block-size: 110px;
-  animation-duration: 15s;
-  animation-delay: 3.5s;
-}
-@keyframes ln-steam-rise {
-  0% { transform: translateY(24%) scale(0.92); opacity: 0; }
-  30% { opacity: 0.7; }
-  70% { opacity: 0.4; }
-  100% { transform: translateY(-130%) scale(1.12); opacity: 0; }
-}
-
-/* the leaning menu card — REAL items, printed-menu dotted leaders, a
-   static 3D CSS tilt (perspective, no JS, no hover jitter) and a slow
-   7s breathing float (RM: none). data-intro-seen shortens the entrance
-   for returning visitors (same session). */
+/* the printed menu card — REAL items, printed-menu dotted leaders, a
+   static 3D CSS tilt (perspective, no JS, no hover jitter). P21-B: the
+   7s breathing float is RETIRED (owner rejection: causeless bobbing) —
+   the card rests on the window corner in static tension; the only motion
+   left is the one-shot entrance (data-intro-seen drops it entirely). */
 .landing .ln-hero-card {
   position: absolute;
   inset-inline-end: 0;
@@ -805,20 +778,14 @@
   transform: perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg);
   transform-origin: bottom center;
   z-index: 4;
-  animation: ln-card-in var(--sm-t-slow) var(--sm-ease-out) both, ln-float 7s var(--sm-ease-soft) 0.8s infinite;
+  animation: ln-card-in var(--sm-t-slow) var(--sm-ease-out) both;
 }
 @keyframes ln-card-in {
   from { opacity: 0; transform: perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg) translateY(16px); }
   to { opacity: 1; transform: perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg) translateY(0); }
 }
-@keyframes ln-float {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -7px; }
-}
-/* returning-visitor calm: skip the entrance, keep the float */
-.landing[data-intro-seen='true'] .ln-hero-card {
-  animation: ln-float 7s var(--sm-ease-soft) infinite;
-}
+/* returning-visitor calm: no entrance at all — the card is simply THERE */
+.landing[data-intro-seen='true'] .ln-hero-card { animation: none; }
 .landing .ln-hero-card-kicker {
   margin: 0 0 var(--sp-3);
   font-size: 11px;
@@ -1644,14 +1611,10 @@
      its tilt (a leaning card at 390px reads broken, not editorial) */
   .landing .ln-hero-visual { position: static; translate: none; }
   .landing .ln-hero-stage { aspect-ratio: auto; min-block-size: 0; }
-  .landing .ln-hero-dish {
-    position: relative;
-    inset: auto;
-    inline-size: 100%;
-    block-size: auto;
-    aspect-ratio: 4 / 3;
-    border-radius: var(--r-3xl);
-  }
+  /* P21-B: the r142 .ln-hero-dish/.ln-hero-glow rules were dead legacy
+     (no matching markup since P12-2b) — replaced by the real window
+     demotion: the photo window keeps its 4/5 portrait stage in flow. */
+  .landing .ln-scene { aspect-ratio: 4 / 5; }
   .landing .ln-hero-card {
     position: relative;
     inset: auto;
@@ -1661,7 +1624,6 @@
   }
   .landing[data-intro-seen='true'] .ln-hero-card { animation: none; }
   .landing .ln-hero-card { animation: ln-card-in-flat var(--sm-t-slow) var(--sm-ease-out) both; }
-  .landing .ln-hero-glow { inline-size: 80%; }
 }
 @keyframes ln-card-in-flat {
   from { opacity: 0; transform: translateY(14px); }
@@ -1748,7 +1710,6 @@
 /* ── 17 · reduced motion — every المائدة verb dies, content stays ───── */
 @media (prefers-reduced-motion: reduce) {
   .landing .ln-hero-scroll-line::after { animation: none; }
-  .landing .ln-steam { animation: none; opacity: 0; }
   .landing .ln-hero-card,
   .landing[data-intro-seen='true'] .ln-hero-card { animation: none; }
   .landing .ln-menu-slide { transition: none; }
@@ -2012,107 +1973,105 @@ html.dark:has(.landing) {
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   20 · P12-2b «جزيرة المطبخ» — the Banzai-direction wave (S1–S5)
+   20 · P21-B «نافذة المطعم» — the hero window (the Banzai re-read)
    ─────────────────────────────────────────────────────────────────────
-   The reference-locked rebuild: an ORIGINAL three.js diorama (floating
-   wooden tea-table island over a plum void) replaces the paper arch as
-   the hero's dimensional centerpiece; the display type goes comic
-   (Baloo Bhaijaan 2 sticker lockup, rotated accent word, sparkles);
-   navigation gains in-world hotspot pins; the vocabulary ring becomes
-   the vivid terracotta-red flood; the «المنيو الحي» rows become
-   floating rounded dish cards; every section header joins the display
-   voice. Real content, real routes, RTL, theme flip and RM switches
-   all preserved — the intro is an honest fade/sticker-pop sequence
-   (content paints with the HTML; NO loading screen).
+   P12-2b built a three.js "kitchen island" diorama here and called it
+   the Banzai direction — a comic toy world (idle bob, drag-spin,
+   floating food props, pin popping, twinkle). The owner rejected it.
+   P21-B re-reads the reference (VLM-BANZAI.md / GAP-SMARTMENU.md,
+   p21-research): the diorama is RETIRED; what ships is Banzai's actual
+   grammar — ONE framed "window into the restaurant world" (the real
+   ambience photograph, self-lit by its candles), a corner caption chip
+   as the single real link, a vertical kanban-style mono tag, the comic
+   sticker lockup WITHOUT its sparkles, and STATIC TENSION: the only
+   motion left is one-shot transform-only entrances (RM-off,
+   intro-seen-calm). Real content, real routes, RTL, theme flip and RM
+   switches all preserved.
    ═════════════════════════════════════════════════════════════════════ */
 
-/* ── 20.1 · the scene stage (S1) ────────────────────────────────────── */
+/* ── 20.1 · the restaurant window ──────────────────────────────────── */
 .landing .ln-scene {
   position: relative;
   inline-size: 100%;
   aspect-ratio: 4 / 5;
+  margin: 0;
   border-radius: var(--r-3xl);
   overflow: hidden;
   border: 1px solid var(--sm-line);
   box-shadow: 0 36px 64px -34px rgb(43 32 20 / 0.45);
-  background: var(--sm-void-1); /* paint-before-WebGL floor (token) */
+  background: var(--sm-void-1); /* pre-photo floor (token) — dark while the priority image streams */
+  animation: ln-window-in var(--sm-t-slow) var(--sm-ease-out) both;
 }
-.landing .ln-island-frame {
+@keyframes ln-window-in {
+  /* transform-only — no opacity gate, the LCP photograph paints when it
+     arrives; the settle is a 14px drift home (Banzai's 10–20px reveal) */
+  from { transform: translateY(14px) scale(0.985); }
+  to { transform: translateY(0) scale(1); }
+}
+.landing[data-intro-seen='true'] .ln-scene { animation: none; }
+.landing .ln-scene-photo-img {
+  object-fit: cover;
+}
+/* the veil — grounding scrim at the base + a soft top fade so the chip
+   and the kanban read over the photo. It is NEVER a light source: the
+   photo lights itself (its candles are the scene's key — Banzai's
+   sign-as-key-light principle, GAP-SMARTMENU #2). */
+.landing .ln-scene-veil {
   position: absolute;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgb(24 15 8 / 0.78), rgb(24 15 8 / 0) 48%),
+    linear-gradient(to bottom, rgb(24 15 8 / 0.42), rgb(24 15 8 / 0) 30%);
 }
-.landing .ln-island-host {
+/* the kanban homage — Banzai's vertical signage, translated to a
+   rotated Arabic mono tag riding the window edge (aria-hidden decor). */
+.landing .ln-scene-kanban {
   position: absolute;
-  inset: 0;
-}
-.landing .ln-island-frame canvas {
-  inline-size: 100%;
-  block-size: 100%;
-  touch-action: pan-y; /* horizontal drag rotates the island, vertical scrolls */
-}
-
-/* ── 20.2 · hotspot pins (S3) ────────────────────────────────────────── */
-.landing .ln-hotspots {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none; /* the canvas drag underneath stays live */
-}
-.landing .ln-hotspot {
-  pointer-events: auto;
-  position: absolute; /* physical anchor over a scene object (direction-neutral) */
-  min-inline-size: 44px; /* hit floor */
-  min-block-size: 44px;
-  display: grid;
-  place-items: center;
-  text-decoration: none;
-  border-radius: var(--sm-radius-pill);
-}
-.landing .ln-hotspot:focus-visible {
-  outline: 2px solid var(--sm-ember);
-  outline-offset: 3px;
-}
-.landing .ln-hotspot-ring { fill: var(--sm-sticker-fill); stroke: var(--sm-sticker-ink); stroke-width: 2.5; }
-.landing .ln-hotspot-core { fill: var(--sm-ember); }
-.landing .ln-hotspot-tail { fill: var(--sm-sticker-fill); stroke: var(--sm-sticker-ink); stroke-width: 2.5; stroke-linejoin: round; }
-.landing .ln-hotspot-outline { stroke: var(--sm-sticker-ink); stroke-width: 2.5; }
-.landing .ln-hotspot-glyph { fill: var(--sm-sticker-accent-ink); }
-.landing .ln-hotspot-marker {
-  display: grid;
-  place-items: center;
-  filter: drop-shadow(0 4px 6px rgb(43 32 20 / 0.35));
-  animation: ln-pin-pop 480ms var(--sm-ease-spring) both;
-}
-@keyframes ln-pin-pop {
-  0% { transform: scale(0) rotate(-14deg); }
-  70% { transform: scale(1.14) rotate(4deg); }
-  100% { transform: scale(1) rotate(0deg); }
-}
-.landing .ln-hotspot-label {
-  position: absolute;
-  inset-block-end: calc(100% + 10px);
-  inset-inline-start: 50%;
-  translate: -50% 0;
-  padding: 7px 13px;
-  border-radius: var(--r-xl);
-  background: var(--sm-sticker-fill);
-  color: var(--sm-ink);
-  border: 1.5px solid var(--sm-sticker-ink);
-  box-shadow: 3px 3px 0 -0.5px var(--sm-sticker-shadow);
-  font-size: 12.5px;
-  font-weight: var(--fw-bold);
-  white-space: nowrap;
-  opacity: 0;
-  transform: scale(0.7);
-  transform-origin: bottom center;
-  transition: opacity var(--sm-t-fast) var(--sm-ease-out), transform var(--sm-t-fast) var(--sm-ease-spring);
+  inset-inline-end: 12px;
+  inset-block-start: 18px;
+  z-index: 2;
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  letter-spacing: 0; /* Arabic joins — never tracking */
+  color: rgb(251 247 240 / 0.85);
   pointer-events: none;
 }
-.landing .ln-hotspot:hover .ln-hotspot-label,
-.landing .ln-hotspot:focus-visible .ln-hotspot-label {
-  opacity: 1;
-  transform: scale(1);
+/* ── 20.2 · the caption chip — the window's ONE real link (the live
+   demo menu): 44px hit floor, cream-on-espresso glass, hover wash. The
+   three comic hotspot pins are retired with the diorama; /subscribe and
+   /pricing remain live in the header + hero CTAs. */
+.landing .ln-scene-caption {
+  position: absolute;
+  inset-inline-start: 14px;
+  inset-block-end: 14px;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-inline-size: 44px; /* hit floor */
+  min-block-size: 44px;
+  padding: 10px 16px;
+  border-radius: var(--r-xl);
+  background: rgb(24 15 8 / 0.6);
+  backdrop-filter: blur(6px);
+  color: var(--sm-sticker-fill);
+  text-decoration: none;
+  transition: background var(--sm-t-fast) var(--sm-ease-soft);
+}
+.landing .ln-scene-caption .ln-mono { font-size: 11px; }
+.landing .ln-scene-caption-sub {
+  font-size: 12.5px;
+  font-weight: var(--fw-semibold);
+  color: rgb(251 247 240 / 0.92);
+}
+.landing .ln-scene-caption:hover,
+.landing .ln-scene-caption:focus-visible {
+  background: rgb(24 15 8 / 0.82);
+}
+.landing .ln-scene-caption:focus-visible {
+  outline: 2px solid var(--sm-ember);
+  outline-offset: 3px;
 }
 
 /* ── 20.3 · the comic intro (S4) — honest, instant, transform-only ──── */
@@ -2127,23 +2086,13 @@ html.dark:has(.landing) {
 .landing .ln-hero-line:nth-child(2) { animation-delay: 140ms; }
 .landing[data-intro-seen='true'] .ln-hero-line { animation: none; }
 
-/* star sparkles over the lockup (S2) */
-.landing .ln-spark {
-  position: absolute;
-  color: var(--sm-ember);
-  pointer-events: none;
-  animation: ln-sparkle 6s var(--sm-ease-soft) infinite;
-}
-.landing .ln-spark svg { display: block; }
-.landing .ln-spark.sp1 { inset-block-start: -14px; inset-inline-end: 6%; inline-size: 26px; }
-.landing .ln-spark.sp2 { inset-block-start: 34%; inset-inline-start: 4%; inline-size: 18px; animation-delay: 1.6s; }
-.landing .ln-spark.sp3 { inset-block-end: -6px; inset-inline-end: 22%; inline-size: 22px; animation-delay: 3.2s; }
-@keyframes ln-sparkle {
-  0%, 100% { transform: scale(0.75) rotate(0deg); opacity: 0.55; }
-  50% { transform: scale(1.08) rotate(24deg); opacity: 1; }
-}
+/* P21-B: the S2 star sparkles are RETIRED — 6s infinite twinkle loops
+   were directionless decoration (owner rejection); the lockup reads
+   clean and the .ln-spark rules + ln-sparkle keyframes are gone. */
 
-/* ── 20.4 · the leaning card's photo header (priority image lives here) */
+/* ── 20.4 · the printed card's photo header — the appetite close-up
+   (the detail shot; the window above holds the world shot — ONE
+   photographic family, no toon/photo clash, GAP-SMARTMENU #8) */
 .landing .ln-hero-card-photo {
   position: relative;
   aspect-ratio: 16 / 10;
@@ -2152,8 +2101,6 @@ html.dark:has(.landing) {
   margin-block-end: var(--sp-3);
 }
 .landing .ln-hero-card-photo-img { object-fit: cover; }
-.landing .ln-hero-card-photo .ln-steam.s1 { inset-inline-start: 22%; bottom: 22%; inline-size: 64px; block-size: 104px; }
-.landing .ln-hero-card-photo .ln-steam.s2 { inset-inline-start: 48%; bottom: 16%; }
 
 /* ── 20.5 · «المنيو الحي» floating dish cards (S5) ──────────────────── */
 .landing .ln-menu-list {
@@ -2246,48 +2193,16 @@ html.dark .landing .ln-hero-title em {
   background: var(--sm-ember);
   color: var(--sm-sticker-accent-ink); /* cocoa on luminous terracotta · 5.8:1 */
 }
-html.dark .landing .ln-hotspot-label {
-  color: var(--sm-ink);
-}
 html.dark .landing .ln-scene {
   box-shadow: 0 36px 64px -34px rgb(0 0 0 / 0.6);
 }
 
-/* ── 20.8 · responsive — the island becomes the top backdrop; the pins
-   stack as a button row over its foot; the card flows below. ───────── */
+/* ── 20.8 · responsive — the window widens to 4/3 (the photo reads at
+   phone width), the card flows beneath as a flat row, the chip keeps its
+   corner. The P12-2b pin-stack rows are retired with the pins. ─────── */
 @media (max-width: 640px) {
   .landing .ln-scene { aspect-ratio: 4 / 3; }
   .landing .ln-hero-visual { max-inline-size: 100%; }
-  .landing .ln-hotspots {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-end;
-    justify-content: center;
-    gap: var(--sp-2);
-    padding: var(--sp-3);
-  }
-  .landing .ln-hotspot { position: static; }
-  .landing .ln-hotspot-marker { animation: none; }
-  .landing .ln-hotspot-label {
-    position: static;
-    inset-block-end: auto;
-    inset-inline-start: auto;
-    translate: none;
-    transform: none;
-    opacity: 1;
-    box-shadow: none;
-    font-size: 12px;
-  }
-  .landing .ln-hotspot {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: var(--sp-2) var(--sp-4);
-    border-radius: var(--sm-radius-pill);
-    background: var(--sm-sticker-fill);
-    border: 1.5px solid var(--sm-sticker-ink);
-    box-shadow: 3px 3px 0 -0.5px var(--sm-sticker-shadow);
-  }
   .landing .ln-hero-card {
     position: static;
     inline-size: 100%;
@@ -2295,23 +2210,16 @@ html.dark .landing .ln-scene {
     transform: perspective(1100px) rotateX(4deg) rotate(-1.2deg);
   }
   .landing .ln-menu-list { grid-template-columns: 1fr; }
-  .landing .ln-spark.sp2 { display: none; }
 }
 
-/* ── 20.9 · RM off-switches for the new verbs (pop, sparkle, pin) ──── */
+/* ── 20.9 · RM off-switches for the remaining verbs (pop, window, rows) */
 @media (prefers-reduced-motion: reduce) {
   .landing .ln-hero-line { animation: none; }
-  .landing .ln-spark { animation: none; opacity: 0.7; }
-  .landing .ln-hotspot-marker { animation: none; }
-  .landing .ln-hotspot-label {
-    transition: none;
-    transform: none;
-  }
+  .landing .ln-scene { animation: none; }
   .landing .ln-menu-row,
   .landing .ln-menu-row:hover,
   .landing .ln-menu-row:focus-visible {
     transform: none;
     transition: none;
   }
-  .landing .ln-hotspots { transition: none; }
 }
