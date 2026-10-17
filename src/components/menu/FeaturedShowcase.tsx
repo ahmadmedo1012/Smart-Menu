@@ -37,7 +37,7 @@
 
 import { useState, useCallback, useMemo, useRef, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react';
 import { m, AnimatePresence, useReducedMotion } from 'motion/react';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, AlertTriangle } from 'lucide-react';
 import { MotionChevronLeft, MotionChevronRight } from '@/components/ui/motion-icons';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -198,6 +198,16 @@ export function FeaturedShowcase<T extends FeaturedItem>({
          * النافذ (isAvailable=false) يبقى معرضًا بلا سطح طلب (المنسّق يرفضه
          * أصلًا؛ لا نَعِد بإجراء لا يحدث). */
         const tappable = Boolean(onSelect) && current.isAvailable !== false;
+        /* P20-B1 (availability honesty): a sold-out featured scene kept its full
+           cinematic presentation — name, description, price — with the ONLY signal
+           being the silently vanished «اضغط للطلب» chip. A customer could not tell
+           WHY the hero dish would not order. The scene now says it: a muted
+           «غير متوفر حالياً» chip takes the order-chip's exact slot/family (the
+           MenuItemCard sold-out badge grammar — neutral muted, never destructive)
+           and the text block keeps the taller chip padding so nothing collides.
+           Data semantics unchanged: isAvailable is the server's truth. */
+        const soldOut = current.isAvailable === false;
+        const hasBottomChip = tappable || soldOut;
 
         /* §2.2 — the scene's identity pair, resolved per item (position 1-based). */
         const n = accentIndex(current, index);
@@ -371,7 +381,7 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                 <div
                                                         className={cn(
                                                                 'relative z-10 mx-auto w-full max-w-2xl px-4 pt-1 text-center',
-                                                                tappable ? 'pb-16 md:pb-28' : 'pb-10 md:pb-20'
+                                                                hasBottomChip ? 'pb-16 md:pb-28' : 'pb-10 md:pb-20'
                                                         )}
                                                 >
                                                         <h3 className="text-2xl font-bold text-foreground md:text-5xl">{displayName}</h3>
@@ -438,6 +448,21 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                         اضغط للطلب
                                                 </span>
                                         </button>
+                                )}
+
+                                {/* P20-B1: the sold-out voice in the order-chip slot — same
+                                        position, same 44px floor, the muted non-interactive family.
+                                        A span (not a button): the state is information, not an action. */}
+                                {soldOut && (
+                                        <span
+                                                className={cn(
+                                                        'absolute bottom-3 end-4 md:bottom-12 inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-bold backdrop-blur-sm',
+                                                        'border-border/60 bg-muted/85 text-muted-foreground'
+                                                )}
+                                        >
+                                                <AlertTriangle className="size-4" aria-hidden="true" />
+                                                غير متوفر حالياً
+                                        </span>
                                 )}
 
                                 {total > 1 && (

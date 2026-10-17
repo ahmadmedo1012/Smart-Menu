@@ -620,12 +620,20 @@
   font-weight: var(--fw-bold);
   letter-spacing: 0; /* Arabic joins — never negative tracking */
   color: var(--sm-sticker-fill);
+  /* P20-B1: the LAST shadow was `7px 7px 0 -1px` — a 4-length (spread)
+     value. text-shadow has NO spread radius (box-shadow does), so the whole
+     declaration was invalid and browsers dropped it ENTIRELY: the sticker
+     outline never painted in either theme. Production pixel proof (light
+     mode): 0 dark pixels in the hero-title region at 1440 AND 390 — the
+     cream fill #FFFDF7 sat on paper #F7F1E3 at ~1.04:1 (illegible headline,
+     live since P12-2b). The em's box-shadow keeps its -1px (valid there);
+     here the offset is a plain hard shadow. */
   text-shadow:
     3px 0 0 var(--sm-sticker-ink), -3px 0 0 var(--sm-sticker-ink),
     0 3px 0 var(--sm-sticker-ink), 0 -3px 0 var(--sm-sticker-ink),
     2px 2px 0 var(--sm-sticker-ink), -2px 2px 0 var(--sm-sticker-ink),
     2px -2px 0 var(--sm-sticker-ink), -2px -2px 0 var(--sm-sticker-ink),
-    7px 7px 0 -1px var(--sm-sticker-shadow);
+    7px 7px 0 var(--sm-sticker-shadow);
   max-inline-size: 14ch;
   text-wrap: balance;
 }

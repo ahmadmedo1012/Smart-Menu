@@ -32,7 +32,7 @@ const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default
 });
 // حالة تحميل شرائح الحوارات — نفس وصفة الغطاء والقشرة في ui/dialog
 import { DialogChunkFallback } from './dialog-chunk-fallback';
-import { toArabicNumber, normalizeArabic } from '@/lib/format';
+import { toArabicNumber, normalizeArabic, contentLang } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { normalizeWaNumber } from '@/lib/whatsapp';
 import { DIETARY_LABELS } from '@/lib/dietary';
@@ -157,6 +157,14 @@ export function MenuPageClient({
         });
         const search = urlState.q;
         const activeCategory = urlState.cat;
+        /* P20-B1: the selected category's display name — feeds the named
+           chapter heading over the filtered grid (see the render section). */
+        const activeCategoryName = activeCategory !== null
+                ? (() => {
+                        const cat = categories.find((c) => c.id === activeCategory);
+                        return cat ? cat.nameAr || cat.name : null;
+                })()
+                : null;
         const sort = urlState.sort;
         const activeDietary = urlState.diet;
 
@@ -281,7 +289,10 @@ export function MenuPageClient({
                                 },
                         });
                 },
-                [crossRestaurantCart, restaurantId, restaurantName]
+                /* P20-B1 lint gate: setPendingCartSwitch joined the deps — the
+                   setter is referentially stable (React guarantee), so this is a
+                   compiler-inference repair, zero behavior change. */
+                [crossRestaurantCart, restaurantId, restaurantName, setPendingCartSwitch]
         );
 
         const performQuickAdd = useCallback(
@@ -349,7 +360,9 @@ export function MenuPageClient({
                         if (item.isAvailable === false) return;
                         guardCartSwitch(() => setOrderItem(item), item.nameAr || item.name);
                 },
-                [guardCartSwitch]
+                /* P20-B1 lint gate: setOrderItem joined the deps (stable setter —
+                   compiler-inference repair, zero behavior change). */
+                [guardCartSwitch, setOrderItem]
         );
 
         const handleDecrement = useCallback(
@@ -507,7 +520,9 @@ export function MenuPageClient({
 
         const handleReview = useCallback((item: MenuItemProp) => {
                 setReviewItem({ id: item.id, name: item.nameAr || item.name });
-        }, []);
+                /* P20-B1 lint gate: setReviewItem joined the deps (stable setter —
+                   compiler-inference repair, zero behavior change). */
+        }, [setReviewItem]);
 
         const hasActiveFilter = search !== '' || activeCategory !== null || activeDietary.length > 0;
 
@@ -680,6 +695,40 @@ export function MenuPageClient({
                                                                 />
                                                         </div>
                                                 ))}
+                                        </div>
+                                </section>
+                        )}
+
+                        {/* P20-B1 (Banzai product-page register → Smart Menu): a
+                            selected category becomes a NAMED chapter over the grid.
+                            Before, the filter context lived only in the drawer trigger
+                            (md:sticky — scrolls away entirely on <md, where a QR
+                            customer deep in a long category lost all context) and in
+                            the small «عُثر على…» chip. The heading carries the
+                            category's own name + the live filtered count chip (same
+                            counter-ink family as the drawer rows) and rides the
+                            «الأكثر طلباً» section-header grammar (dot + text-sm) so
+                            both grid chapters read as one system. */}
+                        {activeCategory !== null && activeCategoryName && (
+                                <section
+                                        id="menu-category"
+                                        aria-labelledby="menu-category-heading"
+                                        className="mb-4 md:mb-5 animate-rise-in"
+                                >
+                                        <div className="flex items-center gap-2 mb-2 md:mb-3 px-1">
+                                                <span className="size-2 rounded-full bg-orange" aria-hidden="true" />
+                                                <h2
+                                                        id="menu-category-heading"
+                                                        lang={contentLang(activeCategoryName)}
+                                                        className="text-sm font-semibold text-foreground"
+                                                >
+                                                        {activeCategoryName}
+                                                </h2>
+                                                <span
+                                                        className="ms-1 inline-flex shrink-0 items-center justify-center size-5 rounded-lg bg-muted/60 text-2xs font-bold tabular-nums font-mono text-accent-foreground"
+                                                >
+                                                        {toArabicNumber(filteredItems.length)}
+                                                </span>
                                         </div>
                                 </section>
                         )}
