@@ -1,5 +1,5 @@
 'use client';
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Check, Languages, Smartphone } from 'lucide-react';
 // r142 (task 2-b) — «المائدة» landing layer: a warm editorial culinary
 // world (cream paper + ember + espresso ink) that replaces the Orbit-Ink
@@ -35,6 +35,26 @@ import { fetchPublicStats, type PublicStats } from './landing-data';
    default categories (the auto-seeded set every new menu starts with)
    + the shipped feature/ordering vocabulary from the home's own copy.
    The marquee kit duplicates the list ×2 for the seamless 42s RTL loop. */
+/* W2-B1r: module-level useSyncExternalStore plumbing for introSeen — see the
+   comment at the call site. getSnapshot must never throw (private mode /
+   blocked sessionStorage) — it degrades to false. */
+const INTRO_SEEN_KEY = 'smartmenu.intro.seen';
+function introSeenSubscribe(_onStoreChange: () => void) {
+        // sessionStorage is tab-scoped and has no change events for same-tab
+        // writes; the only writer is this component's own effect. No-op.
+        return () => undefined;
+}
+function introSeenSnapshot(): boolean {
+        try {
+                return window.sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
+        } catch {
+                return false;
+        }
+}
+function introSeenServerSnapshot(): boolean {
+        return false;
+}
+
 const MARQUEE_ITEMS = [
         "المنيو الرقمي",
         "طلبات عبر واتساب",
@@ -73,15 +93,23 @@ export function HomePage({
             data-intro-seen on .landing and the CSS drops the entrance to
             t-fast with zero delay. Product-scoped key (PORT-KIT §9.2 item 6:
             a shared-PC visit to a sibling product must not silence this
-            entrance). */
-        const [introSeen] = useState<boolean>(() => {
-                if (typeof window === 'undefined') return false;
-                try {
-                        return window.sessionStorage.getItem('smartmenu.intro.seen') === '1';
-                } catch {
-                        return false;
-                }
-        });
+            entrance).
+            W2-B1r (hydration defect, live-console-proven): this used to be a
+            useState initializer reading sessionStorage DURING hydration —
+            server renders data-intro-seen={undefined}, a returning visitor's
+            client renders "true", React 19 reports the attribute mismatch
+            ("tree hydrated but some attributes ... didn't match"). The
+            sanctioned fix is useSyncExternalStore: hydration renders with the
+            server snapshot (false), then React re-renders once with the real
+            client value — no mismatch, attribute flips a tick after mount,
+            which is also when the entrance animation would start anyway.
+            subscribe is a no-op: sessionStorage is per-tab and the only writer
+            is this component's own effect below (no storage events to hear). */
+        const introSeen = useSyncExternalStore(
+                introSeenSubscribe,
+                introSeenSnapshot,
+                introSeenServerSnapshot,
+        );
 
         useEffect(() => {
                 if (introSeen) return;

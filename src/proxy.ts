@@ -126,9 +126,17 @@ export function proxy(request: NextRequest) {
                 // headers — middleware runs before the render exists), so the
                 // pathname-list branch stays the only implementable form; the A2 fix
                 // is what keeps the list aligned with reality.
+                const isDev = process.env.NODE_ENV === 'development';
                 const csp = [
                         "default-src 'self'",
-                        "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+                        // W2-B1r: 'unsafe-eval' in DEV ONLY for this branch too —
+                        // React dev-mode needs eval() (stack reconstruction) and the
+                        // nonce branch below already grants it in dev; the cacheable
+                        // branch didn't, so every public page (/ /menu/* /pricing
+                        // /terms /privacy) logged a hard console error in dev
+                        // ("eval() is not supported...") on every visit. Production
+                        // is untouched: NODE_ENV=development never ships.
+                        `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://va.vercel-scripts.com`,
                         "style-src 'self' 'unsafe-inline'",
                         "style-src-elem 'self' 'unsafe-inline'",
                         "img-src 'self' data: blob: https:",
