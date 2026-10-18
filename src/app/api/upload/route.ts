@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
+import { isOwnerSubscriptionActive } from "@/lib/subscription-guard";
 import { put } from "@vercel/blob";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/client-ip";
@@ -28,6 +29,18 @@ export async function POST(request: NextRequest) {
                 const ip = getClientIp(request); // round91-D1: unified extraction
                 const rl = await rateLimiter.check(`upload:${ip}:${auth.userId}`);
                 if (!rl.success) return error("طلبات كثيرة جداً، حاول بعد قليل", 429);
+
+                /* W6-B6 (G-5 — تدقيق W6-A3): حارس الاشتراك المنتهي — نفس
+                   عائلة items (r138) وowner/* (c661e707)، وبنفس ترتيب
+                   مسار items/[id] (401 → المحدّد → الحارس). الرفع يغذّي
+                   تحرير المنيو (صور الأصناف/الشعار) الذي تفترض لافتة
+                   OwnerShell أنه متوقف للمالك المنتهي. الموظفون يتجاوزون
+                   داخل الحارس؛ دور USER بلا مطعم يمرّ (لا حالة اشتراك
+                   تُسقطه — نفس دلالة الحارس). */
+                if (!(await isOwnerSubscriptionActive(auth))) {
+                        // single quotes = byte-identical with the family (items r138 / owner/* c661e707)
+                        return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+                }
 
                 const formData = await request.formData();
                 const file = formData.get("file");

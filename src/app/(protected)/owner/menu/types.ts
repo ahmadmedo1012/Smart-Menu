@@ -24,6 +24,9 @@ export interface Category {
         isActive: boolean;
         items: Item[];
         _count?: { items: number };
+        /* W6-B6 (G-2): القائمة المحمّلة مقصوصة بسقف 500 (fetchItems) —
+           أزرار النقل تُعطّل بصراحة لأن التطبيع على قائمة ناقصة كاذب. */
+        itemsTruncated?: boolean;
 }
 export interface Item {
         id: number;

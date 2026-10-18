@@ -3,6 +3,7 @@ import { z } from "zod";
 import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/db";
 import { success, error, notFound, handleError } from "@/lib/api-helpers";
+import { isOwnerSubscriptionActive } from "@/lib/subscription-guard";
 
 import { requireAuth, requirePermission } from "@/lib/auth";
 import { revalidateMenu } from "@/lib/menu-cache";
@@ -22,6 +23,15 @@ export async function PUT(
   try {
     const auth = await requireAuth();
     if (!auth.authorized) return error("غير مصرح", 401);
+
+    /* W6-B6 (G-5 — تدقيق W6-A3): حارس الاشتراك المنتهي — نفس عائلة
+       items (r138) وowner/* (c661e707): تحرير الأقسام مالك متوقف بعد
+       الانتهاء (لافتة OwnerShell تقول «تعديل الأصناف والأسعار متوقف» —
+       الأقسام جزء من تحرير المنيو). الموظفون يتجاوزون داخل الحارس. */
+    if (!(await isOwnerSubscriptionActive(auth))) {
+      // single quotes = byte-identical with the family (items r138 / owner/* c661e707)
+      return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+    }
 
     const { id } = await params;
     const catId = Number(id);
@@ -68,6 +78,13 @@ export async function DELETE(
   try {
     const auth = await requireAuth();
     if (!auth.authorized) return error("غير مصرح", 401);
+
+    /* W6-B6 (G-5): حذف قسم = تحرير منيو — نفس الحارس ونفس نسخ العائلة
+       (الأقسام تُبث للمنيو العام عبر revalidateMenu). */
+    if (!(await isOwnerSubscriptionActive(auth))) {
+      // single quotes = byte-identical with the family (items r138 / owner/* c661e707)
+      return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+    }
 
     const { id } = await params;
     const catId = Number(id);

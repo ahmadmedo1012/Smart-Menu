@@ -21,6 +21,13 @@ import { useOrdersPolling } from './use-orders-polling';
 
 const PAGE_SIZE = 20;
 
+/* W6-B6 (تدقيق W6-A3 — إصلاح صغير 5): نطاق تصدير الطلبات. سقف الصفحة
+   للاستعلام 100 (parsePagination)؛ 5000 صف = 50 طلبًا متتاليًا — حد
+   صادق لذاكرة المتصفح وحجم الملف، وتحت محدّد قائمة الطلبات (60/دقيقة).
+   التجاوز يُعلَن في التوست بصراحة لا يُقص بصمت. */
+const EXPORT_PAGE_SIZE = 100;
+const EXPORT_ROW_CAP = 5000;
+
 /** Status chips shown as horizontally scrollable filters with counts. */
 const STATUS_FILTERS = [
         { value: '', label: 'الكل' },
@@ -212,12 +219,52 @@ export default function OwnerOrdersPage() {
         };
 
         const exportCsv = async () => {
-                if (exporting || filtered.length === 0) return;
+                if (exporting) return;
                 setExporting(true);
                 // Yield a frame so the loading spinner actually paints before the
                 // synchronous blob work blocks the main thread.
                 await new Promise((r) => requestAnimationFrame(() => r(null)));
                 try {
+                        /* W6-B6 (إصلاح صغير 5): التصدير كان يأخذ صفوف الصفحة المعروضة
+                           فقط («تم تصدير الطلبات المعروضة»). الآن يجلب كل الصفحات بنفس
+                           مرشّحات الخادم (الحالة/التواريخ/المطعم النشط) ثم يطبّق مربع
+                           البحث نفسه الذي يرى المالك — المصدَّر = المرشَّح على الشاشة،
+                           بلا سقف صفحة. مسار الخادم كما هو (لا endpoint جديد — نفس عقد
+                           القائمة بترقيم). */
+                        const params = new URLSearchParams();
+                        if (filter) params.set('status', filter);
+                        if (dateFrom) params.set('dateFrom', dateFrom);
+                        if (dateTo) params.set('dateTo', dateTo);
+                        // Multi-menu: always scope to the active restaurant
+                        if (activeId) params.set('restaurantId', String(activeId));
+                        params.set('pageSize', String(EXPORT_PAGE_SIZE));
+                        const all: Order[] = [];
+                        let total = Number.POSITIVE_INFINITY;
+                        for (
+                                let page = 1;
+                                all.length < EXPORT_ROW_CAP && (page === 1 || all.length < total);
+                                page++
+                        ) {
+                                params.set('page', String(page));
+                                const res = await fetch(`/api/orders?${params.toString()}`);
+                                const json = await res.json().catch(() => null);
+                                // round87-C3: اعرض عربية الخادم (كانت رمية فارغة → توست عام)
+                                if (!res.ok || !json?.success) {
+                                        throw new Error(json?.error ?? `تعذّر الطلب (${res.status})`);
+                                }
+                                const rows: Order[] = Array.isArray(json.data) ? json.data : [];
+                                total = json?.meta?.total ?? rows.length;
+                                all.push(...rows);
+                                if (rows.length < EXPORT_PAGE_SIZE || all.length >= total) break;
+                        }
+                        const capped = all.length < total;
+                        const exportRows = all.filter(
+                                (o) => !search || o.orderNo.includes(search) || o.customerName.includes(search)
+                        );
+                        if (exportRows.length === 0) {
+                                premiumToast('error', 'لا توجد طلبات مطابقة للتصدير');
+                                return;
+                        }
                         const esc = (v: string | number) => {
                                 const s = String(v ?? '');
                                 // formula-injection guard: neutralize = + - @ leading chars
@@ -225,7 +272,7 @@ export default function OwnerOrdersPage() {
                                 return `"${safe.replace(/"/g, '""')}"`;
                         };
                         const headers = 'رقم الطلب,العميل,الهاتف,الحالة,النوع,المجموع,التاريخ';
-                        const rows = filtered
+                        const rows = exportRows
                                 .map((o) => {
                                         const statusLabel = getOrderStatusMeta(o.status).label;
                                         const typeLabel = getPickupTypeMeta(o.pickupType).label;
@@ -240,9 +287,14 @@ export default function OwnerOrdersPage() {
                         link.download = `orders-${stamp}.csv`;
                         link.click();
                         URL.revokeObjectURL(link.href);
-                        premiumToast('save', 'تم تصدير الطلبات المعروضة');
-                } catch {
-                        premiumToast('error', 'تعذّر التصدير');
+                        premiumToast(
+                                'save',
+                                capped
+                                        ? `تم تصدير أول ${toArabicNumber(all.length)} طلب (سقف التصدير — نطاقك يتجاوزه)`
+                                        : `تم تصدير ${toArabicNumber(exportRows.length)} طلب`
+                        );
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'تعذّر التصدير'));
                 } finally {
                         setExporting(false);
                 }
@@ -300,7 +352,7 @@ export default function OwnerOrdersPage() {
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={exportCsv}
-                                                        disabled={filtered.length === 0 || exporting}
+                                                        disabled={totalOrders === 0 || exporting}
                                                         loading={exporting}
                                                 >
                                                     {!exporting && <Download className="size-4" aria-hidden="true" />}

@@ -14,9 +14,16 @@ import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 import { ItemDialog } from '@/components/owner/ItemDialog';
 import { premiumToast } from '@/lib/premium-toast';
 import { getErrorMessage } from '@/lib/get-error-message';
+import { toArabicNumber } from '@/lib/format';
+import { getArabicPlural } from '@/lib/arabic-plural';
+import { computeMoveWrites, moveItemInList } from '@/lib/menu-reorder';
 import { type Category, type Item, CATEGORY_ICONS } from './types';
 import { CategoriesList } from './CategoriesList';
 import { CategoryDialog } from './CategoryDialog';
+
+/* W6-B6 (G-2): ثوابت تحميل الأصناف — انظر التعليق أعلى fetchItems. */
+const ITEMS_PAGE_SIZE = 100; // سقف parsePagination لمسار items
+const ITEMS_LOAD_CAP = 500; // 5 طلبات متتالية — حد الترتيب الصادق
 
 export default function OwnerMenuPage() {
         const [restaurantId, setRestaurantId] = useState(0);
@@ -38,6 +45,10 @@ export default function OwnerMenuPage() {
         } | null>(null);
         const [usageKey, setUsageKey] = useState(0);
         const [error, setError] = useState<string | null>(null);
+        /* W6-B6 (G-2 — تدقيق W6-A3): حالة الترتيب والتحديد الجماعي. */
+        const [movingCatId, setMovingCatId] = useState<number | null>(null);
+        const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(new Set());
+        const [bulk, setBulk] = useState<{ status: 'available' | 'unavailable'; done: number; total: number } | null>(null);
         const fetchCatsRef = useRef<() => Promise<void>>(undefined);
         /* r133 (A3 S2): bounded auto-retry — the old unbounded 3s loop re-fired
            the error toast and flipped skeleton↔ErrorState forever during an
@@ -92,14 +103,31 @@ export default function OwnerMenuPage() {
                 }
         }, [restaurantId, fetchCats]);
 
+        /* W6-B6 (G-2): تحميل كل أصناف القسم — القائمة الكاملة شرط عقد الترتيب
+           (التطبيع على قائمة مقصوصة كان سيفسد ترتيب الصفوف غير المحمّلة). الحد
+           100/صفحة هو سقف parsePagination للمسار؛ سقف 500 صادق (5 طلبات) يغطي
+           كل خطة واقعية (أساسية 50 · بريميوم 100) — القسم الأضخم منه يُعلَّم
+           itemsTruncated وتُعطّل أزرار النقل بصراحة بدل ترتيب كاذب. الأثر
+           الجانبي الصادق: المحرر كان يعرض أول 50 فقط بلا ترقيم — الآن يعرض
+           الكل حتى السقف. */
         const fetchItems = useCallback(async (catId: number) => {
                 try {
-                        const r = await fetch(`/api/items?categoryId=${catId}`);
-                        const j = await r.json();
+                        const all: Item[] = [];
+                        let total = Number.POSITIVE_INFINITY;
+                        for (let page = 1; all.length < ITEMS_LOAD_CAP; page++) {
+                                const r = await fetch(
+                                        `/api/items?categoryId=${catId}&page=${page}&pageSize=${ITEMS_PAGE_SIZE}`
+                                );
+                                if (!r.ok) throw Error(`${r.status}`);
+                                const j = await r.json();
+                                const rows: Item[] = Array.isArray(j.data ?? j) ? (j.data ?? j) : [];
+                                total = j?.meta?.total ?? rows.length;
+                                all.push(...rows);
+                                if (rows.length < ITEMS_PAGE_SIZE || all.length >= total) break;
+                        }
+                        const truncated = all.length < total;
                         setCategories((p) =>
-                                p.map((c) =>
-                                        c.id === catId ? { ...c, items: Array.isArray(j.data ?? j) ? (j.data ?? j) : [] } : c
-                                )
+                                p.map((c) => (c.id === catId ? { ...c, items: all, itemsTruncated: truncated } : c))
                         );
                 } catch {
                         premiumToast('error', 'تعذّر تحميل الأصناف');
@@ -108,7 +136,11 @@ export default function OwnerMenuPage() {
 
         const toggleCat = (id: number) => {
                 setExpandedCat((p) => (p === id ? null : id));
-                if (expandedCat !== id) fetchItems(id);
+                if (expandedCat !== id) {
+                        // التحديد مقيد بالقسم المفتوح — تبديل القسم يبدأ صفحة نظيفة
+                        setSelectedItemIds(new Set());
+                        fetchItems(id);
+                }
         };
 
         const saveCat = async () => {
@@ -162,6 +194,14 @@ export default function OwnerMenuPage() {
                         setUsageKey((k) => k + 1);
                 } catch {
                         premiumToast('error', 'تعذّر الحذف');
+                } finally {
+                        // W6-B6: صنف محذوف لا يبقى في التحديد الجماعي
+                        setSelectedItemIds((prev) => {
+                                if (!prev.has(deleteTarget.id)) return prev;
+                                const next = new Set(prev);
+                                next.delete(deleteTarget.id);
+                                return next;
+                        });
                 }
         };
 
@@ -183,6 +223,111 @@ export default function OwnerMenuPage() {
                         setPendingToggleId(null);
                 }
         };
+
+        /* ── W6-B6 (G-2): نقل صنف خانة واحدة (فوق/تحت) ────────────────────────
+           متفائل: القائمة تتحرك فورًا، ثم تُكتب الفروق فقط (PUTs فردية —
+           عقد menu-reorder). أي فشل يعيد المزامنة من الخادم (مصدر الحقيقة)
+           ويعرض رسالته العربية كما هي — لا تراجع يدوي قد يفشل بدوره. */
+        const moveItem = async (item: Item, dir: 'up' | 'down') => {
+                if (movingCatId || bulk) return;
+                const cat = categories.find((c) => c.items?.some((i) => i.id === item.id));
+                if (!cat || !cat.items) return;
+                const nextItems = moveItemInList(cat.items, item.id, dir);
+                if (!nextItems) return; // الأول فوق / الأخير تحت
+                const writes = computeMoveWrites(cat.items, item.id, dir);
+                if (writes.length === 0) return;
+                setMovingCatId(cat.id);
+                setCategories((p) => p.map((c) => (c.id === cat.id ? { ...c, items: nextItems } : c)));
+                try {
+                        for (const w of writes) {
+                                await csrfJson(`/api/items/${w.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ sortOrder: w.sortOrder }),
+                                });
+                        }
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تحديث الترتيب'));
+                        if (expandedCat) fetchItems(expandedCat);
+                } finally {
+                        setMovingCatId(null);
+                }
+        };
+
+        /* ── W6-B6 (G-2): الإخفاء/الإظهار الجماعي — تسلسل صادق بلا endpoint
+           batch (حد البعثة): PUT واحد لكل صنف، تقدم مرئي، إيقاف عند أول فشل
+           مع عدّاد «تم X من Y» ورسالة الخادم كما هي، ثم مزامنة من الخادم.
+           محدّد items PUT (round91-F-B) يحدّ الدفعة عند 20 كتابة/دقيقة —
+           نقف بصدق عند الحد ونخبر المالك بالباقي. */
+        const applyBulkStatus = async (status: 'available' | 'unavailable') => {
+                if (bulk || movingCatId) return;
+                const catId = expandedCat;
+                if (!catId) return;
+                const ids = [...selectedItemIds];
+                if (ids.length === 0) return;
+                setBulk({ status, done: 0, total: ids.length });
+                let done = 0;
+                let failure: string | null = null;
+                for (const id of ids) {
+                        try {
+                                await csrfJson(`/api/items/${id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ status }),
+                                });
+                                done++;
+                                setBulk({ status, done, total: ids.length });
+                                // مرئية صفًا صفًا: الشطب يظهر مع كل صنف يكتمل
+                                setCategories((p) =>
+                                        p.map((c) =>
+                                                c.id === catId
+                                                        ? { ...c, items: c.items?.map((i) => (i.id === id ? { ...i, status } : i)) }
+                                                        : c
+                                        )
+                                );
+                        } catch (e) {
+                                failure = getErrorMessage(e, 'تعذّر التحديث');
+                                break;
+                        }
+                }
+                setBulk(null);
+                setSelectedItemIds(new Set());
+                if (failure) {
+                        premiumToast(
+                                'error',
+                                `تم تحديث ${toArabicNumber(done)} من ${toArabicNumber(ids.length)}`,
+                                failure
+                        );
+                        fetchItems(catId); // مزامنة الحقيقة بعد الإيقاف
+                } else {
+                        premiumToast(
+                                'save',
+                                status === 'unavailable'
+                                        ? `تم إخفاء ${toArabicNumber(ids.length)} ${getArabicPlural(ids.length, 'صنف', 'صنفان', 'أصناف')}`
+                                        : `تم إظهار ${toArabicNumber(ids.length)} ${getArabicPlural(ids.length, 'صنف', 'صنفان', 'أصناف')}`
+                        );
+                }
+        };
+
+        const toggleSelectItem = (id: number) => {
+                setSelectedItemIds((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(id)) next.delete(id);
+                        else next.add(id);
+                        return next;
+                });
+        };
+
+        const selectItemsWhere = (catId: number, predicate: (i: Item) => boolean) => {
+                const cat = categories.find((c) => c.id === catId);
+                const ids = cat?.items?.filter(predicate).map((i) => i.id) ?? [];
+                setSelectedItemIds(new Set(ids));
+        };
+
+        // تبديل المطعم يبدأ تحديدًا نظيفًا (التحديد مقيد بالقسم المفتوح)
+        useEffect(() => {
+                setSelectedItemIds(new Set());
+        }, [restaurantId]);
 
         const filteredCategories = categories.filter((cat) => {
                 if (!searchTerm) return true;
@@ -287,6 +432,17 @@ export default function OwnerMenuPage() {
                                 onEditItem={handleEditItem}
                                 onDeleteItem={handleDeleteItem}
                                 onAddCategory={handleAddCategory}
+                                selectedItemIds={selectedItemIds}
+                                bulk={bulk}
+                                movingCatId={movingCatId}
+                                onToggleSelectItem={toggleSelectItem}
+                                onSelectAvailable={(catId) =>
+                                        selectItemsWhere(catId, (i) => i.status === 'available')
+                                }
+                                onSelectAll={(catId) => selectItemsWhere(catId, () => true)}
+                                onClearSelection={() => setSelectedItemIds(new Set())}
+                                onBulkStatus={applyBulkStatus}
+                                onMoveItem={moveItem}
                         />
 
                         <CategoryDialog

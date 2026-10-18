@@ -46,6 +46,12 @@ vi.mock('@/lib/rate-limit', () => ({
 
 vi.mock('@/lib/db', () => ({ prisma: {}, getUserById: vi.fn(), withRetry: vi.fn() }));
 
+// W6-B6 (G-5): upload POST now carries the owner subscription-expiry
+// guard — stubbed like the family's tests (نمط items-contract.test.ts).
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
+
 const uploadRoute = await import('@/app/api/upload/route');
 
 // ── أدوات مساعدة ───────────────────────────────────────────────────────

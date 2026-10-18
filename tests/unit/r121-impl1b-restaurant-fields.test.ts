@@ -123,6 +123,12 @@ const settingsPrisma = vi.hoisted(() => ({
 
 vi.mock('@/lib/db', () => ({ prisma: settingsPrisma }));
 
+// W6-B6 (G-5): settings PUT now carries the owner subscription-expiry
+// guard — stubbed like the family's tests (نمط items-contract.test.ts).
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
+
 const authHolder = vi.hoisted(() => ({
         value: {
                 authorized: true as boolean,

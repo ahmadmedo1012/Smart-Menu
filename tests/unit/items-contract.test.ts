@@ -26,6 +26,7 @@ const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockQueryRaw = vi.hoisted(() => vi.fn().mockResolvedValue([]));
 const mockMenuItemCount = vi.hoisted(() => vi.fn());
 const mockMenuItemCreate = vi.hoisted(() => vi.fn());
+const mockMenuItemAggregate = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const mockRevalidate = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
@@ -34,7 +35,7 @@ const mockDeleteBlob = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 const txMock = vi.hoisted(() => ({
         $queryRaw: mockQueryRaw,
-        menuItem: { count: mockMenuItemCount, create: mockMenuItemCreate },
+        menuItem: { count: mockMenuItemCount, create: mockMenuItemCreate, aggregate: mockMenuItemAggregate },
         // round91-F-B (D2-#4): maxItems is re-read under the FOR UPDATE lock —
         // resolving nothing keeps the pre-tx values as the fallback.
         restaurant: { findUnique: vi.fn() },
@@ -108,6 +109,8 @@ beforeEach(() => {
         mockMenuItemUpdate.mockResolvedValue({ ...EXISTING_ITEM, status: 'unavailable' });
         mockMenuItemCount.mockResolvedValue(0);
         mockMenuItemCreate.mockResolvedValue({ id: 901 });
+        // W6-B6 (G-2): aggregate max re-read default — no max → append at 0
+        mockMenuItemAggregate.mockResolvedValue({ _max: { sortOrder: null } });
         mockQueryRaw.mockResolvedValue([]);
 });
 
@@ -313,6 +316,53 @@ describe('POST/PUT price bounds — Decimal(10,2) ceiling, free=0 legal (r138)',
 
                 expect(res.status).toBe(200);
                 expect(mockMenuItemUpdate.mock.calls[0][0].data.discountedPrice).toBe(0);
+        });
+});
+
+// ── 7. W6-B6 (G-2 — تدقيق W6-A3): الترتيب — عقد sortOrder على POST/PUT
+
+describe('items POST/PUT sortOrder — the real ordering contract (W6-B6)', () => {
+        it('PUT { sortOrder } يُكتب كما هو (العقد الذي تعتمد عليه أزرار النقل)', async () => {
+                const res = await putItem(901, { sortOrder: 2 });
+
+                expect(res.status).toBe(200);
+                expect(mockMenuItemUpdate.mock.calls[0][0].data.sortOrder).toBe(2);
+        });
+
+        it('POST بلا sortOrder يُلحق بآخر القسم: max للقسم + 1 (تحت القفل)', async () => {
+                mockMenuItemAggregate.mockResolvedValue({ _max: { sortOrder: 3 } });
+
+                const res = await postItem({ name: 'شاي', price: 3, categoryId: 3 });
+
+                expect(res.status).toBe(201);
+                expect(mockMenuItemAggregate.mock.calls[0][0]).toEqual({
+                        where: { categoryId: 3 },
+                        _max: { sortOrder: true },
+                });
+                expect(mockMenuItemCreate.mock.calls[0][0].data.sortOrder).toBe(4);
+                // الحساب داخل المعاملة (نفس ترتيب سلسلة السقف — بعد القفل)
+                expect(mockTransaction).toHaveBeenCalledTimes(1);
+                expect(mockQueryRaw.mock.invocationCallOrder[0]).toBeLessThan(
+                        mockMenuItemAggregate.mock.invocationCallOrder[0]
+                );
+        });
+
+        it('POST قسم فارغ (لا max) → sortOrder = 0', async () => {
+                mockMenuItemAggregate.mockResolvedValue({ _max: { sortOrder: null } });
+
+                const res = await postItem({ name: 'شاي', price: 3, categoryId: 3 });
+
+                expect(res.status).toBe(201);
+                expect(mockMenuItemCreate.mock.calls[0][0].data.sortOrder).toBe(0);
+        });
+
+        it('POST بـ sortOrder صريح يمر كما هو (لا يُلمس)', async () => {
+                mockMenuItemAggregate.mockResolvedValue({ _max: { sortOrder: 9 } });
+
+                const res = await postItem({ name: 'شاي', price: 3, categoryId: 3, sortOrder: 0 });
+
+                expect(res.status).toBe(201);
+                expect(mockMenuItemCreate.mock.calls[0][0].data.sortOrder).toBe(0);
         });
 });
 

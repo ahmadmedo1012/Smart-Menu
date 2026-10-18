@@ -37,6 +37,12 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+
+// W6-B6 (G-5): categories/[id] PUT/DELETE now carry the owner
+// subscription-expiry guard — stubbed like the family's tests.
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
 vi.mock('@/lib/audit', () => ({ logAudit: mockLogAudit }));
 vi.mock('@/lib/menu-cache', () => ({ revalidateMenu: mockRevalidateMenu }));
 

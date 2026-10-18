@@ -55,7 +55,13 @@ const TIER_CONFIG: Record<
         },
 };
 
-// ponytail: tier config hardcoded — pull from API response when backend includes tier config in /api/loyalty
+// ponytail → W6-B6 (تدقيق W6-A3 — إصلاح صغير 3): العتبات صارت من الخادم —
+// tierThresholds في استجابة /api/loyalty (المصدر الواحد loyalty-tiers.ts)،
+// والقيم هنا سقوط آمن للاستجابات القديمة فقط. التسميات/الأيقونات تبقى
+// محلية (عرض فقط — لا حساب).
+const tierMinOf = (server: Record<string, number> | undefined, tier: string) =>
+        server?.[tier] ?? TIER_CONFIG[tier]?.minPoints ?? 0;
+
 // Reward stamps config — "اطلب 5 مرات واحصل على وجبة مجانية"
 const STAMP_GOAL = 5;
 const REWARD_LABEL = 'وجبة مجانية';
@@ -85,6 +91,7 @@ export function LoyaltyWidget({
                         customerName: string;
                 };
                 referralUrl: string;
+                tierThresholds?: Record<string, number>;
         } | null>(null);
         const [notFound, setNotFound] = useState(false);
 
@@ -274,15 +281,19 @@ export function LoyaltyWidget({
                                                         );
                                                 })()}
 
-                                                {/* Points progress to next tier */}
+                                                {/* Points progress to next tier — W6-B6: العتبات
+                                                    من استجابة الخادم (tierThresholds) */}
                                                 {(() => {
                                                         const tiers = ['silver', 'gold', 'platinum'] as const;
-                                                        const nextTier = tiers.find((t) => data.card.points < TIER_CONFIG[t].minPoints);
+                                                        const nextTier = tiers.find(
+                                                                (t) => data.card.points < tierMinOf(data.tierThresholds, t)
+                                                        );
                                                         if (nextTier) {
                                                                 const current = data.card.points;
-                                                                const next = TIER_CONFIG[nextTier].minPoints;
+                                                                const next = tierMinOf(data.tierThresholds, nextTier);
                                                                 const prevIdx = Math.max(0, tiers.indexOf(nextTier) - 1);
-                                                                const prev = prevIdx === 0 ? 0 : TIER_CONFIG[tiers[prevIdx]].minPoints;
+                                                                const prev =
+                                                                        prevIdx === 0 ? 0 : tierMinOf(data.tierThresholds, tiers[prevIdx]);
                                                                 const pct = Math.min(100, ((current - prev) / (next - prev)) * 100);
                                                                 const TIcon = TIER_CONFIG[nextTier].icon;
                                                                 return (

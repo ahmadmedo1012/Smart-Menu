@@ -29,6 +29,22 @@
 
 ## Round history (recent, newest first)
 
+## W6-B6 (P21, 2026-10-18) — G-2/G-5 من تدقيق W6-A3: الترتيب الحقيقي للأصناف + إكمال عائلة حارس الاشتراك المنتهي + إصلاحات صغيرة
+- **G-5 (الخريطة الموثقة — هذا ما طلبه W5-A3/W6-A3 «documented family»)**: حارس `isOwnerSubscriptionActive` (403 «اشتراكك منتهي. جدّد اشتراكك للمتابعة.» — النسخة حرفيًا في كل موقع) يغطي الآن كامل أسطح كتابة المالك:
+  | المسار | الحارس | ملاحظة |
+  |---|---|---|
+  | `POST/PUT /api/items` + `PUT/DELETE /api/items/[id]` | ✓ (r138/W5-C3) | الأصل؛ sortOrder ضمن PUT |
+  | `POST/PUT/DELETE /api/categories(/[id])` | ✓ **W6-B6** | تحرير المنيو |
+  | `PUT /api/settings` | ✓ **W6-B6** | مسار مال (رسوم التوصيل/الحد الأدنى) |
+  | `PUT /api/orders/[id]` | ✓ **W6-B6** | عمليات الحالة + إشعال تراكم الولاء؛ GET مفتوح |
+  | `POST /api/upload` | ✓ **W6-B6** | يغذّي تحرير المنيو (الصور) |
+  | `/api/owner/restaurants` (+`[id]`) و`/api/owner/reviews` | ✓ (c661e707) | الأصل التاريخي للعائلة |
+  **المعفيون بقصد (سياسة الانتهاء المتعمدة)**: كل قراءات GET أعلاه · المنيو العام يبقى حيًا ويستقبل الطلبات بعد الانتهاء (`menu-queries` يفلتر `isActive` فقط) · إنشاء الطلبات من العملاء `POST /api/orders` غير محرس · الموظفون/الأدمن يتجاوزون داخل الحارس نفسه (إصرار `isOwnerSubscriptionActive`) · دور USER بلا مطعم لا تسقطه أي حالة اشتراك. الآن لافتة OwnerShell «تعديل الأصناف والأسعار متوقف» = الحقيقة حرفيًا. اختبار العائلة: `tests/unit/w6-b6-expiry-guard-family.test.ts` (10 مسارات مقروءة من المصدر + 6 مواقع 403-قبل-أي-عمل + عيّنات موجبة).
+- **G-2 (الترتيب + الجماعي)**: مقبض السحب الزخرفي (GripVertical بلا معالجات — حكم W6-A3 «وهم أسوأ من الغياب») حُذف وحلّ محله أزرار نقل أعلى/أسفل وصولية (`aria-label` عربية، md+ فقط — خانة r121-J-3 نفسها) تكتب `sortOrder` عبر PUTs الفردية القائمة بلا endpoint جديد: `lib/menu-reorder.ts` (تطبيع بلا فجوات = الكتابة بالفروق فقط — نقل واحد في قسم مطبّع = كتابتان؛ أول نقل على قسم تاريخي كله أصفار = n-1) + `POST /api/items` يُلحق الصنف الجديد بآخر القسم (`max(sortOrder)+1` تحت قفل FOR UPDATE نفسه). الإخفاء/الإظهار الجماعي: خانات تحديد أصلية + «تحديد المتاح/الكل» + شريط تقدم صفًا-صفًا (aria-live) + إيقاف صادق عند أول فشل (عداد «تم X من Y» + رسالة الخادم) — تسلسلي بلا batch endpoint (حد items PUT 20/دقيقة يواجه بصدق). صفحة المالك تحمّل كل أصناف القسم (سقف 500 = 5 طلبات) — عقد الترتيب يمنع التطبيع على قائمة مقصوصة؛ التجاوز يُعلَّم `itemsTruncated` وتُعطّل الأزرار بصراحة.
+- **الإصلاحات الصغيرة (1/3/5 من W6-A3)**: (1) `referralUrl` في `/api/loyalty` كان يشير إلى `/loyalty` (404 مؤكد في الإنتاج) — الآن `/menu/{slug}?ref={code}` (الرابط الحقيقي الذي يستهلكه `ReferralHandler` عبر `?ref=`). (3) عتبات المستويات تُصدَّر من المصدر الواحد `loyalty-tiers.ts#tierMinPoints` في استجابة `/api/loyalty` (`tierThresholds`) — `LoyaltyWidget` يستهلكها مع سقوط آمن للقيم المحلية (استجابات قديمة)؛ الحساب يظل `computeTier` الخادمي. (5) تصدير CSV للطلبات كان يصدّر الصفحة المعروضة فقط — الآن يجلب كل الصفحات بمرشّحات الخادم نفسها (سقف 5000 صادق مع إعلان التجاوز) ويطبّق بحث المالك نفسه.
+- **G-4 (plan-gates) — لم يُشحن عمدًا**: قرار سياسة (بوّابة أم إعادة صياغة نصوص الخطط) يتجاوز نطاق هذه الدفعة — مسجّل next-wave. لا نصف شحن.
+- **البوابات**: vitest 2799/2799 (2752 أساس 67bdcdf6 + 47 اختبارًا جديدًا W6-B6) · tsc 0 · eslint 0 · البناء وe2e محمولان على CI (لا Postgres محليًا).
+
 ## r152 (2026-10-13) — Phase 5 «الطهي التحريري الدافئ»: re-anchoring the whole product contract (LIGHT-first cream/espresso/terracotta + Baloo display + dot-leader signature)
 - **Identity flip**: `:root` = warm light default (cream #FBF7F0 · espresso #241811 · terracotta #C2452D primary, white fg 5.02:1, hover #A93A26, strong/ink #8A2B1D, amber #B7791F sparingly); `.dark` = explicit «مطبخ ليلي دافئ» opt-in (#1D1410 + luminous #E07856). next-themes `defaultTheme="light"` + THEME_BOOT_SCRIPT + color-scheme both flipped; ~150 TSX consumers re-skin with ZERO churn (semantic names preserved). Status families warm-graded (sage/amber/warm-steel/deep-rose); WhatsApp green untouched.
 - **Type**: display/heading = Baloo Bhaijaan 2 (self-hosted variable 600/700 × arabic+latin, preloaded + SW-precached); body stays IBM Plex Sans Arabic; prices tabular (unchanged).

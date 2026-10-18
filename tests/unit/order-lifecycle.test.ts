@@ -50,6 +50,13 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+
+// W6-B6 (G-5): orders/[id] PUT now carries the owner subscription-expiry
+// guard (عائلة items r138 / owner/* c661e707) — stubbed like the family's
+// tests (نمط items-contract.test.ts).
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
 // the route builds its limiter at module scope — feed it a controllable check
 vi.mock('@/lib/rate-limit', () => ({
         createDbRateLimiter: () => ({ check: mockRateCheck, destroy: () => {} }),

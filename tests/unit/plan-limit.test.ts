@@ -24,6 +24,9 @@ import { NextRequest } from 'next/server';
 const mockCategoryFindUnique = vi.hoisted(() => vi.fn());
 const mockMenuItemCount = vi.hoisted(() => vi.fn());
 const mockMenuItemCreate = vi.hoisted(() => vi.fn());
+// W6-B6 (G-2): items POST now appends at max(sortOrder)+1 — aggregate stub
+// for the same tx (نمط items-contract.test.ts).
+const mockMenuItemAggregate = vi.hoisted(() => vi.fn());
 const mockUserFindUnique = vi.hoisted(() => vi.fn());
 const mockSlugFindUnique = vi.hoisted(() => vi.fn());
 const mockUserRestaurantCount = vi.hoisted(() => vi.fn());
@@ -34,7 +37,7 @@ const mockRevalidate = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const mockMediaUrlError = vi.hoisted(() => vi.fn(() => null));
 
 const txMock = vi.hoisted(() => ({
-        menuItem: { count: mockMenuItemCount, create: mockMenuItemCreate },
+        menuItem: { count: mockMenuItemCount, create: mockMenuItemCreate, aggregate: mockMenuItemAggregate },
         userRestaurant: { count: mockUserRestaurantCount, create: vi.fn() },
         // round91-F-B (D2-#4): items POST re-reads maxItems under the FOR
         // UPDATE lock — resolving nothing keeps the pre-tx values as fallback.
@@ -91,6 +94,8 @@ beforeEach(() => {
         mockCategoryFindUnique.mockResolvedValue({ ...CATEGORY });
         mockMenuItemCount.mockResolvedValue(0);
         mockMenuItemCreate.mockResolvedValue({ id: 901 });
+        // W6-B6 (G-2): no max → append at 0 (default, like items-contract)
+        mockMenuItemAggregate.mockResolvedValue({ _max: { sortOrder: null } });
         mockUserFindUnique.mockResolvedValue({ plan: { maxMenus: 2, nameAr: 'أساسية' } });
         mockSlugFindUnique.mockResolvedValue(null);
         mockUserRestaurantCount.mockResolvedValue(0);

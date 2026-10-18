@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError, notFound, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { computeTier, generateReferralCode } from '@/lib/loyalty-tiers';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/client-ip';
 import { convertReferralForCompletedOrder } from '@/lib/referral-conversion';
@@ -69,6 +70,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
                 const auth = await requireAuth();
                 if (!auth.authorized) return apiError('غير مصرح', 401);
+
+                /* W6-B6 (G-5 — تدقيق W6-A3): حارس الاشتراك المنتهي — نفس
+                   عائلة items (r138) وowner/* (c661e707). مسار عمليات
+                   المالك: تغيير الحالة (بما فيه الإكمال الذي يشعل تراكم
+                   نقاط الولاء وتحويل الإحالات — مسار مكافآت مالي) وتحرير
+                   الطلب. المنيو العام للمالك المنتهي يستمر باستقبال
+                   الطلبات (سياسة الانتهاء المتعمدة) لكن لوحة المالك
+                   لا تحرّكها — نفس ما تقوله لافتة OwnerShell. الموظفون
+                   يتجاوزون داخل الحارس. GET يبقى مفتوحًا. */
+                if (!(await isOwnerSubscriptionActive(auth))) {
+                        return apiError('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+                }
 
                 const { id } = await params;
                 const oid = Number(id);

@@ -5,6 +5,7 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, error, handleError, paginated, parsePagination } from '@/lib/api-helpers';
 import { revalidateMenu } from '@/lib/menu-cache';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { itemCountByCategory } from '@/lib/list-counts';
 
 const createSchema = z.object({
@@ -79,6 +80,16 @@ export async function POST(request: NextRequest) {
         try {
                 const auth = await requireAuth();
                 if (!auth.authorized) return error('غير مصرح', 401);
+
+                /* W6-B6 (G-5 — تدقيق W6-A3): حارس الاشتراك المنتهي — نفس
+                   عائلة items POST/PUT (r138) وowner/* (c661e707). المالك
+                   المنتهي كان يستطيع إنشاء أقسام على منيو يفترض أن التحرير
+                   فيه متوقف (لافتة OwnerShell تقول ذلك حرفيًا). الموظفون
+                   يتجاوزون داخل الحارس (نفس إصرار العائلة). الخريطة
+                   الكاملة موثقة في docs/ENGINEERING_STATE.md. */
+                if (!(await isOwnerSubscriptionActive(auth))) {
+                        return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+                }
 
                 const body = createSchema.parse(await request.json());
                 const rid = body.restaurantId;

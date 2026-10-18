@@ -14,6 +14,7 @@ import {
 // r137: ساعات الدوام المهيكلة + رسوم التوصيل/الحد الأدنى (محرّر المالك)
 import { parseOpeningHoursPayload, type ParsedOpeningHours } from '@/lib/opening-hours';
 import { parseDeliveryAmount } from '@/lib/delivery-meta';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 
 const singleSchema = z.object({
         key: z.string().min(1).max(100),
@@ -133,6 +134,17 @@ export async function PUT(request: NextRequest) {
         try {
                 const auth = await requireAuth();
                 if (!auth.authorized) return apiError('غير مصرح', 401);
+
+                /* W6-B6 (G-5 — تدقيق W6-A3): حارس الاشتراك المنتهي — نفس
+                   عائلة items (r138) وowner/* (c661e707). الإعدادات مسار
+                   مال صريح (رسوم التوصيل/الحد الأدنى عبر مرايا restaurant_*)
+                   ولوحة الشعار العامة — المالك المنتهي كان يعدّلها بينما
+                   اللافتة تقول إن التحرير متوقف. الموظفون يتجاوزون داخل
+                   الحارس. القراءة (GET) تبقى مفتوحة — المالك المنتهي
+                   يرى إعداداته لكن لا يعدّلها. */
+                if (!(await isOwnerSubscriptionActive(auth))) {
+                        return apiError('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+                }
 
                 const { searchParams } = new URL(request.url);
                 const requestedId = Number(searchParams.get('restaurantId')) || 0;

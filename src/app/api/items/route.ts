@@ -277,6 +277,18 @@ export async function POST(request: NextRequest) {
                                         planName: category.restaurant.plan?.nameAr ?? null,
                                 });
                         }
+                        // W6-B6 (G-2 — حكم تدقيق W6-A3): الصنف الجديد يُلحق بآخر قسمه.
+                        // كان الافتراضي 0 سليمًا زمن «كل الأصفار» (تعادل → ترتيب الإدخال)،
+                        // لكن أزرار النقل الجديدة تكتب 0..n-1 لكل قسم — و0 صار يعني
+                        // «رأس القسم». الحساب داخل قفل FOR UPDATE نفسه (نفس الترتيب
+                        // التسلسلي للسقف): قسمان متزامنان لا يولّدان نفس الرقم إلا
+                        // بسباق إدخال حقيقي، والتعادل عندها يحسمه ترتيب الإدخال —
+                        // سلوك حتمي مقبول. من يرسل sortOrder صراحةً يظل كما هو.
+                        const maxSort = await tx.menuItem.aggregate({
+                                where: { categoryId: body.categoryId },
+                                _max: { sortOrder: true },
+                        });
+                        const appendSortOrder = (maxSort._max.sortOrder ?? -1) + 1;
                         return tx.menuItem.create({
                                 data: {
                                         name: body.name,
@@ -287,7 +299,7 @@ export async function POST(request: NextRequest) {
                                         discountedPrice: body.discountedPrice ?? null,
                                         image: body.image ?? '',
                                         status: (body.status ?? 'available') as ItemStatus,
-                                        sortOrder: body.sortOrder ?? 0,
+                                        sortOrder: body.sortOrder ?? appendSortOrder,
                                         categoryId: body.categoryId,
                                         dietaryTags: body.dietaryTags ?? [],
                                         allergens: body.allergens ?? [],

@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Package, GripVertical } from 'lucide-react';
+import { Pencil, Package, ChevronUp, ChevronDown } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -11,7 +11,15 @@ import AnimatedTrash from '@/components/ui/trash-icon';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatPrice } from '@/lib/format';
+import { getArabicPlural } from '@/lib/arabic-plural';
 import { type Category, type Item, CATEGORY_ICON_MAP } from './types';
+
+/** عائلة التحديد الجماعي — الحالة في الصفحة (المصدر الوحيد)، والأزرار هنا. */
+interface BulkState {
+        status: 'available' | 'unavailable';
+        done: number;
+        total: number;
+}
 
 interface CategoriesListProps {
         /** Filtered categories to render (search applied by the page). */
@@ -27,6 +35,16 @@ interface CategoriesListProps {
         onEditItem: (item: Item) => void;
         onDeleteItem: (item: Item) => void;
         onAddCategory: () => void;
+        /* W6-B6 (G-2) — الترتيب + الإخفاء/الإظهار الجماعي */
+        selectedItemIds: Set<number>;
+        bulk: BulkState | null;
+        movingCatId: number | null;
+        onToggleSelectItem: (id: number) => void;
+        onSelectAvailable: (catId: number) => void;
+        onSelectAll: (catId: number) => void;
+        onClearSelection: () => void;
+        onBulkStatus: (status: 'available' | 'unavailable') => void;
+        onMoveItem: (item: Item, dir: 'up' | 'down') => void;
 }
 
 /** Category cards with their item rows — verbatim extraction from the owner
@@ -45,6 +63,15 @@ export function CategoriesList({
         onEditItem,
         onDeleteItem,
         onAddCategory,
+        selectedItemIds,
+        bulk,
+        movingCatId,
+        onToggleSelectItem,
+        onSelectAvailable,
+        onSelectAll,
+        onClearSelection,
+        onBulkStatus,
+        onMoveItem,
 }: CategoriesListProps) {
         return (
                 /* r131-F5 (A1 P0-3): the hand-rolled 80px gradient-tile empty state
@@ -69,7 +96,18 @@ export function CategoriesList({
                         />
                 ) : (
                         <div className="space-y-3">
-                                {categories.map((cat) => (
+                                {categories.map((cat) => {
+                                        /* W6-B6 (G-2): حالة أزرار النقل — البحث يفلتر القائمة
+                                           (نقل داخل نتيجة مفلترة غامض)، والقص عند سقف
+                                           التحميل يجعل التطبيع كاذبًا (عقد menu-reorder). */
+                                        const movesBlocked = Boolean(searchTerm) || Boolean(cat.itemsTruncated);
+                                        const movesBlockedReason = searchTerm
+                                                ? 'الترتيب متاح بعد مسح البحث — القائمة المعروضة مفلترة'
+                                                : 'القسم يتجاوز سقف 500 صنف — الترتيب غير متاح هنا';
+                                        const items = cat.items ?? [];
+                                        const selectedCount = items.filter((i) => selectedItemIds.has(i.id)).length;
+                                        const bulkBusy = bulk !== null;
+                                        return (
                                         <div
                                                 key={cat.id}
                                                 className="rounded-lg border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/60"
@@ -173,18 +211,132 @@ export function CategoriesList({
 
                                                 {expandedCatId === cat.id && (
                                                         <div className="border-t border-border/20">
-                                                                {cat.items?.length > 0 ? (
-                                                                        <div className="divide-y divide-border/10">
-                                                                                {cat.items.map((item) => (
+                                                                {items.length > 0 ? (
+                                                                        <>
+                                                                                {/* W6-B6 (G-2): شريط الإخفاء/الإظهار الجماعي — «إخفاء
+                                                                                    المتاح» لساعة الذروة = تحديد المتاح ثم إخفاء
+                                                                                    المحدد. التنفيذ تسلسلي صادق (لا endpoint batch):
+                                                                                    PUT لكل صنف + تقدم مرئي + إيقاف عند أول فشل
+                                                                                    برسالة الخادم (صفحة المالك تفصّل العقد). */}
+                                                                                <div className="flex flex-wrap items-center gap-2 px-5 py-2.5 bg-muted/20 border-b border-border/10">
+                                                                                        <span
+                                                                                                className="text-xs font-semibold text-muted-foreground tabular-nums"
+                                                                                                aria-live="polite"
+                                                                                        >
+                                                                                                {bulk ? (
+                                                                                                        <>
+                                                                                                                {bulk.status === 'unavailable' ? 'جارٍ الإخفاء' : 'جارٍ الإظهار'}…{' '}
+                                                                                                                {toArabicNumber(bulk.done)}/{toArabicNumber(bulk.total)}
+                                                                                                        </>
+                                                                                                ) : selectedCount === 0 ? (
+                                                                                                        'لا أصناف محددة'
+                                                                                                ) : (
+                                                                                                        <>
+                                                                                                                تم تحديد {toArabicNumber(selectedCount)}{' '}
+                                                                                                                {getArabicPlural(selectedCount, 'صنف', 'صنفان', 'أصناف')}
+                                                                                                        </>
+                                                                                                )}
+                                                                                        </span>
+                                                                                        <div className="flex flex-wrap items-center gap-1.5 ms-auto">
+                                                                                                <Button
+                                                                                                        variant="ghost"
+                                                                                                        size="sm"
+                                                                                                        onClick={() => onSelectAvailable(cat.id)}
+                                                                                                        disabled={bulkBusy}
+                                                                                                >
+                                                                                                        تحديد المتاح
+                                                                                                </Button>
+                                                                                                <Button
+                                                                                                        variant="ghost"
+                                                                                                        size="sm"
+                                                                                                        onClick={() => onSelectAll(cat.id)}
+                                                                                                        disabled={bulkBusy}
+                                                                                                >
+                                                                                                        تحديد الكل
+                                                                                                </Button>
+                                                                                                {selectedCount > 0 && !bulkBusy && (
+                                                                                                        <Button
+                                                                                                                variant="ghost"
+                                                                                                                size="sm"
+                                                                                                                onClick={onClearSelection}
+                                                                                                        >
+                                                                                                                إلغاء التحديد
+                                                                                                        </Button>
+                                                                                                )}
+                                                                                                <Button
+                                                                                                        variant="outline"
+                                                                                                        size="sm"
+                                                                                                        onClick={() => onBulkStatus('unavailable')}
+                                                                                                        disabled={selectedCount === 0 || bulkBusy}
+                                                                                                        className="text-destructive hover:border-destructive/40"
+                                                                                                >
+                                                                                                        إخفاء المحدد
+                                                                                                </Button>
+                                                                                                <Button
+                                                                                                        variant="outline"
+                                                                                                        size="sm"
+                                                                                                        onClick={() => onBulkStatus('available')}
+                                                                                                        disabled={selectedCount === 0 || bulkBusy}
+                                                                                                        className="text-success-ink hover:border-orange/40"
+                                                                                                >
+                                                                                                        إظهار المحدد
+                                                                                                </Button>
+                                                                                        </div>
+                                                                                </div>
+                                                                                <div className="divide-y divide-border/10">
+                                                                                {items.map((item, index) => (
                                                                                         <div
                                                                                                 key={item.id}
                                                                                                 className="flex items-center gap-3 px-5 py-3 hover:bg-muted/10 transition-colors group"
                                                                                         >
-                                                                                                {/* r121-J-3: hidden below md — HTML5 drag is a pointer
-                                                                                                    affordance (never worked on touch); frees 16px+
-                                                                                                    gutter for the name column at ≤390px, where the
-                                                                                                    row's fixed children ate ~381-391px of 358px. */}
-                                                                                                <GripVertical className="size-4 text-muted-foreground/30 shrink-0 cursor-grab opacity-0 group-hover:opacity-100 hidden md:block" />
+                                                                                                {/* W6-B6 (G-2): تحديد جماعي — خانة أصلية
+                                                                                                    (semantics مجانية) بجميع المقاسات: الإخفاء
+                                                                                                    الجماعي حاجة مطبخ من الهاتف أيضًا. */}
+                                                                                                <input
+                                                                                                        type="checkbox"
+                                                                                                        checked={selectedItemIds.has(item.id)}
+                                                                                                        onChange={() => onToggleSelectItem(item.id)}
+                                                                                                        disabled={bulkBusy}
+                                                                                                        aria-label={`تحديد ${item.name}`}
+                                                                                                        className="size-4 shrink-0 accent-orange cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                                                                                />
+                                                                                                {/* W6-B6 (G-2): أزرار النقل للأعلى/للأسفل —
+                                                                                                    التوأم الوصولي (لوحة المفاتيح + القارئ). المقبض
+                                                                                                    الزخرفي حُذف (تدقيق W6-A3: مقبض وهم بلا
+                                                                                                    معالجات أسوأ من لا مقبض). md+ فقط — خانة
+                                                                                                    المقبض القديمة نفسها (حكم r121-J-3: صف
+                                                                                                    ≤390px لا يتحمل عمودًا إضافيًا)؛ تحرير الجوال
+                                                                                                    عبر تطبيق المالك (نطاق v1 الموثق). */}
+                                                                                                <div className="hidden md:flex flex-col gap-0.5 shrink-0">
+                                                                                                        <button
+                                                                                                                type="button"
+                                                                                                                onClick={() => onMoveItem(item, 'up')}
+                                                                                                                disabled={
+                                                                                                                        movesBlocked ||
+                                                                                                                        movingCatId === cat.id ||
+                                                                                                                        index === 0
+                                                                                                                }
+                                                                                                                title={movesBlocked ? movesBlockedReason : 'نقل للأعلى'}
+                                                                                                                aria-label={`نقل ${item.name} للأعلى`}
+                                                                                                                className="size-7 rounded-md flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                                                                                        >
+                                                                                                                <ChevronUp className="size-4" aria-hidden="true" />
+                                                                                                        </button>
+                                                                                                        <button
+                                                                                                                type="button"
+                                                                                                                onClick={() => onMoveItem(item, 'down')}
+                                                                                                                disabled={
+                                                                                                                        movesBlocked ||
+                                                                                                                        movingCatId === cat.id ||
+                                                                                                                        index === items.length - 1
+                                                                                                                }
+                                                                                                                title={movesBlocked ? movesBlockedReason : 'نقل للأسفل'}
+                                                                                                                aria-label={`نقل ${item.name} للأسفل`}
+                                                                                                                className="size-7 rounded-md flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                                                                                        >
+                                                                                                                <ChevronDown className="size-4" aria-hidden="true" />
+                                                                                                        </button>
+                                                                                                </div>
                                                                                                 {item.image ? (
                                                                                                         <OptimizedImage
                                                                                                                 src={item.image}
@@ -297,6 +449,7 @@ export function CategoriesList({
                                                                                         </div>
                                                                                 ))}
                                                                         </div>
+                                                                        </>
                                                                 ) : (
                                                                         <div className="py-8 text-center">
                                                                                 <p className="text-sm text-muted-foreground mb-3">
@@ -315,7 +468,8 @@ export function CategoriesList({
                                                         </div>
                                                 )}
                                         </div>
-                                ))}
+                                        );
+                                })}
                         </div>
                 )
         );

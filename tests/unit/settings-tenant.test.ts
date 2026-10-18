@@ -18,6 +18,12 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+
+// W6-B6 (G-5): settings PUT now carries the owner subscription-expiry
+// guard — stubbed like the family's tests (نمط items-contract.test.ts).
+vi.mock('@/lib/subscription-guard', () => ({
+	isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
 // round86-A3: the route also imports mediaUrlError — permissive mock
 vi.mock('@/lib/blob', () => ({ deleteBlob: mockDeleteBlob, mediaUrlError: () => null }));
 

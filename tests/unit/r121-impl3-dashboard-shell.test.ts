@@ -415,10 +415,15 @@ describe('r121 J-2 — RTL back arrows (IMPL-3 half)', () => {
 });
 
 describe('r121 J-3 — owner menu rows ≤390px', () => {
-        it('status word hidden below sm; drag grip hidden below md (~92px back to the name)', () => {
+        it('status word hidden below sm; W6-B6: movers hidden below md (same md gutter — the FAKE drag grip is gone, replaced by real buttons)', () => {
                 const cl = src('src/app/(protected)/owner/menu/CategoriesList.tsx');
                 expect(cl).toContain("'text-xs w-14 hidden sm:inline'");
-                expect(cl).toContain('hidden md:block');
+                // W6-B6 (G-2): the r121-J-3 grip was decorative (zero handlers —
+                // W6-A3 fake-affordance verdict); the movers keep its responsive
+                // slot (md+ only, ≤390px row budget) and actually write sortOrder.
+                expect(cl).toContain('hidden md:flex flex-col');
+                expect(cl).not.toContain('GripVertical');
+                expect(cl).not.toContain('cursor-grab');
         });
 });
 

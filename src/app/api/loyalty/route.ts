@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import { success, handleError, error } from '@/lib/api-helpers';
 import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
-import { getNextTierInfo, generateReferralCode } from '@/lib/loyalty-tiers';
+import { getNextTierInfo, generateReferralCode, tierMinPoints } from '@/lib/loyalty-tiers';
 import { getClientIp } from '@/lib/client-ip';
 import { normalizeCustomerPhone, CUSTOMER_PHONE_RE } from '@/lib/phone';
 
@@ -94,12 +94,18 @@ export async function POST(request: NextRequest) {
                 // Public endpoint — never expose PII (customerName/phone) to unauthenticated callers
                 const { customerName: _n, customerPhone: _p, ...publicCard } = card;
 
+                /* W6-B6 (تدقيق W6-A3 — إصلاح صغير 1 + 3): رابط الإحالة كان يشير
+                   إلى /loyalty — مسار غير موجود (404 مؤكد في الإنتاج؛
+                   ReferralCard يبني رابطه بنفسه فلم يلاحظه أحد). الرابط
+                   الحقيقي الذي يفهمه ReferralHandler هو صفحة المنيو + ?ref=.
+                   العتبات تُصدّر لتوحيد سُلّم الواجهة مع computeTier. */
                 return success({
                         card: publicCard,
                         tier: card.tier,
                         nextTier,
                         pointsToNext,
-                        referralUrl: `/loyalty?ref=${card.referralCode}`,
+                        referralUrl: `/menu/${restaurant.slug}?ref=${card.referralCode}`,
+                        tierThresholds: tierMinPoints(),
                 });
         } catch (e) {
                 return handleError(e);
@@ -137,6 +143,14 @@ export async function GET(request: NextRequest) {
 
                 const { nextTier, pointsToNext } = getNextTierInfo(card.tier);
 
+                // W6-B6 (إصلاح صغير 1): الرابط الحقيقي هو صفحة المنيو — /loyalty
+                // غير موجود (404). الجلب تحت نفس محدّدات المسار (لا كلفة خارج
+                // حدودها)، والعتبات تُصدّر هنا أيضًا (إصلاح صغير 3 — نفس POST).
+                const restaurantRow = await prisma.restaurant.findUnique({
+                        where: { id: restaurantId },
+                        select: { slug: true },
+                });
+
                 // Public endpoint — never expose PII (customerName/phone) to unauthenticated callers
                 const { customerName: _n, customerPhone: _p, ...publicCard } = card;
 
@@ -145,7 +159,8 @@ export async function GET(request: NextRequest) {
                         tier: card.tier,
                         nextTier,
                         pointsToNext,
-                        referralUrl: `/loyalty?ref=${card.referralCode}`,
+                        referralUrl: `/menu/${restaurantRow?.slug ?? ''}?ref=${card.referralCode}`,
+                        tierThresholds: tierMinPoints(),
                 });
         } catch (e) {
                 return handleError(e);
