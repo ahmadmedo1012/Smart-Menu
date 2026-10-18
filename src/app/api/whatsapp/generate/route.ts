@@ -70,6 +70,9 @@ export async function POST(request: NextRequest) {
         pickupType: true,
         total: true,
         discount: true,
+        // r138 (W5-C3): الرسوم المسحوبة على الطلب نفسها — الصف يُفرد سطرها
+        // (NULL = صف ما قبل r138: يبقى العرض القديم، لا قيمة مُختَرعة).
+        deliveryFee: true,
         createdAt: true,
         restaurantId: true,
         restaurant: { select: { name: true, whatsapp: true } },
@@ -137,6 +140,11 @@ export async function POST(request: NextRequest) {
       // Pre-r120 base-only rows are backfilled by
       // zz_round122_orderitem_effective_price_backfill; the «الإضافات» line
       // below stays informational (names + deltas), never arithmetic.
+      // r138 (W5-C3): the r120 invariant «lines sum exactly to the total»
+      // held for r137+ delivery orders only because the fee was invisible —
+      // now the fee line below restores it: lines + fee = المجموع for
+      // post-r138 rows; legacy NULL-fee rows keep the pre-r138 rendering
+      // (lines sum to subtotal; the fee, if any, is unrecoverable).
       lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price), { decimals: 2 })}`);
       if (mods.length > 0) {
         const modText = mods
@@ -151,6 +159,14 @@ export async function POST(request: NextRequest) {
       if (oi.notes) lines.push(`    ملاحظات: ${oi.notes}`);
     }
     lines.push("");
+    // r138 (W5-C3 — صدق الفاتورة): سطر الرسوم المفرد بين الأصناف والمجموع
+    // (نفس بنية إيصال الزبون receipt.ts r137 — المستندان يتفقان بنيويًا:
+    // الأسطر + الرسوم = الإجمالي). يُعرض فقط عند قيمة مسجلة > 0: NULL (صف
+    // ما قبل r138، الرسوم غير معروفة — لا يُخترَع سطر) و0 (لا رسوم) لا
+    // يرسمان شيئًا — قانون «رسوم 0 معاملة الإطفاء» (delivery-meta.ts).
+    if (order.deliveryFee != null && Number(order.deliveryFee) > 0) {
+      lines.push(`\u{1F6F5} رسوم التوصيل: ${formatPrice(Number(order.deliveryFee), { decimals: 2 })}`);
+    }
     lines.push(`\u{1F4B0} المجموع: ${formatPrice(Number(order.total), { decimals: 2 })}`);
     if (Number(order.discount) > 0) lines.push(`\u{1F516} الخصم: ${formatPrice(Number(order.discount), { decimals: 2 })}`);
     // r133-A12 M2: formatDate reads the server's local clock — UTC on Vercel,

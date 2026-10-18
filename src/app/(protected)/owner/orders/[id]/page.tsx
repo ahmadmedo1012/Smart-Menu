@@ -265,6 +265,17 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                         <i className="menu-leader-rule" aria-hidden="true" />
                                                         <span className="tabular-nums shrink-0">{formatPrice(order.subtotal)}</span>
                                                 </div>
+                                                {/* r138 (W5-C3 — صدق الفاتورة): سطر الرسوم المسجلة على
+                                                        الصف بين المجموع الفرعي والإجمالي — الأسطر + الرسوم
+                                                        تفسّر الإجمالي. يُعرض فقط عند قيمة > 0: NULL (صف ما
+                                                        قبل r138 — لا تُخترَع رسوم) و0 (لا رسوم) لا يرسمان. */}
+                                                {order.deliveryFee != null && Number(order.deliveryFee) > 0 && (
+                                                        <div className="flex items-baseline gap-2 text-sm menu-leader">
+                                                                <span className="text-muted-foreground shrink-0">رسوم التوصيل</span>
+                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                <span className="tabular-nums shrink-0">{formatPrice(Number(order.deliveryFee))}</span>
+                                                        </div>
+                                                )}
                                                 <hr className="border-border/30" />
                                                 <div className="flex items-baseline gap-2 font-bold text-lg menu-leader">
                                                         <span className="shrink-0">الإجمالي</span>

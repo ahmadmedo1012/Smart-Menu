@@ -61,6 +61,10 @@ vi.mock('@/lib/auth', () => ({
         requireAuth: vi.fn(async () => ({ ...authHolder.value })),
         requirePermission: mockRequirePermission,
 }));
+// r138 (W5-C3): items PUT carries the owner expiry guard now — always active here.
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
 
 // ── Fixtures ────────────────────────────────────────────────────────────
 

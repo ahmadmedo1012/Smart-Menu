@@ -224,6 +224,12 @@ model Order {
   subtotal           Decimal             @db.Decimal(10, 2)
   discount           Decimal             @default(0) @db.Decimal(10, 2)
   total              Decimal             @db.Decimal(10, 2)
+  // r138 (W5-C3): الرسوم المسحوبة فعلاً على هذا الطلب — تُكتب من feeTotal
+  // المحسوبة خادميًا في POST /api/orders (لا من العميل أبدًا). NULL = صف
+  // ما قبل r138 (رسوم غير معروفة — العرض لا يخترع لها قيمة)، 0 = لا رسوم
+  // (داخل/سفري أو الميزة مطفأة)، >0 = رسوم أُضيفت إلى total. الثابت:
+  // total = subtotal - discount + deliveryFee لكل صف غير NULL.
+  deliveryFee        Decimal?            @db.Decimal(10, 2)
   whatsappSent       Boolean             @default(false)
   restaurantId       Int
   createdAt          DateTime            @default(now())

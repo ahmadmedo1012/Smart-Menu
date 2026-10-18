@@ -121,6 +121,9 @@ export function buildOrderShareText(o: {
   customerPhone: string | null;
   pickupType: string;
   total: number | { toString(): string };
+  // r138 (W5-C3): الرسوم المسجلة على الطلب (Decimal يصل سلسلة من JSON) —
+  // null = صف ما قبل r138 (لا يُخترَع سطر)، 0 = لا رسوم (لا سطر).
+  deliveryFee?: number | { toString(): string } | null;
   items: { item: { nameAr: string | null; name: string }; quantity: number; price: number }[];
 }): string {
   const items = o.items
@@ -132,6 +135,14 @@ export function buildOrderShareText(o: {
         `• ${oi.item.nameAr || oi.item.name} ×${toArabicNumber(oi.quantity)} = ${formatPrice(oi.price * oi.quantity, { decimals: 2 })}`
     )
     .join("\n");
+  // r138 (W5-C3 — صدق الفاتورة): سطر الرسوم بين الأصناف والإجمالي — نفس
+  // بنية إيصال الزبون (رسوم التوصيل قبل الإجمالي) فيجمع المستندان بصدق:
+  // الأسطر + الرسوم = الإجمالي. يُعرض فقط عند قيمة > 0 (قانون r137:
+  // «رسوم 0 مخزنة تعامل معاملة الإطفاء»).
+  const feeLine =
+    o.deliveryFee != null && Number(o.deliveryFee) > 0
+      ? `\u{1F6F5} رسوم التوصيل: ${formatPrice(Number(o.deliveryFee), { decimals: 2 })}\n`
+      : "";
   // r121-O-1: canonical label (same inside-fallback the old ternary hardcoded)
   const type = getPickupTypeMeta(o.pickupType).label;
   return `\u{1F4CB} طلب ${toArabicNumber(o.orderNo)}
@@ -141,5 +152,5 @@ export function buildOrderShareText(o: {
 ━━━━━━━━━━━━━
 ${items}
 ━━━━━━━━━━━━━
-\u{1F4B0} الإجمالي: ${formatPrice(Number(o.total), { decimals: 2 })}`;
+${feeLine}\u{1F4B0} الإجمالي: ${formatPrice(Number(o.total), { decimals: 2 })}`;
 }

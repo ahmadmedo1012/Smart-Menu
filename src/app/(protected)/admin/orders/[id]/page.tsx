@@ -257,6 +257,16 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                         <i className="menu-leader-rule" aria-hidden="true" />
                                                         <span className="tabular-nums shrink-0">{formatPrice(order.subtotal)}</span>
                                                 </div>
+                                                {/* r138 (W5-C3 — صدق الفاتورة): سطر الرسوم المسجلة على
+                                                        الصف (توأم صفحة المالك — نفس الحارس: يُعرض عند > 0
+                                                        فقط، NULL = صف ما قبل r138 لا تُخترَع له رسوم). */}
+                                                {order.deliveryFee != null && Number(order.deliveryFee) > 0 && (
+                                                        <div className="flex items-baseline gap-2 text-sm menu-leader">
+                                                                <span className="text-muted-foreground shrink-0">رسوم التوصيل</span>
+                                                                <i className="menu-leader-rule" aria-hidden="true" />
+                                                                <span className="tabular-nums shrink-0">{formatPrice(Number(order.deliveryFee))}</span>
+                                                        </div>
+                                                )}
                                                 <hr className="border-border/30" />
                                                 <div className="flex items-baseline gap-2 font-bold text-lg menu-leader">
                                                         <span className="shrink-0">الإجمالي</span>

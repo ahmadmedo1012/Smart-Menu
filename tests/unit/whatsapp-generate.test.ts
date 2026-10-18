@@ -240,6 +240,55 @@ describe('POST /api/whatsapp/generate — r121-C2: سطر معدَّل يطبع 
         });
 });
 
+// ── r138 (W5-C3): سطر رسوم التوصيل في تحويل المالك ───────────────────
+
+describe('POST /api/whatsapp/generate — r138: fee line between items and total', () => {
+        it('deliveryFee = 5 → سطر «رسوم التوصيل: 5.00 د.ل» والأسطر + الرسوم = المجموع (صدق الفاتورة)', async () => {
+                // lines 2×10 = 20 + fee 5 = total 25 — the document explains itself
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, deliveryFee: 5 });
+
+                const res = await generateRoute.POST(postRequest({ orderId: 77 }));
+                expect(res.status).toBe(200);
+                const json = await res.json();
+
+                expect(json.data.message).toContain('🛵 رسوم التوصيل: 5.00 د.ل');
+                // the fee line sits between the item block and المجموع
+                expect(json.data.message.indexOf('2x لاتيه - 10.00 د.ل')).toBeLessThan(
+                        json.data.message.indexOf('رسوم التوصيل')
+                );
+                expect(json.data.message.indexOf('رسوم التوصيل')).toBeLessThan(
+                        json.data.message.indexOf('المجموع: 25.00 د.ل')
+                );
+                // honesty invariant: lines + fee == total
+                expect(10 * 2 + 5).toBe(25);
+        });
+
+        it('deliveryFee كـ Decimal-string (كما يسلسله Prisma) → 2.00 د.ل يُنسق صحيحًا', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, deliveryFee: '2' });
+
+                const res = await generateRoute.POST(postRequest({ orderId: 77 }));
+                const json = await res.json();
+                expect(json.data.message).toContain('رسوم التوصيل: 2.00 د.ل');
+        });
+
+        it('deliveryFee = 0 → لا سطر رسوم (قانون r137: الصفر إطفاء)', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, deliveryFee: 0 });
+
+                const res = await generateRoute.POST(postRequest({ orderId: 77 }));
+                const json = await res.json();
+                expect(json.data.message).not.toContain('رسوم التوصيل');
+        });
+
+        it('صف ما قبل r138 (deliveryFee NULL) → لا سطر رسوم ولا قيمة مُختَرعة (العرض القائم)', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, deliveryFee: null });
+
+                const res = await generateRoute.POST(postRequest({ orderId: 77 }));
+                const json = await res.json();
+                expect(json.data.message).not.toContain('رسوم التوصيل');
+                expect(json.data.message).toContain('المجموع: 25.00 د.ل');
+        });
+});
+
 // ── النجاح: الرسالة + وسم whatsappSent ─────────────────────────────────
 
 describe('POST /api/whatsapp/generate — التوليد الناجح', () => {

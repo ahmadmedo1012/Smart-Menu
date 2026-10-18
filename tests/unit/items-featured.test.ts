@@ -50,6 +50,11 @@ vi.mock('@/lib/auth', () => ({
         requireAuth: () => Promise.resolve({ authorized: true, role: 'owner', restaurantId: 7, userId: 1 }),
         requirePermission: () => Promise.resolve({ authorized: true, role: 'owner', userId: 1 }),
 }));
+// r138 (W5-C3): items PUT carries the owner expiry guard now (عائلة
+// /api/owner/*) — stubbed like the family's tests (plan-limit pattern).
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
 
 // ── Fixtures ────────────────────────────────────────────────────────────
 

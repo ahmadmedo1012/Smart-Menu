@@ -220,6 +220,32 @@ describe('buildOrderShareText', () => {
                 expect(out).toContain('سارة | ');
                 expect(out).not.toContain('null');
         });
+
+        // ── r138 (W5-C3): سطر الرسوم في نص مشاركة المالك/الأدمن ─────────
+        it('r138: deliveryFee > 0 → سطر «رسوم التوصيل» بين الأصناف والإجمالي، والأسطر + الرسوم = الإجمالي', () => {
+                const out = buildOrderShareText({ ...order, total: 60, deliveryFee: 2.5 });
+                expect(out).toContain('🛵 رسوم التوصيل: 2.50 د.ل');
+                // fee line sits between the items block and الإجمالي
+                expect(out.indexOf('×1 = 17.50 د.ل')).toBeLessThan(out.indexOf('رسوم التوصيل'));
+                expect(out.indexOf('رسوم التوصيل')).toBeLessThan(out.indexOf('الإجمالي: 60.00 د.ل'));
+                // honesty: lines (40 + 17.5) + fee 2.5 == total 60
+                expect(20 * 2 + 17.5 + 2.5).toBe(60);
+        });
+
+        it('r138: deliveryFee كسلسلة Decimal (كما يصل من JSON) يُنسق صحيحًا', () => {
+                const out = buildOrderShareText({ ...order, deliveryFee: '2' });
+                expect(out).toContain('رسوم التوصيل: 2.00 د.ل');
+        });
+
+        it('r138: deliveryFee = 0 → لا سطر (الصفر إطفاء — قانون r137)', () => {
+                expect(buildOrderShareText({ ...order, deliveryFee: 0 })).not.toContain('رسوم التوصيل');
+        });
+
+        it('r138: NULL (صف ما قبل r138) → لا سطر ولا قيمة مُختَرعة — الإخراج بالبايت كما كان', () => {
+                const withNull = buildOrderShareText({ ...order, deliveryFee: null });
+                expect(withNull).not.toContain('رسوم التوصيل');
+                expect(withNull).toBe(buildOrderShareText(order)); // byte-identical to the no-field call
+        });
 });
 
 

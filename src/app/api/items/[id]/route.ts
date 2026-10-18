@@ -4,8 +4,10 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, notFound, handleError, error } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { revalidateMenu } from '@/lib/menu-cache';
+import { MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE } from '@/lib/constants';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { modifierGroupSchema, modifierGroupCreateInput } from '@/lib/modifier-schema';
@@ -79,8 +81,12 @@ const updateSchema = z.object({
         nameAr: z.string().nullable().optional(),
         description: z.string().max(1000).optional(),
         descriptionAr: z.string().max(1000).nullable().optional(),
-        price: z.number().positive().optional(),
-        discountedPrice: z.number().positive().nullable().optional(),
+        // r138 (W5-C3 — حكم تدقيق W5-A3 P3): كان positive() يرفض 0 بينما POST
+        // يقبل 0 منذ إصلاح 6e702c24 («min(0) prevents Zod rejection of 0») —
+        // صنف مجاني يُنشأ ثم يفشل تحريره! الآن min(0) + سقف العمود Decimal(10,2)
+        // (99999999.99) كنمط POST، وdiscountedPrice = 0 = مجاني 100% (r118-A3-P2-3).
+        price: z.number().min(0, 'السعر يجب أن يكون 0 أو أكثر').max(MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE).optional(),
+        discountedPrice: z.number().min(0).max(MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE).nullable().optional(),
         // round90-F3: image cap unified with POST (items/route.ts:72) — the old
         // 7,000,000 ceiling re-opened dx-2 #9 on the MOST-used edit path (ItemDialog
         // sends PUT): ~5MB base64 per item landed in MenuItem.image, which is part
@@ -120,6 +126,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 // so an anonymous probe never burns a bucket.
                 const { success: putAllowed } = await itemUpdateDbLimiter.check(`itemsput:${auth.userId}`);
                 if (!putAllowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
+
+                // r138 (W5-C3 — حكم تدقيق W5-A3 P3): حارس الاشتراك المنتهي — نفس
+                // نمط العائلة (owner/restaurants + owner/reviews + items POST): الأصل
+                // c661e707 حرس /api/owner/* فقط ولم يوثّق أي جولة إعفاءً مقصودًا
+                // لمسار items. الموظفون يتجاوزون داخل الحارس.
+                if (!(await isOwnerSubscriptionActive(auth))) {
+                        return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+                }
 
                 const { id } = await params;
                 const itemId = Number(id);

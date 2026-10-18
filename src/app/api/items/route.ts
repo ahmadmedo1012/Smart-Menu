@@ -4,11 +4,13 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, handleError, error, paginated, parsePagination, parseIdSearchParam } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/client-ip';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { mediaUrlError } from '@/lib/blob';
 import { PlanLimitError } from '@/lib/plan-limit-error';
+import { MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE } from '@/lib/constants';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { modifierGroupSchema, modifierGroupCreateInput } from '@/lib/modifier-schema';
 
@@ -41,8 +43,13 @@ const createSchema = z.object({
         nameAr: z.string().nullable().optional(),
         description: z.string().max(1000).optional(),
         descriptionAr: z.string().max(1000).optional(),
-        price: z.number().min(0, 'السعر يجب أن يكون 0 أو أكثر'),
-        discountedPrice: z.number().min(0).nullable().optional(),
+        // r138 (W5-C3 — حكم تدقيق W5-A3 P3): الحد الأعلى سقف العمود Decimal(10,2)
+        // نفسه — سعر يتجاوزه كان يسقط 500 ضجيج Prisma بدل 422 العربية. الصفر
+        // مسموح عمداً (حكم موثّق): إصلاح 6e702c24 «price validation min(0)
+        // prevents Zod rejection of 0» جعل الصنف المجاني قانونياً على الخادم،
+        // وdiscountedPrice = 0 = صنف مجاني 100% موثّق منذ r118-A3-P2-3.
+        price: z.number().min(0, 'السعر يجب أن يكون 0 أو أكثر').max(MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE),
+        discountedPrice: z.number().min(0).max(MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE).nullable().optional(),
         // round89-E4: image-compress (1200px / JPEG q0.7) lands at ~60-150KB
         // ≈ 80-200k base64 chars — 200k covers every honest payload while
         // killing the old 7M-char inflation (dx-2 #9, research from w1-a).
@@ -183,6 +190,18 @@ export async function POST(request: NextRequest) {
         try {
                 const auth = await requireAuth();
                 if (!auth.authorized) return error('غير مصرح', 401);
+
+                // r138 (W5-C3 — حكم تدقيق W5-A3 P3): حارس الاشتراك المنتهي. الأصل
+                // (c661e707) وضع الحارس على عائلة /api/owner/* فقط (مطاعم/
+                // مراجعات/تحرير المطعم) ولم يمسّ مسارات items المشتركة — لا أي
+                // توثيق لإعفاء مقصود في أي جولة، والمالك المنتهي كان يستطيع
+                // تعديل أسعار المنقّات (مسار مال!) بينما يُمنع من الرد على
+                // مراجعة. التعليق r121-P-5 في owner/menu/page.tsx كان يتوقع أصلًا
+                // ظهور 403 «اشتراكك منتهي» على مسار الحفظ هذا. الموظفون يتجاوزون
+                // (إصرار داخل isOwnerSubscriptionActive — نمط العائلة نفسه).
+                if (!(await isOwnerSubscriptionActive(auth))) {
+                        return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
+                }
 
                 const body = createSchema.parse(await request.json());
 

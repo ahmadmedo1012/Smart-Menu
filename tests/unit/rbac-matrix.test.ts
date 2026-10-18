@@ -75,6 +75,11 @@ vi.mock('@/lib/blob', () => ({
         deleteBlob: vi.fn(),
         mediaUrlError: vi.fn(() => null),
 }));
+// r138 (W5-C3): items PUT carries the owner expiry guard now (عائلة
+// /api/owner/*) — stubbed active for the whole matrix.
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
 
 // ── Personas (one user row per matrix column) ───────────────────────────
 

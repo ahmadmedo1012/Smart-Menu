@@ -373,16 +373,17 @@ export async function POST(request: NextRequest) {
                         : `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
                 derivedOrderNo = orderNo;
 
-                // Idempotency — duplicate orderNo returns minimal confirmation only
+                // Idempotency — duplicate orderNo returns the money-only echo
                 // (round-77: returned the FULL stored row incl. customer PII, letting
-                // callers probe/enumerate order numbers)
+                // callers probe/enumerate order numbers; r138 keeps that PII stance
+                // and adds ONLY the money itemization — see inertReplayBody).
                 if (body.idempotencyKey) {
                         const existing = await prisma.order.findUnique({
                                 where: { orderNo },
-                                select: { orderNo: true },
+                                select: REPLAY_MONEY_SELECT,
                         });
                         if (existing) {
-                                return success({ orderNo: existing.orderNo, already: true }, 200);
+                                return success({ ...existing, already: true }, 200);
                         }
                 }
 
@@ -461,6 +462,12 @@ export async function POST(request: NextRequest) {
                                         // r137: الرسوم تُضاف بعد المجموع الفرعي (خادميًا فقط —
                                         // feeTotal محسوبة من صف المطعم أعلاه، لا من العميل)
                                         total: recalcSubtotal - discount + feeTotal,
+                                        // r138 (W5-C3): الرسوم تُوثَّق على الصف — مستندات المالك
+                                        // (تحويل واتساب + نص النسخ + صفحة التفاصيل) تفرد سطرها
+                                        // فتجمع الأسطر إلى الإجمالي بصدق، وإيصال الزبون والمستندات
+                                        // تتفق بنيويًا. تُخزَّن دائمًا (0 = لا رسوم)؛ NULL يبقى
+                                        // حصة الصفوف القديمة فقط = «رسوم غير معروفة».
+                                        deliveryFee: feeTotal,
                                         restaurantId: body.restaurantId,
                                         items: {
                                                 create: body.items.map((i) => {
@@ -523,11 +530,49 @@ export async function POST(request: NextRequest) {
                 // الفريد الخاسر إلى handleError العام: 409 «هذا الاسم موجود مسبقاً»
                 // (رسالة اسم لطلب!). العقد الحقيقي للمسار (:225): تأكيد خامل 200
                 // {orderNo, already:true} — نلتقط P2002 على orderNo تحديدًا ونعيده.
+                // r138: نفس صدى المال المُفرد للفرع الأولي — الخاسر يعيد جلب الصف
+                // (المُلتزم الآن من الفائز) فيبني الزبون إيصاله من أسعار الصف المسجل
+                // لا من سلة محلية ربما تقادمت (P3 الإعادة الخاملة في تدقيق W5-A3).
                 if (derivedOrderNo !== undefined && isUniqueOrderNoViolation(e)) {
-                        return success({ orderNo: derivedOrderNo, already: true }, 200);
+                        return success(await inertReplayBody(derivedOrderNo), 200);
                 }
                 return handleError(e);
         }
+}
+
+/**
+ * r138 (W5-C3): صدى المال للإعادة الخاملة (already:true) — الأسعار من الصف
+ * المسجل، بلا أي PII (موقف round-77 محفوظ: لا customerName/Phone ولا
+ * الملاحظات ولا ملاحظات الأصناف — كلها نص ألّفه الزبون). العنصر الوحيد
+ * المُعاد هو حقيقة المال: الأسطر (اسم/كمية/سعر فعلي/لقطة الإضافات) +
+ * الإجمالي + الرسوم — كي لا يُعاد إرسال فاتورة بسلة متقادمة لطلب سعّره
+ * الخادم سعرًا مختلفًا (P3 في تدقيق W5-A3). الوصول مقيّد بمعرفة مفتاح
+ * الإحالة نفسه الذي ولّد الطلب (عشوائي من العميل) — ليس مساحة قابلة
+ * للتعداد عمليًا.
+ */
+const REPLAY_MONEY_SELECT = {
+        orderNo: true,
+        total: true,
+        discount: true,
+        deliveryFee: true,
+        pickupType: true,
+        items: {
+                select: {
+                        quantity: true,
+                        price: true,
+                        modifiersJson: true,
+                        item: { select: { name: true, nameAr: true } },
+                },
+        },
+} as const;
+
+/** جلب صدى المال للطلب — أو التأكيد الخامل الأدنى إن غاب الصف (سباق نادر). */
+async function inertReplayBody(orderNo: string) {
+        const row = await prisma.order.findUnique({
+                where: { orderNo },
+                select: REPLAY_MONEY_SELECT,
+        });
+        return row ? { ...row, already: true } : { orderNo, already: true };
 }
 
 /**

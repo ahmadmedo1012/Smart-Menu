@@ -81,8 +81,12 @@ export function ItemCoreFields({
                                         <Input
                                                 id={`${fId}-price`}
                                                 type="number"
-                                                value={form.price || ''}
-                                                onChange={(e) => patch({ price: Number(e.target.value) })}
+                                                /* r138 (W5-C3): NaN (لم يُدخل) يعرض فارغًا — 0 يعرض «0»:
+                                                   الصفر قانوني (صنف مجاني) والقيمة الفارغة تبقى مميزة. */
+                                                value={Number.isFinite(form.price) ? form.price : ''}
+                                                onChange={(e) =>
+                                                        patch({ price: e.target.value === '' ? Number.NaN : Number(e.target.value) })
+                                                }
                                                 className="mt-1.5"
                                                 min="0"
                                                 step="0.5"

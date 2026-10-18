@@ -51,6 +51,13 @@ vi.mock('@/lib/db', () => ({ prisma: prismaMock }));
 vi.mock('@/lib/audit', () => ({ logAudit: mockLogAudit }));
 vi.mock('@/lib/menu-cache', () => ({ revalidateMenu: mockRevalidate }));
 vi.mock('@/lib/blob', () => ({ mediaUrlError: mockMediaUrlError, deleteBlob: mockDeleteBlob }));
+// r138 (W5-C3): items POST/PUT now carry the owner subscription-expiry guard
+// (عائلة /api/owner/* c661e707) — stubbed like the rest of the family's tests
+// (نمط r118-B2/plan-limit.test.ts)، مع مُمسِك قابل للتغيير لخلايا المنتهي.
+const subGuardHolder = vi.hoisted(() => ({ active: true }));
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => subGuardHolder.active),
+}));
 // round91-F-B (F9): items/[id] PUT now carries a 20/min session-scoped
 // limiter (module scope) — stubbed like every other limited route.
 vi.mock('@/lib/rate-limit', () => ({
@@ -88,6 +95,7 @@ const EXISTING_ITEM = {
 
 beforeEach(() => {
         vi.clearAllMocks();
+        subGuardHolder.active = true;
         // round91-F-B: reset the in-tx re-read mock's persistent implementation
         // (clearAllMocks keeps implementations — a test that pins an
         // authoritative maxItems must not leak it into the next test).
@@ -260,5 +268,86 @@ describe('POST /api/items — maxItems re-read under FOR UPDATE (round91-F-B)', 
                 expect((txMock.restaurant.findUnique as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0]).toBeLessThan(
                         mockMenuItemCount.mock.invocationCallOrder[0]
                 );
+        });
+});
+
+// ── 5. r138 (W5-C3 — حكم تدقيق W5-A3 P3): سقف سعر الصنف ──────────────
+
+describe('POST/PUT price bounds — Decimal(10,2) ceiling, free=0 legal (r138)', () => {
+        it('POST price=0 → 201 (الصنف المجاني قانوني — حكم 6e702c24 الموثّق)', async () => {
+                const res = await postItem({ name: 'خبز مجاني', price: 0, categoryId: 3 });
+
+                expect(res.status).toBe(201);
+                expect(mockMenuItemCreate.mock.calls[0][0].data.price).toBe(0);
+        });
+
+        it('POST price فوق سقف العمود → 422 عربية عائلية (لا 500 ضجيج Prisma)', async () => {
+                const res = await postItem({ name: 'شاي', price: 100_000_000, categoryId: 3 });
+
+                expect(res.status).toBe(422);
+                const json = await res.json();
+                expect(json.error).toBe('بيانات غير صالحة');
+                expect(json.details[0]).toContain('السعر كبير جداً');
+                expect(mockTransaction).not.toHaveBeenCalled();
+        });
+
+        it('PUT price=0 → 200 (كان positive() يرفض تحرير الصنف المجاني الذي أنشأه POST)', async () => {
+                const res = await putItem(901, { price: 0 });
+
+                expect(res.status).toBe(200);
+                expect(mockMenuItemUpdate.mock.calls[0][0].data.price).toBe(0);
+        });
+
+        it('PUT price فوق السقف → 422 العربية قبل أي قراءة/كتابة', async () => {
+                const res = await putItem(901, { price: 999_999_999 });
+
+                expect(res.status).toBe(422);
+                const json = await res.json();
+                expect(json.details[0]).toContain('السعر كبير جداً');
+                expect(mockMenuItemFindUnique).not.toHaveBeenCalled();
+                expect(mockMenuItemUpdate).not.toHaveBeenCalled();
+        });
+
+        it('PUT discountedPrice=0 → 200 (مجاني 100% — عقد r118-A3-P2-3 موسوع لPUT)', async () => {
+                const res = await putItem(901, { discountedPrice: 0 });
+
+                expect(res.status).toBe(200);
+                expect(mockMenuItemUpdate.mock.calls[0][0].data.discountedPrice).toBe(0);
+        });
+});
+
+// ── 6. r138 (W5-C3 — حكم تدقيق W5-A3 P3): حارس الاشتراك المنتهي ───────
+
+describe('items POST/PUT — حارس الاشتراك المنتهي (r138 — عائلة /api/owner/*)', () => {
+        it('مالك منتهي POST → 403 «اشتراكك منتهي. جدّد اشتراكك للمتابعة.» وصفر كتابات', async () => {
+                subGuardHolder.active = false;
+
+                const res = await postItem({ name: 'شاي', price: 3, categoryId: 3 });
+
+                expect(res.status).toBe(403);
+                const json = await res.json();
+                expect(json.error).toBe('اشتراكك منتهي. جدّد اشتراكك للمتابعة.');
+                expect(mockCategoryFindUnique).not.toHaveBeenCalled();
+                expect(mockTransaction).not.toHaveBeenCalled();
+                expect(mockMenuItemCreate).not.toHaveBeenCalled();
+        });
+
+        it('مالك منتهي PUT → 403 قبل جلب الصف أو تحديثه', async () => {
+                subGuardHolder.active = false;
+
+                const res = await putItem(901, { price: 4 });
+
+                expect(res.status).toBe(403);
+                const json = await res.json();
+                expect(json.error).toBe('اشتراكك منتهي. جدّد اشتراكك للمتابعة.');
+                expect(mockMenuItemFindUnique).not.toHaveBeenCalled();
+                expect(mockMenuItemUpdate).not.toHaveBeenCalled();
+        });
+
+        it('المالك النشط يمرّ (السلوك القائم لا يتغير)', async () => {
+                const res = await putItem(901, { price: 4 });
+
+                expect(res.status).toBe(200);
+                expect(mockMenuItemUpdate).toHaveBeenCalledTimes(1);
         });
 });

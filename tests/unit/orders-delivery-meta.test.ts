@@ -232,3 +232,61 @@ describe('POST /api/orders — الميزة مطفأة = توافق خلفي ب�
                 expect(createArg.data.total).toBe(10);
         });
 });
+
+// ── r138 (W5-C3): توثيق الرسوم على صف الطلب (صدق مستندات المالك) ────────
+
+describe('POST /api/orders — الرسوم تُخزَّن في Order.deliveryFee (r138)', () => {
+        it('توصيل + رسوم 5 → deliveryFee = 5 (الثابت: total = subtotal - discount + fee)', async () => {
+                mockRestaurantFindUnique.mockResolvedValue({
+                        ...RESTAURANT_OFF,
+                        deliveryFee: 5,
+                        minOrder: null,
+                });
+
+                const res = await callPost(baseBody({ pickupType: 'delivery', items: [{ itemId: 1, quantity: 3 }] }));
+
+                expect(res.status).toBe(201);
+                const createArg = txMock.order.create.mock.calls[0][0];
+                expect(createArg.data.deliveryFee).toBe(5);
+                expect(createArg.data.subtotal).toBe(30);
+                expect(createArg.data.total).toBe(35); // 30 - 0 + 5 — الثابت صادق
+        });
+
+        it('سفري → deliveryFee = 0 (قيمة معروفة: لا رسوم — ليست NULL)', async () => {
+                mockRestaurantFindUnique.mockResolvedValue({
+                        ...RESTAURANT_OFF,
+                        deliveryFee: 5,
+                        minOrder: null,
+                });
+
+                const res = await callPost(baseBody({ pickupType: 'takeaway', items: [{ itemId: 1, quantity: 1 }] }));
+
+                expect(res.status).toBe(201);
+                const createArg = txMock.order.create.mock.calls[0][0];
+                expect(createArg.data.deliveryFee).toBe(0);
+                expect(createArg.data.total).toBe(10);
+        });
+
+        it('داخل المكان (الافتراضي) → deliveryFee = 0 أيضًا', async () => {
+                mockRestaurantFindUnique.mockResolvedValue({
+                        ...RESTAURANT_OFF,
+                        deliveryFee: 5,
+                        minOrder: null,
+                });
+
+                const res = await callPost(baseBody({ items: [{ itemId: 1, quantity: 1 }] }));
+
+                expect(res.status).toBe(201);
+                const createArg = txMock.order.create.mock.calls[0][0];
+                expect(createArg.data.deliveryFee).toBe(0);
+        });
+
+        it('الميزة مطفأة + توصيل → deliveryFee = 0 (معروفة لا مجهولة)', async () => {
+                const res = await callPost(baseBody({ pickupType: 'delivery', items: [{ itemId: 1, quantity: 1 }] }));
+
+                expect(res.status).toBe(201);
+                const createArg = txMock.order.create.mock.calls[0][0];
+                expect(createArg.data.deliveryFee).toBe(0);
+                expect(createArg.data.total).toBe(10);
+        });
+});

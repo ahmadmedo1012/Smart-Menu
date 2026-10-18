@@ -30,6 +30,10 @@ export interface OrderDetailData {
         status: string;
         subtotal: number;
         total: number;
+        // r138 (W5-C3): الرسوم المسجلة على الصف (Decimal يسلسل سلسلة عبر JSON،
+        // أو null لصفوف ما قبل r138) — تصل نسخة الواتساب/الملخص عبر هذا
+        // الحقل. العرض يقيّمها بـ Number() مع حارس null (لا قيمة مُختَرعة).
+        deliveryFee?: number | string | null;
         createdAt: string;
         items: {
                 id: number;

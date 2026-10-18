@@ -55,6 +55,10 @@ vi.mock('@/lib/auth', () => ({
         requireAuth: () => Promise.resolve(authHolder.value),
         requirePermission: vi.fn(async () => ({ authorized: true, role: 'owner', userId: 1 })),
 }));
+// r138 (W5-C3): items PUT carries the owner expiry guard now — always active here.
+vi.mock('@/lib/subscription-guard', () => ({
+        isOwnerSubscriptionActive: vi.fn(async () => true),
+}));
 vi.mock('@/lib/list-counts', () => ({ orderItemCountByOrder: vi.fn(async () => new Map()) }));
 vi.mock('@/lib/audit', () => ({ logAudit: mockLogAudit }));
 vi.mock('@/lib/menu-cache', () => ({ revalidateMenu: mockRevalidate }));

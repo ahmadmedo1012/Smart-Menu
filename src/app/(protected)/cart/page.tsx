@@ -280,6 +280,11 @@ export default function CartPage() {
                 let serverEcho: {
                         orderNo?: string;
                         total?: number | string;
+                        /* r138 (W5-C3): الرسوم التي طبّقها الخادم فعلاً (الصف الجديد 201 أو
+                           صدى الإعادة الخاملة المُفرد) — يُفضَّل على ميتا العميل لسطر
+                           رسوم الإيصال كي لا يظل سطرًا معلوماتيًا متقادمًا (P3 تدقيق
+                           W5-A3: ميتا الرسوم تُجلب عند تحميل الصفحة وربما تغيّرت). */
+                        deliveryFee?: number | string | null;
                         notes?: string;
                         customerName?: string;
                         customerPhone?: string | null;
@@ -393,8 +398,11 @@ export default function CartPage() {
                 // r119-S2-P1: prefer the SERVER's re-priced echo (names, per-line
                 // prices incl. discountedPrice + modifier snapshot deltas, and the
                 // stored notes — which already embed the delivery address line from
-                // composedNotes). Falls back to the cart ONLY for the inert idempotent
-                // replay ({orderNo, already:true}) whose echo carries no itemization.
+                // composedNotes). r138 (W5-C3): the inert idempotent replay
+                // ({already:true}) now echoes the RECORDED row's money itemization
+                // (prices/total/deliveryFee — no PII by the round-77 stance), so the
+                // replay receipt reads DB prices too; the cart fallback below remains
+                // only for a server that echoes no items at all (legacy/edge).
                 const serverItems = serverEcho?.items ?? [];
                 const receipt = serverItems.length
                         ? buildReceiptMessage({
@@ -429,11 +437,21 @@ export default function CartPage() {
                                   }),
                                   totalPrice: Number(serverEcho?.total ?? 0),
                                   /* r137: سطر الرسوم يفسّر الإجمالي الخادمي (الإجمالي
-                                     شاملها — الخادم أضافها في POST /api/orders). */
-                                  deliveryFee: deliveryFeeAmount,
-                                  notes: serverEcho?.notes || undefined,
-                                  customerName: serverEcho?.customerName?.trim() || undefined,
-                                  customerPhone: serverEcho?.customerPhone?.trim() || undefined,
+                                     شاملها — الخادم أضافها في POST /api/orders).
+                                     r138 (W5-C3): يُفضّل صدى الخادم للرسوم — هي التي
+                                     وُضعت فعلاً في الإجمالي؛ ميتا العميل (التي جُلبت
+                                     عند تحميل الصفحة) تبقى احتياطًا فقط (صف قديم بلا
+                                     صدى، أو إعادة لطلب ما قبل r138 حيث NULL). */
+                                  deliveryFee:
+                                          serverEcho?.deliveryFee != null
+                                                  ? Number(serverEcho.deliveryFee)
+                                                  : deliveryFeeAmount,
+                                  notes: serverEcho?.notes || composedNotes || undefined,
+                                  /* r138: صدى الإعادة الخاملة بلا PII عمداً (موقف round-77) —
+                                     هوية الزبون تُكمَّل من حالته المحلية (بياناته هو)،
+                                     فلا يفقد إيصال الإعادة كتلة العميل ولا العنوان. */
+                                  customerName: serverEcho?.customerName?.trim() || customerName.trim() || undefined,
+                                  customerPhone: serverEcho?.customerPhone?.trim() || customerPhone.trim() || undefined,
                                   pickupType: serverEcho?.pickupType || pickupType,
                           })
                         : buildReceiptMessage({

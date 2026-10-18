@@ -313,31 +313,70 @@ describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
         });
 });
 
-describe('POST /api/orders — idempotency (round-77)', () => {
-        it('duplicate idempotencyKey → 200 minimal confirmation {orderNo, already} with NO PII and no create', async () => {
-                mockOrderFindUnique.mockResolvedValue({ orderNo: 'ORD-ABC123' });
+describe('POST /api/orders — idempotency (round-77 + r138)', () => {
+        it('duplicate idempotencyKey → 200 money-only echo from the RECORDED row, NO PII, no create', async () => {
+                // r138 (W5-C3): الإعادة الخاملة تعيد أسعار الصف المسجل (لا أسعار
+                // السلة المتقادمة) — مع بقاء موقف round-77: صفر PII
+                // (customerName/Phone/notes كلها غائبة عن الصدى).
+                mockOrderFindUnique.mockResolvedValue({
+                        orderNo: 'ORD-ABC123',
+                        total: 25,
+                        discount: 0,
+                        deliveryFee: 5,
+                        pickupType: 'delivery',
+                        items: [
+                                {
+                                        quantity: 2,
+                                        price: 10,
+                                        modifiersJson: '[]',
+                                        item: { name: 'Latte', nameAr: 'لاتيه' },
+                                },
+                        ],
+                });
 
                 const res = await callPost({ ...tamperedBody, idempotencyKey: 'abc123' });
 
                 expect(res.status).toBe(200);
                 const json = await res.json();
                 expect(json.success).toBe(true);
-                expect(json.data).toEqual({ orderNo: 'ORD-ABC123', already: true });
-                // minimal confirmation only — customer PII must NOT be echoed back
+                expect(json.data.orderNo).toBe('ORD-ABC123');
+                expect(json.data.already).toBe(true);
+                // money truth: the DB row's itemization + totals, never the
+                // client's tampered 0.01-per-line cart
+                expect(json.data.items).toHaveLength(1);
+                expect(json.data.items[0].price).toBe(10);
+                expect(json.data.items[0].quantity).toBe(2);
+                expect(json.data.total).toBe(25);
+                expect(json.data.deliveryFee).toBe(5);
+                expect(json.data.pickupType).toBe('delivery');
+                // the round-77 PII stance is intact — customer-authored fields
+                // (name/phone/order notes/item notes) are never echoed back
                 expect(json.data).not.toHaveProperty('customerName');
                 expect(json.data).not.toHaveProperty('customerPhone');
+                expect(json.data).not.toHaveProperty('notes');
+                expect(json.data.items[0]).not.toHaveProperty('notes');
                 // nothing was created / no transaction ran
                 expect(mockTransaction).not.toHaveBeenCalled();
                 expect(mockRestaurantFindUnique).not.toHaveBeenCalled();
         });
 
-        it('idempotency lookup selects orderNo only (no PII columns read)', async () => {
+        it('idempotency lookup reads the money select — no PII columns', async () => {
                 await callPost({ ...tamperedBody, idempotencyKey: 'abc123' });
 
-                expect(mockOrderFindUnique).toHaveBeenCalledWith({
-                        where: { orderNo: 'ORD-ABC123' },
-                        select: { orderNo: true },
-                });
+                const callArg = mockOrderFindUnique.mock.calls[0][0] as {
+                        where: { orderNo: string };
+                        select: Record<string, unknown>;
+                };
+                expect(callArg.where).toEqual({ orderNo: 'ORD-ABC123' });
+                // the money itemization columns are read...
+                expect(callArg.select.orderNo).toBe(true);
+                expect(callArg.select.total).toBe(true);
+                expect(callArg.select.deliveryFee).toBe(true);
+                expect(callArg.select.items).toBeDefined();
+                // ...and no PII column is (round-77 stance preserved by r138)
+                expect(callArg.select).not.toHaveProperty('customerName');
+                expect(callArg.select).not.toHaveProperty('customerPhone');
+                expect(callArg.select).not.toHaveProperty('notes');
         });
 
         it('orderNo is derived from the uppercased idempotencyKey', async () => {
