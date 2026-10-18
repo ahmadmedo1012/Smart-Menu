@@ -70,17 +70,31 @@
   --sm-h1:         clamp(2.75rem, 8vw, 7.5rem);
   --sm-h1-lh:      1.14;
   /* P12-2b «جزيرة المطبخ» — the display face (self-hosted Baloo Bhaijaan 2,
-     /fonts/fonts.css) + sticker pair + the scene's void/day world colors
-     (the three.js diorama reads these live). */
+     /fonts/fonts.css) + the sticker pair. P21-W3-E: the diorama's
+     plum/day sky tokens left with the canvas; the window's world colors
+     are the night-kitchen family below (the #241811 ground). */
   --sm-display:    'Baloo Bhaijaan 2', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --sm-sticker-fill: #FFFDF7;   /* comic cream fill */
   --sm-sticker-ink:  #2B2014;   /* thick dark outline */
   --sm-sticker-shadow: #C2452D; /* offset sticker shadow */
   --sm-sticker-accent-ink: #FBF7F0; /* text on the ember sticker word */
-  --sm-void-1: #20122E;   /* deep plum void — night stage sky top */
-  --sm-void-2: #2A1840;   /* plum void — night stage sky bottom */
-  --sm-scene-day-1: #F6EEDD; /* cream daylight — light stage sky top */
-  --sm-scene-day-2: #E7D9BC; /* cream daylight — light stage sky bottom */
+  /* P21-W3-E honest re-pin: the window's ground is the product's OWN
+     «مطبخ ليلي دافئ» warm-night-kitchen family (espresso night #241811,
+     warm step #2B1E15) — the Banzai void translated to Smart-Menu's
+     kitchen, stable across stages (the night stage deepens the window
+     via the §20.7 raw-literal flip). */
+  --sm-void-1: #241811;   /* espresso night — the window's ground */
+  --sm-void-2: #2B1E15;   /* warm night step — the floor behind the table */
+  /* P21-W3-E: the night-kitchen illustration's object palette (paints
+     via the §20.1k classes — var() cannot ride SVG fill attributes).
+     --sm-amber is the product's sparing amber (DESIGN.md) doing lantern
+     brass + dates; the ember accents ride the stage-flipping ember
+     tokens so the still-life turns luminous on the night stage. */
+  --sm-ill-cream:   #EFE3CB;  /* lit object cream (dallah, cups, plate) */
+  --sm-ill-wood:    #53341D;  /* lantern-lit walnut table */
+  --sm-ill-wood-hi: #6B4224;  /* table edge + plank grain */
+  --sm-ill-ink:     #241811;  /* heavy object outlines */
+  --sm-amber:       #B7791F;  /* lantern brass + dates (sparing amber) */
   --sm-t-fast:      var(--t-fast);    /* 160ms */
   --sm-t-base:      var(--t-base);    /* 240ms */
   --sm-t-slow:      var(--t-slow);    /* 380ms */
@@ -739,10 +753,12 @@
   70%, 100% { transform: translateY(260%); }
 }
 
-/* ── 6.1 · the hero composition — the restaurant window + printed card ─ */
-/* P21-B: the composition keeps its exact geometry (no CLS, no reflow) —
-   only the verbs changed. The window (§20.1) holds the ambience
-   photograph; the card rests on its corner in STATIC tension. */
+/* ── 6.1 · the hero composition — the night-kitchen window + printed card ─ */
+/* P21-W3-E: the composition keeps its exact geometry (no CLS, no reflow) —
+   the window (§20.1) holds the AUTHORED night-kitchen SVG still-life
+   (NightKitchenScene); the card rests on the illustrated table's corner
+   in STATIC tension with a tightened CONTACT shadow (the table's wood
+   reads through around it — the card lies ON the scene, not beside it). */
 .landing .ln-hero-visual {
   position: relative;
   z-index: 0;
@@ -756,15 +772,19 @@
   inline-size: 100%;
   aspect-ratio: 4 / 5; /* the window's portrait stage */
 }
-/* P21-B: the P12-2b steam wisps are RETIRED — floating vapor was
-   directionless motion (owner rejection); the ambience photo carries its
-   own candle warmth and the @keyframes ln-steam-rise block is gone. */
+/* P21-B: the P12-2b steam wisps are RETIRED as CSS verbs — floating
+   vapor was directionless motion (owner rejection); the P21-W3-E
+   illustration authors FROZEN steam curves inside the SVG instead
+   (static tension), and the @keyframes ln-steam-rise block stays gone. */
 
 /* the printed menu card — REAL items, printed-menu dotted leaders, a
    static 3D CSS tilt (perspective, no JS, no hover jitter). P21-B: the
    7s breathing float is RETIRED (owner rejection: causeless bobbing) —
    the card rests on the window corner in static tension; the only motion
-   left is the one-shot entrance (data-intro-seen drops it entirely). */
+   left is the one-shot entrance (data-intro-seen drops it entirely).
+   P21-W3-E: the shadow tightens into a CONTACT shadow — the card lies
+   ON the illustrated table, so the grounding is near and dark, not a
+   distant floating softbox. */
 .landing .ln-hero-card {
   position: absolute;
   inset-inline-end: 0;
@@ -774,7 +794,7 @@
   border-radius: var(--r-2xl);
   background: var(--sm-card);
   border: 1px solid var(--sm-line);
-  box-shadow: 0 24px 44px -20px rgb(43 32 20 / 0.38), 0 2px 6px rgb(43 32 20 / 0.10);
+  box-shadow: 0 14px 28px -14px rgb(15 9 5 / 0.55), 0 2px 5px rgb(15 9 5 / 0.35);
   transform: perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg);
   transform-origin: bottom center;
   z-index: 4;
@@ -1973,20 +1993,27 @@ html.dark:has(.landing) {
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   20 · P21-B «نافذة المطعم» — the hero window (the Banzai re-read)
+   20 · P21-W3-E «مطبخ الليل» — the hero window (the Banzai re-read, act 2)
    ─────────────────────────────────────────────────────────────────────
    P12-2b built a three.js "kitchen island" diorama here and called it
    the Banzai direction — a comic toy world (idle bob, drag-spin,
    floating food props, pin popping, twinkle). The owner rejected it.
-   P21-B re-reads the reference (VLM-BANZAI.md / GAP-SMARTMENU.md,
-   p21-research): the diorama is RETIRED; what ships is Banzai's actual
-   grammar — ONE framed "window into the restaurant world" (the real
-   ambience photograph, self-lit by its candles), a corner caption chip
-   as the single real link, a vertical kanban-style mono tag, the comic
-   sticker lockup WITHOUT its sparkles, and STATIC TENSION: the only
-   motion left is one-shot transform-only entrances (RM-off,
+   P21-B re-read the reference and staged a photographic window (the
+   real ambience photo, self-lit) — the grammar was right, but the stock
+   photographs were the remaining quality concern: a chandelier
+   steakhouse with zero Arabic-café semiotics and a light temperature
+   that could never sit beside an illustrated world.
+   P21-W3-E authors the window instead (NightKitchenScene.tsx): the
+   Banzai grammar translated to Smart-Menu's own identity — the dark
+   warm night-kitchen ground, a lantern-lit walnut table with a dallah
+   + finjan + dates (food-craft texture, flat screen-print fills, heavy
+   ink outlines, halftone night air, zero gradients), the lantern as
+   the scene's key light, BOLD VERTICAL DISPLAY signage (the kanban),
+   a corner caption chip as the single real link, and STATIC TENSION:
+   the only motion left is one-shot transform-only entrances (RM-off,
    intro-seen-calm). Real content, real routes, RTL, theme flip and RM
-   switches all preserved.
+   switches all preserved — and no image bytes: the window is
+   server-rendered vector, deterministic by construction.
    ═════════════════════════════════════════════════════════════════════ */
 
 /* ── 20.1 · the restaurant window ──────────────────────────────────── */
@@ -1999,45 +2026,66 @@ html.dark:has(.landing) {
   overflow: hidden;
   border: 1px solid var(--sm-line);
   box-shadow: 0 36px 64px -34px rgb(43 32 20 / 0.45);
-  background: var(--sm-void-1); /* pre-photo floor (token) — dark while the priority image streams */
+  background: var(--sm-void-1); /* the night-kitchen ground (token) — paints before anything streams: the window is server-rendered vector, no image bytes */
   animation: ln-window-in var(--sm-t-slow) var(--sm-ease-out) both;
 }
 @keyframes ln-window-in {
-  /* transform-only — no opacity gate, the LCP photograph paints when it
-     arrives; the settle is a 14px drift home (Banzai's 10–20px reveal) */
+  /* transform-only — no opacity gate, the LCP story is pure markup now
+     (h1 + vector paint in the first paint); the settle is a 14px drift
+     home (Banzai's 10–20px reveal) */
   from { transform: translateY(14px) scale(0.985); }
   to { transform: translateY(0) scale(1); }
 }
 .landing[data-intro-seen='true'] .ln-scene { animation: none; }
-.landing .ln-scene-photo-img {
-  object-fit: cover;
-}
-/* the veil — grounding scrim at the base + a soft top fade so the chip
-   and the kanban read over the photo. It is NEVER a light source: the
-   photo lights itself (its candles are the scene's key — Banzai's
-   sign-as-key-light principle, GAP-SMARTMENU #2). */
-.landing .ln-scene-veil {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background:
-    linear-gradient(to top, rgb(24 15 8 / 0.78), rgb(24 15 8 / 0) 48%),
-    linear-gradient(to bottom, rgb(24 15 8 / 0.42), rgb(24 15 8 / 0) 30%);
-}
-/* the kanban homage — Banzai's vertical signage, translated to a
-   rotated Arabic mono tag riding the window edge (aria-hidden decor). */
+/* P21-W3-E: the photo veil is RETIRED — the illustration authors its own
+   dark ground and the chip/kanban sit directly on it (the chip carries
+   its own glass; the kanban is cream on espresso, ~11:1). No CSS scrim,
+   one gradient site fewer. */
+
+/* the kanban homage — Banzai's vertical signage, translated to BOLD
+   VERTICAL DISPLAY type riding the window edge (aria-hidden decor;
+   Arabic joins — never tracking). */
 .landing .ln-scene-kanban {
   position: absolute;
-  inset-inline-end: 12px;
-  inset-block-start: 18px;
+  inset-inline-end: 14px;
+  inset-block-start: 20px;
   z-index: 2;
   writing-mode: vertical-rl;
-  font-size: 11px;
+  font-family: var(--sm-display);
+  font-size: 15px;
+  font-weight: 700;
   letter-spacing: 0; /* Arabic joins — never tracking */
-  color: rgb(251 247 240 / 0.85);
+  color: rgb(251 247 240 / 0.92);
   pointer-events: none;
 }
+
+/* ── 20.1k · the night-kitchen illustration's paint classes ────────── */
+/* var() cannot ride SVG fill/stroke ATTRIBUTES — the illustration
+   elements carry these classes instead, so every color stays a token
+   (DESIGN.md: tokens only, zero raw hex in components) and the
+   stage-flipping ember accents reach the still-life automatically
+   (the night stage turns the lantern's ember-deep brass luminous). */
+.landing .lnk-scene,
+.landing .lnk-spot {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+.landing .lnk-fill-cream { fill: var(--sm-ill-cream); }
+.landing .lnk-fill-wood { fill: var(--sm-ill-wood); }
+.landing .lnk-fill-wood-hi { fill: var(--sm-ill-wood-hi); }
+.landing .lnk-fill-ink { fill: var(--sm-ill-ink); }
+.landing .lnk-fill-amber { fill: var(--sm-amber); }
+.landing .lnk-fill-ember-deep { fill: var(--sm-ember-deep); }
+.landing .lnk-fill-glow { fill: var(--sm-ember-bright); }
+.landing .lnk-fill-glass { fill: var(--sm-ember-bright); }
+.landing .lnk-fill-void-2 { fill: var(--sm-void-2); }
+.landing .lnk-fill-plate-well { fill: var(--sm-ember-soft); }
+.landing .lnk-stroke-ink { stroke: var(--sm-ill-ink); }
+.landing .lnk-stroke-cream { stroke: var(--sm-ill-cream); }
+.landing .lnk-stroke-wood-hi { stroke: var(--sm-ill-wood-hi); }
+.landing .lnk-stroke-glow { stroke: var(--sm-ember-bright); }
+.landing .lnk-stroke-ember { stroke: var(--sm-ember); }
 /* ── 20.2 · the caption chip — the window's ONE real link (the live
    demo menu): 44px hit floor, cream-on-espresso glass, hover wash. The
    three comic hotspot pins are retired with the diorama; /subscribe and
@@ -2090,17 +2138,20 @@ html.dark:has(.landing) {
    were directionless decoration (owner rejection); the lockup reads
    clean and the .ln-spark rules + ln-sparkle keyframes are gone. */
 
-/* ── 20.4 · the printed card's photo header — the appetite close-up
-   (the detail shot; the window above holds the world shot — ONE
-   photographic family, no toon/photo clash, GAP-SMARTMENU #8) */
-.landing .ln-hero-card-photo {
+/* ── 20.4 · the printed card's spot header — «اللقمة الأولى» (P21-W3-E):
+   the photo close-up is retired with the photographic window; the
+   appetite detail is now FirstBiteSpot, the same authored illustration
+   family as the window behind it (ONE language — no toon/photo clash),
+   on a warm ember-soft well. */
+.landing .ln-hero-card-spot {
   position: relative;
   aspect-ratio: 16 / 10;
   border-radius: var(--r-xl);
   overflow: hidden;
   margin-block-end: var(--sp-3);
+  background: var(--sm-ember-soft);
+  border: 1px solid var(--sm-line-soft);
 }
-.landing .ln-hero-card-photo-img { object-fit: cover; }
 
 /* ── 20.5 · «المنيو الحي» floating dish cards (S5) ──────────────────── */
 .landing .ln-menu-list {
@@ -2194,12 +2245,20 @@ html.dark .landing .ln-hero-title em {
   color: var(--sm-sticker-accent-ink); /* cocoa on luminous terracotta · 5.8:1 */
 }
 html.dark .landing .ln-scene {
+  /* P21-W3-E: the window steps one shade DEEPER than the night ground
+     (#190F0A — the espresso back-cover family, the §19 inversion
+     pattern) so the illustrated window still reads as a window into the
+     kitchen on the cocoa page. Raw-literal twin of the §19 raw surfaces
+     (the token flip can't reach it: --sm-void-1 is stable-by-design for
+     the SVG's own shapes). */
+  background: #190F0A;
   box-shadow: 0 36px 64px -34px rgb(0 0 0 / 0.6);
 }
 
-/* ── 20.8 · responsive — the window widens to 4/3 (the photo reads at
-   phone width), the card flows beneath as a flat row, the chip keeps its
-   corner. The P12-2b pin-stack rows are retired with the pins. ─────── */
+/* ── 20.8 · responsive — the window widens to 4/3 at phone width (the
+   still-life's YMax slice anchors the table; the crop takes the sky),
+   the card flows beneath as a flat row, the chip keeps its corner. The
+   P12-2b pin-stack rows are retired with the pins. ─────────────────── */
 @media (max-width: 640px) {
   .landing .ln-scene { aspect-ratio: 4 / 3; }
   .landing .ln-hero-visual { max-inline-size: 100%; }

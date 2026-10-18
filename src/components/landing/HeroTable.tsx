@@ -1,25 +1,30 @@
-import Image from 'next/image';
 import { DEMO_MENU, DEMO_MENU_URL } from './landing-data';
+import { NightKitchenScene, FirstBiteSpot } from './NightKitchenScene';
 
-/* P21-B — «نافذة المطعم»: the Banzai-informed hero staging. The P12-2b
- * three.js kitchen-island diorama is RETIRED (owner rejection: causeless
- * idle bob, drag-spin, floating food props — HERO-ORIGIN.md in
- * p21-research). What replaces it is the reference's actual grammar:
- *   · ONE framed "window into the restaurant world" (Banzai's rounded
- *     visual window) holding the REAL ambience photograph — the scene
- *     lights itself (candle glow, bokeh), exactly like Banzai's
- *     sign-as-key-light staging. No synthetic lights, no fake glow.
- *   · static tension: the composition is FROZEN. No bob, no float, no
- *     steam loops, no twinkle. Motion = one 14px ease-out entrance
- *     (RM-off, intro-seen-calm) and nothing else.
- *   · the kanban homage: a small vertical mono label on the window edge
- *     (Banzai's vertical signage → Arabic rotated mono tag).
- *   · ONE caption chip on the window (Banzai's corner branding) — a REAL
- *     link to the live demo menu. The three comic hotspot pins retire;
- *     /subscribe + /pricing remain live in the header + hero CTAs.
- *   · the leaning menu card stays exactly where it was (real rows,
- *     dotted leaders, RTL money) minus the 7s float — it now READS as a
- *     printed menu resting on the photo's corner (paper-on-world depth).
+/* P21-W3-E — «مطبخ الليل»: the authored night-kitchen illustration.
+ *
+ * P21-B had translated the Banzai grammar into a photographic window
+ * (the real ambience photo + the dish close-up). The stock photographs
+ * were the remaining quality concern: they read as a generic chandelier
+ * steakhouse — zero Arabic-café semiotics, two clashing light
+ * temperatures, and a photo family that could never sit beside an
+ * illustrated world. W3-E retires BOTH hero photos and authors the
+ * window as an inline SVG still-life instead (NightKitchenScene — see
+ * its header comment for the full art-direction contract):
+ *   · the window paints the product's OWN warm night kitchen (#241811
+ *     family): lantern-lit walnut table, dallah + finjan + dates, frozen
+ *     steam, halftone night air — flat screen-print fills, heavy ink
+ *     outlines, zero gradients, zero loops;
+ *   · the printed menu card keeps its exact geometry (real rows, dotted
+ *     leaders, RTL money) and its header now carries FirstBiteSpot — the
+ *     same illustration language, so the hero reads as ONE authored
+ *     composition with the card resting on the illustrated table;
+ *   · the kanban homage upgrades to BOLD VERTICAL DISPLAY type
+ *     (Banzai's signage energy — see §20.1);
+ *   · ONE caption chip stays (a REAL link to the live demo menu);
+ *   · no image bytes at all on the hero — the LCP story is pure
+ *     server-rendered markup (the h1 paints instantly, the window is
+ *     vector in the same paint).
  * Server component: no state, no effects, no 'use client'.
  */
 
@@ -31,22 +36,13 @@ export function HeroTable() {
   return (
     <div className="ln-hero-visual">
       <div className="ln-hero-stage">
-        {/* the restaurant window — the page's ONE priority photograph */}
+        {/* the restaurant window — the authored night-kitchen scene */}
         <figure className="ln-scene">
-          <Image
-            src="/images/culinary/ambience.webp"
-            alt="مائدة مقهى الواحة مساءً — شموع وأقداح على خشب دافئ، الأجواء نفسها التي يورّثها المنيو"
-            fill
-            priority
-            sizes="(max-width: 1024px) 92vw, 42vw"
-            className="ln-scene-photo-img"
-          />
-          {/* grounding scrim + top fade — legibility for the chip and the
-              kanban, never a light source (the photo lights itself) */}
-          <span className="ln-scene-veil" aria-hidden="true" />
+          <NightKitchenScene />
 
-          {/* kanban homage — vertical mono tag on the window edge */}
-          <span className="ln-scene-kanban ln-mono" aria-hidden="true">
+          {/* kanban homage — BOLD vertical display tag on the window edge
+              (Banzai's signage → Arabic vertical display type) */}
+          <span className="ln-scene-kanban" aria-hidden="true">
             مقهى الواحة · مساءً
           </span>
 
@@ -57,18 +53,13 @@ export function HeroTable() {
           </a>
         </figure>
 
-        {/* the printed menu card resting on the window corner — real
+        {/* the printed menu card resting on the table's corner — real
             items, real prices, printed-menu dotted leaders; the appetite
-            close-up (hero-dish) rides its header as the detail shot */}
+            spot (FirstBiteSpot) rides its header in the same authored
+            illustration family as the window behind it */}
         <aside className="ln-hero-card" aria-label="نموذج من منيو مقهى الواحة الحي">
-          <div className="ln-hero-card-photo">
-            <Image
-              src="/images/culinary/hero-dish.webp"
-              alt="طبق رئيسي مشوي على مائدة دافئة بإضاءة الشموع — اللقمة الأولى قبل أن تُقلب صفحة المنيو"
-              fill
-              sizes="(max-width: 1024px) 88vw, 320px"
-              className="ln-hero-card-photo-img"
-            />
+          <div className="ln-hero-card-spot">
+            <FirstBiteSpot />
           </div>
           <p className="ln-hero-card-kicker ln-mono">مقهى الواحة · منيو حي</p>
           <ul className="ln-hero-card-rows">

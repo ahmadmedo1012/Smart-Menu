@@ -31,9 +31,10 @@ async function getPublicStats(): Promise<PublicStats | null> {
 }
 
 export default async function Home() {
-        /* r142 «المائدة»: the hero paints an instant inline h1 (LCP doctrine)
-           + the server-rendered menu card; the dish preload rides the
-           component's priority image. No extra preload link is needed. */
+        /* r142 «المائدة» + P21-W3-E: the hero paints an instant inline h1
+           (LCP doctrine) + the server-rendered menu card; the window is
+           authored inline SVG (NightKitchenScene) — zero image bytes, so
+           no preload link and no priority image exist on this route. */
 
         const stats = await getPublicStats();
 

@@ -26,10 +26,11 @@ import { CountUp } from '@/components/ui/CountUp';
 import { RevealCssClass } from '@/hooks/useReveal';
 import { fetchPublicStats, type PublicStats } from './landing-data';
 
-/* P21-B: the P12-2b three.js kitchen-island diorama is RETIRED (the file
- * itself is deleted — see p21-research/banzai/HERO-ORIGIN.md); the hero
- * visual is now a server-rendered photographic window (see HeroTable);
- * no client scene, no dynamic import, no WebGL on the landing.
+/* P21-B retired the P12-2b three.js kitchen-island diorama (the file
+ * itself is deleted); P21-W3-E authors the hero visual instead of
+ * staging it with stock photos — the window is now a server-rendered
+ * inline SVG still-life (see HeroTable + NightKitchenScene): no client
+ * scene, no dynamic import, no WebGL, no image bytes on the landing.
  * The h1 still paints server-rendered, instant (LCP doctrine). */
 /* Marquee vocabulary — the platform's real menu-domain names: the four
    default categories (the auto-seeded set every new menu starts with)
@@ -225,13 +226,14 @@ export function HomePage({
                                                 </RevealCssClass>
                                         </div>
 
-                                        {/* مائدة أول لقمة — P21-B: the restaurant
-                                            «window» (one ambience photograph,
-                                            cinematic treatment, ONE caption
-                                            link) + the printed menu card
-                                            resting on its corner — static
-                                            tension, no diorama. ≤1024px the
-                                            visual demotes to an in-flow block
+                                        {/* مائدة أول لقمة — P21-W3-E: the
+                                            restaurant «window» (the
+                                            AUTHORED night-kitchen SVG
+                                            still-life, one caption link)
+                                            + the printed menu card resting
+                                            on its corner — static tension,
+                                            no diorama. ≤1024px the visual
+                                            demotes to an in-flow block
                                             UNDER the copy — the LCP story
                                             stays first on phones. */}
                                         <HeroTable />

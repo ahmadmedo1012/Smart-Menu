@@ -938,16 +938,24 @@ describe('r142 parity — المائدة token block (the --sm-* identity, verba
       // clamp(44px, 8vw, 120px) in rem terms (2.75rem/7.5rem).
       ['--sm-h1', 'clamp(2.75rem, 8vw, 7.5rem)'],
       ['--sm-h1-lh', '1.14'],
-      // P12-2b «جزيرة المطبخ»: display face + sticker pair + scene world colors.
+      // P12-2b «جزيرة المطبخ»: display face + sticker pair.
       ['--sm-display', "'Baloo Bhaijaan 2', 'IBM Plex Sans Arabic', system-ui, sans-serif"],
       ['--sm-sticker-fill', '#FFFDF7'],
       ['--sm-sticker-ink', '#2B2014'],
       ['--sm-sticker-shadow', '#C2452D'],
       ['--sm-sticker-accent-ink', '#FBF7F0'],
-      ['--sm-void-1', '#20122E'],
-      ['--sm-void-2', '#2A1840'],
-      ['--sm-scene-day-1', '#F6EEDD'],
-      ['--sm-scene-day-2', '#E7D9BC'],
+      // P21-W3-E honest re-pin: the diorama's plum sky (--sm-void-1
+      // #20112E / #2A1840) and its dead day twins (--sm-scene-day-1/2)
+      // are retired with the canvas — the window's ground is the
+      // product's OWN warm-night-kitchen family (#241811 / #2B1E15),
+      // and the authored illustration's object palette joins the block.
+      ['--sm-void-1', '#241811'],
+      ['--sm-void-2', '#2B1E15'],
+      ['--sm-ill-cream', '#EFE3CB'],
+      ['--sm-ill-wood', '#53341D'],
+      ['--sm-ill-wood-hi', '#6B4224'],
+      ['--sm-ill-ink', '#241811'],
+      ['--sm-amber', '#B7791F'],
       ['--sm-t-fast', 'var(--t-fast)'],
       ['--sm-t-base', 'var(--t-base)'],
       ['--sm-t-slow', 'var(--t-slow)'],
@@ -1096,6 +1104,7 @@ const menuShowcaseRaw = raw('src/components/landing/MenuShowcaseSection.tsx');
 const journeyRaw = raw('src/components/landing/JourneySection.tsx');
 const rolesRaw = raw('src/components/landing/RolesSection.tsx');
 const heroTableRaw = raw('src/components/landing/HeroTable.tsx');
+const nightKitchenRaw = raw('src/components/landing/NightKitchenScene.tsx');
 const finaleRaw = raw('src/components/landing/FinaleCta.tsx');
 const shareAfterOrderRaw = raw('src/components/loyalty/ShareAfterOrder.tsx');
 const ownerLoyaltyRaw = raw('src/app/(protected)/owner/loyalty/page.tsx');
@@ -1318,13 +1327,13 @@ describe('r142 parity — المائدة chrome locks (gradient allowlist · but
     );
   });
 
-  it('gradient allowlist: the hero light pool + the P12-2b marquee flood + the P21-B scene veil are the sanctioned gradient sites', () => {
+  it('gradient allowlist: the hero light pool + the P12-2b marquee flood are the sanctioned gradient sites', () => {
     // P12-2b honest re-pin: S4 mandates the terracotta-red flood band —
     // it joins the ONE r142 radial as the second sanctioned site.
-    // P21-B honest re-pin: the restaurant window's legibility veil
-    // (base scrim + top fade over the ambience photo) joins them —
-    // the photo lights itself, the veil only grounds the chip/kanban.
-    const ALLOWED = ['.landing .ln-hero::before', '.landing .ln-marquee', '.landing .ln-scene-veil'];
+    // P21-W3-E honest re-pin: the P21-B scene veil is RETIRED with the
+    // photographic window — the authored SVG paints its own flat ground
+    // (layered shapes, zero gradients), so the allowlist shrinks by one.
+    const ALLOWED = ['.landing .ln-hero::before', '.landing .ln-marquee'];
     const sites = new Set<string>();
     for (const m of landingCss.matchAll(/([^{}]+)\{[^{}]*gradient/g)) {
       for (const sel of m[1].split(',')) {
@@ -1451,7 +1460,10 @@ describe('r142 parity — المائدة structure: hero card · المنيو ا
     expect(heroTableRaw).toContain('DEMO_MENU.map((c) => ({ cat: c, item: c.items[0]! }))');
     expect(heroTableRaw).toContain('ln-hero-card-leader');
     expect(heroTableRaw).toContain('item.price.toFixed(2)');
-    expect(heroTableRaw).toContain('priority');
+    // P21-W3-E honest re-pin: 'priority' left with the photo — the hero
+    // carries no image bytes at all now (authored SVG, pinned in the
+    // P21-W3-E describe block: NOT toContain('priority')).
+    expect(heroTableRaw).not.toContain('priority');
   });
 
   it('«المنيو الحي» renders the REAL demo rows verbatim — 16 items, exact seed names + prices (nothing invented, r82)', () => {
@@ -3319,17 +3331,22 @@ describe('phase10 P10-2 — family (h): every shell exposes the shared ThemeTogg
   });
 });
 
-/* ── P21-B «نافذة المطعم» — the Banzai re-read pins ────────────────────
-   The owner rejected the P12-2b three.js kitchen-island diorama (idle
-   bob, drag-spin, floating food props). The reference re-read
-   (p21-research/banzai: VLM-BANZAI + GAP-SMARTMENU) retired the diorama
-   and its comic clutter; what ships is ONE framed photographic window
-   (the real ambience photo — self-lit, statically tensioned), ONE real
-   caption link, a kanban-style vertical mono tag, and the sticker
-   lockup WITHOUT sparkles. The S4 marquee flood + S5 dish-card grammar
-   survive untouched (still pinned below). Every contract that
-   legitimately changed is honestly re-pinned here. */
-describe('P21-B parity — the restaurant window (retired diorama · photo staging · static tension · caption link)', () => {
+/* ── P21-W3-E «مطبخ الليل» — the Banzai re-read pins, act 2 ─────────────
+   P21-B retired the P12-2b three.js kitchen-island diorama (idle bob,
+   drag-spin, floating food props) and staged a photographic window
+   instead. W3-E completes the arc: the stock photographs (a chandelier
+   steakhouse ambience + a Western steak close-up — zero Arabic-café
+   semiotics, clashing light temperatures, art-direction review 62/100)
+   are retired too; the window is now an AUTHORED inline SVG still-life
+   (NightKitchenScene — the product's own warm night kitchen: lantern,
+   dallah, finjan, dates, frozen steam, halftone air) and the printed
+   card's header carries the same illustration family (FirstBiteSpot).
+   ONE real caption link, a BOLD VERTICAL DISPLAY kanban, static tension
+   (no new verbs — the one-shot entrance remains the only window motion),
+   and deterministic SSR markup by construction. The S4 marquee flood +
+   S5 dish-card grammar survive untouched (still pinned below). Every
+   contract that legitimately changed is honestly re-pinned here. */
+describe('P21-W3-E parity — the authored night-kitchen window (retired diorama + stock photos · static tension · caption link)', () => {
   it('the three.js diorama is GONE: no scene file, no dynamic import, no WebGL on the landing', () => {
     expect(existsSync('src/components/landing/KitchenIslandScene.tsx')).toBe(false);
     expect(existsSync('src/components/landing/HotspotPin.tsx')).toBe(false);
@@ -3339,13 +3356,40 @@ describe('P21-B parity — the restaurant window (retired diorama · photo stagi
     expect(heroTableRaw).not.toContain("from 'three'");
   });
 
-  it('the window holds the REAL ambience photograph as the ONE priority image (LCP story)', () => {
-    expect(heroTableRaw).toContain('src="/images/culinary/ambience.webp"');
-    expect(heroTableRaw).toContain('priority');
-    expect(heroTableRaw).toContain('fill');
-    // the printed card keeps the appetite close-up as the detail shot
-    expect(heroTableRaw).toContain('src="/images/culinary/hero-dish.webp"');
+  it('the window holds the AUTHORED night-kitchen illustration — the stock photos are retired (P21-W3-E)', () => {
+    expect(heroTableRaw).toContain('<NightKitchenScene />');
+    expect(heroTableRaw).toContain('FirstBiteSpot');
     expect(heroTableRaw).toContain('DEMO_MENU.map((c) => ({ cat: c, item: c.items[0]! }))');
+    // the photographic staging is gone: no next/image, no priority image,
+    // no culinary bytes on the hero — the LCP story is pure markup now
+    expect(heroTableRaw).not.toContain('next/image');
+    expect(heroTableRaw).not.toContain('priority');
+    expect(heroTableRaw).not.toContain('src="/images/culinary/ambience.webp"');
+    expect(heroTableRaw).not.toContain('src="/images/culinary/hero-dish.webp"');
+  });
+
+  it('the illustration is a deterministic server component (hydration contract, W2-B1r holds by construction)', () => {
+    // comment-stripped for the directive/verb checks — the provenance
+    // notes in the header name the retired habits verbatim
+    const nightKitchenCode = nightKitchenRaw
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/^\s*\/\/.*$/gm, ' ');
+    expect(nightKitchenCode).not.toContain("'use client'");
+    expect(nightKitchenCode).not.toContain('Math.random');
+    expect(nightKitchenCode).not.toContain('Date.now');
+    expect(nightKitchenCode).not.toContain('new Date');
+    // token discipline: zero raw hex in CODE
+    expect(nightKitchenCode).not.toMatch(/#[0-9a-fA-F]{3,6}\b/);
+    // accessible as a single labelled image (decor internals never reach AT)
+    expect(nightKitchenRaw).toContain('role="img"');
+    expect(nightKitchenRaw).toContain('aria-label');
+    // the still-life anchors to the table: the ≤640 4:3 crop takes the sky
+    expect(nightKitchenRaw).toContain('preserveAspectRatio="xMidYMax slice"');
+    // colors ride the §20.1k paint classes, not fill attributes
+    expect(nightKitchenRaw).toContain('lnk-fill-cream');
+    expect(nightKitchenRaw).toContain('lnk-stroke-ink');
+    expect(landingCss).toContain('.landing .lnk-fill-cream');
+    expect(landingCss).toContain('.landing .lnk-stroke-ink');
   });
 
   it('the caption chip is a REAL link to the live demo menu with a 44px hit floor + focus ring', () => {
@@ -3367,13 +3411,29 @@ describe('P21-B parity — the restaurant window (retired diorama · photo stagi
     expect(prm.some((b) => b.includes('.landing .ln-scene { animation: none; }'))).toBe(true);
     // no opacity gate on the window (LCP paints on arrival)
     expect(landingCss).not.toContain('from { opacity: 0; transform: translateY(14px) scale(0.985); }');
+    // P21-W3-E: the illustration itself adds NO verb — the stylesheet
+    // still knows no steam/sparkle/float keyframes of any kind
+    expect(landingCss).not.toContain('@keyframes ln-steam');
+    expect(landingCss).not.toContain('@keyframes ln-sparkle');
+    expect(landingCss).not.toContain('@keyframes ln-float');
   });
 
-  it('the veil grounds the chip/kanban but is never a light source (two gradient stops, allowlisted)', () => {
-    const veil = landingRule('.landing .ln-scene-veil');
-    expect(decl(veil, 'pointer-events')).toBe('none');
+  it('the veil is retired with the photo — the kanban upgrades to BOLD VERTICAL DISPLAY (P21-W3-E)', () => {
+    expect(landingCss).not.toContain('.ln-scene-veil');
+    expect(heroTableRaw).not.toContain('ln-scene-veil');
     expect(landingCss).toContain('.landing .ln-scene-kanban');
-    expect(decl(landingRule('.landing .ln-scene-kanban'), 'writing-mode')).toBe('vertical-rl');
+    const kanban = landingRule('.landing .ln-scene-kanban');
+    expect(decl(kanban, 'writing-mode')).toBe('vertical-rl');
+    // Banzai's signage energy: the display face + 700, not the mono whisper
+    expect(decl(kanban, 'font-family')).toBe('var(--sm-display)');
+    expect(decl(kanban, 'font-weight')).toBe('700');
+  });
+
+  it('the night stage deepens the window one step (espresso back-cover family, §19 inversion pattern)', () => {
+    const dark = ruleBlock(landingCss, 'html.dark .landing .ln-scene');
+    expect(dark).toContain('background: #190F0A');
+    // the light stage ground is the token-pinned warm night kitchen
+    expect(decl(landingRule('.landing .ln-scene'), 'background')).toBe('var(--sm-void-1)');
   });
 
   it('S5: the dish rows keep the floating rounded cards — ±1.5° tilts + hover lift-and-straighten', () => {
