@@ -39,6 +39,13 @@ export interface OrderDetailData {
                 id: number;
                 quantity: number;
                 price: number;
+                /* W6-B3 (تذكرة المطبخ): حقول لقطة السطر التي تعيدها GET
+                   /api/orders/[id] أصلاً (include في Prisma يُبقي كل أعمدة
+                   OrderItem العددية — notes/modifiersJson) — اختيارية كي
+                   تبقى الأشكال القديمة/الاختبارية مترجمة؛ التذكرة تقرؤها
+                   بسقوط آمن لقيمة فارغة (لا أسطر مُختلقة). */
+                notes?: string | null;
+                modifiersJson?: string | null;
                 item: { name: string; nameAr: string | null };
         }[];
         restaurant: { id: number; name: string; slug: string } | null;

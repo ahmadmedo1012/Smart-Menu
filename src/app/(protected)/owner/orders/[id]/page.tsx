@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
 import { getErrorMessage } from '@/lib/get-error-message';
-import {AlertCircle, Phone, User, FileText} from 'lucide-react';
+import {AlertCircle, Phone, User, FileText, Printer} from 'lucide-react';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
@@ -14,7 +14,10 @@ import { MotionCheck } from '@/components/ui/motion-icons';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
-import { formatPrice, toArabicNumber, formatDate } from '@/lib/format';
+import { formatPrice, toArabicNumber, formatDate, formatDateTripoli } from '@/lib/format';
+// W6-B3 (G-3): تذكرة المطبخ — التحليل الخالص (رقم الطاولة من الملاحظات،
+// أسطر الأصناف مع الإضافات) في lib كي يُختبر بمعزل عن الصفحة.
+import { parseTableFromNotes, notesWithoutTable, buildTicketItems } from '@/lib/kitchen-ticket';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
@@ -42,6 +45,17 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
         const [updating, setUpdating] = useState(false);
         // r131-F5 (A1 P1-8): window.confirm → the shared Arabic ConfirmDialog.
         const [confirmCancel, setConfirmCancel] = useState(false);
+
+        /* W6-B3 (G-3): نفس تقنية round88-E5 — وسم body بفئة الطباعة طوال
+           تركيب الصفحة؛ قواعد @media print في globals.css (body.ticket-print-root)
+           تُظهر تذكرة المطبخ وحدها وتخفي كل هيكل التطبيق لأي طابعة. يُنزع
+           عند الفك فلا تتسرب القاعدة لصفحة أخرى. */
+        useEffect(() => {
+                document.body.classList.add('ticket-print-root');
+                return () => document.body.classList.remove('ticket-print-root');
+        }, []);
+
+        const printKitchenTicket = () => window.print();
 
         const updateStatus = async (status: string) => {
                 if (updating) return;
@@ -99,6 +113,13 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 
         const config = getOrderStatusMeta(order.status);
         const currentIdx = STATUS_FLOW.indexOf(order.status as (typeof STATUS_FLOW)[number]);
+        /* W6-B3 (G-3): نموذج تذكرة المطبخ — رقم الطاولة من ملاحظات الطلب
+           (السلة تكتب «طاولة: N» عند الدخول من رمز الطاولة r135؛ نحن من
+           كتب السطر فالتحليل حرفي)، والملاحظات الباقية بلا سطر الطاولة،
+           وأسطر الأصناف بخياراتها من لقطة modifiersJson. */
+        const ticketTable = parseTableFromNotes(order.notes);
+        const ticketNotes = notesWithoutTable(order.notes);
+        const ticketItems = buildTicketItems(order.items);
 
         return (
                 <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
@@ -331,8 +352,10 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                         </div>
 
                         {/* Quick actions — r131-F5 (A1 P0-4): canonical Button
-                                size lg (48px) replaces the py-3.5 hand-rolls */}
-                        <div className="grid grid-cols-2 gap-3">
+                                size lg (48px) replaces the py-3.5 hand-rolls.
+                                W6-B3 (G-3): a third action joins the row — the kitchen
+                                ticket print (the hidden .print-ticket-sheet below). */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <Button
                                         variant="outline"
                                         size="lg"
@@ -350,6 +373,73 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                         <AnimatedMessageCircle className="size-4" />
                                         نسخ نص الطلب
                                 </Button>
+                                <Button
+                                        variant="orange"
+                                        size="lg"
+                                        onClick={printKitchenTicket}
+                                        aria-label="طباعة تذكرة المطبخ"
+                                >
+                                        <Printer className="size-4" aria-hidden="true" />
+                                        طباعة تذكرة المطبخ
+                                </Button>
+                        </div>
+
+                        {/* W6-B3 (G-3) — kitchen ticket print sheet: invisible on
+                                screen (hidden print:block), the ONLY visible block on paper
+                                (globals.css body.ticket-print-root rules — same round88-E5
+                                visibility technique as the QR sheet). Narrow ticket register:
+                                restaurant name, BIG order number, pickup type + table when
+                                present, customer line (name/phone already shown on this
+                                page — no new PII surface), Tripoli timestamp, then items with
+                                quantities + modifier options + line notes, then the order
+                                notes minus the table line. Black-on-white inks only. */}
+                        <div className="print-ticket-sheet" aria-hidden="true">
+                                <div className="hidden print:block mx-auto w-full max-w-[72mm] py-4 text-black bg-white">
+                                        <p className="text-center text-lg font-bold leading-tight">
+                                                {order.restaurant?.name || 'المطبخ'}
+                                        </p>
+                                        <p className="text-center text-xs">تذكرة مطبخ</p>
+                                        <hr className="border-t border-dashed border-black/50 my-2" />
+                                        <p className="text-center text-4xl font-bold tabular-nums leading-none">
+                                                <bdi dir="ltr">#{order.orderNo}</bdi>
+                                        </p>
+                                        <p className="text-center text-sm font-semibold mt-2">
+                                                {getPickupTypeMeta(order.pickupType).label}
+                                                {ticketTable != null && <> · طاولة {toArabicNumber(ticketTable)}</>}
+                                        </p>
+                                        <p className="text-center text-xs mt-1">
+                                                {order.customerName} — <bdi dir="ltr">{order.customerPhone}</bdi>
+                                        </p>
+                                        <p className="text-center text-xs mt-1">
+                                                {formatDateTripoli(new Date(order.createdAt), { timeSeparator: ' | ' })}
+                                        </p>
+                                        <hr className="border-t border-dashed border-black/50 my-2" />
+                                        <div className="space-y-2">
+                                                {ticketItems.map((line, i) => (
+                                                        <div key={order.items[i]?.id ?? i}>
+                                                                <p className="text-base font-semibold leading-snug">
+                                                                        <span className="tabular-nums">{toArabicNumber(line.quantity)}×</span>{' '}
+                                                                        {line.name}
+                                                                </p>
+                                                                {line.modifiers.length > 0 && (
+                                                                        <p className="text-sm ps-3">+ {line.modifiers.join(' · ')}</p>
+                                                                )}
+                                                                {line.notes && (
+                                                                        <p className="text-sm ps-3">({line.notes})</p>
+                                                                )}
+                                                        </div>
+                                                ))}
+                                        </div>
+                                        {ticketNotes && (
+                                                <>
+                                                        <hr className="border-t border-dashed border-black/50 my-2" />
+                                                        <p className="text-sm whitespace-pre-line">{ticketNotes}</p>
+                                                </>
+                                        )}
+                                        <p className="text-center text-[10px] mt-4 text-black/60">
+                                                مدعوم من الربط الذكي — Smart Menu
+                                        </p>
+                                </div>
                         </div>
 
                         {/* Destructive confirm (r131-F5: replaces window.confirm) */}

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { premiumToast } from '@/lib/premium-toast';
-import {Store, Smartphone, Printer} from 'lucide-react';
+import {Store, Smartphone, Printer, UtensilsCrossed} from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { MotionCheck } from '@/components/ui/motion-icons';
@@ -19,6 +19,12 @@ import { cn } from '@/lib/utils';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 // r106-N2: self-hosted QR (retire api.qrserver.com) — same brand colors.
 import { SelfHostedQR, qrPngDataUrl } from '@/components/shared/SelfHostedQR';
+// W6-B3 (G-1): per-table QR generation — pure range/URL logic lives in the lib
+// (tested in isolation); each code encodes /menu/{slug}?table={N} which the
+// customer side has captured since r135 (lib/table-session.ts).
+import { parseTableRange, tableMenuUrl } from '@/lib/table-qr';
+import { toArabicNumber } from '@/lib/format';
+import { getArabicPlural } from '@/lib/arabic-plural';
 
 const QR_SIZES = [
         { value: 200, label: 'صغير' },
@@ -27,21 +33,35 @@ const QR_SIZES = [
         { value: 1000, label: 'طباعة' },
 ];
 
+/** صيغة الجمع الصحيحة لعدد الرموز في رسائل الحالة (r93-W2a). */
+const qrCountLabel = (n: number) =>
+        `${toArabicNumber(n)} ${getArabicPlural(n, 'رمز', { two: 'رمزان', few: 'رموز', many: 'رمزاً' })}`;
+
 export default function OwnerQRPage() {
         const { activeId } = useActiveRestaurant();
         const router = useRouter();
         const [slug, setSlug] = useState('');
         const [name, setName] = useState('');
         const [url, setUrl] = useState('');
+        // W6-B3: أصل الرابط مفصولاً عن رابط المنيو — رموز الطاولات تُبنى منه
+        // مع ‎?table=N‎ (نفس الأصل الذي يرمّزه الرمز المفرد).
+        const [origin, setOrigin] = useState('');
         const [loaded, setLoaded] = useState(false);
         const [copied, setCopied] = useState(false);
         const [qrSize, setQrSize] = useState(300);
+        // W6-B3: الدفعة النشطة من رموز الطاولات (أرقام الطاولات). غير فارغة =
+        // ورقة الطاولات هي ورقة الطباعة (الورقة المفردة تُفكَّق مؤقتاً —
+        // انظر التعليق عند .print-qr-sheet أدناه).
+        const [tableBatch, setTableBatch] = useState<number[]>([]);
         const qrRef = useRef<HTMLDivElement>(null);
 
         /* round88-E5: stamp a body class while this page is mounted — the
            @media-print rules in globals.css (body.qr-print-root) show ONLY the
            print sheet and hide the whole app chrome (sidebar/header/controls)
-           for any printer. Removed on unmount so no other page is affected. */
+           for any printer. Removed on unmount so no other page is affected.
+           W6-B3: the same root now governs TWO sheets — the single-QR sheet
+           (.print-qr-sheet) and the per-table grid (.print-tables-sheet);
+           only one of them is ever in the DOM at a time (see below). */
         useEffect(() => {
                 document.body.classList.add('qr-print-root');
                 return () => document.body.classList.remove('qr-print-root');
@@ -60,10 +80,15 @@ export default function OwnerQRPage() {
                                         setSlug(r.slug);
                                         setName(r.name);
                                         setUrl(`${window.location.origin}/menu/${r.slug}`);
+                                        setOrigin(window.location.origin);
                                 }
                         })
                         .catch(() => premiumToast('error', 'تعذّر تحميل إعدادات المطعم'))
                         .finally(() => setLoaded(true));
+                // W6-B3: switching the active restaurant must void any generated
+                // table batch — its codes encode the PREVIOUS slug's menu URL and
+                // would print as dead links for the new restaurant.
+                setTableBatch([]);
         }, [activeId]);
 
         const copy = () => {
@@ -243,16 +268,29 @@ export default function OwnerQRPage() {
                                                 <div className="flex items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20">
                                                         <Printer className="size-4 text-primary shrink-0" />
                                                         <p className="text-xs text-muted-foreground leading-relaxed">
-                                                                اطبع رمز QR وضعه على الطاولات والفواتير والمواد الدعائية ليتمكن الزبائن من فتح
-                                                                المنيو مباشرة على هواتفهم
+                                                                {tableBatch.length > 0 ? (
+                                                                        <>
+                                                                                ورقة الطاولات نشطة — هذا الزر معطّل حتى مسحها؛
+                                                                                زر الطباعة في بطاقة «رمز لكل طاولة» يطبعها
+                                                                        </>
+                                                                ) : (
+                                                                        <>
+                                                                                اطبع رمز QR وضعه على الطاولات والفواتير والمواد الدعائية ليتمكن الزبائن من فتح
+                                                                                المنيو مباشرة على هواتفهم
+                                                                        </>
+                                                                )}
                                                         </p>
                                                         {/* round88-E5: real print action — the print sheet renders the QR at
-                                                            1000px (crisp at 65mm/300dpi) regardless of the on-screen size. */}
+                                                            1000px (crisp at 65mm/300dpi) regardless of the on-screen size.
+                                                            W6-B3: disabled while a table batch is active because the single-QR
+                                                            print sheet is unmounted then (one sheet in the DOM at a time). */}
                                                         <Button
                                                                 variant="outline"
                                                                 size="sm"
                                                                 onClick={printQR}
+                                                                disabled={tableBatch.length > 0}
                                                                 aria-label="طباعة رمز QR"
+                                                                title={tableBatch.length > 0 ? 'امسح ورقة الطاولات أولاً' : undefined}
                                                                 className="ms-auto shrink-0"
                                                         >
                                                                 <Printer className="size-3.5" aria-hidden="true" />
@@ -263,11 +301,29 @@ export default function OwnerQRPage() {
                                 </div>
                         )}
 
+                        {/* W6-B3 — per-table QR card: the r135 customer-side capture
+                           (‎?table=N‎ → «طاولة: N» on the order) finally has an owner-side
+                           producer. One card below the single-QR card; the generated grid
+                           doubles as the print sheet (.print-tables-sheet). */}
+                        {url && (
+                                <TableQrsSection
+                                        origin={origin}
+                                        slug={slug}
+                                        name={name}
+                                        tableBatch={tableBatch}
+                                        onBatch={setTableBatch}
+                                />
+                        )}
+
                         {/* round88-E5 — print sheet: invisible on screen (display:none), the ONLY
                                 visible block on paper (globals.css body.qr-print-root rules). Placed
                                 AFTER the live card; e2e now targets [data-testid="qr-code"] (r106-N2
-                                retired the qrserver <img> the old selectors matched). */}
-                        {url && (
+                                retired the qrserver <img> the old selectors matched).
+                                W6-B3: rendered ONLY while no table batch is active — .print-qr-sheet
+                                and .print-tables-sheet share the body.qr-print-root print rules, so
+                                exactly one of them may exist in the DOM when window.print() fires;
+                                generating a table batch unmounts this sheet, clearing it remounts. */}
+                        {url && tableBatch.length === 0 && (
                                 <div className="print-qr-sheet" aria-hidden="true">
                                         <div className="hidden print:flex flex-col items-center gap-4">
                                                 <p className="text-2xl font-bold text-black">{name || 'المطعم'}</p>
@@ -294,6 +350,226 @@ export default function OwnerQRPage() {
                                         </div>
                                 </div>
                         )}
+                </div>
+        );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   W6-B3 (G-1) — «رمز لكل طاولة» card.
+   Range input («من الطاولة … إلى …») → parseTableRange (lib/table-qr.ts) →
+   a preview grid whose cells are ALSO the print sheet: on screen each QR is
+   a small responsive square; on paper globals.css (body.qr-print-root) lifts
+   .print-tables-sheet out of the card, lays it 2×65mm-per-row and paginates
+   (absolute + break-inside:avoid — the recipe proven by /menu/[slug]/print).
+   One QR per table, each encoding the r135 contract /menu/{slug}?table={N}.
+   ────────────────────────────────────────────────────────────────────────── */
+function TableQrsSection({
+        origin,
+        slug,
+        name,
+        tableBatch,
+        onBatch,
+}: {
+        origin: string;
+        slug: string;
+        name: string;
+        tableBatch: number[];
+        onBatch: (tables: number[]) => void;
+}) {
+        const [from, setFrom] = useState('1');
+        const [to, setTo] = useState('');
+        const [error, setError] = useState<string | null>(null);
+        const [downloading, setDownloading] = useState(false);
+
+        const generate = () => {
+                // Arabic-Indic digits fold to Western inside the parser (r138 family).
+                const result = parseTableRange(from, to);
+                if (!result.ok) {
+                        setError(result.error);
+                        premiumToast('error', result.error);
+                        return;
+                }
+                setError(null);
+                onBatch(result.tables);
+                premiumToast('success', `تم توليد ${qrCountLabel(result.tables.length)} للطاولات`);
+        };
+
+        const clear = () => {
+                onBatch([]);
+                setError(null);
+        };
+
+        const printTables = () => window.print();
+
+        const downloadAll = async () => {
+                if (downloading || tableBatch.length === 0) return;
+                setDownloading(true);
+                try {
+                        for (const n of tableBatch) {
+                                // r106-N2: same local data-URL generation as the single QR
+                                // download — 1000px so each PNG is crisp at 65mm/300dpi.
+                                const dataUrl = await qrPngDataUrl(tableMenuUrl(origin, slug, n), 1000);
+                                const link = document.createElement('a');
+                                link.href = dataUrl;
+                                link.download = `qr-${slug || 'menu'}-table-${n}.png`;
+                                document.body.appendChild(link);
+                                link.click();
+                                link.remove();
+                        }
+                        premiumToast('save', `تم تحميل ${qrCountLabel(tableBatch.length)} — ملف لكل طاولة`);
+                } catch {
+                        premiumToast('error', 'تعذّر تحميل رموز الطاولات');
+                } finally {
+                        setDownloading(false);
+                }
+        };
+
+        const first = tableBatch[0];
+        const last = tableBatch[tableBatch.length - 1];
+
+        return (
+                <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">
+                        {/* Restaurant info */}
+                        <div className="flex items-center gap-3 p-5 border-b border-border/20 bg-gradient-to-l from-orange-muted/30 to-transparent dark:from-orange-muted">
+                                <div className="size-10 rounded-full bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
+                                        <UtensilsCrossed className="size-5 text-primary" />
+                                </div>
+                                <div>
+                                        <p className="font-bold">رمز لكل طاولة</p>
+                                        <p className="text-xs text-muted-foreground">
+                                                كل رمز يحمل رقم طاولته — الطلب يصل موقّعاً بها
+                                        </p>
+                                </div>
+                        </div>
+
+                        <div className="p-5 space-y-5">
+                                {/* Range inputs — 44px inputs (h-11, r131-F4), dir=auto from the
+                                        Input primitive, inputMode numeric for the Arabic-Indic keyboard. */}
+                                <div role="group" aria-label="نطاق أرقام الطاولات">
+                                        <Label className="text-xs text-muted-foreground">أرقام الطاولات</Label>
+                                        <div className="grid grid-cols-2 gap-3 mt-1.5">
+                                                <div>
+                                                        <Label htmlFor="table-from" className="text-xs text-muted-foreground mb-1 block">
+                                                                من الطاولة
+                                                        </Label>
+                                                        <Input
+                                                                id="table-from"
+                                                                inputMode="numeric"
+                                                                autoComplete="off"
+                                                                value={from}
+                                                                onChange={(e) => setFrom(e.target.value)}
+                                                                placeholder="1"
+                                                                state={error ? 'error' : 'default'}
+                                                                aria-invalid={error ? true : undefined}
+                                                                aria-describedby={error ? 'table-range-error' : undefined}
+                                                        />
+                                                </div>
+                                                <div>
+                                                        <Label htmlFor="table-to" className="text-xs text-muted-foreground mb-1 block">
+                                                                إلى الطاولة
+                                                        </Label>
+                                                        <Input
+                                                                id="table-to"
+                                                                inputMode="numeric"
+                                                                autoComplete="off"
+                                                                value={to}
+                                                                onChange={(e) => setTo(e.target.value)}
+                                                                placeholder="15"
+                                                                state={error ? 'error' : 'default'}
+                                                                aria-invalid={error ? true : undefined}
+                                                                aria-describedby={error ? 'table-range-error' : undefined}
+                                                        />
+                                                </div>
+                                        </div>
+                                        {error && (
+                                                <p id="table-range-error" role="alert" className="text-xs text-destructive mt-2">
+                                                        {error}
+                                                </p>
+                                        )}
+                                </div>
+
+                                <div className="flex gap-3">
+                                        <Button onClick={generate} className="flex-1 gap-2">
+                                                {tableBatch.length > 0 ? 'إعادة التوليد' : 'توليد رموز الطاولات'}
+                                        </Button>
+                                        {tableBatch.length > 0 && (
+                                                <Button variant="outline" onClick={clear} className="gap-2">
+                                                        مسح الورقة
+                                                </Button>
+                                        )}
+                                </div>
+
+                                {tableBatch.length === 0 && (
+                                        <p className="text-xs text-muted-foreground leading-relaxed">
+                                                مثال: من الطاولة 1 إلى الطاولة 15 — يبني النظام ورقة طباعة؛
+                                                اطبعها وقصّها والصق رمزاً على كل طاولة، فيفتح الزبون المنيو ويصل
+                                                الطلب مكتوباً عليه رقم طاولته. (تُقبل الأرقام الشرقية كما الغربية.)
+                                        </p>
+                                )}
+
+                                {/* Generated batch — preview grid doubles as the print sheet */}
+                                {tableBatch.length > 0 && (
+                                        <div className="space-y-4">
+                                                <p className="text-sm text-muted-foreground">
+                                                        {qrCountLabel(tableBatch.length)} — من طاولة {toArabicNumber(first)} إلى طاولة {toArabicNumber(last)}
+                                                </p>
+
+                                                <div className="print-tables-sheet">
+                                                        {/* Sheet header: print-only (the screen already shows the
+                                                                card header; the paper cut needs the restaurant name). */}
+                                                        <p className="hidden print:block text-2xl font-bold text-black text-center pb-4">
+                                                                {name || 'المطعم'} — رموز الطاولات
+                                                        </p>
+                                                        <div
+                                                                className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 print-tables-grid"
+                                                                role="list"
+                                                                aria-label="رموز الطاولات"
+                                                        >
+                                                                {tableBatch.map((n) => (
+                                                                        <div
+                                                                                key={n}
+                                                                                role="listitem"
+                                                                                className="qr-table-cell flex flex-col items-center gap-2 rounded-lg border border-dashed border-border/40 p-3 print:rounded-none print:border-black/40"
+                                                                        >
+                                                                                <SelfHostedQR
+                                                                                        value={tableMenuUrl(origin, slug, n)}
+                                                                                        size={1000}
+                                                                                        alt={`رمز QR للطاولة ${n}`}
+                                                                                        className="qr-table-cell-qr"
+                                                                                        style={{ width: '100%', height: 'auto', aspectRatio: '1 / 1' }}
+                                                                                />
+                                                                                <p className="text-sm font-semibold text-foreground print:text-black">
+                                                                                        طاولة {toArabicNumber(n)}
+                                                                                </p>
+                                                                        </div>
+                                                                ))}
+                                                        </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-3">
+                                                        <Button variant="orange" onClick={printTables} className="gap-2">
+                                                                <Printer className="size-4" aria-hidden="true" />
+                                                                طباعة ورقة الطاولات
+                                                        </Button>
+                                                        <Button
+                                                                variant="outline"
+                                                                onClick={downloadAll}
+                                                                loading={downloading}
+                                                                aria-label="تحميل كل رموز الطاولات"
+                                                                className="gap-2"
+                                                        >
+                                                                <AnimatedDownload className="size-4" />
+                                                                تحميل الكل
+                                                        </Button>
+                                                </div>
+
+                                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                                        كل رمز يفتح المنيو مع رقم طاولته في الرابط، فيصل الطلب إلى
+                                                        واتساب المطعم وسطر «طاولة: N» في الملاحظات.
+                                                </p>
+                                        </div>
+                                )}
+                        </div>
                 </div>
         );
 }

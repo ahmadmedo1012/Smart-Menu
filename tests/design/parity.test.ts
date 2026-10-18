@@ -1535,7 +1535,10 @@ describe('r142 parity — المائدة structure: hero card · المنيو ا
   it('«لصاحب المطعم» is the honest course list: the four shipped functions + the pricing route', () => {
     expect(rolesRaw).toContain('href="/pricing"');
     expect(rolesRaw).toContain('طلبات على واتساب');
-    expect(rolesRaw).toContain('QR كود مخصص');
+    // W6-B3 honest re-pin: course 02 was «QR كود مخصص» describing colors/logo
+    // the QR never shipped (W6-A3 over-claim); the per-table QR generation
+    // (G-1) is the shipped function the course now names.
+    expect(rolesRaw).toContain('رمز لكل طاولة');
     expect(rolesRaw).toContain('لوحة تحكم عربية');
     expect(rolesRaw).toContain('ولاء ومكافآت');
     // and it says the honesty out loud

@@ -10,7 +10,7 @@ import { RevealCssClass } from "@/hooks/useReveal"
  *
  * Honesty doctrine (r82): every course is a SHIPPED function —
  *   01 طلبات واتساب      (orders arrive as WhatsApp messages: item/qty/customer)
- *   02 QR كود مخصص       (owner QR surface — colors/logo, print-ready)
+ *   02 رمز لكل طاولة     (owner QR surface — per-table codes, print-ready sheet)
  *   03 لوحة تحكم عربية   (full Arabic dashboard, items/prices/photos self-serve)
  *   04 ولاء ومكافآت      (loyalty points program, real redemption flow)
  * and the list says so in plain text. The only CTA pair: pricing (the
@@ -27,8 +27,12 @@ const COURSES = [
   },
   {
     n: "02",
-    name: "QR كود مخصص",
-    desc: "بألوان مطعمك وشعاره، جاهز للطباعة على كل طاولة — العميل يفتح المنيو بلا تطبيق.",
+    /* W6-B3: the old course promised restaurant colors + logo on the QR,
+       which the product never shipped (fixed brand copper + a generic glyph
+       — the W6-A3 over-claim). Re-worded to what ships now: per-table QR
+       generation (G-1) that signs each order with its table number (r135). */
+    name: "رمز لكل طاولة",
+    desc: "ولّد رمزاً لكل طاولة يحمل رقمها واطبعه والصقه — العميل يفتح المنيو بلا تطبيق، ويصل الطلب موقّعاً برقم طاولته.",
   },
   {
     n: "03",

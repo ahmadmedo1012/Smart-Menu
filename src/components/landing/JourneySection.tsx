@@ -8,7 +8,8 @@ import { useSectionProgress } from "@/hooks/useSectionProgress"
  * rebuild of the 5-station Madarek journey into a horizontal cinematic
  * strip of FOUR numbered editorial frames — the real diner's journey the
  * product actually ships, one frame per shipped function:
- *   01 امسح الرمز   — the custom QR (owner QR surface, printed on tables)
+ *   01 امسح الرمز   — the per-table QR (owner QR surface: a code per table,
+ *                     each signing the order with its table number)
  *   02 يتصفح ويطلب  — the public menu + cart (menu/[slug] + cart)
  *   03 المطبخ يستقبل — the WhatsApp order message (item/qty/customer)
  *   04 العميل يقيّم  — the post-order review (ReviewSheet → owner reviews)
@@ -32,7 +33,11 @@ const FRAMES: Array<{
     n: "01",
     icon: QrCode,
     title: "امسح الرمز",
-    desc: "QR كود مخصص بألوان مطعمك وشعاره على كل طاولة — العميل يفتح المنيو في متصفحه فوراً، بدون تطبيق وبدون تسجيل.",
+    /* W6-B3: same over-claim repair as RolesSection — the old desc promised
+       restaurant colors + logo the QR never shipped (W6-A3); the shipped
+       truth since G-1 is a per-table code whose scan signs the order with
+       the table. */
+    desc: "رمز QR لكل طاولة يحمل رقمها — العميل يفتح المنيو في متصفحه فوراً، بدون تطبيق وبدون تسجيل، ويصل الطلب موقّعاً برقم الطاولة.",
   },
   {
     n: "02",
