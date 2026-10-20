@@ -27,7 +27,7 @@ overrides:
   'knip>zod': ^3.25.76
   postcss: 8.5.26
   nanoid: ^3.3.18
-  hono: ^4.13.7
+  hono: ^4.13.11  # W7-J (P0): GHSA-5r4p-p66f-jhc7 serveStatic double-decode (moderate) via @prisma/dev chain
   '@hono/node-server': ^1.19.17
   fast-uri: ^3.1.8  # round86-D7 + r123: >=3.1.8 fixes SSRF/host-confusion + normalization advisories
   browserslist: ^4.28.7  # round86-D7: fixes OOM + prototype-write advisories (via next/babel chain)
