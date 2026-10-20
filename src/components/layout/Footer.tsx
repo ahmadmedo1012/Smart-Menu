@@ -119,10 +119,17 @@ export function Footer({ className }: FooterProps) {
                                                 <p className="text-xs text-muted-foreground">
                                                         &copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. جميع الحقوق محفوظة.
                                                 </p>
-                                                <div className="flex gap-4 text-xs text-muted-foreground">
+                                                <div className="flex gap-4 text-xs text-muted-foreground max-[420px]:pe-20">
                                                         {/* r151 (LIVE-AUDIT-SM1 P2-3): الرابطان القانونيان كانا
                                                            أصغر روابط التذييل قياسًا (16px) — أرضية اللمس 44
-                                                           بنمط الصف القانوني في توأم SL (min-h-11 + py-3). */}
+                                                           بنمط الصف القانوني في توأم SL (min-h-11 + py-3).
+                                                           W7-H (overlap audit, قياس حي 320px على /pricing):
+                                                           أقصى يسار «سياسة الخصوصية» كان يبعد 1px فقط عن قرص
+                                                           واتساب العائم (نهاية-16 + 56px) — صفر مسافة تنفس
+                                                           في نطاق العروض التي يصل فيها الصف لحزام الفقاعة؛
+                                                           بديل نهاية 80px على الصف تحت 420px يدفع محتواه
+                                                           بعيدًا عن الحزام (الصندوق المبطَّن يتمركز والروابط
+                                                           تلتصق بحافة البداية)، ≥420px بلا أي تغيير. */}
                                                         <Link href="/terms" className="inline-flex min-h-11 items-center py-3 hover:text-foreground transition-colors">
                                                                 شروط الاستخدام
                                                         </Link>
