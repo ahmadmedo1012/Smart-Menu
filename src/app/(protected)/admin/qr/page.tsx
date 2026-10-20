@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast'
 import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Store } from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import { MotionCheck } from '@/components/ui/motion-icons';
@@ -112,50 +113,53 @@ export default function AdminQRPage() {
                         )}
 
                         {loadState === 'error' && (
-                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-lg bg-card/50 border border-border/30">
-                                        <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
-                                                <AnimatedQrCode className="size-7 text-orange/40" />
-                                        </div>
-                                        <h2 className="font-heading text-lg font-semibold mb-1">تعذّر تحميل المطاعم</h2>
-                                        <p className="text-sm text-muted-foreground max-w-xs mb-4">
-                                                حدث خطأ في الاتصال. تحقق من الشبكة وحاول مجدداً.
-                                        </p>
-                                        <Button
-                                                variant="outline"
-                                                onClick={() => {
-                                                        // re-run the effect by reloading restaurants inline
-                                                        setLoadState('loading');
-                                                        fetch('/api/restaurants')
-                                                                .then((r) => r.json())
-                                                                .then((json) => {
-                                                                        const list = json.data?.restaurants ?? [];
-                                                                        setRestaurants(list);
-                                                                        if (list.length > 0) {
-                                                                                setSelectedSlug(list[0].slug);
-                                                                                setSelectedName(list[0].name);
-                                                                        }
-                                                                        setLoadState('loaded');
-                                                                })
-                                                                .catch(() => {
-                                                                        setLoadState('error');
-                                                                        premiumToast('error', 'تعذّر تحميل المطاعم');
-                                                                });
-                                                }}
-                                        >
-                                                إعادة المحاولة
-                                        </Button>
+                                <div className="rounded-lg bg-card/50 border border-border/30">
+                                        {/* W7-H (repetition audit): البئر اليدوي (حلقة 64 + h2)
+                                           يركب بدائية EmptyState بدرجة danger — نفس عقد
+                                           r118-A5-F4 الثلاثي الصادق (تحميل/خطأ/فراغ)،
+                                           النصوص وفعل الإعادة كما كانت. */}
+                                        <EmptyState
+                                                tone="danger"
+                                                icon={AnimatedQrCode}
+                                                title="تعذّر تحميل المطاعم"
+                                                description="حدث خطأ في الاتصال. تحقق من الشبكة وحاول مجدداً."
+                                                action={
+                                                        <Button
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                        // re-run the effect by reloading restaurants inline
+                                                                        setLoadState('loading');
+                                                                        fetch('/api/restaurants')
+                                                                                .then((r) => r.json())
+                                                                                .then((json) => {
+                                                                                        const list = json.data?.restaurants ?? [];
+                                                                                        setRestaurants(list);
+                                                                                        if (list.length > 0) {
+                                                                                                setSelectedSlug(list[0].slug);
+                                                                                                setSelectedName(list[0].name);
+                                                                                        }
+                                                                                        setLoadState('loaded');
+                                                                                })
+                                                                                .catch(() => {
+                                                                                        setLoadState('error');
+                                                                                        premiumToast('error', 'تعذّر تحميل المطاعم');
+                                                                                });
+                                                                }}
+                                                        >
+                                                                إعادة المحاولة
+                                                        </Button>
+                                                }
+                                        />
                                 </div>
                         )}
 
                         {loadState === 'loaded' && restaurants.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-lg bg-card/50 border border-border/30">
-                                        <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
-                                                <AnimatedQrCode className="size-7 text-orange/40" />
-                                        </div>
-                                        <h2 className="font-heading text-lg font-semibold mb-1">لا توجد مطاعم</h2>
-                                        <p className="text-sm text-muted-foreground max-w-xs">
-                                                لم يتم العثور على مطاعم. قم بإضافة مطعم أولاً لإنشاء رمز QR.
-                                        </p>
+                                <div className="rounded-lg bg-card/50 border border-border/30">
+                                        <EmptyState
+                                                icon={AnimatedQrCode}
+                                                title="لا توجد مطاعم"
+                                                description="لم يتم العثور على مطاعم. قم بإضافة مطعم أولاً لإنشاء رمز QR."
+                                        />
                                 </div>
                         )}
 

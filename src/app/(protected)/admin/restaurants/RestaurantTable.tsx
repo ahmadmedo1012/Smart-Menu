@@ -9,6 +9,7 @@ import AnimatedTrash2 from '@/components/ui/trash-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedExternalLink from "@/components/ui/external-link-icon"
 import { Button } from "@/components/ui/button"
+import { EmptyState as EmptyStatePrimitive } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 // round89-E5: shared row type (was a local copy)
@@ -57,20 +58,27 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ search, planFilter, onClear, onAdd }: EmptyStateProps) {
+  /* W7-H (repetition audit): كانت نسخة يدوية تحمل نفس اسم البدائية (تظليل
+     للاستيراد) — الآن تركب بدائية ui/empty-state نفسها بدرجة plate،
+     النصوص والأفعال كما كانت (إزالة الفلتر/إضافة مطعم). */
+  const filtered = search !== "" || planFilter !== "all"
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-      <Store className="size-12 text-muted-foreground/50" />
-      <p className="text-lg font-medium">{search || planFilter !== "all" ? "لا توجد نتائج" : "لا توجد مطاعم مسجلة"}</p>
-      {(search || planFilter !== "all") ? (
-        <Button variant="ghost" onClick={onClear} className="gap-2">
-          <FilterX className="size-4" /> إزالة الفلتر
-        </Button>
-      ) : (
-        <Button variant="orange" onClick={onAdd} className="gap-2">
-          <MotionPlus className="size-4" /> إضافة مطعم
-        </Button>
-      )}
-    </div>
+    <EmptyStatePrimitive
+      icon={Store}
+      title={filtered ? "لا توجد نتائج" : "لا توجد مطاعم مسجلة"}
+      description={filtered ? "جرّب كلمة بحث أخرى أو أزل الفلتر" : "أول مطعم يُضاف من زر «إضافة مطعم» يظهر هنا"}
+      action={
+        filtered ? (
+          <Button variant="ghost" onClick={onClear} className="gap-2">
+            <FilterX className="size-4" /> إزالة الفلتر
+          </Button>
+        ) : (
+          <Button variant="orange" onClick={onAdd} className="gap-2">
+            <MotionPlus className="size-4" /> إضافة مطعم
+          </Button>
+        )
+      }
+    />
   )
 }
 

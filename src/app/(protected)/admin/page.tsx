@@ -162,13 +162,21 @@ export default function AdminDashboard() {
         // ---------- Empty state ----------
         if (!stats) {
                 return (
-                        <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
-                                <AnimatedBarChart3 className="size-12 text-muted-foreground/50" />
-                                <p className="text-lg font-medium">لا توجد بيانات</p>
-                                <Button variant="outline" onClick={load} className="gap-2">
-                                        <AnimatedRefreshCw className="size-4" />
-                                        تحميل
-                                </Button>
+                        /* W7-H (repetition audit): آخر كتلة فراغ يدوية في هذه الصفحة
+                           تركب بدائية EmptyState — نفس تشريح البدائية (بئر الطبق +
+                           عنوان + CTA) الذي يركبه شقيقها «المطاعم الأكثر طلباً»
+                           أدناه؛ النص والفعل كما كانا. */
+                        <div className="animate-fade-in">
+                                <EmptyState
+                                        icon={AnimatedBarChart3}
+                                        title="لا توجد بيانات"
+                                        action={
+                                                <Button variant="outline" onClick={load} className="gap-2">
+                                                        <AnimatedRefreshCw className="size-4" />
+                                                        تحميل
+                                                </Button>
+                                        }
+                                />
                         </div>
                 );
         }
@@ -256,10 +264,14 @@ export default function AdminDashboard() {
                                                         )}`}
                                                 />
                                         ) : (
-                                                <div className="flex flex-col items-center justify-center h-[220px] gap-2 text-muted-foreground/50">
-                                                        <TrendingUp className="size-8" />
-                                                        <p className="text-sm">لا توجد بيانات</p>
-                                                </div>
+                                                /* W7-H: القطعة المضغوطة للبدائية — بئر الطبق داخل جسم
+                                                   الرسم بدل النص الرمادي اليدوي */
+                                                <EmptyState
+                                                        size="compact"
+                                                        icon={TrendingUp}
+                                                        title="لا توجد بيانات"
+                                                        description="ستظهر الإيرادات هنا مع أول الطلبات"
+                                                />
                                         )}
                                 </div>
 
@@ -285,10 +297,12 @@ export default function AdminDashboard() {
                                                         )} طلب`}
                                                 />
                                         ) : (
-                                                <div className="flex flex-col items-center justify-center h-[220px] gap-2 text-muted-foreground/50">
-                                                        <AnimatedShoppingCart className="size-8" />
-                                                        <p className="text-sm">لا توجد بيانات</p>
-                                                </div>
+                                                <EmptyState
+                                                        size="compact"
+                                                        icon={AnimatedShoppingCart}
+                                                        title="لا توجد بيانات"
+                                                        description="ستظهر أحجام الطلبات هنا مع أول الطلبات"
+                                                />
                                         )}
                                 </div>
                         </div>
@@ -306,10 +320,12 @@ export default function AdminDashboard() {
                                                         data={stats.topItems.map((i) => ({ label: i.name, value: i.totalSold }))}
                                                 />
                                         ) : (
-                                                <div className="flex flex-col items-center justify-center h-[200px] gap-2 text-muted-foreground/50">
-                                                        <AnimatedBarChart3 className="size-8" />
-                                                        <p className="text-sm">لا توجد بيانات</p>
-                                                </div>
+                                                <EmptyState
+                                                        size="compact"
+                                                        icon={AnimatedBarChart3}
+                                                        title="لا توجد بيانات"
+                                                        description="ستظهر الأصناف الأكثر طلباً هنا مع نموّها"
+                                                />
                                         )}
                                 </div>
 
@@ -388,10 +404,11 @@ export default function AdminDashboard() {
                                                         ))}
                                                 </div>
                                         ) : (
-                                                <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                                                        <UserPlus className="size-10 text-muted-foreground/40" aria-hidden="true" />
-                                                        <p className="text-sm text-muted-foreground">لا توجد اشتراكات حديثة</p>
-                                                </div>
+                                                <EmptyState
+                                                        size="compact"
+                                                        icon={UserPlus}
+                                                        title="لا توجد اشتراكات حديثة"
+                                                />
                                         )}
                                 </div>
 
@@ -431,10 +448,11 @@ export default function AdminDashboard() {
                                                         ))}
                                                 </div>
                                         ) : (
-                                                <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                                                        <MotionLogIn className="size-10 text-muted-foreground/40" aria-hidden="true" />
-                                                        <p className="text-sm text-muted-foreground">لا توجد تسجيلات دخول حديثة</p>
-                                                </div>
+                                                <EmptyState
+                                                        size="compact"
+                                                        icon={MotionLogIn}
+                                                        title="لا توجد تسجيلات دخول حديثة"
+                                                />
                                         )}
                                 </div>
 
