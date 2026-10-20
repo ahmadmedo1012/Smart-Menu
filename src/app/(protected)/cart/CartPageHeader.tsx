@@ -36,6 +36,11 @@ export function CartPageHeader({ count }: CartPageHeaderProps) {
             نفس صياغة الشريحة الجانبية حرفياً بدل المثلث الساذج «صنف/أصناف». */}
                                         {cartCountPhrase(count)}
                                 </span>
+                                {/* W7-H (حكم صاحب القانون — إغلاق بند W7-G المتبقي):
+                                   نقطة العدّ «تتنفس بصريًا» — آخر استخدام حي لنبض
+                                   animate-breath في الأسطول، مؤشر انتباه نابض لا شكل
+                                   تحميل (‎.skeleton فعل خاطئ لها دلاليًا)؛ تبقى عمدًا
+                                   ولا يوسَّع (انظر حقيقة الأداة في globals.css). */}
                                 <span className="absolute -top-1 -end-1 size-2 rounded-full bg-primary animate-breath" />
                         </div>
                 </div>

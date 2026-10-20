@@ -1599,8 +1599,12 @@ textarea:autofill {
 }
 
 /* r95 — أدوات حركة توأم SmartBot (لأقسام 95-B/95-C).
-   حذر: ‎.animate-breath أعلاه هو نبض الشفافية القديم (1.5s) الذي تستخدمه ~19 هيكل تحميل —
-   لا يعاد استهدافه. (r121-I-6: الأداة animate-breathe حُذفت — صفر استخدام.) */
+   حذر (تصديق W7-H): ‎.animate-breath أعلاه لم يعد لغة تحميل — موجة W7-G
+   (قانون لمعة الأشكال) رحّلت هياكل التحميل الـ~19 كلها إلى ‎.skeleton.
+   الاستخدام الحي الوحيد المتبقي: نقطة شارة السلة في CartPageHeader —
+   حكم صاحب القانون في W7-H: «تتنفس بصريًا» (مؤشر انتباه نابض، لا شكل
+   تحميل)؛ يبقى عمدًا ولا يوسَّع. (r121-I-6: الأداة animate-breathe
+   حُذفت — صفر استخدام.) */
 .animate-price-swap-in {
         animation: price-swap-in var(--motion-duration-reveal, 360ms) var(--ease-out-quart) both;
 }
