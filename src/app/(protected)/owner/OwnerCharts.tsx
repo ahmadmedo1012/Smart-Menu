@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ShoppingCart, TrendingUp, Activity, DollarSign, Clock, PieChart } from 'lucide-react';
-import AnimatedDollarSign from '@/components/ui/currency-dollar-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
@@ -413,18 +412,22 @@ export function AnalyticsTab({
                                 />
                         </ChartCard>
 
-                        <div className="rounded-lg border border-border/60 bg-card p-5 shadow-sm">
-                                <h2 className="font-heading mb-4 text-sm font-semibold">اتجاه الإيرادات (7 أيام)</h2>
-                                {chartData.length > 0 && seriesHasData(chartData.map((d) => d.value)) ? (
+                        {/* W7-H (repetition audit): اللوح الخامس كان صدفة ChartCard
+                            يدوية (p-5 خارج قانون p-4 من W7-G + عنوان بالو خاص +
+                            فراغ يدوي) — يركب البدائية نفسها التي تركبها الألواح
+                            الأربعة الشقيقة: نفس الطبق، نفس الترويسة، نفس فراغ
+                            EmptyState المدمج. */}
+                        <ChartCard
+                                title="اتجاه الإيرادات (7 أيام)"
+                                icon={DollarSign}
+                                empty={!(chartData.length > 0 && seriesHasData(chartData.map((d) => d.value)))}
+                                emptyTitle="لا توجد بيانات إيرادات بعد"
+                                emptyDescription="ستظهر الإيرادات هنا مع أول الطلبات"
+                        >
+                                {chartData.length > 0 ? (
                                         <AreaChart data={chartData} height={200} />
-                                ) : (
-                                        <div className="flex h-[200px] flex-col items-center justify-center gap-2 text-muted-foreground">
-                                                <AnimatedDollarSign className="size-8 text-muted-foreground/50" aria-hidden="true" />
-                                                <p className="text-sm">لا توجد بيانات إيرادات بعد</p>
-                                                <p className="text-xs text-muted-foreground/60">ستظهر الإيرادات هنا مع أول الطلبات</p>
-                                        </div>
-                                )}
-                        </div>
+                                ) : null}
+                        </ChartCard>
                 </div>
         );
 }

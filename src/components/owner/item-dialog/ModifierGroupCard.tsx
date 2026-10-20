@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { toArabicNumber } from '@/lib/format';
 import type { GroupDraft, OptionDraft } from './types';
 import { ModifierOptionRow } from './ModifierOptionRow';
@@ -132,9 +133,15 @@ export function ModifierGroupCard({
                         <div className="space-y-2">
                                 <span className="text-xs font-medium text-muted-foreground block">الخيارات</span>
                                 {group.options.length === 0 && (
-                                        <p className="text-2xs text-muted-foreground/70">
-                                                لا توجد خيارات — أضف خيارًا واحدًا على الأقل ليظهر للزبائن
-                                        </p>
+                                        /* W7-H (repetition audit): تلميح الخيارات الفارغة يركب
+                                           القطعة المضغوطة من بدائية EmptyState — نفس عائلة
+                                           البئر الدافئة بدل سطر رمادي سادة. */
+                                        <EmptyState
+                                                size="compact"
+                                                icon={Plus}
+                                                title="لا توجد خيارات"
+                                                description="أضف خيارًا واحدًا على الأقل ليظهر للزبائن"
+                                        />
                                 )}
                                 {group.options.map((o, oi) => (
                                         <ModifierOptionRow

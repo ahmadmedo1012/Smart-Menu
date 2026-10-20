@@ -7,7 +7,8 @@
  */
 
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Layers, Plus } from 'lucide-react';
 import type { GroupDraft, OptionDraft } from './types';
 import { ModifierGroupCard } from './ModifierGroupCard';
 
@@ -57,9 +58,15 @@ export function ModifierGroupsEditor({
                                 </Button>
                         </div>
                         {groups.length === 0 && (
-                                <p className="text-xs text-muted-foreground/70">
-                                        لا توجد مجموعات بعد — «إضافة مجموعة» تبدأ مجموعة مثل «الحجم» بخياراتها وأسعارها
-                                </p>
+                                /* W7-H (repetition audit): آخر تلميح فراغ يدوي في حوار الصنف
+                                   يركب القطعة المضغوطة من بدائية EmptyState — بئر الطبق
+                                   بدل سطر رمادي سادة؛ النص كما هو حرفيا. */
+                                <EmptyState
+                                        size="compact"
+                                        icon={Layers}
+                                        title="لا توجد مجموعات بعد"
+                                        description="«إضافة مجموعة» تبدأ مجموعة مثل «الحجم» بخياراتها وأسعارها"
+                                />
                         )}
                         <div className="space-y-3">
                                 {groups.map((g, gi) => (

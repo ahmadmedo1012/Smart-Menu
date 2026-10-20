@@ -4,6 +4,9 @@ import { useState } from "react"
 import { SearchInput } from "@/components/ui/search-input"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Gift, FilterX } from "lucide-react"
+/* W7-H (repetition audit): كتلة الفراغ المُصفّى (أسفل الفلاتر داخل القائمة)
+                           تركب القطعة المضغوطة من بدائية EmptyState — نفس
+                           درجة العنبر التي يركبها الفراغ غير المُصفّى أعلاه. */
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDateShort } from '@/lib/format';
 
@@ -77,10 +80,13 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
       </div>
       <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center py-10 text-center">
-            <FilterX className="size-6 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">لا توجد إحالات مطابقة</p>
-          </div>
+          <EmptyState
+            size="compact"
+            tone="amber"
+            icon={FilterX}
+            title="لا توجد إحالات مطابقة"
+            description="جرّب كلمة بحث أو حالة أخرى"
+          />
         ) : (
           filtered.map((r) => (
             <div key={r.id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-orange/5">
