@@ -489,12 +489,12 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                             (توأم SL/SO) وأرضية لمس 44 عموديًا. خادمي خالص —
                             لا عميل ولا حالة ولا بيانات إضافية. */}
                         <footer className="relative z-10 mx-auto mt-14 w-full max-w-4xl xl:max-w-6xl px-4 pb-10">
-                                {/* W7-H (overlap audit, قياس حي 320px): فقاعة واتساب العائمة
-                                    (نهاية-16، 56px، تظهر بعد 3 ثوان) كانت تجلس فوق الزاوية
-                                    العلوية لرابط «شروط الاستخدام» (تقاطع 11×32px) عند ≤~341px —
-                                    الصف يُزاح ببديل نهاية 80px تحت 420px فقط (فوق حزام الفقاعة
-                                    +8px تنفس) فلا يعود أي رابط تحت القرص؛ ≥420px بلا أي تغيير. */}
-                                <div className="flex items-center justify-center gap-2 border-t border-border/40 pt-2 sm:gap-6 max-[420px]:pe-20">
+                                {/* W7-H2 (تصحيح الاتجاه): الإزاحة «بدايةً» (ps-20) لا «نهايةً» (pe) —
+                                    القرص عند البداية المنطقية (start-4 = اليمين في RTL)، وpe
+                                    كان يبطّن الجهة البعيدة فيدفع تمركز الروابط نحو الحزام (قياس
+                                    منسّق: تقاطع 39×12px على منيو الواحة بعد نشر W7-H). ps-20
+                                    يخرج الصف من حزام القرص في الاتجاهين؛ ≥420px بلا تغيير. */}
+                                <div className="flex items-center justify-center gap-2 border-t border-border/40 pt-2 sm:gap-6 max-[420px]:ps-20">
                                         <Link href="/privacy" className="inline-flex min-h-11 items-center px-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
                                                 سياسة الخصوصية
                                         </Link>

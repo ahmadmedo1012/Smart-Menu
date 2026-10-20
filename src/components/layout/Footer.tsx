@@ -119,17 +119,17 @@ export function Footer({ className }: FooterProps) {
                                                 <p className="text-xs text-muted-foreground">
                                                         &copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. جميع الحقوق محفوظة.
                                                 </p>
-                                                <div className="flex gap-4 text-xs text-muted-foreground max-[420px]:pe-20">
+                                                <div className="flex gap-4 text-xs text-muted-foreground max-[420px]:ps-20">
                                                         {/* r151 (LIVE-AUDIT-SM1 P2-3): الرابطان القانونيان كانا
                                                            أصغر روابط التذييل قياسًا (16px) — أرضية اللمس 44
                                                            بنمط الصف القانوني في توأم SL (min-h-11 + py-3).
-                                                           W7-H (overlap audit, قياس حي 320px على /pricing):
-                                                           أقصى يسار «سياسة الخصوصية» كان يبعد 1px فقط عن قرص
-                                                           واتساب العائم (نهاية-16 + 56px) — صفر مسافة تنفس
-                                                           في نطاق العروض التي يصل فيها الصف لحزام الفقاعة؛
-                                                           بديل نهاية 80px على الصف تحت 420px يدفع محتواه
-                                                           بعيدًا عن الحزام (الصندوق المبطَّن يتمركز والروابط
-                                                           تلتصق بحافة البداية)، ≥420px بلا أي تغيير. */}
+                                                           W7-H2 (تصحيح الاتجاه المنطقي): بديل البداية 80px (ps) لا النهاية (pe) —
+                                                           الفقاعة تجلس عند البداية المنطقية (start-4 = اليمين في
+                                                           RTL)؛ pe في RTL يبطّن الجهة البعيدة عن القرص ويدفع
+                                                           تمركز المحتوى نحوه (قياس حي 320px أعاد تقاطع 39×12px
+                                                           بعد نشر W7-H)؛ ps-20 يدفع المحتوى بعيدًا عن حزام القرص
+                                                           في الاتجاهين: بدايةً = يسار في LTR ويمين في RTL.
+                                                           ≥420px بلا أي تغيير. */}
                                                         <Link href="/terms" className="inline-flex min-h-11 items-center py-3 hover:text-foreground transition-colors">
                                                                 شروط الاستخدام
                                                         </Link>
