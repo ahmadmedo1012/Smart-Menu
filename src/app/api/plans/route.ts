@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
+import { healPlanFeatures } from "@/lib/plan-features-heal";
 
 /* ponytail: in-memory cache, 5min TTL. Invalidates on server restart or admin plan mutation.
  * Upgrade to Redis/Vercel KV when plans mutate frequently (admin panel). */
@@ -19,7 +20,12 @@ export async function GET() {
     });
     const parsed = plans.map((p) => ({
       ...p,
-      features: Array.isArray(p.features) ? p.features : JSON.parse(p.features as string),
+      /* W7-B2: شفاء عند القراءة — صفوف الإنتاج القديمة تُعرض صادقة
+         (نفس خريطة هجرة zz_w7b + فك فساد الترميز المزدوج) — العمود
+         لا يُكتب من القارئ أبدًا. */
+      features: healPlanFeatures(
+        Array.isArray(p.features) ? p.features : JSON.parse(p.features as string)
+      ),
     }));
 
     cached = { data: parsed, ts: now };

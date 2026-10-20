@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import type { Plan } from '@/lib/plan-types';
+import { healPlanFeatures } from '@/lib/plan-features-heal';
 
 /**
  * r121-G-5 (X3-V1) — the single server-side plans fetch, extracted verbatim
@@ -17,38 +18,38 @@ let cached: { data: Plan[]; ts: number } | null = null;
 const CACHE_TTL = 300_000; // 5 min — mirrors /api/plans (api/plans/route.ts)
 
 export async function getActivePlans(): Promise<Plan[] | null> {
-	try {
-		const now = Date.now();
-		if (cached && now - cached.ts < CACHE_TTL) return cached.data;
+        try {
+                const now = Date.now();
+                if (cached && now - cached.ts < CACHE_TTL) return cached.data;
 
-		const plans = await prisma.subscriptionPlan.findMany({
-			where: { isActive: true },
-			orderBy: { sortOrder: 'asc' },
-		});
-		// F-D/round91: map to explicitly-constructed plain objects — spreading
-		// Prisma rows ({...p}) leaks the row's symbol-keyed props
-		// (nodejs.util.inspect.custom) across the RSC boundary → 5×
-		// "Only plain objects can be passed to Client Components" console
-		// warnings per page load. Explicit field mapping is the RSC contract.
-		const mapped: Plan[] = plans.map((p) => ({
-			id: p.id,
-			name: p.name,
-			nameAr: p.nameAr,
-			price: Number(p.price),
-			periodDays: p.periodDays,
-			features: (Array.isArray(p.features)
-				? p.features
-				: JSON.parse(p.features as string)) as string[],
-			maxMenus: p.maxMenus,
-			maxItems: p.maxItems,
-			maxOrders: p.maxOrders,
-			sortOrder: p.sortOrder,
-		}));
+                const plans = await prisma.subscriptionPlan.findMany({
+                        where: { isActive: true },
+                        orderBy: { sortOrder: 'asc' },
+                });
+                // F-D/round91: map to explicitly-constructed plain objects — spreading
+                // Prisma rows ({...p}) leaks the row's symbol-keyed props
+                // (nodejs.util.inspect.custom) across the RSC boundary → 5×
+                // "Only plain objects can be passed to Client Components" console
+                // warnings per page load. Explicit field mapping is the RSC contract.
+                const mapped: Plan[] = plans.map((p) => ({
+                        id: p.id,
+                        name: p.name,
+                        nameAr: p.nameAr,
+                        price: Number(p.price),
+                        periodDays: p.periodDays,
+                        features: healPlanFeatures(
+                                Array.isArray(p.features) ? p.features : JSON.parse(p.features as string)
+                        ) as string[],
+                        maxMenus: p.maxMenus,
+                        maxItems: p.maxItems,
+                        maxOrders: p.maxOrders,
+                        sortOrder: p.sortOrder,
+                }));
 
-		cached = { data: mapped, ts: now };
-		return mapped;
-	} catch {
-		// keep the client-side fallback path alive
-		return null;
-	}
+                cached = { data: mapped, ts: now };
+                return mapped;
+        } catch {
+                // keep the client-side fallback path alive
+                return null;
+        }
 }
