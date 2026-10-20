@@ -156,11 +156,12 @@ export function CategoryTabs({
     <>
       {/* Trigger row — sticky below StickyMenuHeader exactly where the pill
           strip lived (md:top-14, glass backdrop, z-20). 44px+ target
-          (h-12/sm:h-14), the MenuToolbar card family. */}
+          (h-12/sm:h-14), the MenuToolbar card family.
+          W7-G (P1): الالتصاق يركب إزاحة شريط الاتصال مع الرأس (‎3.5rem + الشريط‎). */}
       <div
         className={cn(
           "mb-6",
-          "md:sticky md:top-14 md:z-20 md:bg-background/80 md:backdrop-blur-xl md:pt-3",
+          "md:sticky md:top-[calc(3.5rem+var(--conn-banner-h,0px))] md:z-20 md:bg-background/80 md:backdrop-blur-xl md:pt-3",
           className
         )}
       >

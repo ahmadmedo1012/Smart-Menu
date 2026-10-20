@@ -145,9 +145,12 @@ export default async function RootLayout({
                         <script
                                 dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }}
                         />
-                        {/* r131-F4 (r130 SO ruling): pre-paint theme boot — dark
-                            default, .light only when stored; public pages run under the
-                            cacheable-page CSP which allows 'unsafe-inline'. */}
+                        {/* r131-F4 → r152 (W7-G comment-truth fix): pre-paint theme
+                            boot — LIGHT is the default; .dark only when stored. (The old
+                            comment claimed «dark default, .light only when stored» —
+                            stale wording from the r130 SO era; the boot script itself
+                            has been light-first since the r152 flip.) Public pages run
+                            under the cacheable-page CSP which allows 'unsafe-inline'. */}
                         <script
                                 dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
                         />

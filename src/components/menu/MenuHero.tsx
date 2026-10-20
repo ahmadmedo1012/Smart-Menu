@@ -170,7 +170,10 @@ export function MenuHero({
                         instead of the old scattered glass-pill rows. The phone
                         number rides LTR mono numerals (DESIGN.md digital-
                         content law). Nothing is invented: every row renders
-                        only from the owner's real data. */}
+                        only from the owner's real data.
+                        W7-G (VLM 13b): فاصل الأيقونة↔القيمة يركب gap-3 (12px)
+                        — درجة عائلة الأيقونة-النص في الأسطح المجاورة؛ كان gap-2.5
+                        مضغوطاً بصرياً عند 390 و1440 معاً (تقرير الالتقاط). */}
                     {(hasContact || restaurant.workingHours || (restaurant.hours?.length ?? 0) > 0) && (
                         <div
                             className="relative mx-auto mt-4 md:mt-6 w-fit max-w-full rounded-xl border-2 border-orange/30 bg-card/70 dark:bg-card/50 ring-1 ring-orange/10 shadow-lg shadow-orange/10 px-4 py-2 text-start"
@@ -184,7 +187,7 @@ export function MenuHero({
                                     الخادمية كانت ستكذب لحظة الخبز). لا ساعات مهيكلة
                                     ولا نص حر → الصف كله لا يُرسم (غياب صادق). */}
                                 {(restaurant.workingHours || (restaurant.hours?.length ?? 0) > 0) && (
-                                    <div className="flex min-h-11 flex-wrap items-center gap-x-2.5 gap-y-1 px-1.5 py-1">
+                                    <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 px-1.5 py-1">
                                         <AnimatedClock className="size-3.5 shrink-0 text-accent-foreground" aria-hidden="true" />
                                         <OpenStatusBadge hours={restaurant.hours} />
                                         {restaurant.workingHours && (
@@ -203,7 +206,7 @@ export function MenuHero({
                                            tel: على معظم الأجهزة. العرض يبقى بصيغة المالك كما هي
                                            (href مطوّع، عرض خام). */
                                         href={`tel:${normalizeCustomerPhone(restaurant.phone) ?? restaurant.phone}`}
-                                        className="flex min-h-11 items-center gap-2.5 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-orange-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        className="flex min-h-11 items-center gap-3 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-orange-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                     >
                                         {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
                                         <Phone className="size-3.5 shrink-0 text-accent-foreground" aria-hidden="true" />
@@ -225,7 +228,7 @@ export function MenuHero({
                                             href={`https://wa.me/${wa}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex min-h-11 items-center gap-2.5 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-success/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                            className="flex min-h-11 items-center gap-3 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-success/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         >
                                             <span className="relative flex size-2 shrink-0" aria-hidden="true">
                                                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-whatsapp opacity-60" />
@@ -246,7 +249,7 @@ export function MenuHero({
                                 {restaurant.email && (
                                     <a
                                         href={`mailto:${restaurant.email}`}
-                                        className="flex min-h-11 items-center gap-2.5 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-orange-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                        className="flex min-h-11 items-center gap-3 rounded-sm px-1.5 text-sm transition-colors duration-fast hover:bg-orange-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                     >
                                         {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
                                         <Mail className="size-3.5 shrink-0 text-accent-foreground" aria-hidden="true" />
@@ -256,7 +259,7 @@ export function MenuHero({
                                     </a>
                                 )}
                                 {restaurant.address && (
-                                    <div className="flex min-h-11 items-center gap-2.5 px-1.5 py-1 text-sm text-muted-foreground">
+                                    <div className="flex min-h-11 items-center gap-3 px-1.5 py-1 text-sm text-muted-foreground">
                                         <AnimatedMapPin className="size-3.5 shrink-0" aria-hidden="true" />
                                         <span className="text-xs sm:text-sm break-words">{restaurant.address}</span>
                                     </div>

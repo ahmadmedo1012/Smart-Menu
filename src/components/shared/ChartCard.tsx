@@ -41,7 +41,9 @@ export function ChartCard({
         return (
                 <section
                         className={cn(
-                                'rounded-xl border border-border/60 bg-card p-5 shadow-sm',
+                                /* W7-G (P2, A2 audit): الطبق القانوني — rounded-lg (16)
+                                   + p-4 (كان rounded-xl 20 + p-5 خارج سلّم أطباق r152). */
+                                'rounded-lg border border-border/60 bg-card p-4 shadow-sm',
                                 className
                         )}
                 >

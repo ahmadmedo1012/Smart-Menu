@@ -108,6 +108,23 @@ export function tickIndices(length: number, maxTicks: number): number[] {
         return out;
 }
 
+/**
+ * W7-G (P1, A2 audit — chart tooltip bleed): the hover tooltips ride
+ * `left: X%` + `-translate-x-1/2`, so hovering the FIRST/LAST bar or point
+ * pushed half the tooltip past the ChartCard edge. This clamps the tooltip's
+ * CENTER inside the container: [halfTip, 100% − halfTip] — expressed as a CSS
+ * min/max chain so the clamp resolves at used-value time against the real
+ * container width (no container measurement needed; only the tooltip's own
+ * half-width, measured after mount). Before the measurement lands (first
+ * frame) it degrades to the legacy unclamped `X%`.
+ *
+ * Pure geometry — zero color literals (the file's pinned law).
+ */
+export function clampedTooltipLeft(xPercent: number, halfTipPx: number): string {
+        if (!(halfTipPx > 0)) return `${xPercent}%`;
+        return `min(max(${xPercent}%, ${halfTipPx}px), calc(100% - ${halfTipPx}px))`;
+}
+
 /* r130 (W2-3, P0-4): SERIES_PALETTE is RETIRED — it hardcoded the NIGHT
  * chart values (#E9B44C #7FD39A #8FBBF2 #F0938F #B7A0F4 + an ad-hoc
  * oklch 6th series), so light mode rendered night-tuned slices. Charts now

@@ -478,6 +478,14 @@
         --z-toast: 500;
         --z-lightbox: 600;
 
+        /* ── شريط الاتصال (W7-G, P1 — A2 audit) ──
+           الإزاحة التي تنزل بها الرؤوس اللاصقة أثناء ظهور شريط الاتصال
+           (ConnectivityBanner يشعل ‎html[data-conn-banner]‎ فيصبح
+           ‎--conn-banner-h‎ = ارتفاع الشريط؛ الرأس كامل المرئية/اللمس تحت
+           الشريط بدل أن يُغطى أعلاه — كانت مفاتيح الثيم/الهمبرغر نصف
+           مخفية أثناء الانقطاع). */
+        --conn-banner-h: 0px;
+
         /* ── Semantic status + text-safe inks (light split: base = family
            ink for fills/strokes · -soft = pastel bg tint · -ink = family
            DEEP for text, 6.0-8.7:1 on cream) ── */
@@ -946,6 +954,15 @@ html.high-contrast {
 html.high-contrast :focus-visible {
         outline-width: 3px;
         outline-offset: 2px;
+}
+
+/* W7-G (P1, A2 audit): أثناء ظهور شريط الاتصال الثابت (h-10) يستقل كل رأس
+   لاصق بمقدار ارتفاعه — الرؤوس تستهلك ‎top-[var(--conn-banner-h,0px)]‎
+   (StickyMenuHeader + LayoutHeader) وكل ما يلتصق تحتها يستهلك
+   ‎top-[calc(3.5rem+var(--conn-banner-h,0px))]‎ (شريط التقدم + مُشغّل
+   الفئات). الشريط يبقى في نطاق التغطية ‎z-[90]‎ كأعلى معلومة أولية. */
+html[data-conn-banner] {
+        --conn-banner-h: 2.5rem;
 }
 
 /* ══════════════════════════════════════════════════════════════

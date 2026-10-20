@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { clampedTooltipLeft } from '@/lib/chart-geometry';
 import { useChartTokens } from '@/components/shared/chart-tokens';
 
 interface DataPoint {
@@ -43,6 +44,15 @@ export function AreaChart({
         ariaLabel,
 }: AreaChartProps) {
         const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+        /* W7-G (P1, A2 audit): نصف عرض التلميح مقيساً — يغذي clampedTooltipLeft
+           فلا ينزف التلميح خارج حافة البطاقة عند أول/آخر نقطة. */
+        const tipRef = useRef<HTMLDivElement>(null);
+        const [tipHalf, setTipHalf] = useState(0);
+        useLayoutEffect(() => {
+                if (!tooltip || !tipRef.current) return;
+                const half = Math.round(tipRef.current.offsetWidth / 2);
+                setTipHalf((prev) => (prev === half ? prev : half));
+        }, [tooltip]);
         // r130 (W2-3, P0-4): stroke + gradient stops ride the draw-time chart
         // tokens — --chart-1 (terracotta chain) for the stroke, --accent-hover
         // (terracotta-hover chain) for the top stop — so the chart follows
@@ -174,11 +184,18 @@ export function AreaChart({
                                         )}
                         </svg>
 
-                        {/* Tooltip */}
+                        {/* Tooltip — W7-G (P1, A2 audit): الموضع كان بوحدات viewBox
+                            مطبقة كـpx خام (صحيح فقط بعرض 600px) — الآن نسب مئوية
+                           تتبع الحاوية الحقيقية عند كل عرض، والمحور الأفقي
+                           يُقيَّد داخل البطاقة عبر clampedTooltipLeft. */}
                         {tooltip && (
                                 <div
+                                        ref={tipRef}
                                         className="absolute pointer-events-none z-10 -translate-x-1/2"
-                                        style={{ left: tooltip.x, top: tooltip.y }}
+                                        style={{
+                                                left: clampedTooltipLeft((tooltip.x / width) * 100, tipHalf),
+                                                top: `${(tooltip.y / height) * 100}%`,
+                                        }}
                                 >
                                         <div className="rounded-md border border-border/40 bg-card/95 px-2.5 py-1.5 text-xs shadow-lg backdrop-blur-xl whitespace-nowrap">
                                                 <p className="font-medium text-foreground">{tooltip.label}</p>

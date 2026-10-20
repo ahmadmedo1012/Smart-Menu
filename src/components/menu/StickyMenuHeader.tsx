@@ -79,7 +79,10 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                 <>
                         <div
                                 className={cn(
-                                        'fixed inset-x-0 top-0 z-30 h-14 flex items-center px-4 gap-3 transition-[background-color,box-shadow] duration-base',
+                                        /* W7-G (P1, A2 audit): يستهلك إزاحة شريط الاتصال —
+                                            أثناء الانقطاع ينزل الرأس تحت الشريط بدل أن
+                                            يغطيه (كانت مفاتيح الثيم/الهمبرغر نصف مخفية). */
+                                        'fixed inset-x-0 top-[var(--conn-banner-h,0px)] z-30 h-14 flex items-center px-4 gap-3 transition-[background-color,box-shadow] duration-base',
                                         scrolled ? 'glass-strong' : 'bg-transparent'
                                 )}
                         >
@@ -205,7 +208,8 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                             In RTL the bar anchors at the reading start (right) and grows
                             leftward; the gradient flips to -l so the strong tip leads the fill. */}
                         <m.div
-                                className="fixed inset-x-0 top-14 z-30 h-[2px] origin-left rtl:origin-right bg-gradient-to-l from-orange/60 to-orange"
+                                /* W7-G: يركب إزاحة شريط الاتصال مع الرأس (‎3.5rem + الشريط‎) */
+                                className="fixed inset-x-0 top-[calc(3.5rem+var(--conn-banner-h,0px))] z-30 h-[2px] origin-left rtl:origin-right bg-gradient-to-l from-orange/60 to-orange"
                                 style={{ scaleX: progress }}
                                 aria-hidden
                         />

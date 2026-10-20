@@ -113,7 +113,11 @@ function OrderContent() {
                                                                         <div className="size-14 rounded-full bg-orange flex items-center justify-center animate-scale-in">
                                                                                 <CheckCircle className="size-7 text-orange-foreground" />
                                                                         </div>
-                                                                        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-[#FBF7F0]">تم إرسال طلب الاشتراك!</h1>
+                                                                        {/* W7-G (P2, A2 audit): الحرفي الخام ‎#FBF7F0‎ حُذف — حبر النص
+                                                                            على الأرضية الداكنة له توكن قانوني: ‎--text-on-dark‎
+                                                                            (‎#FBF7F0‎ فاتح / ‎#F7EFE2‎ ليلي) — نفس الدلالة، بلا تجاوز
+                                                                            لقانون التوكنات. */}
+                                                                        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-(--text-on-dark)">تم إرسال طلب الاشتراك!</h1>
                                                                 </div>
                                                         </div>
                                                         <div className="px-6 pb-8 pt-6 space-y-6">
@@ -169,7 +173,7 @@ function OrderContent() {
                                                                 <div className="size-14 rounded-full bg-success flex items-center justify-center animate-scale-in">
                                                                         <CheckCircle className="size-7 text-success-foreground" />
                                                                 </div>
-                                                                <h1 className="font-heading text-2xl sm:text-3xl font-bold text-[#FBF7F0]">تم تأكيد الطلب!</h1>
+                                                                <h1 className="font-heading text-2xl sm:text-3xl font-bold text-(--text-on-dark)">تم تأكيد الطلب!</h1>
                                                         </div>
                                                 </div>
 

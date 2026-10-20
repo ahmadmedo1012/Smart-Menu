@@ -31,7 +31,9 @@ export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, rol
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 border-b bg-background/86 backdrop-blur-lg backdrop-saturate-[140%] transition-[border-color,background-color] duration-base ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))]",
+        /* W7-G (P1, A2 audit): يستهلك إزاحة شريط الاتصال — أثناء الانقطاع
+           ينزل الرأس تحت الشريط بدل أن يغطيه (globals.css ‎--conn-banner-h‎). */
+        "sticky top-[var(--conn-banner-h,0px)] z-30 border-b bg-background/86 backdrop-blur-lg backdrop-saturate-[140%] transition-[border-color,background-color] duration-base ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))]",
         scrolled ? "border-border" : "border-transparent"
       )}
     >

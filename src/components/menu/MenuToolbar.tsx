@@ -428,7 +428,13 @@ export function MenuToolbar({
                                                    التركيز للمُشغّل — كان يُرمى على <body>. */}
                                                 <div className="fixed inset-0 z-40" onClick={() => closeSortMenu()} aria-hidden="true" />
                                                 <div
-                                                        className="absolute end-0 top-full z-50 mt-2 w-48 origin-top-right overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg animate-scale-in sm:end-auto sm:start-0 sm:w-52"
+                                                        /* W7-G (P0, A2 audit): حُذف تجاوز ‎sm:end-auto sm:start-0‎ —
+                                                           في RTL يجلس الزناد أقصى اليسار، وstart-0‎ كان يرسّخ حافة
+                                                           القائمة اليمنى عند الزناد فيمدّها ~150px خارج الشاشة
+                                                           (تقصّها overflow-x-clip) بين 640-1200px. ‎end-0‎ (يسار:0)
+                                                           يمدّها داخل الصفحة عند كل المقاسات. origin-top-left
+                                                           فيزيائي: زاوية الانبثاق = زاوية الزناد تحت RTL. */
+                                                        className="absolute end-0 top-full z-50 mt-2 w-48 origin-top-left overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg animate-scale-in sm:w-52"
                                                         role="menu"
                                                         aria-label="خيارات الترتيب"
                                                         tabIndex={-1}
