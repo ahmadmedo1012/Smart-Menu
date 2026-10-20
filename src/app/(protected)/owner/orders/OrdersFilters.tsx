@@ -2,8 +2,8 @@
 
 import { SearchInput } from '@/components/ui/search-input';
 import { Button } from '@/components/ui/button';
+import { FilterTabs } from '@/components/ui/filter-tabs';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
 
 export interface FilterTab {
         value: string;
@@ -129,42 +129,15 @@ export function OrdersFilters({
                         )}
                 </div>
 
-                {/* Status filter chips with counts */}
-                <div
-                        className="flex gap-2 overflow-x-auto pb-2 scrollbar-none snap-x"
-                        role="group"
+                {/* Status filter chips with counts — W7-G (I-4, A2 audit):
+                    الصف يركب بدائية FilterTabs الموحّدة (حبة العدّ عبر
+                    count) بدل الرقائق المكتوبة يدوياً. */}
+                <FilterTabs
+                        items={tabs.map((tab) => ({ value: tab.value, label: tab.label, count: tab.count }))}
+                        value={filter}
+                        onChange={onFilterChange}
                         aria-label="تصفية حسب الحالة"
-                >
-                        {tabs.map((tab) => (
-                                <button
-                                        key={tab.value}
-                                        type="button"
-                                        onClick={() => onFilterChange(tab.value)}
-                                        aria-pressed={filter === tab.value}
-                                        className={cn(
-                                                'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color] duration-base flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                /* Phase 6 (r154): terracotta active state — solid
-                                                   editorial fill (the gradient wash + glow shadow
-                                                   retire; the warm hairline hover stays). */
-                                                filter === tab.value
-                                                        ? 'bg-orange text-orange-foreground shadow-sm'
-                                                        : 'bg-card/50 border border-border/30 hover:border-orange/30 hover:bg-orange-muted/40'
-                                        )}
-                                >
-                                        {tab.label}
-                                        <span
-                                                className={cn(
-                                                        'inline-flex items-center justify-center size-5 rounded-full text-2xs font-bold',
-                                                        filter === tab.value
-                                                                ? 'bg-orange-foreground/15 text-orange-foreground'
-                                                                : 'bg-muted text-muted-foreground'
-                                                )}
-                                        >
-                                                {toArabicNumber(tab.count)}
-                                        </span>
-                                </button>
-                        ))}
-                </div>
+                />
                 </>
         );
 }

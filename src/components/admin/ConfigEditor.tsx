@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { FilterTabs } from '@/components/ui/filter-tabs';
+import { EmptyState } from '@/components/ui/empty-state';
 import { premiumToast } from '@/lib/premium-toast';
 import {Settings} from 'lucide-react';
 import AnimatedSave from '@/components/ui/save-icon';
@@ -117,38 +119,34 @@ export function ConfigEditor() {
                 }
         };
 
-        if (loading) return <div className="h-32 rounded-md bg-muted/50 animate-breath" />;
+        /* W7-G (A2 audit): الأشكال ترتجف بلمعة .skeleton القانونية — نبض
+           الشفافية المتقاعد (animate-breath) كان لغة تحميل ثانية. */
+        if (loading) return <div className="h-32 rounded-md skeleton" />;
 
         return (
                 <div className="space-y-4">
-                        {/* Category tabs */}
-                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-                                {CATEGORIES.map((cat) => (
-                                        <button
-                                                key={cat}
-                                                type="button"
-                                                onClick={() => setActiveCategory(cat)}
-                                                className={cn(
-                                                        'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                        activeCategory === cat
-                                                                ? 'bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground'
-                                                                : 'border-border/30 hover:border-orange/20'
-                                                )}
-                                        >
-                                                {CATEGORY_LABELS[cat] || cat}
-                                                <Badge variant="outline" className="ms-2 text-3xs px-1.5">
-                                                        {configs.filter((c) => c.category === cat).length}
-                                                </Badge>
-                                        </button>
-                                ))}
-                        </div>
+                        {/* Category tabs — W7-G (I-4, A2 audit): يركب بدائية
+                            FilterTabs الموحّدة؛ العدّ صار حبة العدّ القانونية
+                            بدل Badge خارجية (كانت المجموعة بلا اسم للقارئ
+                            أيضاً — البدائية تُلزم aria-label). */}
+                        <FilterTabs
+                                items={CATEGORIES.map((cat) => ({
+                                        value: cat,
+                                        label: CATEGORY_LABELS[cat] || cat,
+                                        count: configs.filter((c) => c.category === cat).length,
+                                }))}
+                                value={activeCategory}
+                                onChange={setActiveCategory}
+                                aria-label="أقسام الإعدادات"
+                        />
 
                         {/* Config items */}
                         {filtered.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
-                                        <Settings className="size-10 text-muted-foreground/50" />
-                                        <p className="text-sm">لا توجد إعدادات في هذا القسم</p>
-                                </div>
+                                <EmptyState
+                                        size="compact"
+                                        icon={Settings}
+                                        title="لا توجد إعدادات في هذا القسم"
+                                />
                         ) : (
                                 <div className="space-y-2">
                                         {filtered.map((item) => (

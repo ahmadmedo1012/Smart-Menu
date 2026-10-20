@@ -19,6 +19,8 @@ import { toArabicNumber, formatPrice } from "@/lib/format"
 import { ORDER_STATUS_META, getOrderStatusMeta } from '@/lib/order-status';
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { FilterTabs } from "@/components/ui/filter-tabs"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
 
@@ -207,7 +209,8 @@ export default function AdminOrdersPage() {
   if (loading && orders.length === 0) return (
     <div className="space-y-4 animate-fade-in">
       <LoadingAnnouncer loading message="جارٍ تحميل الطلبات…" />
-      {[1,2,3].map(i => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
+      {/* W7-G (A2 audit): الأشكال ترتجف بلمعة .skeleton القانونية — نبض الشفافية المتقاعد (animate-breath) كان لغة تحميل ثانية. */}
+      {[1,2,3].map(i => <div key={i} className="h-20 rounded-md skeleton" />)}
     </div>
   )
 
@@ -302,26 +305,22 @@ export default function AdminOrdersPage() {
         )}
       </div>
 
-      {/* Status tabs — Phase 6 (r154): solid terracotta active fill (the
-          gradient wash + glow retire, the owner OrdersFilters grammar). */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {TABS.map(tab => (
-          <button key={tab.value} type="button" onClick={() => { setFilter(tab.value); setPage(1) }}
-            aria-pressed={filter === tab.value}
-            className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color,box-shadow] duration-base",
-              filter === tab.value
-                ? "bg-orange text-orange-foreground shadow-sm"
-                : "bg-card/50 border border-border/30 hover:border-orange/30 hover:bg-orange-muted/40"
-            )}>{tab.label}</button>
-        ))}
-      </div>
+      {/* Status tabs — W7-G (I-4, A2 audit): الصف يركب بدائية FilterTabs
+          الموحّدة — معالجة نشطة واحدة (صلب تراكوتا r154) لكل صفوف الفلترة
+          في اللوحتين بدل الأربع لغات المكتوبة يدوياً. */}
+      <FilterTabs
+        items={TABS}
+        value={filter}
+        onChange={(v) => { setFilter(v); setPage(1) }}
+        aria-label="تصفية الطلبات حسب الحالة"
+      />
 
       {/* Orders list */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-          <ClipboardList className="size-12 text-muted-foreground/50" />
-          <p className="text-lg font-medium">{search ? "لا توجد نتائج" : "لا توجد طلبات"}</p>
-        </div>
+        <EmptyState
+          icon={ClipboardList}
+          title={search ? "لا توجد نتائج" : "لا توجد طلبات"}
+        />
       ) : (
         <div className="space-y-3">
           {filtered.map(order => {

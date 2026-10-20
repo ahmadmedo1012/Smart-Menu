@@ -12,6 +12,7 @@ import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 import AnimatedStar from '@/components/ui/star-icon';
 import { EmptyState } from '@/components/ui/empty-state';
+import { FilterTabs } from '@/components/ui/filter-tabs';
 /* r138 (P1-3): المعلن المعتمد للتحميل — نفس نمط PickupTypeSelector
    في رحلة الزبون (role=status + sr-only + إعلان الاكتمال). */
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
@@ -358,39 +359,30 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                 )}
                                                 {/* Star filter — r135-C: الفلترة على الخادم minRating أي «N نجوم
                                                     وأعلى» (gte) — التسميات كانت «N ★» فقط فتوهم حصرًا بالنجم
-                                                    المفرد؛ صُحّحت: «٤★ وأعلى»… و«٥★» تامة لأنها القمة. aria-pressed
-                                                    لكل رقاقة (نمط toggle الفلتر) + اسم مجموعة للقارئ. */}
-                                                <div
-                                                        role="group"
-                                                        aria-label="تصفية التقييمات حسب النجوم"
-                                                        className="flex gap-1.5 px-5 py-3 border-b border-border/10 overflow-x-auto"
-                                                >
-                                                        {[null, 5, 4, 3, 2, 1].map((star) => (
-                                                                <button
-                                                                        key={star ?? 'all'}
-                                                                        onClick={() => setFilterStar(star)}
-                                                                        aria-pressed={filterStar === star}
-                                                                        className={cn(
-                                                                                'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                                filterStar === star
-                                                                                        ? 'bg-orange text-orange-foreground border-orange shadow-sm'
-                                                                                        : 'bg-muted/30 text-muted-foreground border-border/20 hover:bg-muted/50'
-                                                                        )}
-                                                                >
-                                                                        {/* r97-X1: رقم عربي + نجمة lucide بدل `${star} ⭐` */}
-                                                                        {star ? (
+                                                    المفرد؛ صُحّحت: «٤★ وأعلى»… و«٥★» تامة لأنها القمة.
+                                                    W7-G (I-4): يركب بدائية FilterTabs الموحّدة — aria-pressed
+                                                    واسم المجموعة عبر البدائية. */}
+                                                <FilterTabs<number | null>
+                                                        className="gap-1.5 px-5 py-3 pb-3 border-b border-border/10"
+                                                        items={[null, 5, 4, 3, 2, 1].map((star) => ({
+                                                                value: star,
+                                                                label:
+                                                                        star === null ? (
+                                                                                'الكل'
+                                                                        ) : (
                                                                                 <>
+                                                                                        {/* r97-X1: رقم عربي + نجمة lucide بدل `${star} ⭐` */}
                                                                                         {toArabicNumber(star)}
                                                                                         <Star className="size-3 fill-current" aria-hidden="true" />
                                                                                         {/* r135-C: «وأعلى» — الفلتر gte يشمل النجوم الأعلى */}
                                                                                         {star < 5 && ' وأعلى'}
                                                                                 </>
-                                                                        ) : (
-                                                                                'الكل'
-                                                                        )}
-                                                                </button>
-                                                        ))}
-                                                </div>
+                                                                        ),
+                                                        }))}
+                                                        value={filterStar}
+                                                        onChange={setFilterStar}
+                                                        aria-label="تصفية التقييمات حسب النجوم"
+                                                />
 
                                                 {/* Submit form */}
                                                 <div className="border-b border-border/10 px-5 py-4 space-y-3">

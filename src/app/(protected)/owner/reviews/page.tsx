@@ -11,6 +11,7 @@ import { toArabicNumber, formatDateShort } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { ListPageSkeleton } from "@/components/shared/DashboardSkeletons";
@@ -148,31 +149,26 @@ export default function OwnerReviewsPage() {
         </div>
       </div>
 
-      {/* Filter — P10-2 (g): قواعد ر97-X1 المثبّتة في ReviewSheet (رقم + نجمة
-          lucide بدل ⭐، aria-pressed لكل رقاقة، اسم مجموعة للقارئ) */}
-      <div role="group" aria-label="تصفية التقييمات حسب النجوم" className="flex gap-2 overflow-x-auto pb-2">
-        {[null, 5, 4, 3, 2, 1].map((star) => (
-          <button
-            key={star ?? "all"}
-            onClick={() => setFilterStar(star)}
-            aria-pressed={filterStar === star}
-            className={cn(
-              "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border inline-flex items-center gap-1",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
-              filterStar === star
-                ? "bg-orange text-orange-foreground border-orange shadow-sm"
-                : "bg-card/50 text-muted-foreground border-border/20 hover:bg-muted/50",
-            )}
-          >
-            {star ? (
+      {/* Filter — W7-G (I-4): يركب بدائية FilterTabs الموحّدة (النموذج
+          العامي للأرقام ‎number | null‎) — نفس تسميات r97-X1 (رقم + نجمة
+          lucide) ونفس aria-pressed عبر البدائية. */}
+      <FilterTabs<number | null>
+        items={[null, 5, 4, 3, 2, 1].map((star) => ({
+          value: star,
+          label:
+            star === null ? (
+              "الكل"
+            ) : (
               <>
                 {toArabicNumber(star)}
                 <Star className="size-3 fill-current" aria-hidden="true" />
               </>
-            ) : ("الكل")}
-          </button>
-        ))}
-      </div>
+            ),
+        }))}
+        value={filterStar}
+        onChange={setFilterStar}
+        aria-label="تصفية التقييمات حسب النجوم"
+      />
 
       {/* Reviews list */}
       {loading ? (

@@ -18,8 +18,14 @@ import { cn } from "@/lib/utils"
  * Families flip per theme (light pastel grounds / luminous night inks).
  * `tone` maps onto the warm pairs — plate default, danger for error
  * states; error states keep their retry CTA.
+ *
+ * W7-G (A2 audit — the 18 hand-rolled empties): `size="compact"` is the
+ * density cut for nested panels and dropdown wells where the full 56px
+ * plate would shout — size-10 well · size-4 icon · text-sm title ·
+ * tighter padding. Same tone families, same slot contract.
  */
 type EmptyStateTone = "plate" | "sage" | "amber" | "danger"
+type EmptyStateSize = "default" | "compact"
 
 const TONE_TILE: Record<EmptyStateTone, string> = {
   plate: "bg-(--c-copper-bg) text-(--c-copper-ink)",
@@ -34,6 +40,7 @@ function EmptyState({
         description,
         action,
         tone = "plate",
+        size = "default",
         className,
         ...props
 }: React.ComponentProps<"div"> & {
@@ -47,12 +54,16 @@ function EmptyState({
         action?: React.ReactNode;
         /** Warm tint family for the plate well (terracotta default, danger for errors). */
         tone?: EmptyStateTone;
+        /** Density cut — "compact" (size-10 well, tighter padding) for nested panels and dropdown wells. */
+        size?: EmptyStateSize;
 }) {
+        const compact = size === "compact"
         return (
                 <div
                         data-slot="empty-state"
                         className={cn(
                                 "flex flex-col items-center justify-center gap-2 px-6 py-12 text-center",
+                                compact && "gap-1.5 px-4 py-6",
                                 className
                         )}
                         {...props}
@@ -61,24 +72,31 @@ function EmptyState({
                                 data-slot="empty-state-icon"
                                 className={cn(
                                         "flex size-14 items-center justify-center rounded-lg",
+                                        compact && "size-10",
                                         TONE_TILE[tone]
                                 )}
                                 aria-hidden="true"
                         >
-                                <Icon className="size-5" aria-hidden="true" />
+                                <Icon className={compact ? "size-4" : "size-5"} aria-hidden="true" />
                         </span>
-                        <p data-slot="empty-state-title" className="mt-1 text-lg font-semibold text-foreground">
+                        <p
+                                data-slot="empty-state-title"
+                                className={cn("mt-1 text-lg font-semibold text-foreground", compact && "text-sm")}
+                        >
                                 {title}
                         </p>
                         {description ? (
                                 <p
                                         data-slot="empty-state-description"
-                                        className="max-w-[42ch] text-sm leading-relaxed text-muted-foreground"
+                                        className={cn(
+                                                "max-w-[42ch] text-sm leading-relaxed text-muted-foreground",
+                                                compact && "text-xs"
+                                        )}
                                 >
                                         {description}
                                 </p>
                         ) : null}
-                        {action ? <div data-slot="empty-state-action" className="mt-3">{action}</div> : null}
+                        {action ? <div data-slot="empty-state-action" className={compact ? "mt-2" : "mt-3"}>{action}</div> : null}
                 </div>
         )
 }

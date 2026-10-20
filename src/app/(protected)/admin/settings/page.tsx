@@ -13,12 +13,12 @@ import {
   Settings, User,
 } from "lucide-react"
 import { ConfigEditor } from "@/components/admin/ConfigEditor"
-import { cn } from "@/lib/utils"
 import AnimatedMapPin from "@/components/ui/map-pin-icon"
 import AnimatedClock from "@/components/ui/clock-icon"
 import AnimatedSave from "@/components/ui/save-icon"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { FilterTabs } from "@/components/ui/filter-tabs"
 import { SettingsPageSkeleton } from "@/components/shared/DashboardSkeletons"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
@@ -179,30 +179,23 @@ export default function AdminSettingsPage() {
           aria-controls/tabpanel) that was never implemented. These buttons filter
           a single in-place settings panel, so the honest pattern is a named group
           + aria-pressed toggles (same a11y decision as CategoryTabs.tsx). */}
-      {/* Tab navigation — Phase 6 (r154): pill chips (rounded-full, the
-          owner OrdersFilters grammar). */}
-      <div role="group" aria-label="أقسام الإعدادات" className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {SETTINGS_TABS.map((tab) => {
-          const Icon = tab.icon
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              aria-pressed={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-full text-sm font-medium border transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
-                activeTab === tab.id
-                  ? "bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground"
-                  : "border-border/30 hover:border-orange/20"
-              )}
-            >
-              <Icon className="size-4" />
+      {/* Tab navigation — W7-G (I-4, A2 audit): الصفّان يركبان بدائية
+          FilterTabs الموحّدة (معالجة نشطة واحدة) — نمط المجموعة + aria-pressed
+          كما في قرار r127-F3 (K-8): ليست tablist — تصفية لوحة واحدة في المكان. */}
+      <FilterTabs
+        items={SETTINGS_TABS.map((tab) => ({
+          value: tab.id,
+          label: (
+            <>
+              <tab.icon className="size-4" aria-hidden="true" />
               {tab.label}
-            </button>
-          )
-        })}
-      </div>
+            </>
+          ),
+        }))}
+        value={activeTab}
+        onChange={setActiveTab}
+        aria-label="أقسام الإعدادات"
+      />
 
       {/* === Restaurant Settings === */}
       {activeTab === "restaurants" && <section>
@@ -211,24 +204,20 @@ export default function AdminSettingsPage() {
           <h2 className="font-heading text-lg font-semibold">إعدادات المطاعم</h2>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {restaurants.map(r => (
-            <button
-              key={r.id}
-              type="button"
-              onClick={() => setSelectedId(r.id)}
-              className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-full text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
-                selectedId === r.id
-                  ? "bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground"
-                  : "border-border/30 hover:border-orange/20"
-              )}
-            >
-              <Store className="size-4 inline me-1.5" aria-hidden="true" />
-              {r.name}
-            </button>
-          ))}
-        </div>
+        <FilterTabs
+          items={restaurants.map((r) => ({
+            value: r.id,
+            label: (
+              <>
+                <Store className="size-4" aria-hidden="true" />
+                {r.name}
+              </>
+            ),
+          }))}
+          value={selectedId}
+          onChange={setSelectedId}
+          aria-label="اختيار المطعم"
+        />
 
         {selected ? (
           <div className="rounded-lg bg-card/50 border border-border/30 overflow-hidden">

@@ -2819,11 +2819,13 @@ describe('phase6 r154 — أسطح المالك: القواعد الكاملة (
   });
 
   it('الفلترة: شرائح تراكوتا صلبة (لا تدرج لا توهج) + hover دافئ', () => {
-    const f = cc('src/app/(protected)/owner/orders/OrdersFilters.tsx');
-    expect(f).toContain("'bg-orange text-orange-foreground shadow-sm'");
+    // W7-G (I-4): قواعد الملء صعدت إلى بدائية FilterTabs — الحكم يتبع البدائية
+    const f = cc('src/components/ui/filter-tabs.tsx');
+    expect(f).toContain("'bg-orange text-orange-foreground shadow-sm");
     expect(f).not.toContain('bg-gradient-to-r from-orange to-orange/80');
     expect(f).not.toContain('shadow-lg shadow-orange/25');
     expect(f).toContain('hover:border-orange/30 hover:bg-orange-muted/40');
+    expect(cc('src/app/(protected)/owner/orders/OrdersFilters.tsx')).toContain('FilterTabs');
   });
 
   it('الولاء: حالات فارغة على العائلة الدافئة (نعناع/عنبر) + رمز إحالة بحبر التراكوتا', () => {
@@ -2887,16 +2889,16 @@ describe('phase6 r154 — أسطح الأدمن: القواعد الكاملة (
   });
 
   it('الفلترة: شرائح تراكوتا صلبة (لا تدرج لا توهج) + خمول بحدود دافئة (تبويبات الطلبات · حبوب التدقيق · حبوب أحداث النظام)', () => {
+    // W7-G (I-4): تبويبات الطلبات وحبوب أحداث النظام ركبت بدائية FilterTabs —
+    // الملء الصلب يُحكم عليه في اختبار بدائية الفلترة؛ حبوب التدقيق بقيت بيد اليد
     const o = cc('src/app/(protected)/admin/orders/page.tsx');
-    // the TABS ride double-quoted className literals — pin the fill, not the quotes
-    expect(o).toContain('"bg-orange text-orange-foreground shadow-sm"');
+    expect(o).toContain('FilterTabs');
     expect(o).not.toContain('bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg');
-    expect(o).toContain('hover:bg-orange-muted/40');
     const a = cc('src/app/(protected)/admin/audit-logs/page.tsx');
     expect(a).toContain("'bg-orange text-orange-foreground shadow-sm'");
     expect(a).not.toContain("'bg-muted text-muted-foreground hover:bg-muted/80'");
     const s = cc('src/app/(protected)/admin/system-events/client.tsx');
-    expect(s).toContain("'bg-orange text-orange-foreground shadow-sm'");
+    expect(s).toContain('FilterTabs');
     expect(s).toContain('hover:bg-orange-muted/40');
   });
 
@@ -3022,7 +3024,8 @@ describe('phase6 P6-2-b2 — الشاشات الجزئية العامة: الأ�
     expect(o).toContain('warm-scrim');
     expect(o).toContain('bg-[var(--c-night)]');
     expect(o).toContain('menu-leader-rule');
-    expect(o).toContain('font-heading text-2xl sm:text-3xl font-bold text-[#FBF7F0]');
+    // W7-G (P2): الحرفي الخام صار توكن ‎--text-on-dark‎ (فاتح/ليلي) — نفس الحكم
+    expect(o).toContain('font-heading text-2xl sm:text-3xl font-bold text-(--text-on-dark)');
     // the 56px state wells are solid family plates (mint for orders, terracotta for subscriptions)
     expect(o).toContain('size-14 rounded-full bg-success flex items-center justify-center');
     expect(o).toContain('size-14 rounded-full bg-orange flex items-center justify-center');
@@ -3296,8 +3299,10 @@ describe('phase10 P10-2 — family (g): zero emoji in UI chrome (E5)', () => {
     const r = p10cc('src/app/(protected)/owner/reviews/page.tsx');
     expect(r).toContain('import { MessageCircle, Trash2, Star } from \'lucide-react\'');
     expect(r).toContain('<Star className="size-3 fill-current" aria-hidden="true" />');
-    expect(r).toContain('aria-pressed={filterStar === star}');
-    expect(r).toContain('role="group" aria-label="تصفية التقييمات حسب النجوم"');
+    // W7-G (I-4): صف النجوم ركب بدائية FilterTabs — نفس تسميات r97-X1،
+    // وaria-pressed واسم المجموعة عبر البدائية
+    expect(r).toContain('<FilterTabs<number | null>');
+    expect(r).toContain('aria-label="تصفية التقييمات حسب النجوم"');
     expect(r).not.toContain('⭐');
   });
 

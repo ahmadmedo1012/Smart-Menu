@@ -4,10 +4,11 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { csrfFetch } from '@/lib/csrf-client';
 import { AlertCircle, Activity, FilterX, Info, TriangleAlert, XOctagon } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
+import { FilterTabs } from '@/components/ui/filter-tabs';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { ListPageSkeleton } from '@/components/shared/DashboardSkeletons';
 import { cn } from '@/lib/utils';
-import { formatDate, toArabicNumber } from '@/lib/format';
+import { formatDate } from '@/lib/format';
 
 type SystemEvent = {
         id: number;
@@ -104,41 +105,38 @@ export function SystemEventsClient() {
 
         return (
                 <div className="space-y-4">
-                        {/* Severity filter chips */}
-                        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="فلترة حسب الخطورة">
-                                {(['all', ...SEVERITY_ORDER] as const).map((key) => {
-                                        const isActive = severityFilter === key;
-                                        const label = key === 'all' ? 'الكل' : SEVERITY_STYLES[key].label;
-                                        return (
-                                                <button
-                                                        key={key}
-                                                        type="button"
-                                                        onClick={() => setSeverityFilter(key)}
-                                                        aria-pressed={isActive}
-                                                        className={cn(
-                                                                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                /* Phase 6 (r154): warm pill grammar — solid terracotta
-                                                                   active, bordered card idle (the owner filter recipe). */
-                                                                isActive ? 'bg-orange text-orange-foreground shadow-sm' : 'bg-card/50 border border-border/30 text-muted-foreground hover:border-orange/30 hover:bg-orange-muted/40'
-                                                        )}
-                                                >
-                                                        {key !== 'all' && <span className={cn('size-1.5 rounded-full', SEVERITY_STYLES[key].dot)} aria-hidden="true" />}
-                                                        {label}
-                                                        <span className="text-xs opacity-70 tabular-nums">{toArabicNumber(counts[key])}</span>
-                                                </button>
-                                        );
-                                })}
-                                {hasFilters && (
-                                        <button
-                                                type="button"
-                                                onClick={() => setSeverityFilter('all')}
-                                                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ms-1"
-                                        >
-                                                <FilterX className="size-3.5" aria-hidden="true" />
-                                                مسح الفلتر
-                                        </button>
-                                )}
-                        </div>
+                        {/* Severity filter chips — W7-G (I-4, A2 audit): يركب
+                            بدائية FilterTabs الموحّدة؛ نقطة الخطورة تبقى داخل
+                            التسمية، والعدد صار حبة العدّ القانونية. */}
+                        <FilterTabs
+                                className="flex-wrap"
+                                items={(['all', ...SEVERITY_ORDER] as const).map((key) => ({
+                                        value: key,
+                                        label:
+                                                key === 'all' ? (
+                                                        'الكل'
+                                                ) : (
+                                                        <>
+                                                                <span className={cn('size-1.5 rounded-full', SEVERITY_STYLES[key].dot)} aria-hidden="true" />
+                                                                {SEVERITY_STYLES[key].label}
+                                                        </>
+                                                ),
+                                        count: counts[key],
+                                }))}
+                                value={severityFilter}
+                                onChange={(v) => setSeverityFilter(v as Severity | 'all')}
+                                aria-label="فلترة حسب الخطورة"
+                        />
+                        {hasFilters && (
+                                <button
+                                        type="button"
+                                        onClick={() => setSeverityFilter('all')}
+                                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ms-1"
+                                >
+                                        <FilterX className="size-3.5" aria-hidden="true" />
+                                        مسح الفلتر
+                                </button>
+                        )}
 
                         <div className="rounded-lg border border-border/50">
                                 {filtered.length === 0 ? (

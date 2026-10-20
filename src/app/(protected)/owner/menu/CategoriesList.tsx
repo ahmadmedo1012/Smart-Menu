@@ -451,19 +451,21 @@ export function CategoriesList({
                                                                         </div>
                                                                         </>
                                                                 ) : (
-                                                                        <div className="py-8 text-center">
-                                                                                <p className="text-sm text-muted-foreground mb-3">
-                                                                                        لا توجد أصناف في هذا التصنيف
-                                                                                </p>
-                                                                                <Button
-                                                                                        variant="outline"
-                                                                                        size="sm"
-                                                                                        onClick={() => onAddItem(cat.id)}
-                                                                                        className="gap-1 border-orange/30 text-accent-foreground hover:bg-orange-muted"
-                                                                                >
-                                                                                        <MotionPlus className="size-3.5" /> إضافة صنف
-                                                                                </Button>
-                                                                        </div>
+                                                                        <EmptyState
+                                                                                size="compact"
+                                                                                icon={Package}
+                                                                                title="لا توجد أصناف في هذا التصنيف"
+                                                                                action={
+                                                                                        <Button
+                                                                                                variant="outline"
+                                                                                                size="sm"
+                                                                                                onClick={() => onAddItem(cat.id)}
+                                                                                                className="gap-1 border-orange/30 text-accent-foreground hover:bg-orange-muted"
+                                                                                        >
+                                                                                                <MotionPlus className="size-3.5" /> إضافة صنف
+                                                                                        </Button>
+                                                                                }
+                                                                        />
                                                                 )}
                                                         </div>
                                                 )}

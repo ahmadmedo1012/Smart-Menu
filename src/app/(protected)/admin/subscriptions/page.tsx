@@ -32,6 +32,7 @@ import AnimatedX from '@/components/ui/x-icon';
 import AnimatedClock from '@/components/ui/clock-icon';
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface Payment {
         id: number;
@@ -153,8 +154,9 @@ export default function AdminSubscriptionsPage() {
                 return (
                         <div className="space-y-3 animate-fade-in">
                                 <LoadingAnnouncer loading message="جارٍ تحميل الاشتراكات…" />
+                                {/* W7-G (A2 audit): الأشكال ترتجف بلمعة .skeleton القانونية — نبض الشفافية المتقاعد (animate-breath) كان لغة تحميل ثانية. */}
                                 {[1, 2, 3].map((i) => (
-                                        <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />
+                                        <div key={i} className="h-16 rounded-md skeleton" />
                                 ))}
                         </div>
                 );
@@ -230,15 +232,17 @@ export default function AdminSubscriptionsPage() {
 
                         {/* Payments list */}
                         {payments.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-                                        <CreditCard className="size-12 text-muted-foreground/50" />
-                                        <p className="text-lg font-medium">لا توجد اشتراكات</p>
-                                        {statusFilter !== 'all' && (
-                                                <Button variant="ghost" onClick={() => setStatusFilter('all')} className="gap-2">
-                                                        <FilterX className="size-4" /> عرض الكل
-                                                </Button>
-                                        )}
-                                </div>
+                                <EmptyState
+                                        icon={CreditCard}
+                                        title="لا توجد اشتراكات"
+                                        action={
+                                                statusFilter !== 'all' ? (
+                                                        <Button variant="ghost" onClick={() => setStatusFilter('all')} className="gap-2">
+                                                                <FilterX className="size-4" /> عرض الكل
+                                                        </Button>
+                                                ) : undefined
+                                        }
+                                />
                         ) : (
                                 <>
                                         <div className="space-y-3">

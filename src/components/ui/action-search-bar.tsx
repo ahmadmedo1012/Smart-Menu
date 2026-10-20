@@ -9,6 +9,7 @@ import {LayoutDashboard, Store, Users, UtensilsCrossed, ScrollText, Settings, Ac
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import { MotionSearch } from '@/components/ui/motion-icons';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface Action {
         id: string;
@@ -327,11 +328,12 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                                                                 aria-label="نتائج البحث"
                                                         >
                                                                 {filtered.length === 0 ? (
-                                                                        <div className="flex flex-col items-center py-10 text-muted-foreground/60">
-                                                                                <MotionSearch className="size-8 mb-2 opacity-30" />
-                                                                                <p className="text-sm">لا توجد نتائج</p>
-                                                                                <p className="text-xs">جرب كلمات بحث أخرى</p>
-                                                                        </div>
+                                                                        <EmptyState
+                                                                                size="compact"
+                                                                                icon={MotionSearch}
+                                                                                title="لا توجد نتائج"
+                                                                                description="جرب كلمات بحث أخرى"
+                                                                        />
                                                                 ) : (
                                                                         <LayoutGroup>
                                                                                 {filtered.map((action, i) => {

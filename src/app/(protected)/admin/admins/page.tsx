@@ -20,6 +20,7 @@ import { toArabicNumber, formatDate } from "@/lib/format"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface AdminUser {
   id: number; username: string; name: string; role: string
@@ -165,7 +166,8 @@ export default function AdminAdminsPage() {
     return (
       <div className="space-y-4 animate-fade-in">
         <LoadingAnnouncer loading message="جارٍ تحميل المسؤولين…" />
-        {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
+        {/* W7-G (A2 audit): الأشكال ترتجف بلمعة .skeleton القانونية — نبض الشفافية المتقاعد (animate-breath) كان لغة تحميل ثانية. */}
+        {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-md skeleton" />)}
       </div>
     )
   }
@@ -231,10 +233,10 @@ export default function AdminAdminsPage() {
           المدراء العامون
         </h2>
         {superAdmins.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
-            <Shield className="size-10 text-muted-foreground/50" />
-            <p className="text-sm">لا يوجد مدراء عامون</p>
-          </div>
+          <EmptyState
+            icon={Shield}
+            title="لا يوجد مدراء عامون"
+          />
         ) : (
           <div className="space-y-2">
             {superAdmins.map(admin => (
@@ -266,13 +268,16 @@ export default function AdminAdminsPage() {
           المسؤولون
         </h2>
         {subAdmins.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
-            <UserPlus className="size-10 text-muted-foreground/50" />
-            <p className="text-sm">لا يوجد مسؤولون. أضف أول مسؤول الآن</p>
-            <Button variant="outline" onClick={() => setInviteOpen(true)} className="gap-2">
-              <UserPlus className="size-4" /> إضافة مسؤول
-            </Button>
-          </div>
+          <EmptyState
+            icon={UserPlus}
+            title="لا يوجد مسؤولون"
+            description="أضف أول مسؤول الآن"
+            action={
+              <Button variant="outline" onClick={() => setInviteOpen(true)} className="gap-2">
+                <UserPlus className="size-4" /> إضافة مسؤول
+              </Button>
+            }
+          />
         ) : (
           <div className="space-y-2">
             {subAdmins.map(admin => (

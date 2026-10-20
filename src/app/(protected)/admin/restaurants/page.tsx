@@ -121,7 +121,8 @@ export default function AdminRestaurantsPage() {
   if (loading && restaurants.length === 0) return (
     <div className="space-y-3 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
       <LoadingAnnouncer loading message="جارٍ تحميل المطاعم…" />
-      {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
+      {/* W7-G (A2 audit): الأشكال ترتجف بلمعة .skeleton القانونية — نبض الشفافية المتقاعد (animate-breath) كان لغة تحميل ثانية. */}
+      {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-md skeleton" />)}
     </div>
   );
 

@@ -17,6 +17,7 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { Badge } from "@/components/ui/badge"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Item {
   id: number; name: string; nameAr: string | null; description: string; descriptionAr: string
@@ -158,7 +159,8 @@ export default function AdminMenuPage() {
   if (loading) return (
     <div className="space-y-4 animate-fade-in">
       <LoadingAnnouncer loading message="جارٍ تحميل المنيو…" />
-      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
+      {/* W7-G (A2 audit): الأشكال ترتجف بلمعة .skeleton القانونية — نبض الشفافية المتقاعد (animate-breath) كان لغة تحميل ثانية. */}
+      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md skeleton" />)}
     </div>
   )
 
@@ -216,10 +218,10 @@ export default function AdminMenuPage() {
 
       {/* Items by restaurant */}
       {Object.keys(grouped).length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-          <Package className="size-12 text-muted-foreground/50" />
-          <p className="text-lg font-medium">{search || restaurantFilter ? "لا توجد نتائج" : "لا توجد أصناف"}</p>
-        </div>
+        <EmptyState
+          icon={Package}
+          title={search || restaurantFilter ? "لا توجد نتائج" : "لا توجد أصناف"}
+        />
       ) : (
         <div className="space-y-8">
           {Object.entries(grouped).map(([restName, cats]) => (
