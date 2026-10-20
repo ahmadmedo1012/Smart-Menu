@@ -133,22 +133,12 @@ const MenuItemCard = memo(function MenuItemCard({
                         /* r133 (A10): the stacked focus-visible ring+offset retired — the ONE
                            unlayered :focus-visible outline (globals.css) is the single indicator. */
                         className={cn(
-                                /* r135-B: hover كان duration-slower (520ms) — قانون الحركة
-                                   (hover=160ms، السقف 380ms) → duration-base (240ms). */
-                                /* r151 (LIVE-AUDIT-SM1 P2-1): h-full — البطاقة تملأ ارتفاع
-                                   صف الشبكة كله (الغلاف animate-reveal يمتد مع الصف
-                                   بينما البطاقة بقيت على ارتفاعها الطبيعي — قياس حي:
-                                   473 بجانب 522 في الصف نفسه على 768). جذر flex-col
-                                   يدفع أفعال البطاقة إلى قاع موحد في كل صف —
-                                   نمط بطاقات Toast/Airbnb. */
-                                /* P18-W2-c (Banzai P1 → Smart Menu «طبق على مائدة»):
-                                   البطاقة = طبق حقيقي على سطح — عمود رفع مادي (ظل الطبق
-                                   الدافئ من عائلة --elev-*) + هالة اتجاهية دافئة خفيفة
-                                   (key-light من الأعلى: الطبق يُستقبِل الضوء لا يطفو في
-                                   الفراغ). الرف يبقى صغيرًا (y=-3 كما كان) — وحي الطبق
-                                   لا وحي البطاقة العائمة. */
-                                'group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card outline-none',
-                                'shadow-[var(--shadow-card-premium)] transition-[transform,box-shadow,border-color] duration-base',
+                                /* W7-I-D (doc-weight diet): السلاسل الثابتة انتقلت إلى
+                                   التوأم الدلالي .mi-card في globals.css (@layer
+                                   components — الأدوات الشرطية أدناه تبقى تفوز
+                                   بالترتيب نفسه). التعليقات التاريخية للسلسلة عند
+                                   التوأم في globals.css. */
+                                'group mi-card border-border/50',
                                 /* r95: توهج SmartBot §5.1 — accent-foreground بدل orange على الحدود/الظل
                                    (r135-B: يُلغى للصنف النافذ — لا وهم قابلية للطلب)
                                    P18-W2-c: hover = رفع الطبق الدرجة القانونية
@@ -177,14 +167,12 @@ const MenuItemCard = memo(function MenuItemCard({
                             void). Paint-only, pointer-events-none, theme-agnostic. */}
                         <div className="relative w-full aspect-[4/3] overflow-hidden">
                                 {/* the key-light wash — warm terracotta 10% from the top,
-                                    fading out by 60% (never touches the bottom scrim) */}
-                                <div
-                                        aria-hidden="true"
-                                        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(120%_80%_at_50%_-20%,rgba(194,69,45,0.10),transparent_60%)]"
-                                />
+                                    fading out by 60% (never touches the bottom scrim).
+                                    W7-I-D: السلسلة الثابتة عند التوأم .mi-keylight. */}
+                                <div aria-hidden="true" className="mi-keylight" />
                                 <div
                                         className={cn(
-                                                'absolute inset-0 transition-transform duration-base ease-out',
+                                                'mi-zoom',
                                                 !soldOut && 'group-hover:scale-105',
                                                 /* r135-B: تعتيم الصنف النافذ — رمادي جزئي يُبقي الصورة
                                                    مقروءة لكنها تنسحب بصريًا خلف الشارة */
@@ -222,11 +210,12 @@ const MenuItemCard = memo(function MenuItemCard({
                                 </div>
 
                                 {/* Phase 5 (r152): warm food-imagery grade — espresso scrim
-                                        (كان أسودًا باردًا); text-on-image stays in-world. */}
-                                <div className="absolute inset-0 warm-scrim pointer-events-none z-[2]" />
+                                        (كان أسودًا باردًا); text-on-image stays in-world.
+                                        W7-I-D: .mi-scrim = التمركز/الطبقة، warm-scrim = الحبر. */}
+                                <div className="mi-scrim warm-scrim" />
 
                                 {/* Badges — top-start with glass backdrop */}
-                                <div className="absolute top-3 start-3 flex flex-col gap-1.5 z-10">
+                                <div className="mi-badges">
                                         {soldOut && (
                                                 /* r135-B: شارة النفاد — حبة muted محايدة بنمط الشارات
                                                    القائمة نفسه (الصنف خارج الخدمة وليس تحذير خطأ).
@@ -272,7 +261,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                  * FeaturedShowcase's discounted price). destructive stays reserved
                                  * for errors/unavailability. */}
                                 {hasDiscount && (
-                                        <div className="absolute top-3 end-3 z-10 rounded-md bg-success px-2 py-1 text-2xs font-bold text-success-foreground">
+                                        <div className="mi-badge-sale">
                                                 -{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
                                         </div>
                                 )}
@@ -285,13 +274,13 @@ const MenuItemCard = memo(function MenuItemCard({
                            مثبتًا بالقاع في كل الصفوف المتجاورة. */}
                         <div
                                 className={cn(
-                                        'relative z-10 flex-1 p-4 flex flex-col gap-2',
+                                        'mi-body',
                                         soldOut && 'opacity-60'
                                 )}
                         >
                                 {/* Name (h2: page outline is h1 restaurant → h2 items) + Rating glass-pill */}
                                 <div className="flex items-start justify-between gap-2">
-                                        <h2 lang={contentLang(item.nameAr)} className="font-bold text-lg leading-[1.4] line-clamp-1">{displayName}</h2>
+                                        <h2 lang={contentLang(item.nameAr)} className="mi-name">{displayName}</h2>
                                         <button
                                                 type="button"
                                                 /* r135-B: النافذ — كل أزرار البطاقة معطّلة
@@ -310,8 +299,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         ? `تقييم ${displayName} — ${toArabicNumber(item.avgRating!.toFixed(1))} من 5`
                                                         : `تقييم ${displayName}`}
                                                 className={cn(
-                                                        'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-base',
-                                                        'border-border/60 bg-muted/60 shadow-none',
+                                                        'mi-rate border-border/60 bg-muted/60',
                                                         hasRating ? 'text-ember dark:text-saffron' : 'text-muted-foreground',
                                                         !soldOut && (hasRating
                                                                 ? 'hover:bg-foreground/10 dark:hover:bg-foreground/10'
@@ -330,7 +318,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
                                 {/* Description */}
                                 {displayDesc ? (
-                                        <p lang={contentLang(item.descriptionAr)} className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                        <p lang={contentLang(item.descriptionAr)} className="mi-desc">
                                                 {displayDesc}
                                         </p>
                                 ) : null}
@@ -343,10 +331,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                         (item.allergens && item.allergens.length > 0)) && (
                                         <div className="flex flex-wrap gap-1.5">
                                                 {item.dietaryTags?.map((tag) => (
-                                                        <span
-                                                                key={tag}
-                                                                className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-2xs text-basil-ink"
-                                                        >
+                                                        <span key={tag} className="mi-pill-diet border-basil/20 bg-basil/10">
                                                                 {/* r96-W4b: أيقونة lucide SVG بدل الإيموجي (قاعدة SmartBot
                                                                    «لا إيموجي كأيقونات») — مفتاح غير مخطط يسقط على Leaf
                                                                    العام داخل DietaryIcon، بلا إيموجي في أي مسار */}
@@ -355,10 +340,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         </span>
                                                 ))}
                                                 {item.allergens?.map((tag) => (
-                                                        <span
-                                                                key={tag}
-                                                                className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-2xs text-warning-ink"
-                                                        >
+                                                        <span key={tag} className="mi-pill-warn border-warning/25 bg-warning/10">
                                                                 <AlertTriangle className="size-3 text-warning-ink" /> {ALLERGEN_LABELS[tag] || tag}
                                                         </span>
                                                 ))}
@@ -373,7 +355,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                 <div className="flex items-center gap-2 flex-wrap">
                                         <span
                                                 className={cn(
-                                                        'text-xl font-bold transition-colors duration-base tabular-nums',
+                                                        'mi-price',
                                                         hasDiscount
                                                                 ? 'text-success-ink'
                                                                 /* Phase 5 (r152): حبر السعر — accent-foreground:
@@ -422,7 +404,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 aria-disabled={soldOut || undefined}
                                                 aria-label={`خيارات ${displayName}`}
                                                 className={cn(
-                                                        'shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-accent-foreground/40 bg-accent-foreground/5 text-accent-foreground active:scale-[0.97] active:duration-[var(--t-micro,80ms)] transition-[background-color,transform,color] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                        'mi-btn-opts border-accent-foreground/40 bg-accent-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                         !soldOut && 'hover:bg-accent-foreground/10',
                                                         soldOut && 'cursor-not-allowed'
                                                 )}
@@ -448,7 +430,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                 aria-disabled={soldOut || undefined}
                                                                 aria-label={`إضافة ${displayName} إلى السلة`}
                                                 className={cn(
-                                                        'inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-[var(--shadow-card-premium)] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] transition-[background-color,box-shadow,transform] duration-fast',
+                                                        'mi-btn-add',
                                                         !soldOut && 'hover:bg-orange/90 hover:shadow-[var(--shadow-card-premium-h)] hover:-translate-y-[2px]',
                                                         soldOut && 'cursor-not-allowed'
                                                 )}
@@ -473,7 +455,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                         aria-disabled={soldOut || undefined}
                                                                         aria-label={`إنقاص كمية ${displayName}`}
                                                                         className={cn(
-                                                                                'flex items-center justify-center size-[48px] text-orange-foreground transition-[color,background-color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]',
+                                                                                'mi-btn-qty',
                                                                                 !soldOut && 'hover:bg-orange-foreground/10',
                                                                                 soldOut && 'cursor-not-allowed'
                                                                         )}
@@ -493,7 +475,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                         aria-disabled={soldOut || undefined}
                                                                         aria-label={`زيادة كمية ${displayName}`}
                                                                         className={cn(
-                                                                                'flex items-center justify-center size-[48px] text-orange-foreground transition-[color,background-color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]',
+                                                                                'mi-btn-qty',
                                                                                 !soldOut && 'hover:bg-orange-foreground/10',
                                                                                 soldOut && 'cursor-not-allowed'
                                                                         )}

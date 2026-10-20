@@ -52,6 +52,19 @@
         --color-background: var(--background);
         --color-foreground: var(--foreground);
         --color-muted-foreground: var(--muted-foreground);
+        /* W7-I-D (تدقيق الحمية — عيب قائم موثّق، مفصول عمدًا): جسر
+           --color-muted مفقود من مساحة الأسماء فتُركت عائلة bg-muted
+           (و/10../85 وhover:) بأكملها أدوات ميتة — صفر قواعد في حزمة
+           الإنتاج المجمّعة (أثبت المسبار: grep '.bg-muted[^-]' على
+           مخرجات postcss عند HEAD 1b7e280 = صفر). ~114 استعمالًا في
+           58 ملفًا كُتبت بقصد (حبة تقييم البطاقة، رقائق CategoryTabs،
+           مسار LoyaltyWidget، الهياكل العظمية، رؤوس الجداول، وحالات
+           Badge/Select/Switch) تُشحن بايتات بلا أي أثر بصري — هذه هي
+           الحقيقة التي بُني عليها حكم «صفر تغيير بصري» للحمية. تفعيل
+           الجسر يغيّر الرسم في كل هذه المواقع دفعة واحدة ويُبطل أدلة
+           القياس المتراكمة (W7-G/H قاست كلها والعائلة ميتة) — قرار
+           التفعيل موجّه لموجة مخصصة تدقق موقعًا-موقعًا، ليس رحّالة
+           في غذاء تخفيف وزن المستند. */
         /* r96-W4a (فجوة A2): توأم SmartBot — نص تلميح الحقول (placeholder:text-placeholder-text) */
         --color-placeholder-text: var(--placeholder-text);
         --color-primary: var(--primary);
@@ -1065,6 +1078,106 @@ html[data-conn-banner] {
 }
 .warm-scrim-faint {
         background: linear-gradient(to top, rgb(26 17 12 / 0.18), transparent 75%);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   W7-I-D — MENU ITEM CARD class-attribute diet (doc weight)
+   الحكم بالقياس الحي لا بالحدس — بنيتان كاملتان (next build +
+   next start على 3459، نفس البذرة المحلية: منيو الواحة التجريبي
+   26 بطاقة): المستند الخام 353.4 KB → 317.3 KB = −10.22% (−36.1 KB)،
+   محتوى سمات class 92.7 KB (26.2%) → 56.6 KB (17.8%) = −39.0%،
+   أي 1,389 بايت تُوفر لكل بطاقة (التوفير خطي مع عدد الأصناف —
+   منيو الإجهاد 80 بطاقة: 628.9 → 525.8 KB = −16.4% خام، محتوى
+   class −46.6%). gzip الديمو: 34.6 → 34.0 KB فقط (−1.8%) — السلاسل
+   المكررة كانت تُضغط أصلًا؛ الفائدة الحقيقية في وزن التحليل/AST
+   وذاكرة DOM على الأجهزة الضعيفة لا في الشبكة. تكلفة CSS مرة
+   واحدة: +6,449 بايت خام / +777 بايت gzip (مسبار postcss مطابق
+   لخط الإنتاج قبل/بعد). قرار الحفظ: ≥10% خام = تبقى (عتبة W7-I-D).
+
+   CONTRACT (cascade-critical): the .mi-* twins live in
+   @layer components — Tailwind's utilities layer still comes later
+   (order stmt `@layer theme, base, components, utilities`), so every
+   conditional inline utility (hover:*, text-success-ink,
+   cursor-default, md:col-span-2, opacity-60, shadow-sm للنافذ…)
+   keeps winning exactly as it did when the whole chain was inline.
+   Zero visual change — proven twice: (1) تعويض حرفي: مسبار استبدال
+   السلاسل على HTML «بعد» أعاد توليد بايتات «قبل» بإعادة إنتاج
+   مطابقة 353,379/92,709 بايت (فرق صفر) = التوأمات مجموعات-مساوية
+   للسلاسل المتقاعدة توكنًا-بتوكن؛ (2) مسبار computed-style حي
+   (agent-browser، بطاقات أول/نافذ/مخفّض/مُقيَّم × 13 عنصرًا × ~50
+   خاصية، الفاتح والداكن): صفر فروق ساكنة — الفروق الوحيدة في
+   الداكن كانت transform وسط حركة دخول framer-motion (timing وليس
+   CSS). حالة الضغط :active (انتقلت داخل @apply كتفرعات &:active):
+   scale 0.97 + مدة 80ms على الشجرتين. soldOut: shadow-sm الأداة
+   تهزم ظل التوأم بالطبقات — وهو نفس الفائز القديم (في ورقة HEAD
+   كانت shadow-sm اللاحقة :4714 تلتهب قاعدة premium :4690).
+   ملاحظة bg-muted/60 على حبة التقييم: أداة ميتة بنيويًا (جسر
+   --color-muted مفقود — التوثيق عند مقعده في @theme أعلى الملف)
+   فبقاؤها inline لا يغيّر شيئًا قبل/بعد.
+   ══════════════════════════════════════════════════════════════ */
+@layer components {
+        .mi-card {
+                /* W7-I-D: border-border/50 (لون بشفافية) يبقى أداة inline —
+                   توأم @apply لا يفكّ مُعدّلات الشفافية لمتغيرات الألوان.
+                   التاريخ السلوكي للسلسلة (من MenuItemCard قبل التقاعد):
+                   r151: h-full + flex-col — البطاقة تملأ ارتفاع صف الشبكة
+                   كله فتبقى أفعالها مثبتة بالقاع موحدة عبر الصفوف المجاورة.
+                   P18-W2-c «طبق على مائدة»: ظل الرف الدافئ من عائلة
+                   --elev-* (رف صغير y=-3 بالسلوك، لا بطاقة عائمة).
+                   r135-B: مدة الحركة duration-base (240ms) — قانون السلم
+                   (كان duration-slower 520ms قبل r135). */
+                @apply relative flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-card outline-none shadow-[var(--shadow-card-premium)] transition-[transform,box-shadow,border-color] duration-base;
+        }
+        .mi-keylight {
+                @apply pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(120%_80%_at_50%_-20%,rgba(194,69,45,0.10),transparent_60%)];
+        }
+        .mi-zoom {
+                @apply absolute inset-0 transition-transform duration-base ease-out;
+        }
+        .mi-scrim {
+                @apply absolute inset-0 pointer-events-none z-[2];
+        }
+        .mi-badges {
+                @apply absolute top-3 start-3 flex flex-col gap-1.5 z-10;
+        }
+        .mi-body {
+                @apply relative z-10 flex-1 p-4 flex flex-col gap-2;
+        }
+        .mi-name {
+                @apply font-bold text-lg leading-[1.4] line-clamp-1;
+        }
+        .mi-rate {
+                /* W7-I-D: border-border/60 + bg-muted/60 يبقيان inline (شفافيات). */
+                @apply shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-base shadow-none;
+        }
+        .mi-desc {
+                @apply text-xs text-muted-foreground line-clamp-2 leading-relaxed;
+        }
+        .mi-pill-diet {
+                /* W7-I-D: حبرا الحبوب بشفافياتهما يبقيان inline. */
+                @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-2xs text-basil-ink;
+        }
+        .mi-pill-warn {
+                /* W7-I-D: حبرا الحبوب بشفافياتهما يبقيان inline. */
+                @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-2xs text-warning-ink;
+        }
+        .mi-price {
+                @apply text-xl font-bold transition-colors duration-base tabular-nums;
+        }
+        .mi-badge-sale {
+                @apply absolute top-3 end-3 z-10 rounded-md bg-success px-2 py-1 text-2xs font-bold text-success-foreground;
+        }
+        .mi-btn-opts {
+                /* W7-I-D: لونا الحدود/الخلفية بشفافياتهما + حلقة التركيز
+                   (ring-ring/60) تبقى أدوات inline عند المستهلك. */
+                @apply shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border text-accent-foreground active:scale-[0.97] active:duration-[var(--t-micro,80ms)] transition-[background-color,transform,color] duration-fast;
+        }
+        .mi-btn-add {
+                @apply inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-[var(--shadow-card-premium)] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] transition-[background-color,box-shadow,transform] duration-fast;
+        }
+        .mi-btn-qty {
+                @apply flex items-center justify-center size-[48px] text-orange-foreground transition-[color,background-color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)];
+        }
 }
 
 /* r121-I-6: four dead @utility shims (spotlight-border / ambient-glow /
