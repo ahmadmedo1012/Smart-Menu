@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfJson } from '@/lib/csrf-client';
 import { getErrorMessage } from '@/lib/get-error-message';
-import { Download } from 'lucide-react';
-import { toArabicNumber, formatDate } from '@/lib/format';
+import { Download, Lock } from 'lucide-react';
+import { toArabicNumber } from '@/lib/format';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
-import { getOrderStatusMeta, getPickupTypeMeta } from '@/lib/order-status';
+import { getOrderStatusMeta } from '@/lib/order-status';
 import { LivePollIndicator } from '@/components/orders/LivePollIndicator';
 import { NewOrdersBar } from '@/components/orders/NewOrdersBar';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -18,15 +18,17 @@ import { OrdersPageSkeleton } from '@/components/shared/DashboardSkeletons';
 import { OrdersTable, type Order } from './OrdersTable';
 import { OrdersFilters } from './OrdersFilters';
 import { useOrdersPolling } from './use-orders-polling';
+/* W7-B (G-4): القفل الصادق لميزة الخطة + سقف التصدير من المصدر الواحد. */
+import { PlanFeatureLock } from '@/components/shared/PlanFeatureLock';
+import { exportCappedToastPhrase } from '@/lib/csv-export';
 
 const PAGE_SIZE = 20;
 
-/* W6-B6 (تدقيق W6-A3 — إصلاح صغير 5): نطاق تصدير الطلبات. سقف الصفحة
-   للاستعلام 100 (parsePagination)؛ 5000 صف = 50 طلبًا متتاليًا — حد
-   صادق لذاكرة المتصفح وحجم الملف، وتحت محدّد قائمة الطلبات (60/دقيقة).
-   التجاوز يُعلَن في التوست بصراحة لا يُقص بصمت. */
-const EXPORT_PAGE_SIZE = 100;
-const EXPORT_ROW_CAP = 5000;
+/* W7-B (G-4 — «تصدير CSV» الاحترافية فأعلى): التجميع في المتصفح (صفحات
+   GET /api/orders المتتالية) انتقل إلى مسار خادم مبوّب
+   /api/orders/export — نفس المرشّحات + «بحث المالك نفسه» (بارامتر
+   search خادمي) + سقف 5000 الصادق نفسه (W6-B6) يُعلَن عبر ترويسة
+   X-Export-Truncated. الأعداد هنا من المصدر الواحد lib/csv-export. */
 
 /** Status chips shown as horizontally scrollable filters with counts. */
 const STATUS_FILTERS = [
@@ -51,6 +53,11 @@ export default function OwnerOrdersPage() {
         const [dateTo, setDateTo] = useState('');
         const [error, setError] = useState<string | null>(null);
         const [exporting, setExporting] = useState(false);
+        /* W7-B (G-4): حقّ التصدير من قراءة الخادم (api/owner/entitlements —
+           مرة واحدة لكل تحميل، خارج مسارات الاقتراع). null = لم تصل
+           الحقيقة بعد → الزر يعمل كعادته والخادم يرفض 403 عند الحاجة
+           (التعزيز خادمي؛ العلم تفضيل عرض فقط، لا بوابة واجهة). */
+        const [csvExportAllowed, setCsvExportAllowed] = useState<boolean | null>(null);
         // True while the tab is visible AND the poll interval is running.
         const [isLive, setIsLive] = useState(true);
         // Optimistic status transitions: orderId → target status while in flight.
@@ -131,6 +138,27 @@ export default function OwnerOrdersPage() {
                 resetProbe();
                 fetchOrders(filter, 1, false);
         }, [filter, fetchOrders, resetProbe]);
+
+        /* W7-B (G-4): حقّ «تصدير CSV» من قراءة الخادم المخصصة — استعلام
+           واحد لكل تحميل صفحة (خارج مسارات الاقطاع). فشل القراءة يترك
+           العلم null (تفاؤلي: الزر يعمل والخادم يرفض 403 عند الحاجة
+           بنسخة العائلة) — التعزيز خادمي، العلم عرض تفضيلي فقط. */
+        useEffect(() => {
+                if (!activeId) return;
+                let cancelled = false;
+                fetch(`/api/owner/entitlements?restaurantId=${activeId}`)
+                        .then((r) => (r.ok ? r.json() : null))
+                        .then((j) => {
+                                if (cancelled || !j?.success) return;
+                                setCsvExportAllowed(Boolean(j.data?.features?.csvExport));
+                        })
+                        .catch(() => {
+                                /* سقوط آمن — الخادم يبقى الحقيقة عند النقر */
+                        });
+                return () => {
+                        cancelled = true;
+                };
+        }, [activeId]);
 
         // Auto-refresh — client polling replaces SSE (Vercel kills streams at 300s).
         // Honest UX: the indicator reflects the real cadence and pauses when the tab
@@ -222,76 +250,43 @@ export default function OwnerOrdersPage() {
                 if (exporting) return;
                 setExporting(true);
                 // Yield a frame so the loading spinner actually paints before the
-                // synchronous blob work blocks the main thread.
+                // blob work blocks the main thread.
                 await new Promise((r) => requestAnimationFrame(() => r(null)));
                 try {
-                        /* W6-B6 (إصلاح صغير 5): التصدير كان يأخذ صفوف الصفحة المعروضة
-                           فقط («تم تصدير الطلبات المعروضة»). الآن يجلب كل الصفحات بنفس
-                           مرشّحات الخادم (الحالة/التواريخ/المطعم النشط) ثم يطبّق مربع
-                           البحث نفسه الذي يرى المالك — المصدَّر = المرشَّح على الشاشة،
-                           بلا سقف صفحة. مسار الخادم كما هو (لا endpoint جديد — نفس عقد
-                           القائمة بترقيم). */
+                        /* W7-B (G-4 — «تصدير CSV» الاحترافية فأعلى): مسار الخادم
+                           المبوّب نفسه يبني الملف — طلب واحد بدل 50 طلب قائمة
+                           متتالية (لا حرق لميزانية محدّد القائمة 60/دقيقة).
+                           المرشّحات كما هي (الحالة/التواريخ/المطعم النشط) و
+                           «بحث المالك نفسه» صار بارامترًا خادميًا — المصدَّر =
+                           المرشَّح على الشاشة (عقد W6-B6). السقف الصادق 5000
+                           وحارس حقن المعادلات وأوقات طرابلس (قاعدة R8)
+                           يعيشون في المصدر الواحد lib/csv-export. */
                         const params = new URLSearchParams();
                         if (filter) params.set('status', filter);
                         if (dateFrom) params.set('dateFrom', dateFrom);
                         if (dateTo) params.set('dateTo', dateTo);
                         // Multi-menu: always scope to the active restaurant
                         if (activeId) params.set('restaurantId', String(activeId));
-                        params.set('pageSize', String(EXPORT_PAGE_SIZE));
-                        const all: Order[] = [];
-                        let total = Number.POSITIVE_INFINITY;
-                        for (
-                                let page = 1;
-                                all.length < EXPORT_ROW_CAP && (page === 1 || all.length < total);
-                                page++
-                        ) {
-                                params.set('page', String(page));
-                                const res = await fetch(`/api/orders?${params.toString()}`);
-                                const json = await res.json().catch(() => null);
-                                // round87-C3: اعرض عربية الخادم (كانت رمية فارغة → توست عام)
-                                if (!res.ok || !json?.success) {
-                                        throw new Error(json?.error ?? `تعذّر الطلب (${res.status})`);
-                                }
-                                const rows: Order[] = Array.isArray(json.data) ? json.data : [];
-                                total = json?.meta?.total ?? rows.length;
-                                all.push(...rows);
-                                if (rows.length < EXPORT_PAGE_SIZE || all.length >= total) break;
+                        if (search.trim()) params.set('search', search.trim());
+                        const res = await fetch(`/api/orders/export?${params.toString()}`);
+                        const json = await res.json().catch(() => null);
+                        // round87-C3: اعرض عربية الخادم (بوابة الخطة = نسخة عائلة 403)
+                        if (!res.ok || json?.success === false) {
+                                throw new Error(json?.error ?? `تعذّر الطلب (${res.status})`);
                         }
-                        const capped = all.length < total;
-                        const exportRows = all.filter(
-                                (o) => !search || o.orderNo.includes(search) || o.customerName.includes(search)
-                        );
-                        if (exportRows.length === 0) {
-                                premiumToast('error', 'لا توجد طلبات مطابقة للتصدير');
-                                return;
-                        }
-                        const esc = (v: string | number) => {
-                                const s = String(v ?? '');
-                                // formula-injection guard: neutralize = + - @ leading chars
-                                const safe = /^[=+\-@]/.test(s) ? `'${s}` : s;
-                                return `"${safe.replace(/"/g, '""')}"`;
-                        };
-                        const headers = 'رقم الطلب,العميل,الهاتف,الحالة,النوع,المجموع,التاريخ';
-                        const rows = exportRows
-                                .map((o) => {
-                                        const statusLabel = getOrderStatusMeta(o.status).label;
-                                        const typeLabel = getPickupTypeMeta(o.pickupType).label;
-                                        return `${esc(o.orderNo)},${esc(o.customerName)},${esc(o.customerPhone || '')},${esc(statusLabel)},${esc(typeLabel)},${esc(o.total)},${esc(formatDate(new Date(o.createdAt)))}`;
-                                })
-                                .join('\n');
-                        const csv = `${headers}\n${rows}`;
-                        const stamp = new Date().toISOString().slice(0, 10);
-                        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+                        const truncated = res.headers.get('X-Export-Truncated') === '1';
+                        const rows = Number(res.headers.get('X-Export-Rows') ?? '0');
+                        const blob = await res.blob();
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(blob);
-                        link.download = `orders-${stamp}.csv`;
+                        link.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
                         link.click();
                         URL.revokeObjectURL(link.href);
                         premiumToast(
                                 'save',
-                                capped
-                                        ? `تم تصدير أول ${toArabicNumber(all.length)} طلب (سقف التصدير — نطاقك يتجاوزه)`
-                                        : `تم تصدير ${toArabicNumber(exportRows.length)} طلب`
+                                truncated
+                                        ? exportCappedToastPhrase(rows)
+                                        : `تم تصدير ${toArabicNumber(rows)} طلب`
                         );
                 } catch (e) {
                         premiumToast('error', getErrorMessage(e, 'تعذّر التصدير'));
@@ -348,19 +343,44 @@ export default function OwnerOrdersPage() {
                                 actions={
                                         <>
                                                 <LivePollIndicator intervalSeconds={15} isActive={isLive} />
-                                                <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={exportCsv}
-                                                        disabled={totalOrders === 0 || exporting}
-                                                        loading={exporting}
-                                                >
-                                                    {!exporting && <Download className="size-4" aria-hidden="true" />}
-                                                        {exporting ? 'جارٍ التصدير…' : 'تصدير CSV'}
-                                                </Button>
+                                                {csvExportAllowed === false ? (
+                                                        /* W7-B (G-4): القفل الصادق — تعطيل + تفسير + رابط
+                                                           ترقية (لا زر ميت ولا وظيفة تتظاهر). الحقيقة من
+                                                           قراءة الخادم؛ التعزيز 403 في /api/orders/export. */
+                                                        <div className="flex items-center gap-2">
+                                                                <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        disabled
+                                                                        aria-describedby="csv-export-locked"
+                                                                        className="gap-1.5"
+                                                                >
+                                                                        <Lock className="size-4" aria-hidden="true" />{' '}
+                                                                        تصدير CSV
+                                                                </Button>
+                                                        </div>
+                                                ) : (
+                                                        <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={exportCsv}
+                                                                disabled={totalOrders === 0 || exporting}
+                                                                loading={exporting}
+                                                        >
+                                                                {!exporting && <Download className="size-4" aria-hidden="true" />}
+                                                                {exporting ? 'جارٍ التصدير…' : 'تصدير CSV'}
+                                                        </Button>
+                                                )}
                                         </>
                                 }
                         />
+
+                        {/* W7-B: تفسير القفل بجانب الرأس — التعطيل وحده ليس تفسيرًا */}
+                        {csvExportAllowed === false && (
+                                <div id="csv-export-locked" className="-mt-6">
+                                        <PlanFeatureLock feature="csvExport" compact />
+                                </div>
+                        )}
 
                         <OrdersFilters
                                 search={search}

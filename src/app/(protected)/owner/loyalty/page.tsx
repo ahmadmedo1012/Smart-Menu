@@ -27,6 +27,9 @@ import { TransactionTable } from './TransactionTable';
 import { ReferralQR } from './ReferralQR';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 import { csrfJson } from '@/lib/csrf-client';
+/* W7-B (G-4): قفل أقسام الإحالات («برنامج الإحالات» — الاحترافية فأعلى)
+   من المصدر الموحد؛ التعزيز 403 في مسارات الإنشاء. */
+import { PlanFeatureLock } from '@/components/shared/PlanFeatureLock';
 
 const LoyaltySettings = dynamic(
         () =>
@@ -322,6 +325,10 @@ export default function OwnerLoyaltyPage() {
         const [error, setError] = useState<string | null>(null);
         const [showSettings, setShowSettings] = useState(false);
         const [copied, setCopied] = useState(false);
+        /* W7-B (G-4): حق «برنامج الإحالات» من قراءة الخادم المخصصة — يُقفل
+           عرض أقسام الإحالات أدنى الاحترافية (قفل صادق + رابط ترقية)؛
+           null = الحقيقة لم تصل (الأقسام تُعرض كما كانت والخادم يرفض). */
+        const [referralProgram, setReferralProgram] = useState<boolean | null>(null);
 
         /* r93-W3 (بقية تقرير 1-d رقم 15): حارس hydration لمنشأ رابط الإحالة —
            نفس نمط mounted-guard المعتمد في المشروع (ThemeToggle + ReferralCard
@@ -354,6 +361,26 @@ export default function OwnerLoyaltyPage() {
         useEffect(() => {
                 load();
         }, [load]);
+
+        /* W7-B: قراءة الحقوق — استعلام مفتاح أساسي واحد لكل تحميل (لا
+           اقتطاع). فشلها يترك الأقسام كما كانت؛ الخادم هو الحقيقة عند أي
+           إنشاء. */
+        useEffect(() => {
+                if (!activeId) return;
+                let cancelled = false;
+                fetch(`/api/owner/entitlements?restaurantId=${activeId}`)
+                        .then((r) => (r.ok ? r.json() : null))
+                        .then((j) => {
+                                if (cancelled || !j?.success) return;
+                                setReferralProgram(Boolean(j.data?.features?.referralProgram));
+                        })
+                        .catch(() => {
+                                /* سقوط آمن */
+                        });
+                return () => {
+                        cancelled = true;
+                };
+        }, [activeId]);
 
         const handleCopyReferralLink = useCallback(async () => {
                 try {
@@ -421,6 +448,7 @@ export default function OwnerLoyaltyPage() {
                                 {showSettings && (
                                         <div className="mx-auto w-full max-w-md animate-fade-in">
                                                 <LoyaltySettings
+                                                        referralProgram={referralProgram !== false}
                                                         onSaved={() => {
                                                                 setShowSettings(false);
                                                                 load();
@@ -501,6 +529,9 @@ export default function OwnerLoyaltyPage() {
                         {showSettings && (
                                 <div className="animate-fade-in">
                                         <LoyaltySettings
+                                                /* W7-B: أدنى الاحترافية تُعطّل مدخلات إعدادات
+                                                   الإحالة (لا إعدادات لميزة مطفأة). */
+                                                referralProgram={referralProgram !== false}
                                                 onSaved={() => {
                                                         setShowSettings(false);
                                                         load();
@@ -519,7 +550,14 @@ export default function OwnerLoyaltyPage() {
                         {/* ---- Redeem (r103-F2): close the loyalty loop at the counter ---- */}
                         <RedeemPanel restaurantId={activeId} onRedeemed={load} />
 
-                        {/* ---- Referral Dashboard ---- */}
+                        {/* ---- Referral Dashboard — W7-B (G-4): أدنى الاحترافية
+                            يُستبدل الشبكة كلها بقفل صادق واحد (تعطيل + تفسير +
+                            رابط ترقية) — لا أقسام ميتة تتظاهر بالعمل. قراءة
+                            الإحالات (GET) تبقى مفتوحة كما تركتها عائلة W6-B6؛
+                            الإنشاء وحده يُرفض 403 خادميًا. ---- */}
+                        {referralProgram === false ? (
+                                <PlanFeatureLock feature="referralProgram" />
+                        ) : (
                         <div className="grid gap-6 lg:grid-cols-3">
                                 <ConversionRate
                                         rate={stats?.conversionRate ?? 0}
@@ -584,6 +622,7 @@ export default function OwnerLoyaltyPage() {
                                         </div>
                                 </div>
                         </div>
+                        )}
 
                         {/* ---- Referrals + Transactions ---- */}
                         <div className="grid gap-6 lg:grid-cols-2">

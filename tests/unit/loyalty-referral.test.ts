@@ -70,6 +70,10 @@ const CARD = {
         referralCode: 'WAHAXYZ',
         customerPhone: '0922222222',
         restaurantId: 7,
+        /* W7-B (G-4): بوابة «برنامج الإحالات» (الاحترافية+) تقرأ خطة مطعم
+           البطاقة من include القراءة نفسها — المطعم على الاحترافية كي
+           تبقى الموجبات المالية للسقف والإنشاء موجبة كما كانت. */
+        restaurant: { plan: { name: 'Pro', nameAr: 'الاحترافية', sortOrder: 4 } },
 };
 
 const RESTAURANT = {
@@ -144,7 +148,12 @@ describe('POST /api/loyalty/referral — claim creation', () => {
                 expect(json.success).toBe(true);
                 expect(json.data.id).toBe(55);
 
-                expect(mockCardFindUnique).toHaveBeenCalledWith({ where: { referralCode: 'WAHAXYZ' } });
+                // W7-B: قراءة البطاقة نفسها تجلب صف خطة المطعم (include واحد
+                // بمفتاح أساسي — لا استعلام إضافي) لبوابة رتبة الميزة.
+                expect(mockCardFindUnique).toHaveBeenCalledWith({
+                        where: { referralCode: 'WAHAXYZ' },
+                        include: { restaurant: { select: { plan: { select: { name: true, nameAr: true, sortOrder: true } } } } },
+                });
                 expect(mockReferralCreate).toHaveBeenCalledWith({
                         data: {
                                 referralCode: 'WAHAXYZ',

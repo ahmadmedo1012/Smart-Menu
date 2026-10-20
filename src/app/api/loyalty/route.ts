@@ -7,6 +7,9 @@ import { createDbRateLimiter } from '@/lib/rate-limit';
 import { getNextTierInfo, generateReferralCode, tierMinPoints } from '@/lib/loyalty-tiers';
 import { getClientIp } from '@/lib/client-ip';
 import { normalizeCustomerPhone, CUSTOMER_PHONE_RE } from '@/lib/phone';
+// W7-B (G-4): علم «برنامج الإحالات» من صف خطة المطعم — الواجهة تخفي بطاقة
+// الإحالة دون الرتبة (غياب صادق لا قفل في وجه الزبون).
+import { planAllowsFeature } from '@/lib/plan-entitlements';
 
 const loyaltyDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 // round85-A2: GET is an unauthenticated phone-to-card lookup — without a
@@ -61,7 +64,11 @@ export async function POST(request: NextRequest) {
                 if (!ipCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 // Verify restaurant exists
-                const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
+                const restaurant = await prisma.restaurant.findUnique({
+                        where: { id: restaurantId },
+                        // W7-B: صف الخطة في القراءة نفسها — قرار الإحالة بلا استعلام إضافي.
+                        include: { plan: { select: { name: true, nameAr: true, sortOrder: true } } },
+                });
                 if (!restaurant) return error('المطعم غير موجود', 404);
 
                 let card = await prisma.loyaltyCard.findUnique({
@@ -98,7 +105,10 @@ export async function POST(request: NextRequest) {
                    إلى /loyalty — مسار غير موجود (404 مؤكد في الإنتاج؛
                    ReferralCard يبني رابطه بنفسه فلم يلاحظه أحد). الرابط
                    الحقيقي الذي يفهمه ReferralHandler هو صفحة المنيو + ?ref=.
-                   العتبات تُصدّر لتوحيد سُلّم الواجهة مع computeTier. */
+                   العتبات تُصدّر لتوحيد سُلّم الواجهة مع computeTier.
+                   W7-B (G-4): referralProgram من صف الخطة — البرنامج حقّ خطة
+                   الاحترافية فأعلى؛ بطاقة الإحالة لا تُعرض دونه (علم الخادم،
+                   والقفل الفعلي في مسارات الإنشاء). */
                 return success({
                         card: publicCard,
                         tier: card.tier,
@@ -106,6 +116,7 @@ export async function POST(request: NextRequest) {
                         pointsToNext,
                         referralUrl: `/menu/${restaurant.slug}?ref=${card.referralCode}`,
                         tierThresholds: tierMinPoints(),
+                        referralProgram: planAllowsFeature(restaurant.plan, 'referralProgram'),
                 });
         } catch (e) {
                 return handleError(e);
@@ -148,7 +159,11 @@ export async function GET(request: NextRequest) {
                 // حدودها)، والعتبات تُصدّر هنا أيضًا (إصلاح صغير 3 — نفس POST).
                 const restaurantRow = await prisma.restaurant.findUnique({
                         where: { id: restaurantId },
-                        select: { slug: true },
+                        select: {
+                                slug: true,
+                                // W7-B: قرار الإحالة بلا استعلام إضافي (نفس قراءة slug).
+                                plan: { select: { name: true, nameAr: true, sortOrder: true } },
+                        },
                 });
 
                 // Public endpoint — never expose PII (customerName/phone) to unauthenticated callers
@@ -161,6 +176,8 @@ export async function GET(request: NextRequest) {
                         pointsToNext,
                         referralUrl: `/menu/${restaurantRow?.slug ?? ''}?ref=${card.referralCode}`,
                         tierThresholds: tierMinPoints(),
+                        // W7-B: نفس علم الخادم من POST — قراءة البطاقة وعرضها متطابقان.
+                        referralProgram: planAllowsFeature(restaurantRow?.plan, 'referralProgram'),
                 });
         } catch (e) {
                 return handleError(e);

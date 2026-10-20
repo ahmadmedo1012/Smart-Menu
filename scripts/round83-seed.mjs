@@ -71,8 +71,13 @@ const FEATURED = [
 async function main() {
   await client.connect();
 
-  // 1) Premium plan must exist (run ci-seed first, or create minimal)
-  const plan = await client.query(`SELECT id FROM "SubscriptionPlan" WHERE name = 'Premium'`);
+  // 1) W7-B (G-4): بذرة الواحة على خطة الاحترافية — «برنامج الإحالات»
+  //    و«تصدير CSV» صارا حقّين للاحترافية+ (بوّابات 403 خادمية)، والموجبات
+  //    الإيجابية في e2e (round94-sim-fixes: المالك يضيف إحالة → 201 ·
+  //    r93-sim-customer §8: الزبون يرى رابط الإحالة) تفترض أن مطعم الرحلة
+  //    يملكهما. كانت البريميوم؛ النزول إلى ما تحت الاحترافية يكسر تلك
+  //    المواصفات بصمت — لا يُفعل أبدًا.
+  const plan = await client.query(`SELECT id FROM "SubscriptionPlan" WHERE name = 'Pro'`);
   const planId = plan.rows[0]?.id ?? null;
 
   // 2) Owner user

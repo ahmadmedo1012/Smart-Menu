@@ -85,7 +85,15 @@ const REFERRAL = {
         referrer: { id: 11, customerPhone: '0911111111', points: 40 },
 };
 
-const CARD = { id: 11, referralCode: 'WAHAXYZ', customerPhone: '0922222222', restaurantId: 7 };
+const CARD = {
+        id: 11,
+        referralCode: 'WAHAXYZ',
+        customerPhone: '0922222222',
+        restaurantId: 7,
+        /* W7-B (G-4): مطعم البطاقة على الاحترافية — بوابة «برنامج الإحالات»
+           تفتح للمالك الشرعي فتبقى اختبارات ذرّية السقف على السلوك المالي. */
+        restaurant: { plan: { name: 'Pro', nameAr: 'الاحترافية', sortOrder: 4 } },
+};
 
 beforeEach(() => {
         vi.clearAllMocks();

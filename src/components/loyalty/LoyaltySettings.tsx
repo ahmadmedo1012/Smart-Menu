@@ -43,12 +43,15 @@ const DEFAULTS: LoyaltySettingsData = {
 };
 
 type Props = {
+        /* W7-B (G-4): false = دون خطة الاحترافية → مدخلات إعدادات الإحالة
+           معطّلة (الميزة لا تعمل؛ لا معنى لضبطها) + ملاحظة صادقة. */
+        referralProgram?: boolean;
         onSaved?: () => void;
 };
 
 /* ---------- Component ---------- */
 
-export function LoyaltySettings({ onSaved }: Props) {
+export function LoyaltySettings({ referralProgram = true, onSaved }: Props) {
         // round86-C9: label-control associations
         const lId = useId();
         const [form, setForm] = useState<LoyaltySettingsData>(DEFAULTS);
@@ -187,6 +190,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                                 max="100"
                                                                 value={form.loyalty_referral_discount_pct}
                                                                 onChange={(e) => set('loyalty_referral_discount_pct', e.target.value)}
+                                                                disabled={!referralProgram}
                                                                 className="mt-1"
                                                         />
                                                         <p className="text-xs text-muted-foreground mt-1">
@@ -201,6 +205,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                                 max="100"
                                                                 value={form.loyalty_referrer_reward_pct}
                                                                 onChange={(e) => set('loyalty_referrer_reward_pct', e.target.value)}
+                                                                disabled={!referralProgram}
                                                                 className="mt-1"
                                                         />
                                                         <p className="text-xs text-muted-foreground mt-1">
@@ -218,6 +223,11 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                 <Gift className="size-4 text-muted-foreground" />
                                                 إعدادات الإحالة
                                         </h4>
+                                        {!referralProgram && (
+                                                <p className="text-xs text-muted-foreground rounded-lg bg-muted/40 border border-border/40 px-3 py-2">
+                                                        برنامج الإحالات متوفر في خطة «الاحترافية» فأعلى — قم بالترقية لتفعيله.
+                                                </p>
+                                        )}
                                         <div className="grid gap-4 sm:grid-cols-3">
                                                 <div>
                                                         <Label htmlFor={`${lId}-ref-points`}>نقاط المكافأة لكل إحالة</Label>
@@ -226,6 +236,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                                 min="0"
                                                                 value={form.loyalty_referral_reward_points}
                                                                 onChange={(e) => set('loyalty_referral_reward_points', e.target.value)}
+                                                                disabled={!referralProgram}
                                                                 className="mt-1"
                                                         />
                                                         <p className="text-xs text-muted-foreground mt-1">
@@ -239,6 +250,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                                 min="0"
                                                                 value={form.loyalty_referral_max_per_customer}
                                                                 onChange={(e) => set('loyalty_referral_max_per_customer', e.target.value)}
+                                                                disabled={!referralProgram}
                                                                 className="mt-1"
                                                         />
                                                         <p className="text-xs text-muted-foreground mt-1">0 = غير محدود</p>
@@ -250,6 +262,7 @@ export function LoyaltySettings({ onSaved }: Props) {
                                                                 min="0"
                                                                 value={form.loyalty_referral_expiry_days}
                                                                 onChange={(e) => set('loyalty_referral_expiry_days', e.target.value)}
+                                                                disabled={!referralProgram}
                                                                 className="mt-1"
                                                         />
                                                         <p className="text-xs text-muted-foreground mt-1">

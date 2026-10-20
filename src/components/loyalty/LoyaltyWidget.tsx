@@ -92,6 +92,13 @@ export function LoyaltyWidget({
                 };
                 referralUrl: string;
                 tierThresholds?: Record<string, number>;
+                /* W7-B (G-4): علم خادمي — «برنامج الإحالات» حقّ خطة الاحترافية
+                   فأعلى. undefined = استجابة قديمة (سقوط آمن: تُعرض كما كانت)؛
+                   false = مطعم دون الرتبة → غياب صادق للبطاقة: الزبون لا
+                   يملك ما يفعله بها أصلًا (الإنشاء مرفوض خادميًا) فلا يُعرض
+                   عليه رابط ميت — رحلة الولاء الأساسية (النقاط/الطوابع/
+                   المستويات) عالمية وتبقى كما هي. */
+                referralProgram?: boolean;
         } | null>(null);
         const [notFound, setNotFound] = useState(false);
 
@@ -321,8 +328,10 @@ export function LoyaltyWidget({
                                                         return null;
                                                 })()}
 
-                                                {/* Referral */}
-                                                {data.card.referralCode && (
+                                                {/* Referral — W7-B: يُعرض فقط عندما يفتحه
+                                                    خادم الميزة علمه (خطة الاحترافية فأعلى)؛
+                                                    غياب صادق لا قفل في وجه الزبون. */}
+                                                {data.card.referralCode && data.referralProgram !== false && (
                                                         <ReferralCard
                                                                 restaurantName={restaurantName}
                                                                 restaurantSlug={restaurantSlug}

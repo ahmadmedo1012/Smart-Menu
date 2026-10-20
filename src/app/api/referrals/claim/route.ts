@@ -5,6 +5,8 @@ import { success, error as apiError } from '@/lib/api-helpers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { referralSessionKey } from '@/lib/referral-conversion';
 import { getClientIp } from '@/lib/client-ip';
+// W7-B (G-4): بوابة ميزة الخطة — «برنامج الإحالات» الاحترافية فأعلى.
+import { planAllowsFeature, planFeatureDeniedCopy } from '@/lib/plan-entitlements';
 
 const REFERRAL_CODE_RE = /^[A-Z0-9]{6,16}$/;
 
@@ -36,9 +38,26 @@ export async function POST(request: NextRequest) {
                 // Resolve the card that owns this referral code
                 const card = await prisma.loyaltyCard.findUnique({
                         where: { referralCode: code },
-                        select: { id: true, restaurantId: true, customerPhone: true },
+                        // W7-B: صف الخطة في قراءة البطاقة نفسها (لا استعلام إضافي)
+                        // — مسار مجهول خفيف يبقى خفيفًا.
+                        select: {
+                                id: true,
+                                restaurantId: true,
+                                customerPhone: true,
+                                restaurant: { select: { plan: { select: { name: true, nameAr: true, sortOrder: true } } } },
+                        },
                 });
                 if (!card) return apiError('كود الإحالة غير موجود', 404);
+
+                /* W7-B (G-4 — قرار بوّابة): مطعم دون الاحترافية لا يعمل برنامج
+                   الإحالات — رابط قديم/مسرّب يصل هنا يُرفض ب403 نسخة العائلة
+                   بدل حشو صفوف pending لا تُحوّل أبدًا. العميل لا يرى شيئًا:
+                   ReferralHandler تحسين تدريجي صامت (round88-C4) — رحلة الزبون
+                   لا تنكسر؛ والواجهة أصلًا لا تُظهر بطاقة الإحالة دون الرتبة
+                   (referralProgram في /api/loyalty). */
+                if (!planAllowsFeature(card.restaurant?.plan, 'referralProgram')) {
+                        return apiError(planFeatureDeniedCopy('referralProgram'), 403);
+                }
 
                 // Anonymous session fingerprint — hashed so the raw IP is never
                 // persisted/displayed (round-77: IP is PII, spoofable header).

@@ -31,6 +31,9 @@ import { AnalyticsTab } from './OwnerCharts';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { KpiGridSkeleton, ListCardSkeleton } from '@/components/shared/DashboardSkeletons';
+/* W7-B (G-4): حالة القفل الصادقة لتبويب «تحليلات» («إحصائيات متقدمة» —
+   بريميوم فأعلى؛ التعزيز 403 في /api/stats/advanced). */
+import { PlanFeatureLock } from '@/components/shared/PlanFeatureLock';
 
 /* ---------- Types ---------- */
 
@@ -96,20 +99,46 @@ export default function OwnerDashboard() {
         const [loading, setLoading] = useState(true);
         const [error, setError] = useState<string | null>(null);
         const [tab, setTab] = useState<'overview' | 'analytics'>('overview');
+        /* W7-B (G-4): حق «إحصائيات متقدمة» من قراءة الخادم المخصصة —
+           يقرر (1) هل يُجلب /api/stats/advanced أصلًا (لا طلب 403 لكل
+           تحميل لوحة تحت الرتبة) و(2) هل يُعرض التبويب مقفولًا أم
+           محلّلًا. null = الحقيقة لم تصل بعد (تفاؤلي؛ الخادم يرفض
+           عند الحاجة). */
+        const [advancedStatsAllowed, setAdvancedStatsAllowed] = useState<boolean | null>(null);
 
         const load = useCallback(async (rid: number) => {
                 try {
-                        const [restRes, statsRes, loyaltyRes, advancedRes] = await Promise.all([
+                        const [restRes, statsRes, loyaltyRes, entRes] = await Promise.all([
                                 fetch(`/api/restaurants/${rid}`),
                                 fetch(`/api/stats?restaurantId=${rid}`),
                                 fetch(`/api/loyalty/stats?restaurantId=${rid}`),
-                                fetch(`/api/stats/advanced?restaurantId=${rid}`),
+                                /* W7-B (G-4): قراءة الحقوق الخفيفة — نفس الموجة، استعلام
+                                   مفتاح أساسي واحد. تحت الرتبة لا يُطلب المسار المتقدم
+                                   أصلًا (صفر طلبات 403 في التحميل). */
+                                fetch(`/api/owner/entitlements?restaurantId=${rid}`),
                         ]);
 
                         if (statsRes.status === 401) {
                                 router.push('/login');
                                 return;
                         }
+                        let advancedAllowed: boolean | null = null;
+                        if (entRes.ok) {
+                                const ent = await entRes.json().catch(() => null);
+                                if (ent?.success) {
+                                        advancedAllowed = Boolean(ent.data?.features?.advancedStats);
+                                        setAdvancedStatsAllowed(advancedAllowed);
+                                }
+                        }
+                        /* W7-B: الجلب المتقدم خلف الحق فقط — المالك دون بريميوم
+                           يرى تبويب التحليلات مقفولًا (PlanFeatureLock) ولا
+                           تُستهلك استعلاماته الـ14 أصلًا. (متغير محلي — قيمة
+                           الحالة داخل الإغلاق لا تتحدث منتصف الدالة.) */
+                        let advancedRes: Response | null = null;
+                        if (advancedAllowed !== false) {
+                                advancedRes = await fetch(`/api/stats/advanced?restaurantId=${rid}`);
+                        }
+
                         if (restRes.ok) {
                                 const restData = await restRes.json();
                                 setRestaurant(restData.data ?? restData);
@@ -122,7 +151,7 @@ export default function OwnerDashboard() {
                                 const l = await loyaltyRes.json();
                                 if (l.success && l.data) setLoyaltyStats(l.data);
                         }
-                        if (advancedRes.ok) {
+                        if (advancedRes?.ok) {
                                 const advData = await advancedRes.json();
                                 setStats((prev) => (prev ? { ...prev, advancedStats: advData.data } : prev));
                         }
@@ -412,7 +441,12 @@ export default function OwnerDashboard() {
                                 hidden={tab !== 'analytics'}
                                 className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 rounded-md"
                         >
-                                {tab === 'analytics' && restaurant?.id ? (
+                                {advancedStatsAllowed === false ? (
+                                        /* W7-B (G-4): قفل صادق — التبويب يبقى في قائمة
+                                           التبويبات (لا إخفاء)، ومحتواه يشرح ويحيل
+                                           إلى /subscribe؛ لا شيء يتظاهر بالتحميل. */
+                                        <PlanFeatureLock feature="advancedStats" className="py-12" />
+                                ) : tab === 'analytics' && restaurant?.id ? (
                                         <AnalyticsTab
                                                 advancedStats={stats?.advancedStats}
                                                 restaurantId={restaurant.id}

@@ -38,6 +38,10 @@ const mockMenuItemCount = vi.hoisted(() => vi.fn());
 const mockMenuItemFindMany = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockQueryRaw = vi.hoisted(() => vi.fn());
+/* W7-B (G-4): بوابة «إحصائيات متقدمة» (بريميوم+) تقرأ صف خطة المطعم —
+   mock النموذج الجديد مع بريميوم افتراضية كي يبقى الموجب «قراءة مسموحة»
+   كما كان قبل البوابة (سلوك الاقطاع نفسه لا يتغير لمن يملك الحق). */
+const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         systemEvent: { findMany: mockSystemEventFindMany },
@@ -50,6 +54,7 @@ const mockPrisma = vi.hoisted(() => ({
         orderItem: { groupBy: mockOrderItemGroupBy },
         menuItem: { count: mockMenuItemCount, findMany: mockMenuItemFindMany },
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
+        restaurant: { findUnique: mockRestaurantFindUnique },
         $queryRaw: mockQueryRaw,
 }));
 
@@ -78,6 +83,8 @@ beforeEach(() => {
         mockMenuItemFindMany.mockResolvedValue([]);
         mockUserRestaurantFindUnique.mockResolvedValue(null);
         mockQueryRaw.mockResolvedValue([]);
+        // W7-B: صاحب الاقطاع فوق الرتبة (بريميوم) — الحارس يفتح.
+        mockRestaurantFindUnique.mockResolvedValue({ plan: { name: 'Premium', nameAr: 'بريميوم', sortOrder: 3 } });
 });
 
 function req(path: string) {

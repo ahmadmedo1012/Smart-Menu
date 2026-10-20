@@ -13,6 +13,9 @@ import { ColumnChart } from '@/components/shared/ColumnChart';
 import { DoughnutChart } from '@/components/shared/DoughnutChart';
 import { ChartCard } from '@/components/shared/ChartCard';
 import { KpiCard } from '@/components/admin/KpiCard';
+/* W7-B (G-4): 403 بوابة الخطة (خطة تغيّرت منتصف الجلسة مثلًا) → حالة
+   قفل صادقة بنسخة الواجهة، لا «تعذّر التحميل» الغامضة. */
+import { PlanFeatureLock } from '@/components/shared/PlanFeatureLock';
 import {
         type AnalyticsRange,
         dayLabel,
@@ -122,6 +125,9 @@ export function AnalyticsTab({
         const [data, setData] = useState<AdvancedStats | null>(advancedStats ?? null);
         const [loading, setLoading] = useState(!advancedStats);
         const [error, setError] = useState<string | null>(null);
+        /* W7-B (G-4): الخادم رفض 403 (بوابة «إحصائيات متقدمة» — بريميوم
+           فأعلى). الواجهة تعرض القفل الصادق بدل خطأ تحميل مضلل. */
+        const [locked, setLocked] = useState(false);
         const didInit = useRef(false);
 
         const load = useCallback(
@@ -133,6 +139,11 @@ export function AnalyticsTab({
                                 const res = await fetch(
                                         `/api/stats/advanced?restaurantId=${restaurantId}&range=${nextRange}`
                                 );
+                                if (res.status === 403) {
+                                        /* W7-B: بوابة الخطة — قفل صادق لا خطأ تحميل */
+                                        setLocked(true);
+                                        return;
+                                }
                                 if (!res.ok) {
                                         setError('تعذّر تحميل التحليلات');
                                         return;
@@ -217,6 +228,14 @@ export function AnalyticsTab({
                         ),
                 [stats?.aovTrend]
         );
+
+        /* W7-B (G-4): رفض الخادم الختامي — نسخة القفل الموحدة (المصدر
+           الواحد plan-entitlements-core عبر PlanFeatureLock). موضع العائد
+           المبكر: بعد آخر hook (قانون rules-of-hooks) — الأقفال لا تُسقِط
+           ترتيب الـhooks أبدًا. */
+        if (locked) {
+                return <PlanFeatureLock feature="advancedStats" />;
+        }
 
         return (
                 <div className="space-y-6 animate-fade-in">

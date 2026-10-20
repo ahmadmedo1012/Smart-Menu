@@ -5,6 +5,8 @@ import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/client-ip";
 import { z } from "zod";
+// W7-B (G-4): بوابة ميزة الخطة — «برنامج الإحالات» الاحترافية فأعلى.
+import { planAllowsFeature, planFeatureDeniedCopy } from "@/lib/plan-entitlements";
 
 const referralSchema = z.object({
   referralCode: z.string().min(1).max(20),
@@ -32,6 +34,9 @@ export async function POST(request: NextRequest) {
 
     const referrerCard = await prisma.loyaltyCard.findUnique({
       where: { referralCode },
+      // W7-B: صف الخطة يُجلب في قراءة البطاقة نفسها (مفتاح أساسي — لا
+      // استعلام إضافي) لتحديد رتبة مطعم البطاقة عند بوابة الميزة أدناه.
+      include: { restaurant: { select: { plan: { select: { name: true, nameAr: true, sortOrder: true } } } } },
     });
 
     if (!referrerCard) return error("كود إحالة غير صالح", 404);
@@ -66,6 +71,16 @@ export async function POST(request: NextRequest) {
     } else {
       // USER وأي دور غير معروف — رفض مطلق: كود صالح + هاتف ضحية لا يكفي
       return error("غير مصرح", 403);
+    }
+
+    /* W7-B (G-4 — قرار بوّابة): «برنامج الإحالات» الاحترافية فأعلى —
+       بعد سلّم المستأجر (رفض الغريب يبقى بوابة الأمان الأسبق) وقبل أي
+       كتابة: المالك الشرعي لمطعم دون الرتبة → 403 بنسخة العائلة وصفر
+       إنشاء إحالة. عائلة الأدمن تتجاوز (دلالة isOwnerSubscriptionActive).
+       القرار من صف الخطة المضمّن في قراءة البطاقة نفسها (نواة
+       plan-entitlements النقية — لا استعلام إضافي على مسار المال). */
+    if (auth.role === "owner" && !planAllowsFeature(referrerCard.restaurant?.plan, "referralProgram")) {
+      return error(planFeatureDeniedCopy("referralProgram"), 403);
     }
 
     // Self-referral guard (round-77): reject redeeming your own code via

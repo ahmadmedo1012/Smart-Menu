@@ -82,6 +82,10 @@ test.describe('RBAC negative — guest (no session)', () => {
     '/api/users',
     '/api/orders',
     '/api/orders/count',
+    // W7-B (G-4): مسارا الحقيقة/التصدير المبوّبان — 401 قبل أي شيء مثل
+    // بقية الأسرة (الضيف لا يذوق بوابات الخطة أصلًا).
+    '/api/orders/export',
+    '/api/owner/entitlements',
     '/api/admin/audit-logs',
     '/api/admin/stats',
     '/api/settings',
