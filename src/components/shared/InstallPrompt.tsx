@@ -55,7 +55,14 @@ export function InstallPrompt() {
 
         return (
                 <div
-                        className="fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] left-1/2 -translate-x-1/2 z-(--z-float) flex items-center gap-1 rounded-(--r-full) border border-border/50 bg-popover text-popover-foreground py-1 ps-2 pe-1 shadow-lg animate-fade-in"
+                        /* W7-G (VLM 13a, capture sm-pricing-1440): كانت الحبة تطفو في
+                           منتصف الشاشة (‎left-1/2 -translate-x-1/2‎) فتغطي حافة بطاقة خطة
+                           وزرّها في أسفل إطار العرض على /pricing — التقاط W7-G التقطها
+                           فوق زر «اشترك الآن» (قرأت الـVLM نصها الصغير «تسديد الدفعات»
+                           خطأً — هي «تثبيت التطبيق»). المراسي الآن على حافة الـFAB
+                           نفسها (‎end-4/6‎) فوق حبة واتساب بفاصل عمودي واضح — مركز
+                           الصفحة وأزرار المال تبقيان مكشوفين عند كل تمرير. */
+                        className="fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] end-4 sm:end-6 z-(--z-float) flex items-center gap-1 rounded-(--r-full) border border-border/50 bg-popover text-popover-foreground py-1 ps-2 pe-1 shadow-lg animate-fade-in"
                         role="group"
                         aria-label="تثبيت التطبيق"
                 >
