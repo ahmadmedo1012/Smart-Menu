@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LogIn } from 'lucide-react';
+import { LogIn, Loader2 } from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import AnimatedEyeOff from '@/components/ui/eye-off-icon';
@@ -338,7 +338,13 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                 >
                                                         {loading ? (
                                                                 <span className="flex items-center gap-2">
-                                                                        <LogIn className="size-4 animate-pulse" />
+                                                                        {/* W7-H (repetition audit): لغة التحميل الواحدة —
+                                                                            نبض الشفافية (animate-pulse) محجوز لنقاط الحياة
+                                                                            حصرًا (قانون DESIGN.md)؛ مؤشر الانتظار في الزر
+                                                                            يركب الدوران القانوني (animate-spin) الذي يركبه كل
+                                                                            زر انتظار في الأسطول (OrdersTable/SubscribeForm/
+                                                                            TelegramConfigSection…) — كان هذا الوحيد الباقي بنبض. */}
+                                                                        <Loader2 className="size-4 animate-spin motion-reduce:hidden" aria-hidden="true" />
                                                                         جارٍ تسجيل الدخول…
                                                                 </span>
                                                         ) : (
