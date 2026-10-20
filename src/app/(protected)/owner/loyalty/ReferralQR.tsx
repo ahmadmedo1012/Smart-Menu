@@ -23,7 +23,9 @@ export function ReferralQR({ url }: { url: string }) {
 
         if (error) return <p className="text-sm text-destructive">تعذّر إنشاء الرمز — أعد المحاولة</p>;
 
-        if (!qrDataUrl) return <div className="size-[180px] animate-pulse rounded-lg bg-muted" />;
+        /* W7-F (I-14): the QR placeholder joins the one skeleton language —
+           shimmer = shapes (DESIGN.md), pulse = live dots. */
+        if (!qrDataUrl) return <div className="skeleton size-[180px]" />;
 
         return (
                 <div className="flex flex-col items-center gap-2">

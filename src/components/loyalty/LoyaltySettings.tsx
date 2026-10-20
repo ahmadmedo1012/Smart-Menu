@@ -118,9 +118,11 @@ export function LoyaltySettings({ referralProgram = true, onSaved }: Props) {
 
         if (loading) {
                 return (
-                        <Card className="animate-pulse">
+                        /* W7-F (I-14): the settings-card pulse joins the one skeleton
+                           language — shimmer = shapes (DESIGN.md), pulse = live dots. */
+                        <Card>
                                 <LoadingAnnouncer loading message="جارٍ تحميل إعدادات الولاء…" completedMessage="تم تحميل الإعدادات" />
-                                <CardContent className="h-64" />
+                                <CardContent className="skeleton h-64" />
                         </Card>
                 );
         }

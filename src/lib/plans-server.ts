@@ -13,6 +13,15 @@ import { healPlanFeatures } from '@/lib/plan-features-heal';
  *
  * Returns null on DB failure (never throws) so both pages keep their
  * client-side fallback fetch alive — the round86-B5 contract.
+ *
+ * W7-F (ADV1-3, honest scope): this helper is ONE of TWO plans read paths,
+ * not the single one — /api/plans (api/plans/route.ts) keeps its own
+ * independent module cache + spread mapping for the client-side fallback
+ * fetches. Two unsynchronized 5-min TTLs mean an admin plan edit can show
+ * on one path ~5 min before the other (low-stakes — plans mutate rarely);
+ * and because /pricing's ISR `revalidate = 300` can land on this cache, its
+ * worst-case staleness is ≈ 10 min, not 5. Both paths share healPlanFeatures
+ * (W7-B2), so what they SERVE stays consistent — only freshness differs.
  */
 let cached: { data: Plan[]; ts: number } | null = null;
 const CACHE_TTL = 300_000; // 5 min — mirrors /api/plans (api/plans/route.ts)

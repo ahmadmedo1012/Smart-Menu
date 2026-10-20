@@ -1684,12 +1684,10 @@ textarea:autofill {
    next-themes class attribute. */
 .dark .grain-overlay::before { opacity: 0.022; }
 
-
-.empty-state-icon {
-        width: 3.5rem; height: 3.5rem; border-radius: var(--radius-md); background: var(--muted);
-        display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;
-}
-.empty-state-icon svg { width: 1.75rem; height: 1.75rem; color: var(--muted-foreground); opacity: 0.5; }
+/* W7-F (I-3): .empty-state-icon deleted — the legacy CSS class had ZERO
+   TSX consumers (r131-F5 migrated its last pages onto the ui/empty-state
+   primitive; only historical comments + the primitive's data-slot mention
+   the name, and the primitive styles itself via Tailwind classes). */
 
 /* ══════════════════════════════════════════════════════════════
    Reduced motion

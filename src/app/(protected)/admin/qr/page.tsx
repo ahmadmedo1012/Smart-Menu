@@ -103,9 +103,10 @@ export default function AdminQRPage() {
                             «لا توجد مطاعم» for loading, failure AND empty. */}
                         {loadState === 'loading' && (
                                 <div className="flex flex-col items-center justify-center py-16 text-center rounded-lg bg-card/50 border border-border/30">
-                                        <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4 animate-pulse">
-                                                <AnimatedQrCode className="size-7 text-orange/40" />
-                                        </div>
+                                        {/* W7-F (I-14): the loading plate joins the one skeleton
+                                                language — shimmer = shapes (DESIGN.md); the QR icon stays
+                                                for the error/loaded states, not the placeholder. */}
+                                        <div className="skeleton size-16 mb-4" />
                                         <p className="text-sm text-muted-foreground">جارٍ تحميل المطاعم…</p>
                                 </div>
                         )}
