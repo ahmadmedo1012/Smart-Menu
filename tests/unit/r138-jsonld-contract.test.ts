@@ -244,6 +244,25 @@ describe('r138 — item-level aggregateRating (never restaurant-level)', () => {
         });
 });
 
+// ── W7-G: تقليم hasMenu — وصف الصنف مُتقاعد (اختياري في schema.org،
+//          يُشحن أصلاً في حمولة RAC) ────────────────────────────────────
+
+describe('W7-G — JSON-LD trim: MenuItem.description retired (already ships in the RAC payload)', () => {
+        it('menu items carry name/offers(/aggregateRating) only — no duplicated Arabic descriptions', async () => {
+                const jsonLd = await renderRestaurantJsonLd();
+                const menu = jsonLd.hasMenu as Record<string, unknown>;
+                const sections = menu.hasMenuSection as Array<Record<string, unknown>>;
+                const menuItems = sections[0].hasMenuItem as Array<Record<string, unknown>>;
+
+                expect(menuItems.length).toBeGreaterThan(0);
+                for (const mi of menuItems) {
+                        expect(mi).not.toHaveProperty('description');
+                        expect(mi.name).toBeTruthy();
+                        expect(mi.offers).toBeTruthy();
+                }
+        });
+});
+
 // ── r138 (F9): SoftwareApplication في الرئيسية وحدها ────────────────────
 
 describe('r138 — SoftwareApplication JSON-LD lives on the homepage only', () => {

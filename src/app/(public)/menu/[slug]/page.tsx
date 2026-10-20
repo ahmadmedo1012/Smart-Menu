@@ -385,8 +385,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         name: `قائمة ${restaurant.name}`,
                         // r135: language + Arabic-first names — the rendered page is
                         // Arabic (lang=ar dir=rtl), so the machine-readable menu must
-                        // carry the Arabic name/description when they exist (nameAr
-                        // || name), not the English fallback.
+                        // carry the Arabic name when it exists (nameAr || name), not
+                        // the English fallback. (W7-G: descriptions retired — see the
+                        // MenuItem comment below.)
                         inLanguage: 'ar',
                         hasMenuSection: categories.map((c) => ({
                                 '@type': 'MenuSection',
@@ -399,7 +400,12 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                         .map((i) => ({
                                                 '@type': 'MenuItem',
                                                 name: i.nameAr || i.name,
-                                                description: i.descriptionAr || i.description,
+                                                /* W7-G (P2, A2 audit — JSON-LD trim): وصف الصنف حُذف من
+                                                   الـschema — اختياري في schema.org، وكان يُشحن مرتين
+                                                   (نفس النص يعيش في حمولة RAC المُسلسَلة التي ترسم
+                                                   البطاقات)؛ منيو العرض التوضيحي وحده كان يضيف
+                                                   ~25 وصفاً عربياً كاملاً للصفحة (340KB خام). الأسماء
+                                                   والأسعار والعروض وaggregateRating تبقى كما هي. */
                                                 offers: {
                                                         '@type': 'Offer',
                                                         // r133 (A12 N7): schema.org price is a STRING —
