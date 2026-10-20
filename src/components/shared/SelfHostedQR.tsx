@@ -58,11 +58,18 @@ export function SelfHostedQR({ value, size, alt, className, style }: SelfHostedQ
         }, [value, size]);
 
         if (!src) {
-                // Same breathing skeleton the pages already used for the loading state.
+                /* W7-G (P0, A2 audit): squareness is sacred for scannability — the
+                   placeholder pinned explicit width+height together with
+                   maxWidth:'100%', so on any viewport narrower than `size` the
+                   width clamped while the height stayed (500px QR → 390×500 on a
+                   390px phone). aspect-ratio + height:auto keeps the box a
+                   perfect square at every rendered width.
+                   Loading language: the canon .skeleton shimmer (r152
+                   shapes-shimmer law) — not the retired animate-breath pulse. */
                 return (
                         <div
-                                className={cn('animate-breath rounded-xl bg-muted/50', className)}
-                                style={{ width: size, height: size, maxWidth: '100%', ...style }}
+                                className={cn('skeleton rounded-xl', className)}
+                                style={{ width: size, aspectRatio: '1 / 1', maxWidth: '100%', ...style }}
                                 aria-hidden="true"
                         />
                 );

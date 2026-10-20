@@ -186,13 +186,16 @@ export default function OwnerQRPage() {
                                                 {url ? (
                                                         <div className="relative group">
                                                                 {/* r106-N2: self-hosted render (data URL) — pixel-precise sizing kept,
-                                                                    identical brand colors, zero third-party calls. */}
+                                                                    identical brand colors, zero third-party calls.
+                                                                    W7-G (P0): aspect-ratio + height/auto — the old explicit
+                                                                    height kept 500px on a clamped 390px width (non-uniform
+                                                                    squash). Squareness is sacred for scannability. */}
                                                                 <SelfHostedQR
                                                                         value={url}
                                                                         size={qrSize}
                                                                         alt={`QR Code - ${name}`}
                                                                         className="rounded-lg shadow-lg transition-[transform,translate,scale,rotate,box-shadow] duration-base group-hover:shadow-xl group-hover:scale-[1.02] motion-reduce:transition-none"
-                                                                        style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}
+                                                                        style={{ width: qrSize, aspectRatio: '1 / 1', maxWidth: '100%', height: 'auto' }}
                                                                 />
                                                                 {/* Overlay with store icon */}
                                                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -202,7 +205,10 @@ export default function OwnerQRPage() {
                                                                 </div>
                                                         </div>
                                                 ) : (
-                                                        <div className="size-48 rounded-lg bg-muted/50 animate-breath" />
+                                                        <>
+                                                                {/* W7-G (A2 audit): الأشكال ترتجف بلمعة .skeleton القانونية — نبض الشفافية المتقاعد (animate-breath) كان لغة تحميل ثانية. */}
+                                                                <div className="size-48 rounded-lg skeleton" />
+                                                        </>
                                                 )}
                                         </div>
 
@@ -337,12 +343,15 @@ export default function OwnerQRPage() {
                                                     too (belt-and-braces: sizing no longer depends on
                                                     Tailwind class generation, and the raw <img> gets
                                                     explicit dimensions at this call site). */}
+                                                {/* W7-G (P0): نفس وصفة المربع المقدّس — عرض 65mm +
+                                                    aspect-ratio بدل height صريحة؛ الطباعة تبقى 65×65mm
+                                                    تماماً والانبعاج يستحيل حتى لو انضغط العرض. */}
                                                 <SelfHostedQR
                                                         value={url}
                                                         size={1000}
                                                         alt=""
                                                         className="w-[65mm] h-[65mm]"
-                                                        style={{ width: '65mm', height: '65mm' }}
+                                                        style={{ width: '65mm', aspectRatio: '1 / 1', maxWidth: '100%', height: 'auto' }}
                                                 />
                                                 <p className="text-lg font-medium text-black">امسح الرمز لتصفح المنيو</p>
                                                 <p dir="ltr" className="text-sm text-black">{url}</p>

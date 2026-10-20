@@ -193,13 +193,16 @@ export default function AdminQRPage() {
                                                         <div className="flex justify-center py-6 bg-white/30 dark:bg-white/5 rounded-lg">
                                                                 <div className="relative group">
                                                                         {/* r106-N2: self-hosted render (data URL) — pixel-precise sizing kept,
-                                                                            identical brand colors, zero third-party calls. */}
+                                                                            identical brand colors, zero third-party calls.
+                                                                            W7-G (P0): aspect-ratio + height/auto — the old explicit
+                                                                            height kept 500px on a clamped 390px width (non-uniform
+                                                                            squash). Squareness is sacred for scannability. */}
                                                                         <SelfHostedQR
                                                                                 value={menuUrl}
                                                                                 size={qrSize}
                                                                                 alt={`QR - ${selectedName}`}
                                                                                 className="rounded-lg shadow-lg transition-shadow group-hover:shadow-xl"
-                                                                                style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}
+                                                                                style={{ width: qrSize, aspectRatio: '1 / 1', maxWidth: '100%', height: 'auto' }}
                                                                         />
                                                                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                                                                 <div className="size-10 md:size-14 rounded-md bg-card/90 shadow flex items-center justify-center">
