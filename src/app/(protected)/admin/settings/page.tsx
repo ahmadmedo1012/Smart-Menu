@@ -19,6 +19,7 @@ import AnimatedSave from "@/components/ui/save-icon"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { FilterTabs } from "@/components/ui/filter-tabs"
+import { EmptyState } from "@/components/ui/empty-state"
 import { SettingsPageSkeleton } from "@/components/shared/DashboardSkeletons"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
@@ -287,9 +288,10 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         ) : restaurants.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3 rounded-lg bg-card/50 border border-border/30">
-            <Store className="size-10 text-muted-foreground/50" />
-            <p>لا توجد مطاعم</p>
+          /* W21-D (states consolidation): the hand-rolled Store well joins the
+             shared plate primitive — same card shell as the sibling panels. */
+          <div className="rounded-lg bg-card/50 border border-border/30">
+            <EmptyState icon={Store} title="لا توجد مطاعم" />
           </div>
         ) : null}
       </section>}

@@ -11,6 +11,7 @@ import { SplineAreaChart } from '@/components/shared/SplineAreaChart';
 import { ColumnChart } from '@/components/shared/ColumnChart';
 import { DoughnutChart } from '@/components/shared/DoughnutChart';
 import { ChartCard } from '@/components/shared/ChartCard';
+import { FilterTabs } from '@/components/ui/filter-tabs';
 import { KpiCard } from '@/components/admin/KpiCard';
 /* W7-B (G-4): 403 بوابة الخطة (خطة تغيّرت منتصف الجلسة مثلًا) → حالة
    قفل صادقة بنسخة الواجهة، لا «تعذّر التحميل» الغامضة. */
@@ -60,56 +61,11 @@ interface AdvancedStats {
         };
 }
 
-const RANGE_LABELS: { id: AnalyticsRange; label: string }[] = [
-        { id: 'today', label: 'اليوم' },
-        { id: 'week', label: 'هذا الأسبوع' },
-        { id: 'month', label: 'هذا الشهر' },
+const RANGE_LABELS: { value: AnalyticsRange; label: string }[] = [
+        { value: 'today', label: 'اليوم' },
+        { value: 'week', label: 'هذا الأسبوع' },
+        { value: 'month', label: 'هذا الشهر' },
 ];
-
-function RangeToggle({
-        value,
-        onChange,
-        disabled,
-}: {
-        value: AnalyticsRange;
-        onChange: (r: AnalyticsRange) => void;
-        disabled?: boolean;
-}) {
-        return (
-                // r127-F3 (K-9): role="radiogroup" downgraded to a plain group —
-                // the radio contract requires roving tabindex + arrow-key
-                // navigation that this picker never implemented. Filter-style
-                // toggle buttons with aria-pressed are the honest pattern
-                // (CategoryTabs decision); OrderDialog keeps a true radiogroup
-                // because it implements the full APG contract.
-                <div
-                        role="group"
-                        aria-label="نطاق التاريخ"
-                        className="flex flex-wrap gap-1.5"
-                >
-                        {RANGE_LABELS.map((r) => {
-                                const selected = value === r.id;
-                                return (
-                                        <button
-                                                key={r.id}
-                                                type="button"
-                                                aria-pressed={selected}
-                                                disabled={disabled}
-                                                onClick={() => onChange(r.id)}
-                                                className={cn(
-                                                        'inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                        selected
-                                                                ? 'border-orange/40 bg-orange-muted text-accent-foreground'
-                                                                : 'border-border/50 bg-background text-muted-foreground hover:border-orange/20'
-                                                )}
-                                        >
-                                                {r.label}
-                                        </button>
-                                );
-                        })}
-                </div>
-        );
-}
 
 export function AnalyticsTab({
         advancedStats,
@@ -240,7 +196,19 @@ export function AnalyticsTab({
                 <div className="space-y-6 animate-fade-in">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                                 <p className="text-xs text-muted-foreground">تصفية الرسوم حسب الفترة</p>
-                                <RangeToggle value={range} onChange={setRange} disabled={loading} />
+                                {/* W21-D (FilterTabs sweep): the hand-rolled range picker joins the
+                                   segmented FilterTabs cut — one active treatment (solid terracotta,
+                                   r154) + the aria-pressed toggle contract of the r127-F3 K-9 honest
+                                   pattern (group + pressed, not radiogroup — the primitive owns it). */}
+                                <FilterTabs<AnalyticsRange>
+                                        items={RANGE_LABELS}
+                                        value={range}
+                                        onChange={setRange}
+                                        variant="segmented"
+                                        disabled={loading}
+                                        aria-label="نطاق التاريخ"
+                                        className="flex-wrap pb-0"
+                                />
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

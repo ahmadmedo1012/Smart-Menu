@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { SearchInput } from "@/components/ui/search-input"
 import { EmptyState } from "@/components/ui/empty-state"
+import { FilterTabs } from "@/components/ui/filter-tabs"
 import { Gift, FilterX } from "lucide-react"
 /* W7-H (repetition audit): كتلة الفراغ المُصفّى (أسفل الفلاتر داخل القائمة)
                            تركب القطعة المضغوطة من بدائية EmptyState — نفس
@@ -65,18 +66,22 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
     <div>
       <div className="flex items-center gap-2 px-5 pb-3 border-b border-border/20">
         <SearchInput value={search} onChange={setSearch} placeholder="ابحث بالاسم أو الهاتف…" />
-        <div className="flex gap-1">
-          {["all", "pending", "converted", "expired"].map((s) => (
-            <button key={s} type="button" onClick={() => setStatusFilter(s)}
-              aria-pressed={statusFilter === s}
-              className={cn("h-11 rounded-lg px-3 text-xs font-medium transition-[background-color,border-color,color] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1",
-                statusFilter === s
-                  ? "bg-orange/10 text-accent-foreground border border-orange/20"
-                  : "text-muted-foreground hover:bg-muted/50 border border-transparent")}>
-              {s === "all" ? "الكل" : s === "pending" ? "معلق" : s === "converted" ? "تم التحويل" : s === "expired" ? "منتهي" : s}
-            </button>
-          ))}
-        </div>
+        {/* W21-D (FilterTabs sweep): the hand-rolled status pills join the
+            segmented FilterTabs cut — one active treatment (solid terracotta,
+            r154) + the group/pressed contract the row already tried to speak. */}
+        <FilterTabs
+          items={[
+            { value: "all", label: "الكل" },
+            { value: "pending", label: "معلق" },
+            { value: "converted", label: "تم التحويل" },
+            { value: "expired", label: "منتهي" },
+          ]}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          variant="segmented"
+          aria-label="تصفية الإحالات حسب الحالة"
+          className="pb-0"
+        />
       </div>
       <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
         {filtered.length === 0 ? (

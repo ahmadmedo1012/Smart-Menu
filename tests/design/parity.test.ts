@@ -2890,12 +2890,14 @@ describe('phase6 r154 — أسطح الأدمن: القواعد الكاملة (
 
   it('الفلترة: شرائح تراكوتا صلبة (لا تدرج لا توهج) + خمول بحدود دافئة (تبويبات الطلبات · حبوب التدقيق · حبوب أحداث النظام)', () => {
     // W7-G (I-4): تبويبات الطلبات وحبوب أحداث النظام ركبت بدائية FilterTabs —
-    // الملء الصلب يُحكم عليه في اختبار بدائية الفلترة؛ حبوب التدقيق بقيت بيد اليد
+    // الملء الصلب يُحكم عليه في اختبار بدائية الفلترة
+    // W21-D: حبوب التدقيق ركبت البدائية بدورها — الدبوس ينتقل من معالجة
+    // اليد (التي زالت) إلى إثبات الركوب، بنمط الطلبات وأحداث النظام
     const o = cc('src/app/(protected)/admin/orders/page.tsx');
     expect(o).toContain('FilterTabs');
     expect(o).not.toContain('bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg');
     const a = cc('src/app/(protected)/admin/audit-logs/page.tsx');
-    expect(a).toContain("'bg-orange text-orange-foreground shadow-sm'");
+    expect(a).toContain('FilterTabs');
     expect(a).not.toContain("'bg-muted text-muted-foreground hover:bg-muted/80'");
     const s = cc('src/app/(protected)/admin/system-events/client.tsx');
     expect(s).toContain('FilterTabs');

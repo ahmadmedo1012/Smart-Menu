@@ -28,6 +28,8 @@ import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ErrorState } from '@/components/shared/ErrorState';
+import { EmptyState } from '@/components/ui/empty-state';
+import { FilterTabs } from '@/components/ui/filter-tabs';
 
 interface AuditLogEntry {
         id: number;
@@ -193,28 +195,20 @@ export default function AdminAuditLogsPage() {
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2">
-                                        {/* Category pills */}
-                                        <div className="flex flex-wrap gap-1.5" role="group" aria-label="فلتر الإجراء">
-                                                {CATEGORY_PILLS.map((pill) => (
-                                                        <button
-                                                                key={pill.value}
-                                                                onClick={() => {
-                                                                        setActionFilter(pill.value);
-                                                                        setPage(1);
-                                                                }}
-                                                                className={cn(
-                                                                        'px-3 py-1.5 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                                                                        /* Phase 6 (r154): warm pill grammar — solid terracotta
-                                                                           active, bordered card idle (the owner filter recipe). */
-                                                                        actionFilter === pill.value
-                                                                                ? 'bg-orange text-orange-foreground shadow-sm'
-                                                                                : 'bg-card/50 border border-border/30 text-muted-foreground hover:border-orange/30 hover:bg-orange-muted/40'
-                                                                )}
-                                                        >
-                                                                {pill.label}
-                                                        </button>
-                                                ))}
-                                        </div>
+                                        {/* Category pills — W21-D (FilterTabs sweep): the row rides the
+                                           shared FilterTabs primitive — one active treatment (solid
+                                           terracotta, r154) + the aria-pressed toggle contract the
+                                           hand-rolled buttons were missing. */}
+                                        <FilterTabs
+                                                items={CATEGORY_PILLS}
+                                                value={actionFilter}
+                                                onChange={(v) => {
+                                                        setActionFilter(v);
+                                                        setPage(1);
+                                                }}
+                                                aria-label="فلتر الإجراء"
+                                                className="flex-wrap pb-0"
+                                        />
 
                                         {/* Target type */}
                                         <Select
@@ -257,12 +251,17 @@ export default function AdminAuditLogsPage() {
 
                         {/* Table */}
                         {logs.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-                                        <History className="size-12 text-muted-foreground/50" />
-                                        <p className="text-lg font-medium">
-                                                {actionFilter || targetType || search ? 'لا توجد نتائج' : 'لا توجد سجلات تدقيق'}
-                                        </p>
-                                </div>
+                                /* W21-D (states consolidation): the hand-rolled History well joins
+                                   the shared plate primitive. */
+                                <EmptyState
+                                        icon={History}
+                                        title={actionFilter || targetType || search ? 'لا توجد نتائج' : 'لا توجد سجلات تدقيق'}
+                                        description={
+                                                actionFilter || targetType || search
+                                                        ? 'جرّب إزالة الفلاتر أو البحث بنطاق أوسع'
+                                                        : 'ستُسجَّل الإجراءات الحساسة هنا مع أول عملية إدارية'
+                                        }
+                                />
                         ) : (
                                 <>
                                         <div className="rounded-lg border border-border/30 bg-card/50 overflow-x-auto">
