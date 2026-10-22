@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast'
 import { PageHeader } from '@/components/shared/PageHeader';
 import { EmptyState } from '@/components/ui/empty-state';
+import { FilterTabs } from '@/components/ui/filter-tabs';
 import { Store } from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import { MotionCheck } from '@/components/ui/motion-icons';
@@ -217,26 +218,20 @@ export default function AdminQRPage() {
                                                         </div>
                                                 )}
 
-                                                {/* Size selector */}
+                                                {/* Size selector — W21-D (FilterTabs sweep): the hand-rolled
+                                                        size pills join the shared FilterTabs primitive (flex-1 per
+                                                        button) — one active treatment + the aria-pressed contract
+                                                        the plain buttons were missing. */}
                                                 <div>
                                                         <Label className="text-xs text-muted-foreground">الحجم</Label>
-                                                        <div className="flex gap-2 mt-1.5">
-                                                                {QR_SIZES.map((s) => (
-                                                                        <button
-                                                                                key={s.value}
-                                                                                type="button"
-                                                                                onClick={() => setQrSize(s.value)}
-                                                                                className={cn(
-                                                                                        'flex-1 py-2.5 rounded-full text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-                                                                                        qrSize === s.value
-                                                                                                ? 'bg-orange-muted border-orange/30 text-accent-foreground'
-                                                                                                : 'border-border/30 hover:border-orange/30'
-                                                                                )}
-                                                                        >
-                                                                                {s.label}
-                                                                        </button>
-                                                                ))}
-                                                        </div>
+                                                        <FilterTabs
+                                                                items={QR_SIZES}
+                                                                value={qrSize}
+                                                                onChange={setQrSize}
+                                                                aria-label="حجم رمز QR"
+                                                                className="mt-1.5 pb-0"
+                                                                itemClassName="flex-1 justify-center"
+                                                        />
                                                 </div>
 
                                                 {/* URL + Actions */}

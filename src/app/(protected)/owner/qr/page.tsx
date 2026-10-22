@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { EmptyState } from '@/components/ui/empty-state';
+import { FilterTabs } from '@/components/ui/filter-tabs';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { premiumToast } from '@/lib/premium-toast';
 import {Store, Smartphone, Printer, UtensilsCrossed} from 'lucide-react';
@@ -15,7 +16,6 @@ import AnimatedDownload from '@/components/ui/download-icon';
 import AnimatedExternalLink from '@/components/ui/external-link-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 // r106-N2: self-hosted QR (retire api.qrserver.com) — same brand colors.
 import { SelfHostedQR, qrPngDataUrl } from '@/components/shared/SelfHostedQR';
@@ -214,28 +214,21 @@ export default function OwnerQRPage() {
 
                                         {/* Controls */}
                                         <div className="p-5 space-y-5">
-                                                {/* Size selector — r131-F5 (A1 P0-4): canonical
-                                                        control recipe (r-md + 600), was rounded-xl/500. */}
-                                                <div role="group" aria-label="حجم رمز QR">
+                                                {/* Size selector — W21-D (FilterTabs sweep): the hand-rolled
+                                                        size picker joins the segmented FilterTabs cut (flex-1 per
+                                                        button — the primitive's documented per-item override for
+                                                        this exact picker). */}
+                                                <div>
                                                         <Label className="text-xs text-muted-foreground">حجم رمز QR</Label>
-                                                        <div className="flex gap-2 mt-1.5">
-                                                                {QR_SIZES.map((s) => (
-                                                                        <button
-                                                                                key={s.value}
-                                                                                type="button"
-                                                                                onClick={() => setQrSize(s.value)}
-                                                                                aria-pressed={qrSize === s.value}
-                                                                                className={cn(
-                                                                                        'flex-1 min-h-11 rounded-md text-sm font-semibold border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 active:scale-[0.97] active:duration-[var(--t-micro,80ms)]',
-                                                                                        qrSize === s.value
-                                                                                                ? 'bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground'
-                                                                                                : 'border-border/30 hover:border-orange/20'
-                                                                                )}
-                                                                        >
-                                                                                {s.label}
-                                                                        </button>
-                                                                ))}
-                                                        </div>
+                                                        <FilterTabs
+                                                                items={QR_SIZES}
+                                                                value={qrSize}
+                                                                onChange={setQrSize}
+                                                                variant="segmented"
+                                                                aria-label="حجم رمز QR"
+                                                                className="mt-1.5 pb-0"
+                                                                itemClassName="flex-1 justify-center"
+                                                        />
                                                 </div>
 
                                                 {/* URL */}

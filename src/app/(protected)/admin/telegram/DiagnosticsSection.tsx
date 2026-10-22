@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
 import {Loader2, Stethoscope, CheckCircle2, XCircle, Clock} from 'lucide-react';
 import AnimatedTrash2 from '@/components/ui/trash-icon';
@@ -143,9 +144,14 @@ export function DiagnosticsSection({
                                                                 <Loader2 className="size-5 animate-spin text-muted-foreground" />
                                                         </div>
                                                 ) : approvers.length === 0 ? (
-                                                        <p className="text-sm text-muted-foreground text-center py-4">
-                                                                لا يوجد موافقون مضافة
-                                                        </p>
+                                                        /* W21-D (states consolidation): the nested approvers well joins
+                                                           the compact cut of the shared plate primitive. */
+                                                        <EmptyState
+                                                                size="compact"
+                                                                icon={AnimatedUserCheck}
+                                                                title="لا يوجد موافقون مضافة"
+                                                                description="أضف معرف تليجرام من الحقول أعلاه لبدء قائمة الموافقين"
+                                                        />
                                                 ) : (
                                                         <div className="space-y-2">
                                                                 {approvers.map((a) => (

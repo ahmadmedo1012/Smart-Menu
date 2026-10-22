@@ -9,6 +9,7 @@ import {Users, Loader2} from 'lucide-react';
 import AnimatedTrash2 from '@/components/ui/trash-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedSend from "@/components/ui/send-icon"
+import { EmptyState } from "@/components/ui/empty-state"
 
 function maskChatId(id: string): string {
   if (id.length <= 4) return id
@@ -71,7 +72,14 @@ export function BroadcastTargetsSection({
             </Button>
           </div>
           {targets.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">لا توجد جهات إرسال مضافة</p>
+            /* W21-D (states consolidation): the nested targets well joins the
+               compact cut of the shared plate primitive. */
+            <EmptyState
+              size="compact"
+              icon={AnimatedSend}
+              title="لا توجد جهات إرسال مضافة"
+              description="أضف معرف محادثة من الحقلين أعلاه لإنشاء أول جهة إرسال"
+            />
           ) : (
             <div className="space-y-2">
               {targets.map((t) => (
