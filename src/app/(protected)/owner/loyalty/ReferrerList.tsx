@@ -64,8 +64,13 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
 
   return (
     <div>
-      <div className="flex items-center gap-2 px-5 pb-3 border-b border-border/20">
-        <SearchInput value={search} onChange={setSearch} placeholder="ابحث بالاسم أو الهاتف…" />
+      {/* W21-G (critic F8): the toolbar wraps — the search keeps a usable floor
+          (min-w-[200px], the admin/orders toolbar convention) so the status row
+          drops to its own line on narrow viewports instead of squeezing the
+          input to a sliver; the pills then scroll per the primitive's own
+          overflow-x-auto design. Wide viewports stay one dense line. */}
+      <div className="flex flex-wrap items-center gap-2 px-5 pb-3 border-b border-border/20">
+        <SearchInput value={search} onChange={setSearch} placeholder="ابحث بالاسم أو الهاتف…" className="min-w-[200px]" />
         {/* W21-D (FilterTabs sweep): the hand-rolled status pills join the
             segmented FilterTabs cut — one active treatment (solid terracotta,
             r154) + the group/pressed contract the row already tried to speak. */}
