@@ -7,11 +7,14 @@
  * Server-safe: no client JS, no "use client", no effects — the whole
  * animation is declarative, and prefers-reduced-motion kills it in CSS.
  *
- * Markup is the canonical Madarek structure (LandingPage.tsx:409-418):
- * section.ln-marquee[aria-hidden] > div.ln-marquee-track >
- * (span.ln-marquee-item > text + span.ln-marquee-sep). The `·` glyph
- * inside the separator span is hidden by CSS (font-size: 0) and a true
- * 5×5px lime dot is drawn in its place.
+ * Markup (P21-W6 2-c): section.ln-marquee[aria-hidden] >
+ * div.ln-marquee-clip > div.ln-marquee-track >
+ * (span.ln-marquee-item > text + span.ln-marquee-sep). The clip wrapper
+ * is the mask window — landing.css fades the track's text at both edges
+ * there (mirror-symmetric mask-image), while the flood band itself keeps
+ * its full-bleed rectangle. The `·` glyph inside the separator span is
+ * hidden by CSS (font-size: 0) and a true cream dot is drawn in its
+ * place.
  *
  * r128-F1a (Stage A foundation). Consumers (Stage B): pass REAL
  * platform vocabulary only — no fabricated names (r82 honesty).
@@ -25,13 +28,15 @@ export function LandingMarquee({ items }: { items: string[] }) {
 
   return (
     <section className="ln-marquee" aria-hidden="true">
-      <div className="ln-marquee-track">
-        {doubled.map((it, i) => (
-          <span className="ln-marquee-item" key={i}>
-            {it}
-            <span className="ln-marquee-sep">·</span>
-          </span>
-        ))}
+      <div className="ln-marquee-clip">
+        <div className="ln-marquee-track">
+          {doubled.map((it, i) => (
+            <span className="ln-marquee-item" key={i}>
+              {it}
+              <span className="ln-marquee-sep">·</span>
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );

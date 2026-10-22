@@ -65,6 +65,11 @@
   --sm-line-strong:rgb(43 32 20 / 0.30);   /* dotted price leaders */
   --sm-grain-op:   0.05;  /* paper tooth — darker specks at low opacity */
   --sm-radius-pill: var(--r-full);
+  /* P21-W6 (2-c): the sticky rail's REAL measured height — 69px desktop
+     (12+44+12 padding/nav-row + 1px hairline), overridden to the 73px
+     burger rail at ≤1080px. Consumed by .ln-chapter's scroll-margin-top
+     so the nav anchors land clear of the rail, never behind it. */
+  --sm-rail-h:     69px;
   /* P12-2b (S2/S4): the comic display scale — Banzai-style display size
      clamp(44px, 8vw, 120px) in rem terms; re-pinned in parity.test.ts. */
   --sm-h1:         clamp(2.75rem, 8vw, 7.5rem);
@@ -204,6 +209,14 @@
   position: relative;
   padding: clamp(96px, 12vh, 140px) var(--page-gutter);
   border-block-end: 1px solid var(--sm-line-soft);
+  /* P21-W6 (2-c): the four nav anchors (#menu/#journey/#ambience/#owner
+     — exactly this page's .ln-chapter set) previously landed with the
+     section's top edge hidden behind the sticky rail (69-73px). The
+     generous ≥96px chapter padding kept the CONTENT visible, but the
+     section edge (e.g. #journey's paper-2 band start) sat behind the
+     rail. scroll-margin-top = the rail's real height lands the whole
+     chapter — edge included — below it, at every viewport. */
+  scroll-margin-top: var(--sm-rail-h);
 }
 .landing .ln-chapter-head {
   max-inline-size: 1280px;
@@ -233,8 +246,13 @@
 
 /* ── 1 · marquee — the vocabulary ring, one slow pass ──────────────────
    List duplicated ×2, track gap 48px, translateX(0 → calc(50% + 24px))
-   seam correction (24px = HALF the 48px gap), 42s linear, HARD edges
-   (overflow hidden, no mask/fade), 5×5px ember dot separators. */
+   seam correction (24px = HALF the 48px gap), 42s linear, 5×5px ember
+   dot separators. P21-W6 (2-c): the track's text now DISSOLVES at both
+   ends — a symmetric mask-image fade on the .ln-marquee-clip window
+   replaces the old hard slice at the section's overflow edge. The mask
+   rides the wrapper, NOT the band itself, so the pinned TERRACOTTA flood
+   + hairlines keep their full-bleed rectangle (the P12-2b identity); the
+   fade is mirror-symmetric, so RTL and LTR read identically. */
 .landing .ln-marquee {
   overflow: hidden;
   border-block: 1px solid var(--sm-line);
@@ -245,6 +263,28 @@
      Re-pinned in parity.test.ts (the band pin + gradient allowlist). */
   background: linear-gradient(180deg, #C2452D 0%, #D93A22 100%);
   user-select: none;
+}
+/* the clip window — one wrapper between the flood band and the track.
+   overflow lives here too (the window is what the mask sizes against);
+   the fade span scales with the viewport: 24px at 390 → 56px at 1440+,
+   roughly one bubble word dissolving on each side. -webkit- prefix kept
+   for the iOS 15 / old WebView floor the sheet pins itself to. */
+.landing .ln-marquee-clip {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to left,
+    transparent 0,
+    #000 clamp(24px, 4vw, 56px),
+    #000 calc(100% - clamp(24px, 4vw, 56px)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to left,
+    transparent 0,
+    #000 clamp(24px, 4vw, 56px),
+    #000 calc(100% - clamp(24px, 4vw, 56px)),
+    transparent 100%
+  );
 }
 .landing .ln-marquee-track {
   display: flex;
@@ -1512,7 +1552,12 @@
 .landing .ln-faq-q:focus-visible { outline: 2px solid var(--sm-ink); outline-offset: 3px; }
 .landing .ln-faq-q svg { color: var(--sm-ink-dim); transition: transform var(--sm-t-base) var(--sm-ease); flex-shrink: 0; }
 .landing .ln-faq-item[open] .ln-faq-q svg { transform: rotate(180deg); }
-.landing .ln-faq-a { padding: 0 20px 18px; color: var(--sm-ink-dim); font-size: 14.5px; line-height: 1.75; overflow-wrap: anywhere; }
+/* P21-W6 (2-c): the answers measured 129 chars/line at 1440 (858px) —
+   nearly double the comfortable Arabic measure. Capped at 62ch the line
+   reads as one clean thought; the cap is in ch so it scales with the
+   answer font, and inline-start alignment keeps the RTL reading edge
+   anchored (the item padding already centers within the column). */
+.landing .ln-faq-a { padding: 0 20px 18px; color: var(--sm-ink-dim); font-size: 14.5px; line-height: 1.75; overflow-wrap: anywhere; max-inline-size: 62ch; }
 
 /* ── 14 · footer — the back matter ──────────────────────────────────── */
 .landing .landing-footer {
@@ -1574,7 +1619,10 @@
 
 /* ── 16 · mobile blocks (320px+, no overflow) ───────────────────────── */
 @media (max-width: 1080px) {
-  /* burger breakpoint: nav links + header CTA fold into the drawer */
+  /* burger breakpoint: nav links + header CTA fold into the drawer;
+     the rail grows to the 48px burger row (12+48+12 + 1px = 73px) —
+     the anchor scroll-margin rides the same token (P21-W6 2-c) */
+  .landing { --sm-rail-h: 73px; }
   .landing .landing-nav-links { display: none; }
   .landing .landing-burger { display: grid; margin-inline-start: auto; }
   .landing .landing-header-cta { display: none; }
