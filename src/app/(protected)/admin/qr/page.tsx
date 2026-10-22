@@ -219,15 +219,18 @@ export default function AdminQRPage() {
                                                 )}
 
                                                 {/* Size selector — W21-D (FilterTabs sweep): the hand-rolled
-                                                        size pills join the shared FilterTabs primitive (flex-1 per
+                                                        size pills join the segmented FilterTabs cut (flex-1 per
                                                         button) — one active treatment + the aria-pressed contract
-                                                        the plain buttons were missing. */}
+                                                        the plain buttons were missing. W21-G (critic F7): variant
+                                                        now explicit — the same segmented shape as owner/qr's picker
+                                                        (the primitive docstring's designated cut for size pickers). */}
                                                 <div>
                                                         <Label className="text-xs text-muted-foreground">الحجم</Label>
                                                         <FilterTabs
                                                                 items={QR_SIZES}
                                                                 value={qrSize}
                                                                 onChange={setQrSize}
+                                                                variant="segmented"
                                                                 aria-label="حجم رمز QR"
                                                                 className="mt-1.5 pb-0"
                                                                 itemClassName="flex-1 justify-center"
