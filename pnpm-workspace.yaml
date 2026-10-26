@@ -18,7 +18,10 @@ minimumReleaseAgeExclude:
   - hono@4.13.3
 
 overrides:
-  zod: 4.3.6
+  # P26-C: zod 4.3.6 → 4.6.7 — GHSA-mrhx-c7xc-m3w5 (memory-exhaustion in oversized
+  # constrained collections; the same advisory SmartBot retired at 2d40900).
+  # The knip>zod v3 carve-out below is untouched.
+  zod: 4.6.7
   # round90-F6: carve-out scoped to knip ONLY — knip@5 (pinned devDep, v6
   # crashes on this env's oxc-parser) builds its CLI schema with the zod v3
   # function API (z.function().args) which zod 4 removed, so the global
@@ -29,13 +32,13 @@ overrides:
   nanoid: ^3.3.18
   hono: ^4.13.11  # W7-J (P0): GHSA-5r4p-p66f-jhc7 serveStatic double-decode (moderate) via @prisma/dev chain
   '@hono/node-server': ^1.19.17
-  fast-uri: ^3.1.8  # round86-D7 + r123: >=3.1.8 fixes SSRF/host-confusion + normalization advisories
+  fast-uri: ^3.1.9  # round86-D7 + r123 → P26-C: >=3.1.9 adds percent-encoded-scheme spoofing + suffix-colon injection fixes
   browserslist: ^4.28.7  # round86-D7: fixes OOM + prototype-write advisories (via next/babel chain)
   mysql2: ^3.23.1  # round86-D7: fixes auth-downgrade + zlib advisories (via prisma)
   deepmerge-ts: ^8.0.1
   valibot: ^1.4.2
   sharp: 0.35.5  # r123: CVE-2026-96889 (>=0.35.5)
-  undici: 6.28.1  # r123: WebSocket subprotocol + permessage-deflate advisories (>=6.28.1, via @vercel/blob)
+  undici: 6.29.1  # r123 → P26-C: WebSocket/permessage-deflate (>=6.28.1) + content-encodings DoS + EventSource unbounded-memory (GHSA-xjj6-f33q-929c, GHSA-4qv8-2p9j-2685 — >=6.29.1, via @vercel/blob)
   source-map-js: ^1.2.2  # r123: indexed source-map section offsets advisory (>=1.2.2, via prisma)
   # round88-B8: patch-level fixes for the 5 high advisories in the eslint
   # dev chain (dev-tooling only, zero production-runtime exposure; semver-
