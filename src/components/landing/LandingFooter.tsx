@@ -30,7 +30,8 @@ export function LandingFooter() {
       <div className="marketing-container">
         <div className="landing-footer-grid">
           <div className="landing-footer-col">
-            <Link href="/" className="landing-brand" aria-label="الربط الذكي — الرئيسية">
+            {/* P26-C: same name-from-content law as the header brand. */}
+            <Link href="/" className="landing-brand">
               <span className="landing-brand-mark" aria-hidden="true">م</span>
               <span className="landing-brand-text">
                 <span className="landing-brand-name">الربط الذكي</span>

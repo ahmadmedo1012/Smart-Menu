@@ -128,7 +128,15 @@ export function LandingHeader() {
       {/* Header — the .scrolled state class is toggled imperatively */}
       <header className="landing-header" ref={headerRef}>
         <div className="landing-nav">
-          <Link href="/" className="landing-brand" aria-label="الربط الذكي — الرئيسية">
+          {/* P26-C (Label-in-Name root cause): the aria-label is GONE —
+              name-from-content, the Smart-Link main-nav.tsx:184 law. An
+              explicit label must repeat the full visible lockup (the
+              aria-hidden م still counts as visible text for WCAG 2.5.3
+              and glues: "مالربط الذكي"), and the current label only
+              passed axe via the single-char incomplete path — one
+              font-load state away from a violation. Name-from-content
+              is compliant by construction; «/» reads from context. */}
+          <Link href="/" className="landing-brand">
             <span className="landing-brand-mark" aria-hidden="true">م</span>
             <span className="landing-brand-text">
               <span className="landing-brand-name">الربط الذكي</span>
