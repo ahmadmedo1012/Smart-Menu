@@ -1584,6 +1584,58 @@ textarea:autofill {
 
 
 /* ══════════════════════════════════════════════════════════════
+   P27-C — animated-icon CSS twins (the SmartBot v12-E5.1 law)
+   ══════════════════════════════════════════════════════════════
+   refresh-icon + message-circle-icon were motion useAnimate hovers —
+   the entire motion engine chunk (~45KB) rode the public chunk graph
+   for two decorative hovers. The twins below preserve the measured
+   choreography 1:1 (durations/easings in the P27-C A/B evidence);
+   prefers-reduced-motion kills every animation (the old
+   MotionConfig reducedMotion="user" semantics — end state, no motion). */
+
+/* refresh-icon — was animate(rotate 180, 0.4s easeInOut) on hover-start
+   and back to 0 on hover-end. The `rotate` property (independent of
+   `transform`) composes with the `animate-spin` className passthrough
+   (a transform keyframe) instead of fighting it for the cascade. */
+.ai-refresh { transition: rotate 0.4s ease-in-out; }
+.ai-refresh:hover { rotate: 180deg; }
+
+/* message-circle-icon — was: instant reset (pathLength 0 + opacity 0)
+   → draw (pathLength 0→1 + opacity 0→1, 0.6s easeInOut) → pulse
+   (scale 1→1.05→1, 0.3s easeOut). The draw is pathLength="1" +
+   stroke-dashoffset (1 = hidden, 0 = drawn); the pulse rides the same
+   path with animation-delay; the base transition is the 0.2s settle
+   (leaving hover mid-draw transitions from the animated value — the
+   exact semantics of motion's stop()). Re-hover re-runs the draw. */
+.ai-msg .message-path {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 0;
+        opacity: 1;
+        transform-box: view-box;
+        transform-origin: center;
+        transition: stroke-dashoffset 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+.ai-msg:hover .message-path {
+        animation:
+                ai-msg-draw 0.6s ease-in-out both,
+                ai-msg-pulse 0.3s ease-out 0.6s both;
+}
+@keyframes ai-msg-draw {
+        from { stroke-dashoffset: 1; opacity: 0; }
+        to   { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes ai-msg-pulse {
+        from { transform: scale(1); }
+        50%  { transform: scale(1.05); }
+        to   { transform: scale(1); }
+}
+
+/* P27-C RM note: the icon twins' reduced-motion off-switches live in the
+   Reduced-motion block at the end of this file (r126 layer 3) — the
+   r126 parity harness pins that block as the FIRST top-level RM media. */
+
+
+/* ══════════════════════════════════════════════════════════════
    Keyframes
    ══════════════════════════════════════════════════════════════ */
 
@@ -1861,6 +1913,12 @@ textarea:autofill {
         }
         .card-premium { transition: none !important; }
         .card-premium:hover { transform: none !important; }
+        /* P27-C (layer 3) — the animated-icon CSS twins: the hovers die too
+           (was MotionConfig reducedMotion="user" — end state, no motion).
+           Belt-and-braces with the layer-2 belt above. */
+        .ai-refresh { transition: none; }
+        .ai-refresh:hover { rotate: 0deg; }
+        .ai-msg:hover .message-path { animation: none; }
         .animate-orb-float,
         .animate-orb-float-delayed,
         .animate-hero-glow-pulse,
