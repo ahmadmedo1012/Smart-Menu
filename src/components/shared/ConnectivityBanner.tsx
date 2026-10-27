@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { m, AnimatePresence } from 'motion/react';
 import { WifiOff, Wifi } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,15 +25,56 @@ import { cn } from '@/lib/utils';
  * the offset is deterministic; the theme/hamburger controls stay fully
  * visible and tappable during an outage.
  *
- * Motion: enter/exit run through m.* under the root MotionConfig
- * (`reducedMotion="user"`), so prefers-reduced-motion users get a plain
- * opacity swap with no transform.
+ * P27-C (CSS twin — the SmartBot v12-E5.1 law): enter/exit were m.div under
+ * AnimatePresence (y −100%↔0 + opacity, spring 380/34) — with the icon twins
+ * (P27-C1) and the ThemeToggle twin this was the public layout's last motion
+ * gate. Pure CSS now (.ai-banner rules in globals.css): the spring (ζ≈0.87,
+ * negligible overshoot) ≈ expo-out 0.45s. The AnimatePresence semantics twin:
+ * `shown` is the entering/staying banner; `exiting` is the exit animation —
+ * on a key swap (offline→reconnected) both render simultaneously (default
+ * AnimatePresence mode); on →null the banner exits then unmounts after the
+ * exit duration. prefers-reduced-motion: the r126 belt + layer-3 off-switches
+ * kill the animation (the old MotionConfig reducedMotion="user" plain swap).
  */
 type ConnState = 'offline' | 'reconnected';
+
+/* the exit phase duration — must match .ai-banner-out in globals.css */
+const EXIT_MS = 450;
 
 export function ConnectivityBanner() {
         const [state, setState] = useState<ConnState | null>(null);
         const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+        /* the AnimatePresence twin: shown = mounted/entering, exiting = the
+           exit-animation element (key-swap overlap or the final exit) */
+        const [shown, setShown] = useState<ConnState | null>(null);
+        const [exiting, setExiting] = useState<ConnState | null>(null);
+
+        /* the AnimatePresence state sync — mirrors {state !== null && <m.div
+           key={state}>}: mount on appear, key-swap overlap, exit-then-unmount.
+           Pure state mapping (no timers — the exit-clear effect below owns
+           the clock), so the self-triggered re-run settles as a no-op. */
+        useEffect(() => {
+                if (state !== null) {
+                        if (shown !== null && shown !== state) {
+                                // key swap: the old banner exits under the entering new one
+                                setExiting(shown);
+                        }
+                        if (shown !== state) setShown(state);
+                } else if (shown !== null) {
+                        // exit only: the banner leaves, then unmounts
+                        setExiting(shown);
+                        setShown(null);
+                }
+        }, [state, shown]);
+
+        /* the exit clock: unmount the exiting banner after the exit
+           animation completes (EXIT_MS = .ai-banner-out's duration). Runs
+           only on exiting changes — a key swap mid-exit reschedules. */
+        useEffect(() => {
+                if (exiting === null) return;
+                const t = setTimeout(() => setExiting(null), EXIT_MS);
+                return () => clearTimeout(t);
+        }, [exiting]);
 
         /* W7-G: الرؤوس اللاصقة تنزل بمقدار ارتفاع الشريط طوال ظهوره —
            شطب السمة عند الإخفاء/التفكيك يحرّر الإزاحة في كل المسارات. */
@@ -66,43 +106,49 @@ export function ConnectivityBanner() {
                 };
         }, []);
 
-        const isOffline = state === 'offline';
+        const bannerBody = (s: ConnState) => {
+                const offline = s === 'offline';
+                return (
+                        <>
+                                {offline ? (
+                                        <>
+                                                <WifiOff className="size-4 shrink-0" aria-hidden="true" />
+                                                <span>انقطع الاتصال بالإنترنت</span>
+                                                <span className="hidden sm:inline text-warning-foreground/80 font-normal">
+                                                        ستعمل الصفحة بشكل كامل فور عودة الشبكة
+                                                </span>
+                                        </>
+                                ) : (
+                                        <>
+                                                <Wifi className="size-4 shrink-0" aria-hidden="true" />
+                                                <span>عاد الاتصال بالإنترنت</span>
+                                        </>
+                                )}
+                        </>
+                );
+        };
+
+        const bannerClass = (s: ConnState) =>
+                cn(
+                        'fixed inset-x-0 top-0 z-[90] flex h-10 items-center justify-center gap-2 px-4 text-sm font-medium shadow-lg',
+                        'print:hidden',
+                        s === 'offline'
+                                ? 'bg-warning text-warning-foreground'
+                                : 'bg-success text-success-foreground'
+                );
 
         return (
-                <AnimatePresence>
-                        {state !== null && (
-                                <m.div
-                                        key={state}
-                                        initial={{ y: '-100%', opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        exit={{ y: '-100%', opacity: 0 }}
-                                        transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-                                        role="status"
-                                        aria-live="polite"
-                                        className={cn(
-                                                'fixed inset-x-0 top-0 z-[90] flex h-10 items-center justify-center gap-2 px-4 text-sm font-medium shadow-lg',
-                                                'print:hidden',
-                                                isOffline
-                                                        ? 'bg-warning text-warning-foreground'
-                                                        : 'bg-success text-success-foreground'
-                                        )}
-                                >
-                                        {isOffline ? (
-                                                <>
-                                                        <WifiOff className="size-4 shrink-0" aria-hidden="true" />
-                                                        <span>انقطع الاتصال بالإنترنت</span>
-                                                        <span className="hidden sm:inline text-warning-foreground/80 font-normal">
-                                                                ستعمل الصفحة بشكل كامل فور عودة الشبكة
-                                                        </span>
-                                                </>
-                                        ) : (
-                                                <>
-                                                        <Wifi className="size-4 shrink-0" aria-hidden="true" />
-                                                        <span>عاد الاتصال بالإنترنت</span>
-                                                </>
-                                        )}
-                                </m.div>
+                <>
+                        {shown !== null && (
+                                <div key={`${shown}-in`} role="status" aria-live="polite" className={cn('ai-banner-in', bannerClass(shown))}>
+                                        {bannerBody(shown)}
+                                </div>
                         )}
-                </AnimatePresence>
+                        {exiting !== null && (
+                                <div key={`${exiting}-out`} role="status" aria-live="polite" className={cn('ai-banner-out', bannerClass(exiting))}>
+                                        {bannerBody(exiting)}
+                                </div>
+                        )}
+                </>
         );
 }

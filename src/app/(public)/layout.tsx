@@ -22,7 +22,6 @@ import { ConnectivityBanner } from '@/components/shared/ConnectivityBanner';
 import { VercelAnalytics } from '@/components/shared/VercelAnalytics';
 
 import { GridPattern } from '@/components/ui/grid-pattern';
-import { MotionProvider } from '@/components/shared/MotionProvider';
 import '../globals.css';
 
 /* ponytail: Cairo served local-first via /fonts/fonts.css — no render-blocking external Google Fonts round-trip, no next/font module-class dependency */
@@ -197,22 +196,24 @@ export default async function RootLayout({
                                         />
                                         <ServiceWorkerInit />
                                         <CartHydrator />
-                                        <MotionProvider>
-                                                {/* a11y(round84): fixed floating controls (scroll-to-top + WhatsApp)
-                                                 * must live INSIDE a landmark (axe region rule). position:fixed is
-                                                 * unaffected by DOM order — MotionProvider applies no transform. */}
-                                                <main id="main-content" tabIndex={-1} className="focus:outline-none">
-                                                        <ScrollToTop />
-                                                        {/* round88-E4: connectivity banner (offline warning + auto-hide
-                                                                on reconnect) — full-width fixed strip at the overlay band. */}
-                                                        <ConnectivityBanner />
-                                                        {children}
-                                                        {/* r143 (Phase-4 W1 D7): حبة التثبيت انتقلت داخل landmark الـmain
-                                                           (قاعدة round84 — كانت آخر عنصر عائم خارجها) */}
-                                                        <InstallPrompt />
-                                                        <FloatingWhatsApp />
-                                                </main>
-                                        </MotionProvider>
+                                        {/* P27-C: MotionProvider retired from the public tree — every
+                                            public motion consumer (ThemeToggle, ConnectivityBanner,
+                                            the WhatsApp/refresh icons) is now a CSS twin; the motion
+                                            engine chunk no longer loads on public pages. The protected
+                                            tree keeps its provider (dashboard m.* consumers). */}
+                                        {/* a11y(round84): fixed floating controls (scroll-to-top + WhatsApp)
+                                         * must live INSIDE a landmark (axe region rule). */}
+                                        <main id="main-content" tabIndex={-1} className="focus:outline-none">
+                                                <ScrollToTop />
+                                                {/* round88-E4: connectivity banner (offline warning + auto-hide
+                                                        on reconnect) — full-width fixed strip at the overlay band. */}
+                                                <ConnectivityBanner />
+                                                {children}
+                                                {/* r143 (Phase-4 W1 D7): حبة التثبيت انتقلت داخل landmark الـmain
+                                                   (قاعدة round84 — كانت آخر عنصر عائم خارجها) */}
+                                                <InstallPrompt />
+                                                <FloatingWhatsApp />
+                                        </main>
                                         {/* r126 (P4-F1 M10/B5): sonner ships z-index 999999999 — pin to the
                                                     Madarek --z-toast rung (500, above modals, below the lightbox);
                                                     entrance rides the reveal token + --ease-out (audit B5). */}

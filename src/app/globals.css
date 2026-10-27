@@ -1630,6 +1630,47 @@ textarea:autofill {
         to   { transform: scale(1); }
 }
 
+/* ThemeToggle — was m.button whileHover (scale 1.08 + tilt ±15°, spring
+   350/22 ≈ cubic-bezier(.34,1.56,.64,1)) / whileTap (scale 0.92), and
+   AnimatePresence(mode="wait") moon/sun swap (initial/animate/exit:
+   opacity + rotate ∓90° + scale .5, spring 300/22/mass .8 ≈ the same
+   back-out curve). Colors/borders stay instant — the original carried no
+   color transition, only the motion transform spring. */
+.ai-theme-btn { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.ai-theme-btn:hover { transform: scale(1.08) rotate(15deg); }
+.ai-theme-btn[data-current="dark"]:hover { transform: scale(1.08) rotate(-15deg); }
+.ai-theme-btn:active { transform: scale(0.92); }
+.ai-theme-icon { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* moon enters from −90° / exits to +90°; sun the mirror image */
+.ai-theme-icon-moon { --ai-theme-in-from: -90deg; --ai-theme-out-to: 90deg; }
+.ai-theme-icon-sun { --ai-theme-in-from: 90deg; --ai-theme-out-to: -90deg; }
+.ai-theme-icon.is-in { animation: ai-theme-icon-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.ai-theme-icon.is-out { animation: ai-theme-icon-out 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes ai-theme-icon-in {
+        from { opacity: 0; transform: rotate(var(--ai-theme-in-from)) scale(0.5); }
+        to   { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+@keyframes ai-theme-icon-out {
+        from { opacity: 1; transform: rotate(0deg) scale(1); }
+        to   { opacity: 0; transform: rotate(var(--ai-theme-out-to)) scale(0.5); }
+}
+
+/* ConnectivityBanner — was m.div y −100%↔0 + opacity, spring(380, 34)
+   (ζ≈0.87 — negligible overshoot ≈ expo-out 0.45s). The `shown` element
+   enters with .ai-banner-in; the `exiting` element (key-swap overlap or
+   the final exit) runs .ai-banner-out; the component unmounts it after
+   EXIT_MS (must match .ai-banner-out's duration). */
+.ai-banner-in { animation: ai-banner-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ai-banner-out { animation: ai-banner-out 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes ai-banner-in {
+        from { transform: translateY(-100%); opacity: 0; }
+        to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes ai-banner-out {
+        from { transform: translateY(0); opacity: 1; }
+        to   { transform: translateY(-100%); opacity: 0; }
+}
+
 /* P27-C RM note: the icon twins' reduced-motion off-switches live in the
    Reduced-motion block at the end of this file (r126 layer 3) — the
    r126 parity harness pins that block as the FIRST top-level RM media. */
@@ -1919,6 +1960,16 @@ textarea:autofill {
         .ai-refresh { transition: none; }
         .ai-refresh:hover { rotate: 0deg; }
         .ai-msg:hover .message-path { animation: none; }
+        /* P27-C (layer 3) — ThemeToggle + ConnectivityBanner twins: the
+           swap and the banner become plain opacity swaps, no transform. */
+        .ai-theme-btn,
+        .ai-theme-btn:hover,
+        .ai-theme-btn[data-current="dark"]:hover,
+        .ai-theme-btn:active { transition: none; transform: none; }
+        .ai-theme-icon.is-in,
+        .ai-theme-icon.is-out,
+        .ai-banner-in,
+        .ai-banner-out { animation: none; }
         .animate-orb-float,
         .animate-orb-float-delayed,
         .animate-hero-glow-pulse,
