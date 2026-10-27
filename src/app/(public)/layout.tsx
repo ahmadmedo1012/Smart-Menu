@@ -196,11 +196,14 @@ export default async function RootLayout({
                                         />
                                         <ServiceWorkerInit />
                                         <CartHydrator />
-                                        {/* P27-C: MotionProvider retired from the public tree — every
-                                            public motion consumer (ThemeToggle, ConnectivityBanner,
-                                            the WhatsApp/refresh icons) is now a CSS twin; the motion
-                                            engine chunk no longer loads on public pages. The protected
-                                            tree keeps its provider (dashboard m.* consumers). */}
+                                        {/* P27-C: MotionProvider retired from the (public) ROOT layout —
+                                            the landing tree's every motion consumer (ThemeToggle,
+                                            ConnectivityBanner, the WhatsApp/refresh icons) is a CSS twin,
+                                            so the landing (the highest-traffic SEO page) loads zero motion
+                                            engine. The m.* consumer segments mount their own provider:
+                                            menu/ + pricing/ + privacy/ + terms/ layouts (LazyMotion is
+                                            designed for per-subtree mounting; the protected tree keeps
+                                            its root provider). */}
                                         {/* a11y(round84): fixed floating controls (scroll-to-top + WhatsApp)
                                          * must live INSIDE a landmark (axe region rule). */}
                                         <main id="main-content" tabIndex={-1} className="focus:outline-none">

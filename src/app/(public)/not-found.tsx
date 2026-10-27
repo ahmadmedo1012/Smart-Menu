@@ -25,9 +25,10 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
  *
  * No <main> here: this renders inside main#main-content provided by the
  * (public) layout (nested main would violate the axe "one main landmark" rule).
- * No MotionProvider needed either (P27-C): the public tree's motion consumers
- * are CSS twins now — ThemeToggle animates via the .ai-theme rules in
- * globals.css; the motion engine chunk never loads on public pages.
+ * No MotionProvider needed either (P27-C): this page's motion consumers are
+ * CSS twins now — ThemeToggle animates via the .ai-theme rules in globals.css;
+ * the m.* consumer segments (menu/pricing/privacy/terms) mount their own
+ * provider; the motion engine chunk never loads on / or 404.
  */
 
 const SUGGESTIONS = [

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MotionProvider } from "@/components/shared/MotionProvider";
 
 export const metadata: Metadata = {
         // r121-L-4: brand suffix stripped — the root template already appends
@@ -28,6 +29,9 @@ export const metadata: Metadata = {
         },
 };
 
+/* P27-C2 fix: PricingClient is an m.* consumer (LazyMotion) — the provider
+   moved here from the (public) root layout (the landing's chunk-graph diet).
+   See menu/layout.tsx for the full law. */
 export default function PricingLayout({ children }: { children: React.ReactNode }) {
-        return children;
+        return <MotionProvider>{children}</MotionProvider>;
 }
