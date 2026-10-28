@@ -1563,7 +1563,14 @@
 .landing .landing-footer {
   border-block-start: 1px solid var(--sm-line);
   background: var(--sm-paper-2);
-  padding-block: clamp(44px, 6vh, 64px) var(--sp-6);
+  /* P29-C1 (قانون الرصيف العمودي): أقراص واتساب (end-4 = يسار RTL، قمتها 72px
+     فوق قاع الشاشة) والعودة للأعلى (start-4 = يمين RTL، قمتها 52px) تجلسان
+     فوق ركني شريط الختام بعرض كامل — الشريط الأفقي المزدوج (ps-20/pe-20
+     القابل للكسر عرضيًا) لا يليق بقانون واحد صادق: آخر محتوى يصعد فوق قمة
+     القرص الأعلى (72px) بهامش أمان 12px ⇒ padding-block-end = 84px
+     + المنطقة الآمنة، بلا استثناءات عرضية (قياس حي للتقاطعات قبل النشر:
+     12×12px في كل عرض، و20×12px + 32×21px @768). */
+  padding-block: clamp(44px, 6vh, 64px) calc(env(safe-area-inset-bottom) + 84px);
   position: relative;
 }
 .landing .landing-footer .landing-brand-mark { background: var(--sm-ink); color: var(--sm-paper); }

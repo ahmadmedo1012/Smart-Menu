@@ -114,22 +114,28 @@ export function Footer({ className }: FooterProps) {
 
                                 {/* r95: تناغم SmartBot — شريط سفلي غارق bg-card/60 بعرض كامل
                                     (خارج حاوية 1220px ليأخذ عرض الصفحة) */}
+                                {/* P29-C1 (قانون الرصيف العمودي): أقراص واتساب (end-4 =
+                                    يسار RTL، قمتها 72px فوق قاع الشاشة) والعودة للأعلى
+                                    (start-4 = يمين RTL، قمتها 52px) — عمود الروابط القانونية
+                                    عند النهاية المنطقية (يسار) يدخل عمود قرص واتساب تحت
+                                    1396px، وحقوق النشر عند البداية (يمين) يدخل عمود قرص
+                                    العودة تحت 1268px (قياس حي: تقاطع 56×40px على الباقات
+                                    @768، و39×44px @320 — بعد موجات ps-20/pe-20 الأفقية
+                                    القابلة للكسر). الرصيف العمودي من الجذر: آخر محتوى يصعد
+                                    فوق قمة القرص الأعلى (72px) بهامش 12px ⇒ bottom
+                                    padding = 84px + المنطقة الآمنة، بلا استثناءات عرضية. */}
                                 <div className="border-t border-border/40 bg-card/60">
-                                        <div className="max-w-[1220px] mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                        <div className="max-w-[1220px] mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-[calc(env(safe-area-inset-bottom)+84px)] flex flex-col sm:flex-row items-center justify-between gap-3">
                                                 <p className="text-xs text-muted-foreground">
                                                         &copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. جميع الحقوق محفوظة.
                                                 </p>
-                                                <div className="flex gap-4 text-xs text-muted-foreground max-[420px]:ps-20">
+                                                <div className="flex gap-4 text-xs text-muted-foreground">
                                                         {/* r151 (LIVE-AUDIT-SM1 P2-3): الرابطان القانونيان كانا
                                                            أصغر روابط التذييل قياسًا (16px) — أرضية اللمس 44
                                                            بنمط الصف القانوني في توأم SL (min-h-11 + py-3).
-                                                           W7-H2 (تصحيح الاتجاه المنطقي): بديل البداية 80px (ps) لا النهاية (pe) —
-                                                           الفقاعة تجلس عند البداية المنطقية (start-4 = اليمين في
-                                                           RTL)؛ pe في RTL يبطّن الجهة البعيدة عن القرص ويدفع
-                                                           تمركز المحتوى نحوه (قياس حي 320px أعاد تقاطع 39×12px
-                                                           بعد نشر W7-H)؛ ps-20 يدفع المحتوى بعيدًا عن حزام القرص
-                                                           في الاتجاهين: بدايةً = يسار في LTR ويمين في RTL.
-                                                           ≥420px بلا أي تغيير. */}
+                                                           W7-H2 (الإزاحة الأفقية ps-20) تقاعدت في P29-C1 —
+                                                           الرصيف العمودي في الشريط أعلاه يحل الجذر، والصف
+                                                           يعود لتمركزه الصادق بلا إزاحة قابلة للكسر. */}
                                                         <Link href="/terms" className="inline-flex min-h-11 items-center py-3 hover:text-foreground transition-colors">
                                                                 شروط الاستخدام
                                                         </Link>

@@ -488,13 +488,19 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                             رابطان نصيان بنمط الصف القانوني في تذييل الأسطول
                             (توأم SL/SO) وأرضية لمس 44 عموديًا. خادمي خالص —
                             لا عميل ولا حالة ولا بيانات إضافية. */}
-                        <footer className="relative z-10 mx-auto mt-14 w-full max-w-4xl xl:max-w-6xl px-4 pb-10">
-                                {/* W7-H2 (تصحيح الاتجاه): الإزاحة «بدايةً» (ps-20) لا «نهايةً» (pe) —
-                                    القرص عند البداية المنطقية (start-4 = اليمين في RTL)، وpe
-                                    كان يبطّن الجهة البعيدة فيدفع تمركز الروابط نحو الحزام (قياس
-                                    منسّق: تقاطع 39×12px على منيو الواحة بعد نشر W7-H). ps-20
-                                    يخرج الصف من حزام القرص في الاتجاهين؛ ≥420px بلا تغيير. */}
-                                <div className="flex items-center justify-center gap-2 border-t border-border/40 pt-2 sm:gap-6 max-[420px]:ps-20">
+                        <footer className="relative z-10 mx-auto mt-14 w-full max-w-4xl xl:max-w-6xl px-4 pb-[calc(env(safe-area-inset-bottom)+84px)] sm:pb-10">
+                                {/* P29-C1 (قانون الرصيف العمودي): كان الصف القانوني يُزاح
+                                    أفقيًا (ps-20/pe-20 — موجات W7-H/W7-H2) هربًا من أقراص
+                                    واتساب (end-4 = يسار RTL) والعودة للأعلى (start-4 =
+                                    يمين RTL) — لكن 229px روابط + حزاما قرصين (>176px)
+                                    لا يتسعان أفقيًا تحت 420px، فكان القرص يغطي الرابط
+                                    (قياس حي: تقاطع 51×32px على منيو الواحة @320،
+                                    16×32px @390، و4×44px على الباقات @390-320).
+                                    الرصيف العمودي يحلّه من الجذر: آخر محتوى يصعد فوق
+                                    قمة القرص الأعلى (bottom+1rem+size-14 = 72px) بهامش
+                                    أمان 12px ⇒ padding-bottom ≥ 84px تحت sm — والصف
+                                    يعود لتمركزه الصادق بلا إزاحات عرضية قابلة للكسر. */}
+                                <div className="flex items-center justify-center gap-2 border-t border-border/40 pt-2 sm:gap-6">
                                         <Link href="/privacy" className="inline-flex min-h-11 items-center px-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
                                                 سياسة الخصوصية
                                         </Link>
