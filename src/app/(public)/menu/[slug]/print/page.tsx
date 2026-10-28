@@ -4,6 +4,8 @@ import QRCode from 'qrcode';
 import { prisma } from '@/lib/db';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
+// P29-D2: honest demo labeling rides the print copy too (same slug truth).
+import { isPublicDemoMenu } from '@/lib/landing';
 // r137: سطر دوام مهيكل صغير تحت ترويسة الورقة (إن وُجدت ساعات مهيكلة)
 import { formatHoursForPrint } from '@/lib/opening-hours';
 // r133 (A3 S5): print QR rides the single SITE_ORIGIN seam (lib/seo.ts) — was a
@@ -55,8 +57,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
          * index,follow بلا canonical بينما يمنع robots.txt مسارات الطباعة من
          * الزحف (وصفة «مفهرس رغم الحجب»). الإشارة الصحيحة: noindex قابل للزحف
          * + canonical للمصدر (وقد رُفع سطر مسارات الطباعة من robots.ts بنفس الجولة). */
+        /* P29-D2: the demo suffix rides the print title too (same
+         * «تجريبي» truth as the menu page — a printed demo menu must not
+         * present as a real restaurant; noindex makes this a UI-truth only).
+         * Names already carrying the word don't get it twice. */
+        const demoSuffix =
+                restaurant && isPublicDemoMenu(restaurant.slug) && !restaurant.name.includes('تجريبي')
+                        ? ' — تجريبي'
+                        : '';
         return {
-                title: restaurant ? `${restaurant.name} — نسخة للطباعة` : 'طباعة المنيو',
+                title: restaurant ? `${restaurant.name}${demoSuffix} — نسخة للطباعة` : 'طباعة المنيو',
                 robots: { index: false, follow: false },
                 alternates: { canonical: restaurant ? `/menu/${restaurant.slug}` : `/menu/${slug}` },
         };

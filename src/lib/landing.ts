@@ -24,6 +24,22 @@ import { prisma } from "@/lib/db";
 // surface + no crawl budget, never a broken link).
 export const TEST_FIXTURE_SLUGS = ["settings-test-ts", "ede", "al-waha-cafeewewe"] as const;
 
+/* P29-D2 (honest demo labeling): the CURATED public demo menus — the live
+   demo the landing opens everywhere (al-waha-cafe, HeroTable's «المنيو
+   الحي») and the QA-journey demo (al-waha-cafe-demo, the header/footer
+   «منيو تجريبي» links). Both are deliberate showcases (unlike the
+   fixture list above), but a visitor landing on them must be able to tell
+   they are demonstrations of the platform — the acceptance law «mockups
+   and demos are accurately labeled». The landing copy already calls the
+   waha cafe تجريبي in every caption; the MENU PAGES themselves carried
+   no label (al-waha-cafe rendered as a plain real cafe «مقهى الواحة» —
+   fake phone, demo items). Consumers: menu/[slug]/page.tsx (metadata
+   title suffix + the MenuHero badge). */
+export const PUBLIC_DEMO_SLUGS = ["al-waha-cafe", "al-waha-cafe-demo"] as const;
+
+export const isPublicDemoMenu = (slug: string): boolean =>
+        (PUBLIC_DEMO_SLUGS as readonly string[]).includes(slug);
+
 export type FeaturedRestaurant = {
     id: number;
     name: string;

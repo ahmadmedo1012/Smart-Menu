@@ -27,6 +27,8 @@ import Link from 'next/link';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
 // r134-W2 (#5): JSON-LD telephone rides the ONE wa.me normalizer (E.164).
 import { normalizeWaNumber } from '@/lib/whatsapp';
+// P29-D2: honest demo labeling — the curated demo menus announce themselves.
+import { isPublicDemoMenu } from '@/lib/landing';
 import { MenuHero } from '@/components/menu/MenuHero';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
@@ -63,12 +65,21 @@ export async function generateMetadata({
         const ogAlt = restaurant.logo
                 ? `شعار ${restaurant.name}`
                 : `بطاقة معاينة لقائمة ${restaurant.name} — الربط الذكي`;
+        /* P29-D2 (honest demo labeling): the curated demo menus' page titles
+           carry the same «تجريبي» suffix their landing captions already use —
+           a tab/bookmark/SERP entry for a demo must not present it as a real
+           restaurant. The name itself stays untouched (it is the owner's
+           data); the suffix is presentation truth. Names that already carry
+           the word (al-waha-cafe-demo's DB name has «التجريبي» since qa-seed)
+           don't get it appended twice. */
+        const demoSuffix = isPublicDemoMenu(slug) && !restaurant.name.includes('تجريبي') ? ' — تجريبي' : '';
+        const pageTitle = `${restaurant.name}${demoSuffix}`;
         return {
-                title: restaurant.name,
+                title: pageTitle,
                 description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
                 alternates: { canonical: `/menu/${slug}` },
                 openGraph: {
-                        title: restaurant.name,
+                        title: pageTitle,
                         description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
                         url: `${origin}/menu/${slug}`,
                         siteName: 'الربط الذكي',
@@ -86,7 +97,7 @@ export async function generateMetadata({
                         // round84: wide card when the 1200×630 branded fallback is used,
                         // small square card when the restaurant has its own logo.
                         card: restaurant.logo ? 'summary' : 'summary_large_image',
-                        title: restaurant.name,
+                        title: pageTitle,
                         description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
                         images: [ogImage],
                 },
@@ -460,7 +471,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         {/* round86-B6: hero renders on the server (was inside the client
                             section — ~200 lines of static markup compiled into client chunks);
                             interactive pieces are islands via MenuIslands */}
-                        <MenuHero restaurant={restaurant} slug={slug} origin={origin} hasContact={hasContact} />
+                        {/* P29-D2: isDemo drives the honest «منيو تجريبي» badge
+                            in the hero (slug-based, PUBLIC_DEMO_SLUGS truth). */}
+                        <MenuHero restaurant={restaurant} slug={slug} origin={origin} hasContact={hasContact} isDemo={isPublicDemoMenu(slug)} />
 
                         {/* Hero + Menu + Loyalty — client islands for the interactive parts */}
                         <MenuClientSection

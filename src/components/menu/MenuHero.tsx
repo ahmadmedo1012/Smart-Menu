@@ -13,7 +13,7 @@ import { normalizeCustomerPhone } from '@/lib/phone';
 // مخبأة ISR؛ انظر تعليق المكون)
 import { OpenStatusBadge } from './OpenStatusBadge';
 import type { OpeningHoursRow } from '@/lib/opening-hours';
-import { Store, Printer, Phone, Mail } from 'lucide-react';
+import { Store, Printer, Phone, Mail, Sparkles } from 'lucide-react';
 import { QrCornerMark } from '@/components/ui/QrCornerMark';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedClock from '@/components/ui/clock-icon';
@@ -45,11 +45,16 @@ export function MenuHero({
     slug,
     origin,
     hasContact,
+    /* P29-D2 (honest demo labeling): true only for the CURATED public demo
+       menus (PUBLIC_DEMO_SLUGS truth, resolved by the page). Server-safe —
+       static markup, no client JS. Real restaurants never see the badge. */
+    isDemo = false,
 }: {
     restaurant: MenuHeroRestaurant;
     slug: string;
     origin: string;
     hasContact: boolean;
+    isDemo?: boolean;
 }) {
     return (
         <>
@@ -133,6 +138,22 @@ export function MenuHero({
                     <h1 className="font-display text-3xl md:text-6xl lg:text-7xl font-semibold mb-2 md:mb-3 text-balance leading-[1.3] text-gradient-hero drop-shadow-sm">
                         {restaurant.name}
                     </h1>
+
+                    {/* P29-D2: the honest demo badge — the landing captions already
+                        call this menu تجريبي; the menu page itself now says so too.
+                        Same ink family as the hours/phone sign plates below, sized
+                        inside the 44px touch-target law, and it announces itself to
+                        screen readers («قائمة تجريبية لعرض المنصة») rather than
+                        leaning on color alone. Real restaurants never render it. */}
+                    {isDemo && (
+                        <p
+                            role="status"
+                            className="inline-flex items-center gap-1.5 mb-2 md:mb-3 px-3.5 py-1.5 min-h-9 rounded-full text-xs font-semibold glass-card border border-orange/20 text-orange-foreground bg-orange-muted/40"
+                        >
+                            <Sparkles className="size-3.5" aria-hidden="true" />
+                            منيو تجريبي — قائمة لعرض المنصّة
+                        </p>
+                    )}
 
                     {restaurant.description && (
                         <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
