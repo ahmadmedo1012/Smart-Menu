@@ -90,6 +90,35 @@ describe('round92-A5 — سلايغات العبث المرصودة حيًّا �
                 expect(menuUrls).toEqual([]);
         });
 
+        it('P29-D1: صفاة الاختبار المسربة (al-waha-cafeewewe — اسم نسخة تجريبية، 6 أصناف، داخل نافذة 90 يومًا) تُستبعد بقائمة الـfixtures حتى لو عبرت كل البوابات الشكلية', async () => {
+                // الصفاة عبرت بوابة المحتوى (6 ≥ 3) وبوابة النشاط (تحديث حديث)
+                // ولا يُثبت أي نمط اسم أنها عبث — لكنها صف r96 اختباري مسرب
+                // (scripts/archive/r96-test-migration-prod-sim.mjs) ينسخ اسم
+                // المقهى التجريبي. القائمة الضيقة TEST_FIXTURE_SLUGS هي قرار
+                // الإنسان الذي يعلو على كل استدلال شكلي.
+                const { menuUrls } = await run(
+                        [row(1, 'al-waha-cafeewewe', 1)],
+                        [{ restaurantId: 1, items: 6n }],
+                        []
+                );
+                expect(menuUrls).toEqual([]);
+        });
+
+        it('P29-D1: العروض التوضيحية المقصودة (al-waha-cafe و al-waha-cafe-demo) تبقى داخل القائمة', async () => {
+                const { menuUrls } = await run(
+                        [row(1, 'al-waha-cafe', 2), row(2, 'al-waha-cafe-demo', 2)],
+                        [
+                                { restaurantId: 1, items: 16n },
+                                { restaurantId: 2, items: 25n },
+                        ],
+                        []
+                );
+                expect(menuUrls).toEqual([
+                        expect.stringContaining('/menu/al-waha-cafe'),
+                        expect.stringContaining('/menu/al-waha-cafe-demo'),
+                ]);
+        });
+
         it('سلايغ لاحقة رقمية مولَّدة آليًّا (matam-1783368824) تُستبعد — وسنة 4 أرقام (matam-1995) تبقى', async () => {
                 const { menuUrls } = await run(
                         [row(1, 'matam-1783368824', 1), row(2, 'matam-1995', 1)],

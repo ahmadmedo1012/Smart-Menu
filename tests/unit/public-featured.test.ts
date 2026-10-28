@@ -5,8 +5,11 @@
  * entries, because those seeded rows carry showOnLanding=true with no other
  * marker in the data. The fix is a NARROW slug exclusion list at the query
  * level — these tests pin it:
- *   - the where clause excludes exactly the D3 test-fixture slugs,
- *   - legitimate demo restaurants (al-waha-cafe family) are NEVER excluded,
+ *   - the where clause excludes exactly the fixture slugs (P29-D1 adds
+ *     al-waha-cafeewewe — the r96 test fixture leaked into production,
+ *     wrongly classified as an "intended demo" in the r91 era),
+ *   - legitimate demo restaurants (al-waha-cafe / al-waha-cafe-demo) are
+ *     NEVER excluded,
  *   - mapping/sort/take behavior is unchanged by the filter.
  *
  * Pattern: sibling of cron-cleanup.test.ts — vi.hoisted prisma mock, real
@@ -51,7 +54,7 @@ beforeEach(() => {
 // ── the exclusion contract (the fix itself) ─────────────────────────────
 
 describe('GET /api/public/featured — test-fixture exclusion (R91 F-C / D3)', () => {
-        it('query filters out exactly the D3 test-fixture slugs at the DB level', async () => {
+        it('query filters out exactly the fixture slugs at the DB level', async () => {
                 mockRestaurantFindMany.mockResolvedValue([]);
 
                 await featuredRoute.GET();
@@ -60,8 +63,9 @@ describe('GET /api/public/featured — test-fixture exclusion (R91 F-C / D3)', (
                 const arg = mockRestaurantFindMany.mock.calls[0][0];
                 expect(arg.where.isActive).toBe(true);
                 expect(arg.where.showOnLanding).toBe(true);
-                // the narrow exclusion list — the D3 evidence slugs, verbatim
-                expect(arg.where.slug).toEqual({ notIn: ['settings-test-ts', 'ede'] });
+                // the narrow exclusion list — the D3 evidence slugs + the P29-D1
+                // reclassified r96 test fixture, verbatim
+                expect(arg.where.slug).toEqual({ notIn: ['settings-test-ts', 'ede', 'al-waha-cafeewewe'] });
         });
 
         it('the exclusion stays narrow: intended public demo slugs are NOT in the list', async () => {
@@ -70,27 +74,27 @@ describe('GET /api/public/featured — test-fixture exclusion (R91 F-C / D3)', (
                 await featuredRoute.GET();
 
                 const notIn = mockRestaurantFindMany.mock.calls[0][0].where.slug.notIn as string[];
-                // al-waha-cafe IS the intended public demo (D3: the 4 prod
-                // featured entries include al-waha-cafeewewe/demo — legitimate)
+                // al-waha-cafe / al-waha-cafe-demo ARE the intended public demos
+                // (curated, landing-linked); al-waha-cafeewewe is the r96 fixture
+                // (P29-D1 reclassified — clones the demo cafe's name)
                 expect(notIn).not.toContain('al-waha-cafe');
                 expect(notIn).not.toContain('al-waha-cafe-demo');
-                expect(notIn).not.toContain('al-waha-cafeewewe');
-                // no broad pattern creep: exactly 2 entries
-                expect(notIn).toHaveLength(2);
+                // no broad pattern creep: exactly 3 entries
+                expect(notIn).toHaveLength(3);
         });
 
         it('DB already excludes them: rows for excluded slugs would need the filter to vanish', async () => {
                 // defensive read of the mapping contract: even if a caller
                 // mocked findMany ignoring `where`, the route must not
                 // double-filter legitimate rows out of the response.
-                mockRestaurantFindMany.mockResolvedValue([resto({ id: 7, slug: 'al-waha-cafeewewe', orderCount: 3 })]);
+                mockRestaurantFindMany.mockResolvedValue([resto({ id: 7, slug: 'al-waha-cafe-demo', orderCount: 3 })]);
 
                 const res = await featuredRoute.GET();
                 const json = await res.json();
 
                 expect(json.success).toBe(true);
                 expect(json.data).toHaveLength(1);
-                expect(json.data[0].slug).toBe('al-waha-cafeewewe');
+                expect(json.data[0].slug).toBe('al-waha-cafe-demo');
         });
 });
 

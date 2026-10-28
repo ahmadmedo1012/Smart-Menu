@@ -12,9 +12,12 @@ import { TEST_FIXTURE_SLUGS } from "@/lib/landing";
 // with NO other marker in the data (the Restaurant model has no isTest field
 // or settings flag; naming IS the marker). Deliberately a NARROW exclusion
 // list, not a broad name/slug regex: a /test|تجريبي|demo/ pattern would also
-// hide the intended public demo restaurants (al-waha-cafe, al-waha-cafe-demo,
-// al-waha-cafeewewe). Proper long-term fix is deactivating/un-featuring those
+// hide the intended public demo restaurants (al-waha-cafe, al-waha-cafe-demo).
+// Proper long-term fix is deactivating/un-featuring those
 // prod rows — then this list can be emptied.
+// P29-D1: `al-waha-cafeewewe` joined the list (see lib/landing) — the r91-era
+// classification of it as an "intended demo" was wrong: it is an r96 local
+// test fixture that leaked into production (clones the demo cafe's name).
 
 // Landing page hits this on every visit — static data (ranked restaurants),
 // safe to revalidate at most every 60s instead of a DB query per request.

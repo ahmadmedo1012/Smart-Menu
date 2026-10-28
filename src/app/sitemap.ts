@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 import { error as logError } from '@/lib/logger';
+import { TEST_FIXTURE_SLUGS } from '@/lib/landing';
 
 import { SITE_ORIGIN } from '@/lib/seo';
 
@@ -49,6 +50,16 @@ const JUNK_SLUG_PATTERNS: RegExp[] = [
 
 // round92-A5: freshness window for the activity gate.
 const ACTIVITY_WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
+
+/* P29-D1: the fixture list joins the sitemap's defenses — a THIRD gate,
+   after the junk-name patterns and the activity/content gates. The narrow
+   naming-IS-the-marker list (single source of truth in @/lib/landing, the
+   same list /api/public/featured and the RSC landing path consume) catches
+   rows the shape rules cannot prove junk: `al-waha-cafeewewe` (r96 test
+   fixture leaked into production, name cloning the demo cafe, 6 items —
+   passes the ≥3 content gate, updatedAt inside the window). Same policy as
+   every gate here: exclusion = no crawl budget, never a broken page. */
+const FIXTURE_SLUGS = new Set<string>(TEST_FIXTURE_SLUGS);
 
 // round97-X3: content gate — a restaurant needs ≥3 menu items OR the
 // showOnLanding directory flag (a human quality signal, same flag the public
@@ -108,6 +119,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
                 menuPages = restaurants
                         .filter((r) => {
+                                // P29-D1: fixture gate FIRST — the narrow naming-IS-the-marker
+                                // list (same single truth the featured surfaces consume) outranks
+                                // every shape heuristic: a curated demo can look junk-ish and a
+                                // junk fixture can look curated; the list is the human decision.
+                                if (FIXTURE_SLUGS.has(r.slug)) return false;
                                 // round97-X3 (a): content gate — ≥3 items OR showOnLanding.
                                 const itemCount = itemsByRestaurant.get(r.id) ?? 0;
                                 if (itemCount < MIN_MENU_ITEMS && !r.showOnLanding) return false;

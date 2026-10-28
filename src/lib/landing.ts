@@ -8,9 +8,21 @@ import { prisma } from "@/lib/db";
 // path (which feeds the homepage carousel directly) had no exclusion, so
 // visitors saw the fixtures. Single source of truth, imported by the featured
 // route too — deliberately a NARROW list (not a /test|demo/ regex: that would
-// also hide the intended public demo slugs al-waha-cafe*). Long-term fix is
-// un-featuring those prod rows — then this list can be emptied.
-export const TEST_FIXTURE_SLUGS = ["settings-test-ts", "ede"] as const;
+// also hide the intended public demo slugs al-waha-cafe / al-waha-cafe-demo).
+// Long-term fix is un-featuring those prod rows — then this list can be emptied.
+//
+// P29-D1: `al-waha-cafeewewe` joins the list — the r91-era comment had wrongly
+// classified it as an "intended public demo", but the evidence says otherwise:
+// it was created by the (now-archived) r96 local test script
+// scripts/archive/r96-test-migration-prod-sim.mjs as a local-DB fixture, never
+// a curated demo, and leaked into the production DB (name clones the demo
+// cafe «مقهى الواحة» — duplicate-looking content under a keyboard-mash slug).
+// Production keeps it un-featured already (landing + /api/public/featured
+// exclude it); the remaining leak is the SITEMAP (content gate 6 items ≥ 3 +
+// updatedAt inside the 90-day window), which now consumes this list too.
+// The page itself stays reachable (family policy: exclusion = no featured
+// surface + no crawl budget, never a broken link).
+export const TEST_FIXTURE_SLUGS = ["settings-test-ts", "ede", "al-waha-cafeewewe"] as const;
 
 export type FeaturedRestaurant = {
     id: number;

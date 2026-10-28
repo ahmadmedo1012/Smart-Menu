@@ -7,10 +7,12 @@
  * getFeaturedRestaurants() (which feeds (public)/page.tsx directly) had NO
  * exclusion. The fix moved TEST_FIXTURE_SLUGS to @/lib/landing as the single
  * source of truth; both public surfaces must filter from it. These tests pin:
- *   1. getFeaturedRestaurants() excludes exactly the two fixture slugs at the
+ *   1. getFeaturedRestaurants() excludes exactly the fixture slugs at the
  *      Prisma where level (not post-filter — the DB never returns them),
- *   2. the list stays NARROW (intended public demo slugs al-waha-cafe* are
- *      never excluded),
+ *   2. the list stays NARROW (intended public demo slugs al-waha-cafe /
+ *      al-waha-cafe-demo are never excluded; P29-D1 adds al-waha-cafeewewe —
+ *      the r96 test fixture leaked into production that the r91 era had
+ *      wrongly classified as an intended demo),
  *   3. the featured route IMPORTS the shared constant (source-level guard —
  *      no private copy/duplicate of the list anywhere).
  *
@@ -58,7 +60,7 @@ beforeEach(() => {
 // ── the RSC homepage path (the round92 fix itself) ──────────────────────
 
 describe('getFeaturedRestaurants — test-fixture exclusion (round92-A1)', () => {
-        it('query excludes exactly the two fixture slugs at the DB level', async () => {
+        it('query excludes exactly the fixture slugs at the DB level', async () => {
                 mockRestaurantFindMany.mockResolvedValue([]);
 
                 await getFeaturedRestaurants();
@@ -67,8 +69,9 @@ describe('getFeaturedRestaurants — test-fixture exclusion (round92-A1)', () =>
                 const arg = mockRestaurantFindMany.mock.calls[0][0];
                 expect(arg.where.isActive).toBe(true);
                 expect(arg.where.showOnLanding).toBe(true);
-                // the exclusion list — the live-audit A1 evidence slugs, verbatim
-                expect(arg.where.slug).toEqual({ notIn: ['settings-test-ts', 'ede'] });
+                // the exclusion list — the live-audit A1 evidence slugs + the
+                // P29-D1 reclassified r96 fixture, verbatim
+                expect(arg.where.slug).toEqual({ notIn: ['settings-test-ts', 'ede', 'al-waha-cafeewewe'] });
         });
 
         it('filters from the shared constant (where.notIn ≡ [...TEST_FIXTURE_SLUGS])', async () => {
@@ -78,16 +81,17 @@ describe('getFeaturedRestaurants — test-fixture exclusion (round92-A1)', () =>
 
                 const notIn = mockRestaurantFindMany.mock.calls[0][0].where.slug.notIn as string[];
                 expect(notIn).toEqual([...TEST_FIXTURE_SLUGS]);
-                expect(TEST_FIXTURE_SLUGS).toHaveLength(2);
+                expect(TEST_FIXTURE_SLUGS).toHaveLength(3);
         });
 
         it('the exclusion stays narrow: intended public demo slugs are NOT in the list', () => {
                 const notIn = [...TEST_FIXTURE_SLUGS];
-                // al-waha-cafe family IS the intended public demo (r91 D3 evidence)
+                // al-waha-cafe / al-waha-cafe-demo ARE the intended public demos;
+                // al-waha-cafeewewe is the r96 fixture (P29-D1 reclassified)
                 expect(notIn).not.toContain('al-waha-cafe');
                 expect(notIn).not.toContain('al-waha-cafe-demo');
-                expect(notIn).not.toContain('al-waha-cafeewewe');
-                expect(notIn).toHaveLength(2);
+                expect(notIn).toContain('al-waha-cafeewewe');
+                expect(notIn).toHaveLength(3);
         });
 
         it('mapping/sort/take behavior is unchanged by the filter', async () => {
@@ -122,7 +126,7 @@ describe('featured route — imports the shared constant, no private copy (round
 
                 const arg = mockRestaurantFindMany.mock.calls[0][0];
                 expect(arg.where.slug).toEqual({ notIn: [...TEST_FIXTURE_SLUGS] });
-                expect(arg.where.slug).toEqual({ notIn: ['settings-test-ts', 'ede'] });
+                expect(arg.where.slug).toEqual({ notIn: ['settings-test-ts', 'ede', 'al-waha-cafeewewe'] });
         });
 
         it('source-level guard: the route imports TEST_FIXTURE_SLUGS and declares no local copy', () => {
