@@ -8,8 +8,11 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle"
 /* r142 (task 2-b) — the landing header, rebuilt for «المائدة»: a warm
  * paper rail instead of the Orbit-Ink chrome. The mechanics survive the
  * redesign intact because they were right:
- *   · persistent sticky header — solid paper @ 92% once scrolled
- *     (`.scrolled`), hairline edge, NO glass blur anywhere;
+ *   · persistent sticky header — transparent over the hero, then the
+ *     P31-C elevation once scrolled (`.scrolled`): translucent paper +
+ *     backdrop blur + warm hairline + a quiet espresso shadow
+ *     (landing.css §3; collapses to solid paper under
+ *     prefers-contrast: more);
  *   · `.scrolled` + the top progress ribbon's `--p` are written
  *     imperatively (one passive scroll listener → one rAF → DOM writes);
  *     React NEVER re-renders for scrolling (zero setState);

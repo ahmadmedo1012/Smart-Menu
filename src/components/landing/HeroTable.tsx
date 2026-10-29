@@ -26,6 +26,14 @@ import { NightKitchenScene, FirstBiteSpot } from './NightKitchenScene';
  *     server-rendered markup (the h1 paints instantly, the window is
  *     vector in the same paint).
  * Server component: no state, no effects, no 'use client'.
+ *
+ * P31-C — the composed unit: at ≥1025 the window is the second grid
+ * track beside the copy (landing.css §6.2), the stage is a 6/5
+ * landscape window, and the RENDERED scene is mirrored (§20.1k) so the
+ * card rests on the table's INNER corner — beside the headline — with
+ * the dates plate still under it and the dallah + finjan serving on
+ * the outer edge (the kanban + the caption chip ride that edge too).
+ * The authored SVG itself is untouched.
  */
 
 /** Hero card rows — explicit picks (category, item index) into the REAL
@@ -53,10 +61,12 @@ export function HeroTable() {
           </a>
         </figure>
 
-        {/* the printed menu card resting on the table's corner — real
-            items, real prices, printed-menu dotted leaders; the appetite
-            spot (FirstBiteSpot) rides its header in the same authored
-            illustration family as the window behind it */}
+        {/* the printed menu card resting on the table's INNER corner —
+            beside the copy across the grid gutter (P31-C; the mirrored
+            scene keeps the dates plate under it, the dallah on the far
+            side) — real items, real prices, printed-menu dotted leaders;
+            the appetite spot (FirstBiteSpot) rides its header in the same
+            authored illustration family as the window behind it */}
         <aside className="ln-hero-card" aria-label="نموذج من منيو مقهى الواحة الحي">
           <div className="ln-hero-card-spot">
             <FirstBiteSpot />

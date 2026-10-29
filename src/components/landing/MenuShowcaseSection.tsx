@@ -13,9 +13,12 @@ import { DEMO_MENU, DEMO_MENU_URL } from './landing-data';
  *
  *   · The four tabs are the platform's REAL default category registry
  *     (the same auto-seeded set every new menu starts with).
- *   · The BOARD is a printed-menu spread: the end column lists the
- *     category's REAL items with dotted price leaders (16 items copied
- *     verbatim from the demo seed — /menu/al-waha-cafe), and the start
+ *   · The BOARD is a printed-menu spread: the end column lists a
+ *     realistic EXCERPT of the board (P31-C — the active course's rows
+ *     first, then the NEXT course's, eight compact dotted-leader rows
+ *     across two course groups, all 16 names/prices copied verbatim
+ *     from the demo seed — /menu/al-waha-cafe; the r142 column listed
+ *     one course's four rows, too thin to convince), and the start
  *     column is a live dish detail: the category plate photo, the
  *     selected item's name huge, its price in the platform's money
  *     pattern (number first, LTR, tabular), the honesty note and the
@@ -28,9 +31,12 @@ import { DEMO_MENU, DEMO_MENU_URL } from './landing-data';
  * i.e. the previous DOM sibling in RTL; Home/End jump), and the item
  * rows are real buttons (aria-pressed) driving the detail card, which
  * is aria-live="polite" so selection changes announce themselves.
- * Everything animates only via CSS and dies under
- * prefers-reduced-motion (landing.css). Images ride next/image with
- * real sizes; non-active plates stay lazy below the fold.
+ * Selecting a row from the second course switches the tab to its
+ * category (the excerpt always leads with the active course). Everything
+ * animates only via CSS and dies under prefers-reduced-motion
+ * (landing.css). Images ride next/image with real sizes and the
+ * section's ONE 4:3 crop contract; non-active plates stay lazy below
+ * the fold.
  */
 
 export function MenuShowcaseSection() {
@@ -41,6 +47,11 @@ export function MenuShowcaseSection() {
   const cat = DEMO_MENU[catIdx]!;
   const item = cat.items[Math.min(itemIdx, cat.items.length - 1)]!;
   const count = DEMO_MENU.length;
+  /* the excerpt pair — the active course + the next one (deterministic,
+   * the same seed verbatim; nothing invented): the board reads as a real
+   * menu page — two course groups, eight compact rows. */
+  const nextIdx = (catIdx + 1) % count;
+  const groups = [cat, DEMO_MENU[nextIdx]!];
 
   /* WAI-ARIA tabs — RTL arrow mapping: the tab visually on the RIGHT is
    * the PREVIOUS DOM sibling (the strip flows right→left), so ArrowRight
@@ -63,6 +74,18 @@ export function MenuShowcaseSection() {
   const selectCategory = (i: number) => {
     setCatIdx(i);
     setItemIdx(0);
+  };
+
+  /* a row in the excerpt: group 0 is the active course (item pick), a
+   * row in group 1 carries the board to that course + item in one go —
+   * the excerpt re-pins around the new active course. */
+  const selectRow = (groupIdx: number, itemInGroup: number) => {
+    if (groupIdx === 0) {
+      setItemIdx(itemInGroup);
+      return;
+    }
+    setCatIdx(nextIdx);
+    setItemIdx(itemInGroup);
   };
 
   return (
@@ -127,7 +150,7 @@ export function MenuShowcaseSection() {
                     src={c.img}
                     alt={i === catIdx ? c.alt : ''}
                     fill
-                    sizes="(max-width: 920px) 92vw, 460px"
+                    sizes="(max-width: 920px) 92vw, (max-width: 1400px) 45vw, 590px"
                     className="ln-menu-slide-img"
                   />
                 </div>
@@ -166,28 +189,40 @@ export function MenuShowcaseSection() {
             </div>
           </div>
 
-          {/* the printed-menu list — dotted leaders, tabular prices */}
+          {/* the printed-menu excerpt — two course groups, compact
+              dotted-leader rows, real tabular prices (all verbatim from
+              the live demo seed) */}
           <div className="ln-menu-list-wrap">
-            <p className="ln-menu-list-title">{cat.label}</p>
-            <ul className="ln-menu-list" key={cat.key}>
-              {cat.items.map((it, i) => (
-                <li key={it.name}>
-                  <button
-                    type="button"
-                    className={`ln-menu-row${i === itemIdx ? ' is-selected' : ''}`}
-                    aria-pressed={i === itemIdx}
-                    onClick={() => setItemIdx(i)}
-                  >
-                    <span className="ln-menu-row-dot" aria-hidden="true" />
-                    <span className="ln-menu-row-name">{it.name}</span>
-                    <span className="ln-menu-row-leader" aria-hidden="true" />
-                    <span className="ln-menu-row-price">{it.price.toFixed(2)} د.ل</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <p className="ln-menu-list-title">مقهى الواحة · منيو حي</p>
+            {groups.map((g, groupIdx) => (
+              <div key={g.key} className="ln-menu-group">
+                <p className="ln-menu-group-head" id={`ln-menu-group-${g.key}`}>
+                  <span aria-hidden="true">{g.icon}</span> {g.label}
+                </p>
+                <ul className="ln-menu-list" aria-labelledby={`ln-menu-group-${g.key}`}>
+                  {g.items.map((it, i) => {
+                    const selected = groupIdx === 0 && i === itemIdx;
+                    return (
+                      <li key={it.name}>
+                        <button
+                          type="button"
+                          className={`ln-menu-row${selected ? ' is-selected' : ''}`}
+                          aria-pressed={selected}
+                          onClick={() => selectRow(groupIdx, i)}
+                        >
+                          <span className="ln-menu-row-dot" aria-hidden="true" />
+                          <span className="ln-menu-row-name">{it.name}</span>
+                          <span className="ln-menu-row-leader" aria-hidden="true" />
+                          <span className="ln-menu-row-price">{it.price.toFixed(2)} د.ل</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
             <p className="ln-menu-list-foot ln-mono">
-              {cat.items.length} أصناف · الأسعار بالدينار الليبي
+              مقتطف من 16 صنفاً في المنيو الحي · الأسعار بالدينار الليبي
             </p>
           </div>
         </div>

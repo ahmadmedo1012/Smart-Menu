@@ -1360,13 +1360,21 @@ describe('r142 parity — المائدة chrome locks (gradient allowlist · but
     );
   });
 
-  it('.landing-header.scrolled = solid paper @ 92% + --sm-line hairline', () => {
-    expect(decl(landingRule('.landing .landing-header.scrolled'), 'background')).toBe(
-      'rgb(247 241 227 / 0.92)'
+  it('.landing-header.scrolled = the P31-C elevation: translucent paper 0.86 + blur(14px) + --sm-line hairline + the quiet espresso shadow', () => {
+    const scrolled = landingRule('.landing .landing-header.scrolled');
+    expect(decl(scrolled, 'background')).toBe('rgb(247 241 227 / 0.86)');
+    expect(decl(scrolled, 'backdrop-filter')).toBe('blur(14px)');
+    expect(decl(scrolled, 'border-block-end-color')).toBe('var(--sm-line)');
+    expect(declN(scrolled, 'box-shadow')).toBe(
+      '0 1px 2px rgb(43 32 20 / 0.05), 0 10px 28px -18px rgb(43 32 20 / 0.26)'
     );
-    expect(decl(landingRule('.landing .landing-header.scrolled'), 'border-block-end-color')).toBe(
-      'var(--sm-line)'
-    );
+    // the transition covers the shadow too, and dies under RM (§17)
+    expect(landingRule('.landing .landing-header')).toContain('box-shadow');
+    // prefers-contrast: the glass collapses to solid paper (both stages —
+    // the rule rides var(--sm-paper), which §19 flips)
+    const pc = allTopLevelBlocks(landingCss, '@media (prefers-contrast: more)').join('\n');
+    expect(pc).toContain('.landing .landing-header.scrolled');
+    expect(pc).toContain('backdrop-filter: none');
   });
 
   it('.landing-progress ribbon: fixed / 2px / z-90, bar = calc(var(--p,0) * 100%) flat ember', () => {
@@ -1771,11 +1779,12 @@ describe('r142 parity — the hero LCP contract + the leaning card (word-stagger
     expect(decl(em, 'transform')).toBe('rotate(-3deg)');
   });
 
-  it('the printed card: static 3D tilt (perspective, no JS) + one-shot entrance + RM/returning-visitor off-switches (P21-B: float retired)', () => {
+  it('the printed card: static 3D tilt (perspective, no JS) + one-shot entrance + RM/returning-visitor off-switches (P21-B: float retired; P31-C: the corner flips to face the copy, rotateY sign with it)', () => {
     const card = landingRule('.landing .ln-hero-card');
     expect(decl(card, 'transform')).toBe(
-      'perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg)'
+      'perspective(1100px) rotateX(6deg) rotateY(7deg) rotate(1.4deg)'
     );
+    expect(decl(card, 'inset-inline-start')).toBe('0');
     expect(card).toContain('ln-card-in var(--sm-t-slow) var(--sm-ease-out) both');
     expect(card).not.toContain('ln-float');
     const prm = allTopLevelBlocks(landingCss, '@media (prefers-reduced-motion: reduce)');
@@ -3167,7 +3176,10 @@ describe('phase9 E3 — the warm night stage (landing.css §19, gated html.dark)
 
   it('raw-literal chrome flips: scrolled rail backdrop, progress track, ghost hairline, ember hover, row/spy hovers', () => {
     expect(decl(landingRule('html.dark .landing .landing-header.scrolled'), 'background')).toBe(
-      'rgb(36 24 17 / 0.92)'
+      'rgb(36 24 17 / 0.86)'
+    );
+    expect(declN(landingRule('html.dark .landing .landing-header.scrolled'), 'box-shadow')).toBe(
+      '0 1px 2px rgb(0 0 0 / 0.35), 0 10px 28px -18px rgb(0 0 0 / 0.60)'
     );
     expect(decl(landingRule('html.dark .landing .landing-progress'), 'background')).toBe(
       'rgb(245 237 221 / 0.10)'
@@ -3446,11 +3458,23 @@ describe('P21-W3-E parity — the authored night-kitchen window (retired diorama
     expect(decl(landingRule('.landing .ln-scene'), 'background')).toBe('var(--sm-void-1)');
   });
 
-  it('S5: the dish rows keep the floating rounded cards — ±1.5° tilts + hover lift-and-straighten', () => {
-    expect(landingCss).toContain('--ln-tilt: 1.5deg');
-    expect(landingCss).toContain('--ln-tilt: -1.5deg');
-    expect(decl(lastRule('.landing .ln-menu-row'), 'border-radius')).toBe('var(--r-2xl)');
-    expect(lastRule('.landing .ln-menu-row:hover')).toContain('rotate(0deg) translateY(-4px)');
+  it('P31-C: the §02 excerpt returns to the printed-menu grammar — compact dotted-leader rows across two course groups (the S5 floating dish-cards retire)', () => {
+    // the S5 card grid + row tilts are gone
+    expect(landingCss).not.toContain('--ln-tilt');
+    expect(landingCss).not.toMatch(/\.ln-menu-row-dot,\s*\n?\.landing \.ln-menu-row-leader \{ display: none/);
+    expect(landingCss).not.toContain("grid-template-areas: 'name price'");
+    // the compact printed rhythm: 44px rows (was 52 list / 64 card),
+    // dotted leaders + the row dots are back on the rows
+    expect(declN(lastRule('.landing .ln-menu-row'), 'min-block-size')).toBe('44px');
+    expect(declN(lastRule('.landing .ln-menu-row'), 'background')).toBe('none');
+    expect(landingCss).toContain('.landing .ln-menu-row-leader {');
+    // the course groups carry the excerpt (two headers, seed verbatim)
+    expect(landingCss).toContain('.landing .ln-menu-group-head');
+    expect(menuShowcaseRaw).toContain('ln-menu-group-head');
+    expect(menuShowcaseRaw).toContain('const groups = [cat, DEMO_MENU[nextIdx]!]');
+    expect(menuShowcaseRaw).toContain('مقتطف من 16 صنفاً في المنيو الحي');
+    // the detail pair keeps the S5 soft rotations + the pinned depth
+    expect(decl(lastRule('.landing .ln-menu-plate'), 'transform')).toBe('rotate(0.9deg)');
   });
 
   it('S4: the flood band text is cream bubble Baloo 19px/700 on the red family', () => {
@@ -3478,3 +3502,146 @@ describe('P21-W3-E parity — the authored night-kitchen window (retired diorama
     expect(landingCss).toContain('.landing .ln-faq-item {');
   });
 });
+
+/* ── P31-C — the landing layout repair pins (composed unit · rail grammar ·
+   the ONE ratio contract · the pill read). The four contracts the repair
+   legitimately changed or introduced, pinned so a future edit can't
+   silently drift them: the hero's dead-paper cavern closes into ONE
+   centered grid unit, the journey's step grammar becomes numbered
+   stations on a rail (no new verb — the --sp scrub stays the only one),
+   the §02 showcase's food imagery carries ONE 4:3 ratio contract (CSS box
+   AND intrinsic asset), and the inactive filter pill earns a visible
+   hairline + full ink. Every literal below was read from the live files. */
+describe('P31-C parity — the composed hero unit · the journey rail · the ONE ratio contract · the pill read', () => {
+  it('the composed unit (§6.2): copy | gutter | window as ONE centered grid pair ≥1025 — the card on the INNER corner, the scene mirrored, the chip on the OUTER corner', () => {
+    const m1025 = allTopLevelBlocks(landingCss, '@media (min-width: 1025px)').join('\n');
+    // the grid replaces the r142 absolute drift: the two authored measures
+    // ride one centered unit, the paper breathes at the OUTER edges only
+    expect(m1025).toContain('.landing .ln-hero {');
+    expect(m1025).toContain('grid-template-columns: minmax(0, min(46vw, 700px)) auto');
+    expect(m1025).toContain('column-gap: clamp(24px, 2.5vw, 56px)');
+    expect(m1025).toContain('.landing .ln-hero-content { grid-column: 1; }');
+    expect(m1025).toContain('.landing .ln-hero-visual {');
+    expect(m1025).toContain('grid-column: 2');
+    expect(m1025).toContain('position: static');
+    expect(m1025).toContain('inline-size: clamp(420px, 40vw, 620px)');
+    // the landscape stage + the scene figure filling it (the xMidYMax crop
+    // keeps the still-life anchored to the table)
+    expect(m1025).toContain('.landing .ln-hero-stage {');
+    expect(m1025).toContain('aspect-ratio: 6 / 5');
+    expect(m1025).toContain('.landing .ln-scene {');
+    expect(m1025).toContain('block-size: 100%');
+    // the printed card rests on the corner FACING the copy (rotateY flips
+    // with the corner — pinned in the r142 LCP describe above), the chip
+    // + kanban ride the OUTER edge, the RENDERED scene mirrors so the
+    // dates plate lands under the card (the authored SVG stays untouched)
+    expect(decl(landingRule('.landing .ln-hero-card'), 'inset-inline-start')).toBe('0');
+    expect(decl(landingRule('.landing .ln-scene-kanban'), 'inset-inline-end')).toBe('14px');
+    expect(decl(landingRule('.landing .ln-scene-caption'), 'inset-inline-end')).toBe('14px');
+    expect(landingCss).toContain('.landing .lnk-scene { transform: scaleX(-1); }');
+  });
+
+  it('the journey rail (§9): numbered node chips split the hairline into connecting segments; the ember ink scrubs from node 01 (the RTL reading start)', () => {
+    // the chip grammar rides the frames (aria-hidden decor — the ol
+    // already announces each frame's index)
+    expect(journeyRaw).toContain('ln-frame-node');
+    const node = landingRule('.landing .ln-frame-node');
+    expect(decl(node, 'inline-size')).toBe('30px');
+    expect(decl(node, 'block-size')).toBe('30px');
+    expect(decl(node, 'background')).toBe('var(--sm-card)');
+    // the rail runs node-center → node-center BEHIND the opaque chips:
+    // 15px = half the node; calc(25% - 33px) = the 4th node's centre
+    // (3 × (column + 24px gap) + 15px from the start edge)
+    const thread = landingRule('.landing .ln-journey-thread');
+    expect(decl(thread, 'inset-block-start')).toBe('13px');
+    expect(decl(thread, 'inset-inline')).toBe('15px calc(25% - 33px)');
+    expect(decl(thread, 'z-index')).toBe('0');
+    expect(decl(landingRule('.landing .ln-journey-frames'), 'z-index')).toBe('1');
+    // the ink grows from the RENDERED inline-start edge: the line runs
+    // 1000→0 so path position 0 = node 01's centre in RTL (the r142 line
+    // grew from the FUTURE end). No new verb — the --sp scrub stays.
+    expect(journeyRaw).toContain(
+      '<line className="ln-journey-thread-ink" x1="1000" y1="2" x2="0" y2="2" pathLength="1" />'
+    );
+    expect(decl(landingRule('.landing .ln-journey-thread-ink'), 'stroke-dashoffset')).toBe(
+      'calc(1 - var(--sp, 0.65))'
+    );
+  });
+
+  it('the ONE ratio contract (§8): every plate paints 4/3 cover-centre AND the four category assets carry the same intrinsic 4:3 master (the r141 mixed-ratio set is gone)', () => {
+    const plate = landingRule('.landing .ln-menu-plate');
+    expect(decl(plate, 'aspect-ratio')).toBe('4 / 3');
+    const img = landingRule('.landing .ln-menu-slide-img');
+    expect(decl(img, 'object-fit')).toBe('cover');
+    expect(decl(img, 'object-position')).toBe('center');
+    // the one-shot normaliser stays on disk (provenance: the PNG masters
+    // are untouched; the webps are regenerated 4:3 centre-crop q82)
+    expect(existsSync('scripts/p31-c-unify-showcase-plate-ratio.mjs')).toBe(true);
+    // the assets themselves: intrinsic 4:3 within the 1px crop rounding
+    // (cat-hot crops 1024×745 → 993×745; the squares 1024×1024 → 1024×768)
+    for (const c of ['cat-hot', 'cat-cold', 'cat-dessert', 'cat-snacks']) {
+      const size = webpIntrinsicSize(`public/images/culinary/${c}.webp`);
+      const ratio = size.width / size.height;
+      expect(Math.abs(ratio - 4 / 3), `${c}.webp intrinsic ratio ${ratio}`).toBeLessThan(0.01);
+    }
+  });
+
+  it('the §02 filter pills earn their read: inactive = visible 0.34 hairline + full ink (14.1:1), active stamp untouched, night twin rides the ghost grade; the header glass collapses in BOTH stages under prefers-contrast', () => {
+    const tab = landingRule('.landing .ln-menu-tab');
+    expect(decl(tab, 'border')).toBe('1px solid rgb(43 32 20 / 0.34)');
+    expect(decl(tab, 'color')).toBe('var(--sm-ink)');
+    expect(decl(landingRule('.landing .ln-menu-tab-dot'), 'background')).toBe(
+      'var(--sm-line-strong)'
+    );
+    const active = landingRule(".landing .ln-menu-tab[aria-selected='true']");
+    expect(decl(active, 'background')).toBe('var(--sm-ember-deep)');
+    // (plain contains for color: the block also carries border-color, which
+    //  the decl() substring match would shadow)
+    expect(active).toContain('color: var(--sm-paper)');
+    // the night stage: the espresso hairline would vanish on cocoa — the
+    // pill rides the ghost pill's cream grade instead
+    expect(decl(landingRule('html.dark .landing .ln-menu-tab'), 'border-color')).toBe(
+      'rgb(245 237 221 / 0.32)'
+    );
+    // §3.2 twin: the night raw backdrop rides a higher-specificity
+    // selector, so the prefers-contrast collapse needs its own twin
+    const pc = allTopLevelBlocks(landingCss, '@media (prefers-contrast: more)').join('\n');
+    expect(pc).toContain('html.dark .landing .landing-header.scrolled');
+    expect(pc).toContain('background: var(--sm-paper)');
+  });
+});
+
+/** Minimal RIFF/VP8 WebP intrinsic-size reader (node:fs only — no decoder):
+ *  the §02 ratio pin reads the real pixel contract straight off the
+ *  container headers (VP8 keyframe / VP8L / VP8X canvas). */
+function webpIntrinsicSize(path: string): { width: number; height: number } {
+  const buf = readFileSync(path);
+  if (buf.toString('ascii', 0, 4) !== 'RIFF' || buf.toString('ascii', 8, 12) !== 'WEBP') {
+    throw new Error(`not a WEBP container: ${path}`);
+  }
+  const fourcc = buf.toString('ascii', 12, 16);
+  if (fourcc === 'VP8X') {
+    return {
+      width: 1 + buf.readUIntLE(24, 3),
+      height: 1 + buf.readUIntLE(27, 3),
+    };
+  }
+  if (fourcc === 'VP8 ') {
+    if (buf[23] !== 0x9d || buf[24] !== 0x01 || buf[25] !== 0x2a) {
+      throw new Error(`bad VP8 start code: ${path}`);
+    }
+    return {
+      width: buf.readUInt16LE(26) & 0x3fff,
+      height: buf.readUInt16LE(28) & 0x3fff,
+    };
+  }
+  if (fourcc === 'VP8L') {
+    if (buf[20] !== 0x2f) throw new Error(`bad VP8L signature: ${path}`);
+    const bits = buf.readUInt32LE(21);
+    return {
+      width: (bits & 0x3fff) + 1,
+      height: ((bits >> 14) & 0x3fff) + 1,
+    };
+  }
+  throw new Error(`unexpected WEBP chunk ${fourcc}: ${path}`);
+}

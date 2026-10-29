@@ -15,12 +15,17 @@ import { useSectionProgress } from "@/hooks/useSectionProgress"
  *   04 العميل يقيّم  — the post-order review (ReviewSheet → owner reviews)
  * Nothing invented (r82): every frame's desc traces to a shipped surface.
  *
- * The ember thread: one SVG hairline across the frames' heads, scrubbed
- * by the section's --sp (useSectionProgress — rAF-coalesced, RM snaps to
- * 1, no scroll hijacking): stroke-dashoffset: calc(1 - var(--sp, 0)) on
- * a pathLength=1 line, the same pure-CSS scrub grammar the retired light
- * path used. ≤920px the strip stacks vertically and the thread hides —
- * the frame numbers carry the order alone.
+ * The rail (P31-C — the step grammar): numbered node chips (one per
+ * frame, at each frame's reading edge) ride the hairline, which runs
+ * node-center → node-center BEHIND their opaque plates — the chips split
+ * it into connecting segments. The ember ink is scrubbed by the
+ * section's --sp (useSectionProgress — rAF-coalesced, RM snaps to 1, no
+ * scroll hijacking) from node 01's edge — the RTL reading direction
+ * (the r142 line grew from the inline-end edge: the FUTURE end).
+ * stroke-dashoffset: calc(1 - var(--sp, 0)) on a pathLength=1 line, the
+ * same pure-CSS scrub grammar. ≤920px the strip stacks vertically and
+ * the rail hides — the numbered chips carry the order alone. No new
+ * animation: the scrub stays the only verb.
  */
 
 const FRAMES: Array<{
@@ -77,16 +82,20 @@ export function JourneySection() {
       </div>
 
       <RevealCssClass as="div" className="ln-journey-strip-wrap" delay={2}>
-        {/* the ember thread — one hairline across the four frames, scrubbed */}
+        {/* the rail — hairline base + the scrubbed ember ink, node-center to
+            node-center. The ink line runs 1000→0 so path position 0 is the
+            RENDERED inline-start edge (RTL reading start = node 01). */}
         <svg className="ln-journey-thread" viewBox="0 0 1000 4" preserveAspectRatio="none" aria-hidden="true" focusable="false">
           <line className="ln-journey-thread-base" x1="0" y1="2" x2="1000" y2="2" pathLength="1" />
-          <line className="ln-journey-thread-ink" x1="0" y1="2" x2="1000" y2="2" pathLength="1" />
+          <line className="ln-journey-thread-ink" x1="1000" y1="2" x2="0" y2="2" pathLength="1" />
         </svg>
 
         <ol className="ln-journey-frames">
           {FRAMES.map((f) => (
             <li key={f.n} className="ln-frame">
-              <span className="ln-frame-n ln-mono" aria-hidden="true">{f.n}</span>
+              {/* the numbered station chip — rides the rail (aria-hidden:
+                  the <ol> already announces each frame's index) */}
+              <span className="ln-frame-node ln-mono" aria-hidden="true">{f.n}</span>
               <span className="ln-frame-ico" aria-hidden="true">
                 <f.icon size={20} strokeWidth={1.8} />
               </span>

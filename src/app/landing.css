@@ -349,9 +349,16 @@
   background: var(--sm-ember); /* flat ember — no gradient, no glow */
 }
 
-/* ── 3 · chrome — header rail. Flat paper rail, no glass: solid paper
-   @ 92% + hairline once scrolled (`.scrolled` toggled imperatively via
-   ref.classList at scrollY > 6px). */
+/* ── 3 · chrome — header rail. Transparent over the hero's own paper;
+   once scrolled (`.scrolled` toggled imperatively via ref.classList at
+   scrollY > 6px) the rail EARNS its elevation (P31-C): translucent
+   paper + backdrop blur + the warm hairline + a quiet espresso shadow —
+   the old flat 92%-paper bar vanished into the cream chapters it
+   scrolled over. The treatment reads on the light paper spreads AND the
+   espresso back-cover; prefers-contrast: more collapses the glass to
+   solid paper (§3.2, the globals.css glass law); the RM block (§17)
+   keeps the state flip instant — the rail never transforms (no
+   slide-in verb exists). */
 .landing .landing-header {
   position: sticky;
   top: 0;
@@ -360,11 +367,17 @@
   border-block-end: 1px solid transparent;
   transition:
     background var(--sm-t-base) var(--sm-ease-soft),
-    border-color var(--sm-t-base) var(--sm-ease-soft);
+    border-color var(--sm-t-base) var(--sm-ease-soft),
+    box-shadow var(--sm-t-base) var(--sm-ease-soft);
 }
 .landing .landing-header.scrolled {
-  background: rgb(247 241 227 / 0.92);
+  background: rgb(247 241 227 / 0.86);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   border-block-end-color: var(--sm-line);
+  box-shadow:
+    0 1px 2px rgb(43 32 20 / 0.05),
+    0 10px 28px -18px rgb(43 32 20 / 0.26);
 }
 
 /* ── 3.1 · scroll-spy active state. The observer writes
@@ -649,11 +662,15 @@
   margin-inline: auto;
 }
 @media (min-width: 1025px) {
-  /* asymmetric composition — the copy column hugs the reading start
-     (inline-start = right edge in RTL); the dish claims the far side. */
+  /* P31-C (composed unit): the copy keeps its EXACT authored measure —
+     min(46vw, 700px), the same cap the h1's line breaks were verified
+     against — so the headline wraps exactly as before at every width;
+     it now fills its grid track (§6.2) and hugs the unit's reading
+     edge (inline-start = right in RTL, the gutter faces its ragged
+     edge). */
   .landing .ln-hero-content {
     max-inline-size: min(46vw, 700px);
-    margin-inline: 0 auto;
+    margin-inline: 0;
   }
 }
 
@@ -798,7 +815,10 @@
    the window (§20.1) holds the AUTHORED night-kitchen SVG still-life
    (NightKitchenScene); the card rests on the illustrated table's corner
    in STATIC tension with a tightened CONTACT shadow (the table's wood
-   reads through around it — the card lies ON the scene, not beside it). */
+   reads through around it — the card lies ON the scene, not beside it).
+   P31-C: at ≥1025 the composition is the §6.2 grid's second track — the
+   card rests on the table's INNER corner (the gutter side, beside the
+   copy), the window's outer edge carries the kanban + the caption chip. */
 .landing .ln-hero-visual {
   position: relative;
   z-index: 0;
@@ -824,25 +844,31 @@
    left is the one-shot entrance (data-intro-seen drops it entirely).
    P21-W3-E: the shadow tightens into a CONTACT shadow — the card lies
    ON the illustrated table, so the grounding is near and dark, not a
-   distant floating softbox. */
+   distant floating softbox.
+   P31-C: the card moves to the corner FACING the copy (inline-start —
+   the gutter side at ≥1025) and the rotateY sign flips with the corner
+   so the card's face still turns toward the reader and its inner edge
+   still recedes toward the scene's centre. The mirrored scene (§20.1k)
+   lands the dates plate under this corner — the card still rests over
+   the dates, the dallah stays visible on the far side. */
 .landing .ln-hero-card {
   position: absolute;
-  inset-inline-end: 0;
+  inset-inline-start: 0;
   inset-block-end: 0;
-  inline-size: min(64%, 320px);
+  inline-size: min(58%, 300px);
   padding: var(--sp-5) var(--sp-5) var(--sp-4);
   border-radius: var(--r-2xl);
   background: var(--sm-card);
   border: 1px solid var(--sm-line);
   box-shadow: 0 14px 28px -14px rgb(15 9 5 / 0.55), 0 2px 5px rgb(15 9 5 / 0.35);
-  transform: perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg);
+  transform: perspective(1100px) rotateX(6deg) rotateY(7deg) rotate(1.4deg);
   transform-origin: bottom center;
   z-index: 4;
   animation: ln-card-in var(--sm-t-slow) var(--sm-ease-out) both;
 }
 @keyframes ln-card-in {
-  from { opacity: 0; transform: perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg) translateY(16px); }
-  to { opacity: 1; transform: perspective(1100px) rotateX(6deg) rotateY(-7deg) rotate(1.4deg) translateY(0); }
+  from { opacity: 0; transform: perspective(1100px) rotateX(6deg) rotateY(7deg) rotate(1.4deg) translateY(16px); }
+  to { opacity: 1; transform: perspective(1100px) rotateX(6deg) rotateY(7deg) rotate(1.4deg) translateY(0); }
 }
 /* returning-visitor calm: no entrance at all — the card is simply THERE */
 .landing[data-intro-seen='true'] .ln-hero-card { animation: none; }
@@ -893,16 +919,45 @@
   text-align: center;
 }
 
-/* ≥1025: the composition claims the far side, vertically centered */
+/* ── 6.2 · P31-C — the composed unit (≥1025): copy | gutter | window.
+   The r142 composition pinned the window absolutely at the inline-end
+   viewport edge and let the copy column (46vw) drift with the viewport:
+   adjacent at ~1025–1500px, then the paper between them grew into the
+   cavern the owner saw (a 331px dead gap at 1920, wider beyond). The
+   grid replaces the drift: the two AUTHORED measures (copy
+   min(46vw,700px) + window clamp(420px,40vw,620px)) ride as ONE
+   centered unit with a fixed gutter — the paper breathes at the OUTER
+   edges, never between the two. The window tightens to a 6/5 landscape
+   stage (the sanctioned xMidYMax sky crop — the still-life stays
+   anchored to the table), and the printed card moves to the corner
+   FACING the copy (§20.4 notes + the scene mirror) so the menu card
+   reads beside the headline: copy → card → kitchen window, one unit. */
 @media (min-width: 1025px) {
+  .landing .ln-hero {
+    grid-template-columns: minmax(0, min(46vw, 700px)) auto;
+    column-gap: clamp(24px, 2.5vw, 56px);
+    align-items: center;
+    justify-content: center;
+    padding-inline: max(4vw, 16px);
+  }
+  .landing .ln-hero-content { grid-column: 1; }
   .landing .ln-hero-visual {
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-end: max(4vw, 16px);
-    translate: 0 -50%;
+    grid-column: 2;
+    position: static;
+    translate: none;
     inline-size: clamp(420px, 40vw, 620px);
     max-inline-size: none;
     margin: 0;
+  }
+  /* the landscape stage: min-block floors the squarer windows at
+     1025–1200px so the printed card (~380–408px tall at its min(58%,300)
+     desktop size) always rests INSIDE the window's corner. The scene
+     figure fills it via the ≥1025 rule in §20.1 (the base .ln-scene
+     rule lives later in this sheet than §6.2, so its override must
+     land after it to win the cascade). */
+  .landing .ln-hero-stage {
+    aspect-ratio: 6 / 5;
+    min-block-size: 410px;
   }
 }
 
@@ -948,9 +1003,14 @@
   min-block-size: 48px;
   padding: 11.4px 22px;
   border-radius: var(--sm-radius-pill);
-  border: 1px solid var(--sm-line);
+  /* P31-C: the inactive pill EARNS its read — the r142 hairline rode
+     --sm-line (16% espresso on cream ≈ invisible) with ink-dim text;
+     the border steps up to the ghost pill's visible 0.34 hairline grade
+     and the label to full ink (14.1:1), the dot to line-strong. The
+     ACTIVE stamp below is untouched (ember-deep fill + paper text). */
+  border: 1px solid rgb(43 32 20 / 0.34);
   background: transparent;
-  color: var(--sm-ink-dim);
+  color: var(--sm-ink);
   font-family: inherit;
   font-size: 14px;
   font-weight: var(--fw-medium);
@@ -965,7 +1025,7 @@
   inline-size: 7px;
   block-size: 7px;
   border-radius: var(--r-full);
-  background: var(--sm-line);
+  background: var(--sm-line-strong);
   transition: background var(--sm-t-fast) var(--sm-ease);
 }
 /* the selected tab is the warm one — paper on ember-deep (6.5:1) */
@@ -992,6 +1052,13 @@
   display: grid;
   gap: var(--sp-5);
 }
+/* P31-C — the section's ONE food-imagery ratio contract: every plate
+   paints in a single 4/3 box with object-fit: cover + centre focus —
+   the product's own item-image crop (DESIGN.md: aspect-[4/3]). The four
+   category assets are pre-normalised to the same 4:3 master
+   (scripts/p31-c-unify-showcase-plate-ratio.mjs — the r141 set shipped
+   at mixed intrinsic ratios: cat-hot ≈1.37:1, the rest 1:1, so the
+   cover crop jumped per panel); the slides just paint the contract. */
 .landing .ln-menu-plate {
   position: relative;
   aspect-ratio: 4 / 3;
@@ -1018,7 +1085,10 @@
   transition: opacity var(--sm-t-slow) var(--sm-ease-soft);
 }
 .landing .ln-menu-slide.is-active { opacity: 1; }
-.landing .ln-menu-slide-img { object-fit: cover; }
+.landing .ln-menu-slide-img {
+  object-fit: cover;
+  object-position: center;
+}
 .landing .ln-menu-plate-tag {
   position: absolute;
   inset-block-start: var(--sp-4);
@@ -1098,7 +1168,12 @@
   background: rgb(180 83 31 / 0.18);
 }
 
-/* the printed list column — the menu page itself */
+/* the printed list column — the menu page itself: a realistic excerpt
+   of the full board (P31-C: the r142 column listed ONE category's four
+   rows — too thin to convince — and the S5 floating-card restyle
+   thinned it further into a 2×2 card grid. The excerpt grammar: the
+   active course's rows first, then the NEXT course's, eight compact
+   dotted-leader rows across two course groups — the same seed, verbatim). */
 .landing .ln-menu-list-wrap {
   border-radius: var(--r-2xl);
   border: 1px solid var(--sm-line);
@@ -1114,6 +1189,19 @@
   padding-block-end: var(--sp-3);
   border-block-end: 3px double var(--sm-line);
 }
+/* the course group — printed-menu course header + its rows */
+.landing .ln-menu-group + .ln-menu-group { margin-block-start: var(--sp-4); }
+.landing .ln-menu-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 var(--sp-1);
+  padding-block-end: var(--sp-2);
+  border-block-end: 1px solid var(--sm-line-soft);
+  font-size: 12.5px;
+  font-weight: var(--fw-semibold);
+  color: var(--sm-ink-dim);
+}
 .landing .ln-menu-list {
   margin: 0;
   padding: 0;
@@ -1126,8 +1214,10 @@
   display: flex;
   align-items: baseline;
   gap: 10px;
-  min-block-size: 52px;
-  padding: 12px 6px;
+  /* P31-C compact rhythm: 44px rows (was 52) — eight rows across two
+     courses read as a menu excerpt, not a sparse list */
+  min-block-size: 44px;
+  padding: 9px 6px;
   background: none;
   border: 0;
   cursor: pointer;
@@ -1181,21 +1271,34 @@
   text-align: center;
 }
 
-/* ── 9 · «من الطاولة إلى المطبخ» — four numbered frames ─────────────── */
+/* ── 9 · «من الطاولة إلى المطبخ» — the four numbered stations ────────
+   P31-C: the old grammar floated a hairline + a scrubbed ember line
+   30px above the frames' OWN 3px top rules — two competing line
+   systems with no stations between them, and the ink scrubbed from
+   the inline-end edge (the FUTURE end in RTL). The new grammar: a
+   numbered node chip rides the rail at each frame's reading edge, the
+   hairline runs node-center → node-center BEHIND the chips (the chips'
+   opaque plate splits it into connecting segments), and the ember ink
+   scrubs from node 01 (the reading start in RTL) — current/future
+   contrast is the inked read portion vs the faint hairline to come.
+   No new animation: the only verb stays the --sp scroll scrub (RM
+   snaps it complete via the hook + §17). */
 .landing .ln-journey { background: var(--sm-paper-2); }
 .landing .ln-journey-strip-wrap {
   position: relative;
   max-inline-size: 1180px;
   margin-inline: auto;
-  padding-block-start: var(--sp-7);
+  padding-block-start: 0;
 }
-/* the ember thread — one hairline across the frames' top rules, scrubbed
-   by --sp (aligned to the wrap's 32px padding where the frame borders sit) */
+/* the rail — node-center to node-center: inset-inline-start 15px =
+   half the 30px node; inset-inline-end calc(25% - 33px) = the 4th
+   node's centre (3 × (column + sp-6 gap) + 15px from the start edge —
+   keep in lockstep with the frames grid below). */
 .landing .ln-journey-thread {
   position: absolute;
-  inset-block-start: 30px;
-  inset-inline: 0;
-  inline-size: 100%;
+  inset-block-start: 13px;
+  inset-inline: 15px calc(25% - 33px);
+  inline-size: auto;
   block-size: 4px;
   z-index: 0;
 }
@@ -1207,7 +1310,8 @@
 .landing .ln-journey-thread-ink {
   fill: none;
   stroke: var(--sm-ember);
-  stroke-width: 2.5;
+  stroke-width: 3;
+  stroke-linecap: round;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 1;
   stroke-dashoffset: calc(1 - var(--sp, 0.65));
@@ -1224,18 +1328,23 @@
 }
 .landing .ln-frame {
   position: relative;
-  padding-block-start: var(--sp-5);
-  border-block-start: 3px solid var(--sm-line-soft);
-  transition: border-color var(--sm-t-base) var(--sm-ease);
+  padding-block-start: 0;
 }
-.landing .ln-frame:hover { border-block-start-color: var(--sm-ember); }
-.landing .ln-frame-n {
-  display: block;
-  margin-block-end: var(--sp-3);
-  font-size: 38px;
-  font-weight: var(--fw-medium);
-  color: var(--sm-ember);
-  line-height: 1;
+/* the numbered station chip — opaque plate over the rail, ember-ink
+   numeral (the frame data carries the same 01–04 the ol already
+   announces; the chip is aria-hidden decor) */
+.landing .ln-frame-node {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 30px;
+  block-size: 30px;
+  border-radius: var(--r-full);
+  background: var(--sm-card);
+  border: 1px solid var(--sm-line-strong);
+  color: var(--sm-ember-ink);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  margin-block-end: var(--sp-4);
 }
 .landing .ln-frame-ico {
   inline-size: 42px;
@@ -1642,8 +1751,8 @@
   .landing .ln-hero { padding-block: clamp(104px, 14vh, 150px) 88px; }
 }
 @media (max-width: 920px) {
-  /* the journey strip stacks; the thread hides (frame numbers carry the
-     order) — frames become hairline rows */
+  /* the journey strip stacks; the rail hides (the numbered chips carry
+     the order alone) — frames become hairline rows */
   .landing .ln-journey-thread { display: none; }
   .landing .ln-journey-frames { grid-template-columns: 1fr; gap: 0; }
   .landing .ln-frame {
@@ -1654,7 +1763,7 @@
     grid-template-rows: auto auto;
     column-gap: var(--sp-4);
   }
-  .landing .ln-frame-n { grid-row: 1; margin-block-end: 0; font-size: 26px; }
+  .landing .ln-frame-node { grid-row: 1; margin-block-end: 0; }
   .landing .ln-frame-ico { grid-row: 1 / 3; grid-column: 2; margin-block-end: var(--sp-3); }
   .landing .ln-frame-title { grid-column: 1; }
   .landing .ln-frame-desc { grid-column: 1 / 3; }
@@ -1796,7 +1905,6 @@
   .landing .ln-menu-cta-warm,
   .landing .ln-amb-link,
   .landing .ln-amb-link svg,
-  .landing .ln-frame,
   .landing .ln-btn-ember,
   .landing .ln-btn-ghost,
   .landing .landing-header { transition: none; }
@@ -1976,8 +2084,31 @@ html.dark .landing {
    values were authored against cream paper; the night twins carry the
    same roles against cocoa. */
 
-/* header rail: scrolled backdrop = the night ground @ 92% (was paper) */
-html.dark .landing .landing-header.scrolled { background: rgb(36 24 17 / 0.92); }
+/* header rail: the scrolled elevation on the night stage (P31-C §3
+   twin) — translucent night ground + blur + the deeper night shadow */
+html.dark .landing .landing-header.scrolled {
+  background: rgb(36 24 17 / 0.86);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.35),
+    0 10px 28px -18px rgb(0 0 0 / 0.60);
+}
+/* §3.2 · increased contrast: the rail's glass collapses to SOLID ground
+   in both stages (the globals.css prefers-contrast glass law, scoped to
+   the rail; var(--sm-paper) flips with the §19 token block). The night
+   twin is explicit because the raw night backdrop above rides a
+   HIGHER-specificity selector (html.dark … 0,4,1) — source order alone
+   could never win that cascade, so the same media block carries the
+   equal-specificity twin (later in the sheet → wins). */
+@media (prefers-contrast: more) {
+  .landing .landing-header.scrolled {
+    background: var(--sm-paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html.dark .landing .landing-header.scrolled {
+    background: var(--sm-paper);
+  }
+}
 /* progress ribbon track: cream hairline grade */
 html.dark .landing .landing-progress { background: rgb(245 237 221 / 0.10); }
 /* scroll-spy + nav/burger hovers: warm cream washes (were espresso tints) */
@@ -2004,6 +2135,10 @@ html.dark .landing .ln-btn-ghost:hover {
 html.dark .landing .ln-btn-ember:hover { background: #E98F72; }
 /* the printed-list row hover: quiet cream wash */
 html.dark .landing .ln-menu-row:hover { background: rgb(245 237 221 / 0.05); }
+/* the §02 filter pills on the night stage (P31-C): the inactive hairline
+   rides the ghost pill's cream grade (the light rule's espresso 0.34
+   would vanish on cocoa); the dot + label ride tokens that flip */
+html.dark .landing .ln-menu-tab { border-color: rgb(245 237 221 / 0.32); }
 
 /* the espresso back-cover KEEPS its identity — pinned one step deeper
    than the night ground (#190F0A vs #241811) + hairline separation;
@@ -2096,6 +2231,18 @@ html.dark:has(.landing) {
    dark ground and the chip/kanban sit directly on it (the chip carries
    its own glass; the kanban is cream on espresso, ~11:1). No CSS scrim,
    one gradient site fewer. */
+/* §6.2 twin (P31-C): at ≥1025 the composed-unit grid gives the window a
+   6/5 landscape stage — the figure FILLS it (aspect off, height 100%)
+   so the xMidYMax slice keeps anchoring the still-life to the table
+   while the crop takes the sky. Lives HERE because the base .ln-scene
+   rule above sits later in the sheet than §6.2 — an override placed
+   there would lose the cascade. */
+@media (min-width: 1025px) {
+  .landing .ln-scene {
+    aspect-ratio: auto;
+    block-size: 100%;
+  }
+}
 
 /* the kanban homage — Banzai's vertical signage, translated to BOLD
    VERTICAL DISPLAY type riding the window edge (aria-hidden decor;
@@ -2141,13 +2288,23 @@ html.dark:has(.landing) {
 .landing .lnk-stroke-wood-hi { stroke: var(--sm-ill-wood-hi); }
 .landing .lnk-stroke-glow { stroke: var(--sm-ember-bright); }
 .landing .lnk-stroke-ember { stroke: var(--sm-ember); }
+/* P31-C: the rendered stage MIRRORS the authored scene — presentation
+   only, the authored coordinates (and every comment in
+   NightKitchenScene.tsx) stay in SVG space. The mirror lands the
+   dallah + finjan on the window's OUTER edge (beside the kanban and
+   the caption chip) and the dates plate on the INNER edge — under the
+   printed card's new corner — so the card can rest beside the copy
+   (§6.2) without erasing the still-life. */
+.landing .lnk-scene { transform: scaleX(-1); }
 /* ── 20.2 · the caption chip — the window's ONE real link (the live
    demo menu): 44px hit floor, cream-on-espresso glass, hover wash. The
    three comic hotspot pins are retired with the diorama; /subscribe and
-   /pricing remain live in the header + hero CTAs. */
+   /pricing remain live in the header + hero CTAs. P31-C: the chip rides
+   the window's OUTER corner (inline-end) — the inner corner belongs to
+   the printed card (§6.2). */
 .landing .ln-scene-caption {
   position: absolute;
-  inset-inline-start: 14px;
+  inset-inline-end: 14px;
   inset-block-end: 14px;
   z-index: 2;
   display: grid;
@@ -2208,61 +2365,14 @@ html.dark:has(.landing) {
   border: 1px solid var(--sm-line-soft);
 }
 
-/* ── 20.5 · «المنيو الحي» floating dish cards (S5) ──────────────────── */
-.landing .ln-menu-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-4);
-}
-.landing .ln-menu-row {
-  display: grid;
-  grid-template-areas: 'name price';
-  align-items: center;
-  gap: var(--sp-3);
-  min-block-size: 64px;
-  padding: var(--sp-4) var(--sp-5);
-  border-radius: var(--r-2xl);
-  background: var(--sm-card);
-  border: 1px solid var(--sm-line-soft);
-  box-shadow: 0 16px 30px -20px rgb(43 32 20 / 0.38);
-  transform: rotate(var(--ln-tilt, 0deg));
-  transition:
-    transform var(--sm-t-base) var(--sm-ease-spring),
-    box-shadow var(--sm-t-base) var(--sm-ease-soft),
-    border-color var(--sm-t-base) var(--sm-ease-soft);
-}
-.landing .ln-menu-row:nth-child(3n + 1) { --ln-tilt: 1.5deg; }
-.landing .ln-menu-row:nth-child(3n + 2) { --ln-tilt: -1.5deg; }
-.landing .ln-menu-row:hover {
-  transform: rotate(0deg) translateY(-4px); /* lift + straighten */
-  box-shadow: 0 24px 42px -20px rgb(43 32 20 / 0.5);
-  border-color: var(--sm-ember);
-}
-.landing .ln-menu-row:focus-visible {
-  transform: rotate(0deg) translateY(-4px);
-  box-shadow: 0 24px 42px -20px rgb(43 32 20 / 0.5);
-  border-color: var(--sm-ember);
-}
-.landing .ln-menu-row-name {
-  grid-area: name;
-  color: var(--sm-ink);
-  font-weight: var(--fw-bold);
-  white-space: normal;
-}
-.landing .ln-menu-row-price {
-  grid-area: price;
-  font-family: var(--sm-mono);
-  font-size: 13px;
-  font-weight: var(--fw-bold);
-  color: var(--sm-ember-ink);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.landing .ln-menu-row-dot,
-.landing .ln-menu-row-leader { display: none; }
-/* the live dish detail joins the floating grammar (soft rotation; the
-   pinned quiet espresso depth recipe is restated verbatim so the LAST
-   rule keeps the contract) */
+/* ── 20.5 · «المنيو الحي» (P31-C) — the S5 floating dish-cards are
+   RETIRED: the 2×2 card grid thinned the board to four big tilted
+   cards and killed the printed dotted leaders — exactly the sparse
+   showcase the owner rejected. The §8 excerpt list returns at compact
+   printed rhythm (eight dotted-leader rows across two course groups);
+   the S5 soft rotations on the detail pair survive below (the pinned
+   quiet espresso depth recipe restated so the LAST rule keeps the
+   contract). */
 .landing .ln-menu-detail-card {
   transform: rotate(-0.8deg);
   box-shadow: 0 10px 24px -16px rgb(43 32 20 / 0.24);
@@ -2323,17 +2433,10 @@ html.dark .landing .ln-scene {
     margin-block-start: var(--sp-5);
     transform: perspective(1100px) rotateX(4deg) rotate(-1.2deg);
   }
-  .landing .ln-menu-list { grid-template-columns: 1fr; }
 }
 
-/* ── 20.9 · RM off-switches for the remaining verbs (pop, window, rows) */
+/* ── 20.9 · RM off-switches for the remaining verbs (pop, window) ──── */
 @media (prefers-reduced-motion: reduce) {
   .landing .ln-hero-line { animation: none; }
   .landing .ln-scene { animation: none; }
-  .landing .ln-menu-row,
-  .landing .ln-menu-row:hover,
-  .landing .ln-menu-row:focus-visible {
-    transform: none;
-    transition: none;
-  }
 }
