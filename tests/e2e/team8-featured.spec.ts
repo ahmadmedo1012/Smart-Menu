@@ -55,9 +55,34 @@ function featuredPill(row: Locator): Locator {
   return row.locator('span[title^="مميز"]');
 }
 
-/** Navigate to the menu editor and locate an item's row (expanding its category). */
+/** Navigate to the menu editor and locate an item's row (expanding its category).
+ *
+ * round98 (P33): bounded transient-nav retry — under a loaded runner the
+ * goto that follows gotoMenuExpectScene's bounded reload-poll loop can
+ * abort at commit (net::ERR_ABORTED "maybe frame was detached?" — the
+ * previous load's teardown racing the new navigation; 1 occurrence in the
+ * P33 deep-journey battery on a 2-CPU/4GB box, isolated rerun 2/2 green
+ * in 30s, server healthy throughout). Same class the repo already
+ * tolerates by convention (round92 login retry, the r97 ISR reload loop,
+ * the nightly-flake harness): retry the NAVIGATION only — every assertion
+ * in this journey (pill presence/absence per toggle state, public
+ * showcase scene flips) is untouched. */
 async function gotoEditorRow(page: Page, item: string): Promise<Locator> {
-  await page.goto("/owner/menu", { waitUntil: "domcontentloaded" });
+  let navError: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      await page.goto("/owner/menu", { waitUntil: "domcontentloaded" });
+      navError = undefined;
+      break;
+    } catch (e) {
+      navError = e;
+      // Retry ONLY the transient commit-abort class; anything else (5xx,
+      // timeout, auth) fails immediately with the original error.
+      if (!/ERR_ABORTED|frame was detached/i.test(String(e))) throw e;
+      await page.waitForTimeout(500);
+    }
+  }
+  if (navError) throw navError;
   const catHeader = page.locator("div.cursor-pointer", { hasText: CATEGORY }).first();
   await expect(catHeader).toBeVisible({ timeout: 20_000 });
   const row = itemRow(page, item);

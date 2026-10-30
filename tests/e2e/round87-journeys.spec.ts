@@ -25,11 +25,33 @@
  *
  * Run: pnpm exec playwright test tests/e2e/round87-journeys.spec.ts --project=qa-teams
  */
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import { chooseFreePlan, fillSubscribeForm, advanceStep } from "./qa-helpers";
 
 const MENU = "/menu/al-waha-cafe-demo";
 const ts = Date.now().toString().slice(-8);
+
+/** round98 (P33): bounded re-dispatch for the pill→sheet open.
+ *
+ * Reproduced twice under the official CI configuration on a 2-CPU/4GB
+ * runner (P32 + P33 deep-journey batteries): networkidle ≠ hydration —
+ * under 2-worker CPU contention React can still be hydrating the SSR'd
+ * pill AFTER the network has gone idle, so dispatchEvent("click") lands
+ * on a handler-less DOM node (the DOM event fires, nothing listens) and
+ * the sheet never mounts. Isolated reruns pass (the hydration window
+ * closes in milliseconds without contention); the pill's real-click
+ * actionability stays guarded by the a11y/touch-target specs (P13-2b).
+ * Same bounded-retry convention as ownerLogin's 429 retry and the r97
+ * ISR reload loop: re-dispatch ONLY while the sheet is still absent,
+ * stop the moment it mounts — every downstream assertion (sheet
+ * visibility, review form, persistence) is untouched. */
+async function openSheetByDispatch(pill: Locator, sheet: Locator): Promise<void> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (await sheet.isVisible().catch(() => false)) return;
+    await pill.dispatchEvent("click");
+    await pill.page().waitForTimeout(1_500); // hydration-lag window
+  }
+}
 
 // ── 1. Full review journey (تقييم كامل) ────────────────────────────────────
 
@@ -47,7 +69,23 @@ test.describe("journey: full review (تقييم كامل)", () => {
     const firstPill = page.locator('button[aria-label^="تقييم "]').first();
     await expect(firstPill).toBeVisible({ timeout: 20_000 });
     const pillLabel = (await firstPill.getAttribute("aria-label")) ?? "";
-    const itemName = pillLabel.replace("تقييم ", "").trim();
+    /* round98 (P33): the pill's label is «تقييم <name>» when unrated and
+     * «تقييم <name> — N.N من 5» once ANY review exists (MenuItemCard.tsx
+     * r299-300). Deriving itemName from the raw label polluted it with the
+     * rating suffix on every environment where the first pill's item is
+     * already rated — an accumulated local DB (the P33 deep-journey
+     * batteries: the sheet OPENED as «تقييمات إسبريسو» while the locator
+     * waited for a dialog named «إسبريسو — 4.0 من 5») AND the production
+     * demo menu (this journey's own documented target — its items carry
+     * ratings). The sheet's accessible name is «تقييمات <bare name>»
+     * (ReviewSheet.tsx r308) — strip the suffix so the derivation is
+     * rating-state-independent; the ratedPill prefix re-resolve below
+     * (P13-2b) already follows exactly this pattern for the mid-test
+     * label growth. */
+    const itemName = pillLabel
+      .replace(/^تقييم /, "")
+      .replace(/\s*—.*من 5\s*$/, "")
+      .trim();
     const reviewPill = page.getByRole("button", { name: pillLabel });
 
     /* P13-2b (wave-4, CI unmasked): the pill's own handler opens the
@@ -58,11 +96,11 @@ test.describe("journey: full review (تقييم كامل)", () => {
      * by the a11y/touch-target specs — this journey's substance is the
      * review flow itself, so dispatch the DOM click directly and keep the
      * sheet-visibility assertion as the hard gate. The hydration race
-     * (round88) is also covered: dispatchEvent lands on the live element
-     * after networkidle. */
+     * (round88) is also covered: openSheetByDispatch re-dispatches past
+     * the networkidle≠hydration lag window (round98). */
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
     const sheet = page.getByRole("dialog", { name: itemName });
-    await reviewPill.dispatchEvent("click");
+    await openSheetByDispatch(reviewPill, sheet);
     // ReviewSheet is a dynamic import + spring animation — wait for the sheet.
     await expect(sheet).toBeVisible({ timeout: 15_000 });
     // The sheet's GET mints the csrf-token cookie (menu pages are cacheable
@@ -92,11 +130,12 @@ test.describe("journey: full review (تقييم كامل)", () => {
     /* P13-2b (wave-4): the SAME sheet-open race as the first trigger — after
      * a review exists the pill's label grows a «— N.N من 5» suffix, so
      * re-resolve the pill by prefix, then dispatch (the sheet-visibility and
-     * persistence assertions below stay the hard gates). */
+     * persistence assertions below stay the hard gates; the round98
+     * hydration-lag re-dispatch covers this reload path too). */
     const ratedPill = page.locator(`button[aria-label^="تقييم ${itemName}"]`).first();
     await expect(ratedPill).toBeVisible({ timeout: 20_000 });
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-    await ratedPill.dispatchEvent("click");
+    await openSheetByDispatch(ratedPill, sheet);
     await expect(sheet).toBeVisible({ timeout: 15_000 });
     await expect(sheet.getByText(comment)).toBeVisible({ timeout: 20_000 });
   });
