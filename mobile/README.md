@@ -13,7 +13,7 @@ Mobile engineering history: `docs/ENGINEERING_STATE.md` (r100-r119) and
 
 ## Stack
 
-- **Expo SDK 53** · React Native **0.79.6** · React 19 · **Hermes** engine · new architecture (Fabric/bridgeless)
+- **Expo SDK 57** · React Native **0.86.3** · React 19.2 · **Hermes** engine · new architecture (Fabric/bridgeless)
 - NativeWind 4 (Tailwind for RN) · React Query (server state: menu/plans/orders/landing queries, 15s orders poll) · Zustand (cart/auth stores) · React Navigation 7 · @gorhom/bottom-sheet (cart + item sheets) · Reanimated 3 (press/sheet/fade motion, reduce-motion aware)
 - `expo-secure-store` (session Bearer token) · `expo-image` · FlashList
 - TypeScript (~5.8) · ESLint (`eslint-config-expo`, legacy eslintrc mode)
@@ -81,10 +81,15 @@ flame-orange (#bc4700) palette is gone — do not reintroduce it.
 
 ## Building
 
-- **EAS** (preferred): `eas build --profile preview` (internal APK) or
-  `--profile production`. Profiles live in `eas.json`; `app.json` carries the
-  EAS project id, Android App Links (`menu.smart-link.ly`), and the plugin
-  chain — notably `expo-build-properties` **minSdkVersion 25** (API 24 devices
+- **GitHub Actions** (preferred — no EAS account needed): the repo-root
+  `mobile-release.yml` workflow builds on tag `mobile-v*` or manual dispatch —
+  a **signed Android APK** (signing keys live in repo secrets:
+  `ANDROID_KEYSTORE_B64` and friends) + an **unsigned iOS archive** (signing
+  later with an Apple Developer account) land on GitHub Releases.
+- **EAS** (legacy path — needs a live Expo account): `eas build --profile
+  preview` (internal APK) or `--profile production`. Profiles live in
+  `eas.json`; `app.json` carries the EAS project id, Android App Links
+  (`menu.smart-link.ly`), and the plugin chain — notably `expo-build-properties` **minSdkVersion 25** (API 24 devices
   fail TLS 1.2 with our cert chain — proven on a real API 24 emulator, r114)
   and the `VIBRATE`-only permission set (unwanted template permissions are
   pruned via `blockedPermissions`).

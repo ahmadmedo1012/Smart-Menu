@@ -292,7 +292,6 @@ export function MenuScreen() {
         <FlashList
           data={filteredItems}
           keyExtractor={(item) => String(item.id)}
-          estimatedItemSize={120}
           renderItem={renderMenuItem}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.terracotta} />}
           contentContainerStyle={{ padding: 16, paddingBottom: 120 }}

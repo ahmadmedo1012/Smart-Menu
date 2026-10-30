@@ -9,6 +9,19 @@
 الترقيم يتبع جولات برنامج التكافؤ (rNNN).
 
 ## [غير منشور | Unreleased]
+### موجة r162 — قفزة SDK 57 + إصدارات GitHub Actions | r162: the SDK 57 leap + GH-Actions releases
+
+- **ترقية الموبايل إلى Expo SDK 57** (من 53): React Native 0.79.6 →
+  0.86.3، React 19.2، FlashList 2 (خاصية estimatedItemSize المُزالة)،
+  وTypeScript 6 (إزالة baseUrl المهملة + استثناء استيرادات NativeWind
+  الجانبية). كل البوابات خضراء: tsc + lint + parity 362/362 + حزم Hermes
+  لأندرويد وiOS (7.2MB).
+- امتثال React Compiler: علم «حاوية المسار العام» في RootNavigator يُدار
+  الآن عبر دالتي وحدة (نمط navigation-ref) بدل التحوير المباشر من جسد
+  المكوّن.
+- سير عمل `mobile-release`: وسم `mobile-v*` أو تشغيل يدوي يبني **APK
+  موقّعًا** + **أرشيف iOS** على GitHub Releases — بلا EAS.
+
 
 ## 2026-10-20 — W7-B2/B2r: نصوص الخطط تُشفى عند القراءة | W7-B2/B2r: plan texts heal at read time
 

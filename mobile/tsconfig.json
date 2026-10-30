@@ -14,8 +14,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "noUncheckedSideEffectImports": false,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "assets.d.ts"],

@@ -32,7 +32,17 @@ type PublicRoute =
  * Linking.getInitialURL() result over the dashboard. Set during render of the
  * public branch; read by AuthenticatedApp's cold-start handler below.
  */
-let publicStackRendered = false;
+// r162: متغير تشغيلي على مستوى الوحدة (هل عُرضت حاوية المسار العام؟)
+// — يُلجأ إليه عبر داليتي وحدة (نمط navigation-ref القياسي) لأن قواعد
+// react-hooks الجديدة (eslint-config-expo 57 / React Compiler) تمنع
+// تحوير قيم الوحدة مباشرة من جسد المكوّن؛ السلوك نفسه حرفيًا.
+const publicStackRendered = { rendered: false };
+function markPublicStackRendered(): void {
+  markPublicStackRendered();
+}
+function wasPublicStackRendered(): boolean {
+  return publicStackRendered.rendered;
+}
 
 /**
  * r102-M6: map a public web URL to its PublicStack route.
@@ -135,7 +145,7 @@ function AuthenticatedApp({ children }: { children: React.ReactNode }) {
     // cannot resolve a PUBLIC route inside an authed stack — do it manually.
     // But ONLY when the public container never consumed it already (N7) and
     // only on the first mount of this component.
-    if (!publicStackRendered && !initialConsumed.current) {
+    if (!wasPublicStackRendered() && !initialConsumed.current) {
       initialConsumed.current = true;
       void Linking.getInitialURL().then((u) => { if (u) handleUrl(u); });
     }
@@ -164,7 +174,7 @@ export function RootNavigator() {
   if (status === "unauthenticated" || !user) {
     // r103-N7: this branch's NavigationContainer consumes the launch URL via
     // its own linking — flag it so a later login swap never replays it.
-    publicStackRendered = true;
+    markPublicStackRendered();
     return (
       <NavigationContainer theme={NAV_THEME} linking={linking}>
         <PublicStack />

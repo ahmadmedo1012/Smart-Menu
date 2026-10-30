@@ -27,7 +27,9 @@
         "backgroundColor": "#FBF7F0"
       },
       "package": "ly.smartlink.smartmenu",
-      "permissions": ["VIBRATE"],
+      "permissions": [
+        "VIBRATE"
+      ],
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -93,7 +95,9 @@
           "resizeMode": "contain",
           "backgroundColor": "#FBF7F0"
         }
-      ]
+      ],
+      "expo-image",
+      "expo-status-bar"
     ],
     "experiments": {
       "tsconfigPaths": true
