@@ -1,10 +1,15 @@
 name: CI
 
 on:
+  # r190 (widening): every push on ANY branch + every PR — supersedes the
+  # main-only filters. The repo is PUBLIC (Actions minutes free) and the
+  # triage job already skips the heavy jobs for docs-only pushes, so the
+  # branch split cost logic keeps working unchanged on any ref. The mobile
+  # job's path split (mobile/ changes only) also works per-ref. A
+  # regression on any branch is now caught at the push itself, before a
+  # PR is even opened.
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 # r118-A8-P1 — the recurring self-cancel incident (r112/r113): the workflow-level
