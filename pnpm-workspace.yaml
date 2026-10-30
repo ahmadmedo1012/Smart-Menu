@@ -31,7 +31,16 @@ overrides:
   postcss: 8.5.26
   nanoid: ^3.3.18
   hono: ^4.13.11  # W7-J (P0): GHSA-5r4p-p66f-jhc7 serveStatic double-decode (moderate) via @prisma/dev chain
-  '@hono/node-server': ^1.19.17
+  # r191 (same chain, second advisory): GHSA-rmxm-3fg6-px4f — serveStatic
+  # decodes the request path a SECOND time (moderate; middleware bypass on
+  # static paths). Patched upstream at >=2.1.3; the ^1.19.17 pin below was
+  # the W7-J fix for the FIRST advisory and is inside the new vulnerable
+  # range (>=1.19.10 <2.1.3). Bumped to ^2.1.5 (published 2026-10-13, aged
+  # past the minimumReleaseAge gate). Repo flows unaffected: @prisma/dev's
+  # consumer is `prisma dev`/studio tooling this repo never runs (CI runs
+  # generate + migrate deploy + seeds only — all verified green after the
+  # bump). prisma CLI boot (postinstall generate) exercises the tree fine.
+  '@hono/node-server': ^2.1.5
   fast-uri: ^3.1.9  # round86-D7 + r123 → P26-C: >=3.1.9 adds percent-encoded-scheme spoofing + suffix-colon injection fixes
   browserslist: ^4.28.7  # round86-D7: fixes OOM + prototype-write advisories (via next/babel chain)
   mysql2: ^3.23.1  # round86-D7: fixes auth-downgrade + zlib advisories (via prisma)
