@@ -49,12 +49,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # مصيدة الـpin المزدوج (mobile/README.md): pnpm مثبت هنا برقم صريح
-      # (10.34.5) — NOT من packageManager (الجذر يقيد 11.9.0 ويثير فشل
-      # "Multiple versions of pnpm specified" في pnpm/action-setup).
+      # مصيدة الـpin المزدوج (mobile/README.md — الفخ الذي سقطنا فيه فعلاً
+      # في التشغيلة الأولى ثم أُصلح): بلا رقم هنا إطلاقًا — action-setup
+      # يقرأ packageManager الجذر (11.9.0) وmanage-package-manager-versions
+      # يكرم pin الـmobile (10.34.5) داخل mobile/ تلقائيًا. تثبيت الرقمين
+      # معًا يفشل بـ"Multiple versions of pnpm specified".
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10.34.5
 
       - uses: actions/setup-node@v4
         with:
@@ -123,8 +123,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10.34.5
 
       - uses: actions/setup-node@v4
         with:
