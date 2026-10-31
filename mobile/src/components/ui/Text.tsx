@@ -28,8 +28,11 @@ import { cssInterop } from "nativewind";
 import { resolveFontFamily } from "@/theme/typography";
 
 export interface AppTextProps extends TextProps {
-  /** React 19 passes refs as regular props — keep <Text ref> working. */
-  ref?: React.Ref<RNText>;
+  /** React 19 passes refs as regular props — keep <Text ref> working.
+   * React 19.3/RN 0.88: host refs are Ref<ComponentRef<typeof X>>, not
+   * Ref<typeof X> (the component-function type no longer doubles as the
+   * element type). */
+  ref?: React.Ref<React.ComponentRef<typeof RNText>>;
 }
 
 export function Text({ style, ...props }: AppTextProps) {

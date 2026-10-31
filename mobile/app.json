@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "smartmenu",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "ly.smartlink.smartmenu",
