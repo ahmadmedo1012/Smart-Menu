@@ -24,6 +24,20 @@ import { prisma } from "@/lib/db";
 // surface + no crawl budget, never a broken link).
 export const TEST_FIXTURE_SLUGS = ["settings-test-ts", "ede", "al-waha-cafeewewe"] as const;
 
+/* P35 (the menu-page robots gate — the fixture doctrine's THIRD surface):
+   the sitemap (P29-D1) and every featured surface (r92-A1) already exclude
+   the fixture slugs, but the menu page itself stayed fully INDEXABLE —
+   live proof: /menu/al-waha-cafeewewe served with NO robots meta and a
+   title cloning the demo cafe («مقهى الواحة»), so any external link or
+   direct crawl could land the fixture in the search index. The gate:
+   noindex,follow — the route stays reachable (family policy: exclusion is
+   crawl budget, never a broken link), the page leaves the index, its
+   links stay followed. Genuine menus and the curated demos render NO
+   robots meta at all (byte-identical output). Consumer:
+   menu/[slug]/page.tsx generateMetadata. */
+export const isTestFixtureMenu = (slug: string): boolean =>
+        (TEST_FIXTURE_SLUGS as readonly string[]).includes(slug);
+
 /* P29-D2 (honest demo labeling): the CURATED public demo menus — the live
    demo the landing opens everywhere (al-waha-cafe, HeroTable's «المنيو
    الحي») and the QA-journey demo (al-waha-cafe-demo, the header/footer

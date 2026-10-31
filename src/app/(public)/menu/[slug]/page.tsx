@@ -28,7 +28,7 @@ import { getRestaurantBySlug } from '@/lib/menu-queries';
 // r134-W2 (#5): JSON-LD telephone rides the ONE wa.me normalizer (E.164).
 import { normalizeWaNumber } from '@/lib/whatsapp';
 // P29-D2: honest demo labeling — the curated demo menus announce themselves.
-import { isPublicDemoMenu } from '@/lib/landing';
+import { isPublicDemoMenu, isTestFixtureMenu } from '@/lib/landing';
 import { MenuHero } from '@/components/menu/MenuHero';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
@@ -74,9 +74,18 @@ export async function generateMetadata({
            don't get it appended twice. */
         const demoSuffix = isPublicDemoMenu(slug) && !restaurant.name.includes('تجريبي') ? ' — تجريبي' : '';
         const pageTitle = `${restaurant.name}${demoSuffix}`;
+        /* P35 (fixture robots gate): the QA-fixture menus keep their route
+           (never a broken link — family policy) but tell crawlers
+           noindex,follow. The sitemap/featured exclusions only stop OUR
+           surfaces from pointing here; the page itself must not be
+           indexable via direct crawls or external links. Genuine menus and
+           the curated demos render NO robots meta at all (byte-identical,
+           indexability untouched). */
+        const fixtureRobots = isTestFixtureMenu(slug) ? { robots: { index: false, follow: true } } : {};
         return {
                 title: pageTitle,
                 description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
+                ...fixtureRobots,
                 alternates: { canonical: `/menu/${slug}` },
                 openGraph: {
                         title: pageTitle,
