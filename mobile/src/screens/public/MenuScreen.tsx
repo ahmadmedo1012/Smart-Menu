@@ -606,6 +606,9 @@ interface OrderEcho {
   id?: number;
   orderNo: string;
   total?: number | string;
+  /* P38 (C2 P0-1): الرسوم في صدى الخادم (orders/route.ts:470) — سطر
+     «رسوم التوصيل» في الفاتورة يفسّر الإجمالي الشامل. */
+  deliveryFee?: number | string | null;
   notes?: string | null;
   customerName?: string | null;
   customerPhone?: string | null;
@@ -672,6 +675,10 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
       // Confirmed success (fresh 201 OR the inert already:true replay) — retire
       // the key so the NEXT order in this app session mints a fresh one.
       retireCheckoutIdempotencyKey();
+      // P38 (C2 P0-2, mirroring web cart/page.tsx:384): the referral code is
+      // CONSUMED by this order — the storage key must die with it, or the
+      // same code rides every future order from this device forever.
+      void AsyncStorage.removeItem("smartmenu_referral");
       // r119-B2-M (S2-P1-1 mobile leg, mirroring the web r119-B1 fix): the
       // server's re-priced echo is the money truth — the local cart can hold
       // stale prices (owner raised a price between add-to-cart and checkout).
@@ -705,6 +712,9 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
               };
             }),
             totalPrice: Number(res.total ?? 0),
+            /* P38 (C2 P0-1, web r137): سطر الرسوم من صدى الخادم — الإجمالي
+               شاملها فيجب أن تُفسّرها سطور الفاتورة (صدق الفاتورة). */
+            deliveryFee: res.deliveryFee != null ? Number(res.deliveryFee) : undefined,
             notes: res.notes || undefined,
             customerName: res.customerName?.trim() || undefined,
             customerPhone: res.customerPhone?.trim() || undefined,

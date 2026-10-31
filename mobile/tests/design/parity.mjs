@@ -1067,6 +1067,24 @@ check(
   'getErrorMessage maps RN fetch engine strings to friendly Arabic — raw English «Network request failed» never surfaces in the Arabic UI',
 );
 
+// ── §P38-C2 · the C2-audit P0 money-path pins (receipt twin parity) ────
+check(
+  receiptSrc.includes('deliveryFee?: number') &&
+    receiptSrc.includes('رسوم التوصيل') &&
+    receiptSrc.includes('opts.deliveryFee && opts.deliveryFee > 0') &&
+    receiptSrc.includes('feeLine'),
+  'P38 receipt twin: the delivery-fee line (web r137/r138) exists on BOTH builders — without it the WhatsApp lines sum BELOW the server total whenever a fee exists (صدق الفاتورة)',
+);
+check(
+  !/[🏪📋🆔🕐📍👤📞📦📝💵🌐🌟🛵💰✨]/.test(receiptSrc) && receiptSrc.includes('\\u{1F3EA}'),
+  'P38 receipt twin: every emoji is a \\u{...} escape (web r143) — raw multibyte literals are one non-UTF-8 toolchain pass away from U+FFFD corruption in the encoded wa.me text',
+);
+check(
+  menuScreenSrc.includes('removeItem("smartmenu_referral")') &&
+    menuScreenSrc.includes('deliveryFee: res.deliveryFee != null ? Number(res.deliveryFee) : undefined'),
+  'P38 checkout: the referral key dies with the order that consumed it (web cart twin), and the receipt carries the server-echo deliveryFee',
+);
+
 // ── §r133-F3 · round-133 mobile pins (auth boot-vs-action gate · modifier
 // smart-trim · tab-bar insets · money-list memo · logical sticky sides ·
 // dead-sm ban · OwnerQr React Query · shape skeletons ×6 · price ladder +
