@@ -1,0 +1,50 @@
+# Smart-Menu — Customer menu journey (P38 Phase L)
+#
+# Preconditions (documented in ../maestro/README.md):
+#   · preview build installed (EAS «preview»)
+#   · The public DEMO restaurant is reachable (its slug is pinned in
+#     the mobile landing list) — QA data only
+#
+# Selectors grounded in source (commit cf5a5f4a): cart button labels
+# (MenuScreen.tsx:241,313), add-to-cart (MenuScreen.tsx:498), the
+# WhatsApp checkout CTA (MenuScreen.tsx:792), empty-cart state (:814).
+appId: ly.smartlink.smartmenu
+name: رحلة العميل — قائمة تجريبية، صنف، سلة، تسليم واتساب
+tags:
+  - customer
+  - e2e
+---
+# 1. Launch → the landing lists the demo restaurant (P38: its images
+#    now resolve after the relative-URI fix)
+- launchApp
+- extendedWaitUntil:
+    visible: ".*تجريبي.*"
+    timeout: 20000
+
+# 2. Open the demo menu
+- tapOn:
+    text: ".*تجريبي.*"
+    index: 0
+
+# 3. Menu renders with categories + items (real data from the shared DB)
+- assertVisible: ".*(الأقسام|المشروبات|المأكولات).*"
+
+# 4. Open a product detail and add it to the cart
+- tapOn:
+    text: ".*"
+    index: 1
+- tapOn: "أضف إلى السلة.*"
+
+# 5. Open the cart sheet
+- tapOn: "عرض السلة"
+
+# 6. Checkout: the WhatsApp handoff button exists and submits to the
+#    QA demo restaurant only (never a production restaurant)
+- tapOn: "إرسال الطلب عبر واتساب"
+
+# 7. The order either lands on the confirmation state (WhatsApp opened)
+#    or the sheet reports the honest failure — both are sane outcomes
+#    on a device WITHOUT WhatsApp installed; a crash is not.
+- extendedWaitUntil:
+    visible: ".*(طلبك|تعذر).*"
+    timeout: 20000
