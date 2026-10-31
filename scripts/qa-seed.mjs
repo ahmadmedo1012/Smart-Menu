@@ -139,9 +139,9 @@ async function main() {
     await client.query(
       `INSERT INTO "MenuItem" (name, "nameAr", description, "descriptionAr", price, image, "sortOrder", "categoryId", status, "createdAt", "updatedAt")
        VALUES
-        ('Caramel Latte', 'كابتشينو كراميل', 'latte with caramel', 'لاتيه بالكراميل', 8.5, '', 1, $1, 'available', now(), now()),
-        ('Iced Americano', 'أمريكانو مثلج', 'iced americano', 'أمريكانو بارد', 7, '', 2, $1, 'available', now(), now()),
-        ('Chocolate Cake', 'كيك الشوكولاتة', 'cake', 'كيك', 12, '', 1, $2, 'available', now(), now())`,
+        ('لاتيه كراميل', 'لاتيه كراميل', 'caramel latte', 'إسبريسو بحليب مبخّر وصوص كراميل بيتي', 9, '', 1, $1, 'available', now(), now()),
+        ('أمريكانو مثلج', 'أمريكانو مثلج', 'iced americano', 'أمريكانو بارد على الثلج', 7, '', 2, $1, 'available', now(), now()),
+        ('كيك الشوكولاتة', 'كيك الشوكولاتة', 'chocolate cake', 'كيك شوكولاتة داكنة بصوص سائل', 11, '', 1, $2, 'available', now(), now())`,
       [hot, dessert]
     );
     console.log('demo menu created: al-waha-cafe-demo');
