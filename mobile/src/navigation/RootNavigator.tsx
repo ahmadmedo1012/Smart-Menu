@@ -38,7 +38,7 @@ type PublicRoute =
 // تحوير قيم الوحدة مباشرة من جسد المكوّن؛ السلوك نفسه حرفيًا.
 const publicStackRendered = { rendered: false };
 function markPublicStackRendered(): void {
-  markPublicStackRendered();
+  publicStackRendered.rendered = true;
 }
 function wasPublicStackRendered(): boolean {
   return publicStackRendered.rendered;
