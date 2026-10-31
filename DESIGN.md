@@ -193,11 +193,21 @@ is never cached. Bump CACHE_NAME on any SW-adjacent change.
 
 ## SEO/metadata conventions
 
-Title template `%s | المنيو الذكي`; page titles never repeat the brand suffix.
-Per-restaurant menus get unique meta + Restaurant JSON-LD (real data only).
-Auth surfaces + print are noindex. Social cards point at `/og-default.png`
-(1200×630, culinary identity — regenerate via `scripts/render-og.mjs` after
-any template change).
+Title template `%s | الربط الذكي` (the r127-F3 canonical brand token); page
+titles never repeat the brand suffix. Per-restaurant menus get unique meta +
+Restaurant JSON-LD (real data only — no invented cuisine/claims). Menu pages
+emit the explicit `robots index,follow` per-page (P40-5c — sibling-consistent
+with SL/SO; the fixture slugs stay noindex,follow per P35; the (public)
+layout deliberately emits NO default robots — the r121-L-5 404-collision
+ruling). Per-restaurant meta description is COMPOSED via
+`lib/seo.restaurantMetaDescription` (menu + owner copy + WhatsApp ordering +
+city when present). og:image priority `lib/seo.restaurantOgImage`: gallery
+cover → square logo (512, `summary` card) → branded card (`summary_large_image`).
+Social cards render from `scripts/og-template.html` via `scripts/render-og.mjs`
+(1200×630, culinary identity — `public/og-default.png` is the generic card;
+`public/og-al-waha-cafe.png` is the flagship-demo's branded card via
+`lib/landing.DEMO_OG_CARDS` — regenerate both via the script after any
+template/identity change). Auth surfaces + print are noindex.
 
 ## Anti-patterns (do not resurrect)
 

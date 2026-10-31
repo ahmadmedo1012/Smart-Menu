@@ -54,6 +54,17 @@ export const PUBLIC_DEMO_SLUGS = ["al-waha-cafe", "al-waha-cafe-demo"] as const;
 export const isPublicDemoMenu = (slug: string): boolean =>
         (PUBLIC_DEMO_SLUGS as readonly string[]).includes(slug);
 
+/* P40-5c (P3-13): branded og:image cards for the curated demos that carry NO
+   imagery of their own. Rendered from scripts/og-template.html via
+   scripts/render-og.mjs — the exact og-default.png pattern (1200×630, Warm
+   Culinary Editorial) — and consumed by menu/[slug] generateMetadata as the
+   fallback when logo/gallery are empty. al-waha-cafe-demo needs no card: the
+   round96 migration gives it its own logo + gallery. Regenerate on any
+   identity change, same as og-default.png. */
+export const DEMO_OG_CARDS: Partial<Record<string, string>> = {
+        "al-waha-cafe": "/og-al-waha-cafe.png",
+};
+
 export type FeaturedRestaurant = {
     id: number;
     name: string;

@@ -28,7 +28,8 @@ import { getRestaurantBySlug } from '@/lib/menu-queries';
 // r134-W2 (#5): JSON-LD telephone rides the ONE wa.me normalizer (E.164).
 import { normalizeWaNumber } from '@/lib/whatsapp';
 // P29-D2: honest demo labeling — the curated demo menus announce themselves.
-import { isPublicDemoMenu, isTestFixtureMenu } from '@/lib/landing';
+import { isPublicDemoMenu, isTestFixtureMenu, DEMO_OG_CARDS } from '@/lib/landing';
+import { restaurantMetaDescription, restaurantOgImage } from '@/lib/seo';
 import { MenuHero } from '@/components/menu/MenuHero';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
@@ -57,14 +58,6 @@ export async function generateMetadata({
         const origin = SITE_ORIGIN; // r126 (M7): unified origin (was localhost:3000 fallback)
         const restaurant = await getRestaurantBySlug(slug);
         if (!restaurant) notFound();
-        const ogImage = restaurant.logo || '/og-default.png';
-        // round88-E9: describe the card for screen readers / previews that
-        // render alt text — the logo is a square avatar, the fallback is the
-        // branded 1200×630 card. (Dynamic per-restaurant card rendering was
-        // evaluated and deferred — see the 88-E worklog entry.)
-        const ogAlt = restaurant.logo
-                ? `شعار ${restaurant.name}`
-                : `بطاقة معاينة لقائمة ${restaurant.name} — الربط الذكي`;
         /* P29-D2 (honest demo labeling): the curated demo menus' page titles
            carry the same «تجريبي» suffix their landing captions already use —
            a tab/bookmark/SERP entry for a demo must not present it as a real
@@ -74,41 +67,67 @@ export async function generateMetadata({
            don't get it appended twice. */
         const demoSuffix = isPublicDemoMenu(slug) && !restaurant.name.includes('تجريبي') ? ' — تجريبي' : '';
         const pageTitle = `${restaurant.name}${demoSuffix}`;
+        /* P40-5c (P3-13): the description is COMPOSED, not passed through —
+           the bare owner line (or the bare 27-char fallback) carried no
+           ordering signal. lib/seo composes: menu + owner copy (if any) +
+           WhatsApp ordering + city (if the owner filled it). Demo-neutral by
+           design (the «تجريبي» truth rides the title, per P29-D2). */
+        const pageDescription = restaurantMetaDescription(restaurant);
+        /* P40-5c (P3-13): og:image priority = gallery cover (landscape food
+           imagery — the Smart-Order coverUrl-first pattern) → square logo →
+           branded card. The curated demos without their own imagery get their
+           rendered DEMO_OG_CARDS card (og-al-waha-cafe.png) instead of the
+           generic og-default. */
+        const ogImage = restaurantOgImage({
+                name: restaurant.name,
+                logo: restaurant.logo || null,
+                gallery: Array.isArray(restaurant.gallery) ? restaurant.gallery : [],
+                fallback: DEMO_OG_CARDS[slug] ?? '/og-default.png',
+        });
         /* P35 (fixture robots gate): the QA-fixture menus keep their route
            (never a broken link — family policy) but tell crawlers
            noindex,follow. The sitemap/featured exclusions only stop OUR
            surfaces from pointing here; the page itself must not be
-           indexable via direct crawls or external links. Genuine menus and
-           the curated demos render NO robots meta at all (byte-identical,
-           indexability untouched). */
-        const fixtureRobots = isTestFixtureMenu(slug) ? { robots: { index: false, follow: true } } : {};
+           indexable via direct crawls or external links.
+           P40-5c (P3-13): genuine menus and the curated demos now render the
+           EXPLICIT index,follow — consistency with the siblings (Smart-Link
+           and Smart-Order root layouts both emit it). This is per-page
+           metadata only; the (public) layout's r121-L-5 decision (no
+           layout-level default — it collided with the hoisted 404 noindex)
+           is untouched. */
+        const robots = isTestFixtureMenu(slug)
+                ? { index: false, follow: true }
+                : { index: true, follow: true };
         return {
                 title: pageTitle,
-                description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
-                ...fixtureRobots,
+                description: pageDescription,
+                robots,
                 alternates: { canonical: `/menu/${slug}` },
                 openGraph: {
                         title: pageTitle,
-                        description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
+                        description: pageDescription,
                         url: `${origin}/menu/${slug}`,
                         siteName: 'الربط الذكي',
                         images: [
                                 {
-                                        url: ogImage,
-                                        alt: ogAlt,
-                                        ...(restaurant.logo ? { width: 512, height: 512 } : { width: 1200, height: 630 }),
+                                        url: ogImage.url,
+                                        alt: ogImage.alt,
+                                        ...(ogImage.width != null && ogImage.height != null
+                                                ? { width: ogImage.width, height: ogImage.height }
+                                                : {}),
                                 },
                         ],
                         locale: 'ar_AR',
                         type: 'website',
                 },
                 twitter: {
-                        // round84: wide card when the 1200×630 branded fallback is used,
-                        // small square card when the restaurant has its own logo.
-                        card: restaurant.logo ? 'summary' : 'summary_large_image',
+                        // round84: wide card for landscape imagery (gallery cover /
+                        // branded 1200×630 cards), small square card when the
+                        // restaurant has its own logo.
+                        card: ogImage.twitterCard,
                         title: pageTitle,
-                        description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
-                        images: [ogImage],
+                        description: pageDescription,
+                        images: [ogImage.url],
                 },
         };
 }

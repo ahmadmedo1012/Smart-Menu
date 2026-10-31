@@ -19,11 +19,14 @@
  *   2. generateMetadata: fixture slug → robots noindex,follow (the route
  *      stays reachable — family policy: exclusion is crawl budget, never
  *      a broken link),
- *   3. generateMetadata: a genuine slug AND both curated demos → NO
- *      robots key at all (byte-identical output — indexability and the
- *      honest demo «تجريبي» labeling are untouched),
+ *   3. generateMetadata: a genuine slug AND both curated demos → the
+ *      EXPLICIT index,follow (P40-5c/P3-13 — sibling consistency with the
+ *      Smart-Link/Smart-Order layouts; the honest demo «تجريبي» labeling
+ *      stays title-only, P29-D2),
  *   4. source-contract: the page imports the shared helper (no private
- *      copy of the slug list — the r92-A1 single-source doctrine).
+ *      copy of the slug list — the r92-A1 single-source doctrine),
+ *   5. P40-5c: the composed description + og:image chain (gallery → logo
+ *      → branded card) ride lib/seo's pure helpers.
  *
  * Pattern: the r92-landing-fixtures sibling — vi.hoisted mocks, mocked
  * menu-queries + components, no network, no DB.
@@ -73,7 +76,9 @@ const restaurant = (over: Record<string, unknown> = {}) => ({
 const meta = (slug: string) =>
         generateMetadata({ params: Promise.resolve({ slug }) }) as Promise<{
                 title?: string;
+                description?: string;
                 robots?: { index: boolean; follow: boolean };
+                openGraph?: { images?: Array<{ url?: string; alt?: string }> };
         }>;
 
 beforeEach(() => {
@@ -115,17 +120,47 @@ describe('menu generateMetadata — the fixture robots gate', () => {
                 }
         });
 
-        it('a genuine menu renders NO robots meta at all (byte-identical indexable output)', async () => {
+        it('a genuine menu renders the EXPLICIT index,follow (P40-5c sibling-consistency)', async () => {
                 const m = await meta('brgr-haws');
-                expect(m.robots).toBeUndefined();
+                expect(m.robots).toEqual({ index: true, follow: true });
         });
 
         it('both curated demos stay indexable AND keep the honest «تجريبي» label', async () => {
                 for (const slug of ['al-waha-cafe', 'al-waha-cafe-demo']) {
                         const m = await meta(slug);
-                        expect(m.robots, slug).toBeUndefined();
+                        expect(m.robots, slug).toEqual({ index: true, follow: true });
                         expect(m.title, slug).toContain('تجريبي');
                 }
+        });
+});
+
+// ── 5. P40-5c (P3-13): composed description + og:image chain ───────────
+
+describe('menu generateMetadata — the P40-5c composition (lib/seo helpers)', () => {
+        it('the description composes menu + owner copy + the WhatsApp ordering signal (no bare pass-through)', async () => {
+                const m = await meta('brgr-haws');
+                expect(m.description).toBe(
+                        'منيو مقهى الواحة — مقهى عائلي بروح ليبية. اطلب عبر واتساب',
+                );
+        });
+
+        it('a demo slug with no imagery of its own gets its branded DEMO_OG_CARDS card', async () => {
+                const m = await meta('al-waha-cafe');
+                expect(m.openGraph?.images?.[0]?.url).toBe('/og-al-waha-cafe.png');
+                expect(m.openGraph?.images?.[0]?.alt).toContain('مقهى الواحة');
+        });
+
+        it('a genuine slug with no imagery falls back to the generic brand card', async () => {
+                const m = await meta('brgr-haws');
+                expect(m.openGraph?.images?.[0]?.url).toBe('/og-default.png');
+        });
+
+        it('an owner logo wins over the branded fallback (square card, 512)', async () => {
+                mockGetRestaurantBySlug.mockImplementation(async (slug: string) =>
+                        restaurant({ slug, logo: '/uploads/logo.png' }),
+                );
+                const m = await meta('brgr-haws');
+                expect(m.openGraph?.images?.[0]?.url).toBe('/uploads/logo.png');
         });
 });
 
