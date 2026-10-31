@@ -93,13 +93,33 @@ describe('P13-2b (T2) — the seed ladder mirrors the production 5-plan ladder',
    * Before P13-2b the local/CI seed carried only 2 plans (Free + a Premium
    * with the maxMenus=9999 sentinel) — every dev/e2e environment drifted
    * from what production sells. This pin breaks the moment either side
-   * moves, so the drift can never re-appear silently. */
+   * moves, so the drift can never re-appear silently.
+   *
+   * P40-5c (P3-4): the LIVE nameAr values (أساسي/احترافي/شركات — no ال,
+   * matching /api/plans at 2026-10-31) replace the drifted seed-only
+   * spellings (الأساسية/الاحترافية/الشركات), and the FEATURES arrays are
+   * pinned too — the original drift was exactly nameAr + bullets. */
   const LADDER = [
-    { name: 'Free', nameAr: 'مجاني', price: 0, maxMenus: 1, maxItems: 10, maxOrders: 100 },
-    { name: 'Basic', nameAr: 'الأساسية', price: 19, maxMenus: 1, maxItems: 50, maxOrders: 500 },
-    { name: 'Premium', nameAr: 'بريميوم', price: 29, maxMenus: 2, maxItems: 100, maxOrders: 1000 },
-    { name: 'Pro', nameAr: 'الاحترافية', price: 129, maxMenus: 3, maxItems: 9999, maxOrders: 99999 },
-    { name: 'Enterprise', nameAr: 'الشركات', price: 299, maxMenus: 10, maxItems: 9999, maxOrders: 99999 },
+    {
+      name: 'Free', nameAr: 'مجاني', price: 0, maxMenus: 1, maxItems: 10, maxOrders: 100,
+      features: ['منيو رقمي تفاعلي', '10 أصناف', 'طلبات واتساب', 'إحصائيات أساسية'],
+    },
+    {
+      name: 'Basic', nameAr: 'أساسي', price: 19, maxMenus: 1, maxItems: 50, maxOrders: 500,
+      features: ['منيو رقمي', '50 صنف', 'طلبات حتى 500', 'برنامج ولاء', 'دعم فني'],
+    },
+    {
+      name: 'Premium', nameAr: 'بريميوم', price: 29, maxMenus: 2, maxItems: 100, maxOrders: 1000,
+      features: ['جميع ميزات المجانية', 'أصناف حتى 100', 'إحصائيات متقدمة', 'دعم فني فوري'],
+    },
+    {
+      name: 'Pro', nameAr: 'احترافي', price: 129, maxMenus: 3, maxItems: 9999, maxOrders: 99999,
+      features: ['حتى 3 منيوهات', 'أصناف حتى 9999', 'طلبات حتى 99999', 'برنامج إحالات', 'إحصائيات متقدمة', 'دعم فوري', 'تصدير CSV'],
+    },
+    {
+      name: 'Enterprise', nameAr: 'شركات', price: 299, maxMenus: 10, maxItems: 9999, maxOrders: 99999,
+      features: ['منيوهات حتى 10', 'أصناف حتى 9999', 'طلبات حتى 99999', 'دعم فني فوري'],
+    },
   ];
 
   it('five plans, in sortOrder, with the production prices, caps and period', () => {
@@ -113,6 +133,12 @@ describe('P13-2b (T2) — the seed ladder mirrors the production 5-plan ladder',
       expect(p.maxOrders).toBe(expected.maxOrders);
       expect(p.periodDays).toBe(30);
       expect(p.sortOrder).toBe(i + 1);
+    });
+  });
+
+  it('P40-5c (P3-4): the feature BULLETS mirror the live rows byte-for-byte (the original drift)', () => {
+    LADDER.forEach((expected, i) => {
+      expect(DEFAULT_PLANS[i]!.features, expected.name).toEqual(expected.features);
     });
   });
 
