@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "الربط الذكي | Smart Menu",
+    "name": "Smart Menu",
     "slug": "smart-menu",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,8 @@
         "CFBundleLocalizations": [
           "ar"
         ],
-        "CFBundleDevelopmentRegion": "ar"
+        "CFBundleDevelopmentRegion": "ar",
+        "CFBundleDisplayName": "الربط الذكي | Smart Menu"
       },
       "associatedDomains": [
         "applinks:menu.smart-link.ly"
@@ -96,7 +97,8 @@
         }
       ],
       "expo-image",
-      "expo-status-bar"
+      "expo-status-bar",
+      "./plugins/with-android-app-label"
     ],
     "experiments": {
       "tsconfigPaths": true
