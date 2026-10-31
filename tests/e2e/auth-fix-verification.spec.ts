@@ -142,22 +142,34 @@ test.describe("Auth Fix Verification", () => {
     });
     expect(regRes.status()).toBe(201);
 
-    // Send 20+ failed logins from the SAME IP+username key (account+IP
+    // Send failed logins from the SAME IP+username key (account+IP
     // throttle — the account limiter only fires on FAILED auth, so each
     // attempt increments acct:<ip>:<username>). Sequential keeps the count
     // accurate (avoids race conditions).
-    let lastStatus = 200;
-    for (let i = 0; i < 22; i++) {
+    //
+    // P37 (same family as nightly 41185440152): the account limiter's
+    // 15-min window is WALL-ALIGNED, so a burst straddling a boundary
+    // splits across two buckets and a fixed 22-attempt burst can end with
+    // NEITHER bucket over the max (lastStatus flake). Sleeping to the
+    // boundary is not an option here (up to 15 min). Instead: fire
+    // 2·max+2 attempts and take the 429 wherever it lands — for ANY single
+    // split k | (42−k), one side holds ≥ 21 > max(20), so the limiter
+    // MUST fire within the burst (13-14s total, well inside the 120s
+    // budget; typical case trips at attempt 21 and breaks early).
+    const ACCOUNT_MAX = 20; // accountLimiter/accountBackstopLimiter: 20 per 15 min
+    const ATTEMPTS = 2 * ACCOUNT_MAX + 2; // 42 — boundary-straddle-proof
+    let saw429 = false;
+    for (let i = 0; i < ATTEMPTS; i++) {
       // Small delay between attempts allows the DB-backed rate limiter to settle
       if (i > 0 && i % 5 === 0) await new Promise(r => setTimeout(r, 200));
       const res = await page.request.post(`${BASE}/api/auth/login`, {
         data: { username, password: "wrongpass" },
         headers: { ...headers, "X-Forwarded-For": "10.0.0.254" },
       });
-      lastStatus = res.status();
+      if (res.status() === 429) { saw429 = true; break; }
     }
 
-    expect(lastStatus).toBe(429);
+    expect(saw429, "the account limiter must fire within a 42-attempt failed-login burst").toBe(true);
   });
 
   // ── 7. Logout then /me returns 401 ─────────────────────────────────────

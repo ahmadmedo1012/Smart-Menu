@@ -251,6 +251,23 @@ test.describe('RBAC negative — login rate limit (public brute-force surface)',
     const username = `rbac-probe-${Date.now()}`;
     const data = JSON.stringify({ username, password: 'WrongPass123' });
 
+    // P37 (nightly 41185440152, iteration 2 of 2): the DB limiter's window
+    // is WALL-ALIGNED, not first-request-anchored (rate-limit.ts:
+    // bucketStart = floor(now/windowMs)·windowMs; loginLimiter = 60s). A
+    // ~3.5s burst that straddles a minute boundary splits its 11 attempts
+    // across two buckets (e.g. 7+4) — neither reaches max=10, no 429
+    // fires, and the nightly reports FLAKY-DETECTED (~5% of runs; the
+    // failing iteration ran 08:41:58→08:42:01, crossing 08:42:00.0 mid-
+    // burst). Guard: if the current window cannot safely hold the whole
+    // burst, sleep past the boundary so all 11 attempts share one window.
+    const WINDOW_MS = 60_000; // loginLimiter: 10/min per ip:username
+    const BURST_MARGIN_MS = 10_000; // 11 sequential attempts ≈ 3.5s; 2x+ headroom
+    const intoWindow = Date.now() % WINDOW_MS;
+    if (WINDOW_MS - intoWindow < BURST_MARGIN_MS) {
+      const sleepMs = WINDOW_MS - intoWindow + 1_000; // land 1s into the fresh window
+      await new Promise((resolve) => setTimeout(resolve, sleepMs));
+    }
+
     let saw429 = false;
     for (let i = 1; i <= 11; i++) {
       const res = await request.post('/api/auth/login', { headers, data });
