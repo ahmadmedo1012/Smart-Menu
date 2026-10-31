@@ -579,6 +579,35 @@
 
 .landing .landing-header-cta { display: flex; align-items: center; gap: var(--sp-2); }
 
+/* P40-5c (SL-7): the persistent WhatsApp secondary — rides the header-cta
+   ghost grammar (44px pill + warm hairline) with the MessageCircle glyph
+   leading the label. No WhatsApp green here: on the landing every
+   WhatsApp affordance is terracotta-family (the r149 FloatingWhatsApp
+   ruling) — this one stays the ink/paper ghost so the cluster reads as
+   ONE family. The glyph never clips (flex-shrink 0) and stays on the
+   label's rhythm. */
+.landing .ln-header-wa svg { flex-shrink: 0; }
+
+/* P40-5c: the drawer twin — the ONLY place with room for the honest hours
+   line: a two-line ghost entry (48px floor kept, the sub-line rides under
+   the main label at the muted tier; the pill centers the pair). */
+.landing .ln-drawer-wa {
+  flex-direction: column;
+  gap: 3px;
+  padding-block: 10px;
+}
+.landing .ln-drawer-wa-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: var(--fw-semibold);
+}
+.landing .ln-drawer-wa-sub {
+  font-size: 11.5px;
+  font-weight: var(--fw-medium);
+  color: var(--sm-ink-dim);
+}
+
 /* P9 (E3) — the theme toggle's slot: END of the rail at every breakpoint
    (after the burger in DOM; the burger's ≤1080px auto-margin packs both
    at the inline-end edge in RTL, and on desktop the burger hides so the

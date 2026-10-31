@@ -2,8 +2,19 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { Menu, X, ArrowLeft } from "lucide-react"
+import { Menu, X, ArrowLeft, MessageCircle } from "lucide-react"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
+import { normalizeWaNumber } from "@/lib/whatsapp"
+
+/* P40-5c (benchmark rank 2, SL-7): the persistent secondary WhatsApp CTA —
+ * the high-touch intent stream beside the self-serve primary. Same canonical
+ * support number as FloatingWhatsApp/Footer (env first, 218910089975
+ * fallback) — never a per-page copy. Honest hours framing (no 24/7 claims —
+ * the P1-2 fleet ruling): the pill carries the hours in title/aria, the
+ * mobile drawer entry shows them as a visible sub-line (أيام العمل ·
+ * 9 صباحاً — 9 مساءً — the hub's verified office truth for the same line). */
+const waLink = `https://wa.me/${normalizeWaNumber(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "218910089975")}`
+const WA_HOURS = "أيام العمل · 9 صباحاً — 9 مساءً"
 
 /* r142 (task 2-b) — the landing header, rebuilt for «المائدة»: a warm
  * paper rail instead of the Orbit-Ink chrome. The mechanics survive the
@@ -155,6 +166,20 @@ export function LandingHeader() {
           </nav>
 
           <div className="landing-header-cta">
+            {/* P40-5c: the persistent secondary — ghost pill in the family's
+                44px cluster grammar (icon + label; hours ride title/aria so
+                the rail stays one line). */}
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ln-btn-ghost ln-header-wa"
+              title={WA_HOURS}
+              aria-label={`تحدث معنا عبر واتساب — ${WA_HOURS}`}
+            >
+              <MessageCircle size={15} aria-hidden="true" />
+              تحدث معنا واتساب
+            </a>
             <Link href="/pricing" className="ln-btn-ghost">الباقات</Link>
             <Link href="/subscribe" className="ln-btn-ember">
               ابدأ مجاناً
@@ -188,6 +213,21 @@ export function LandingHeader() {
             <a href="#journey" className="ln-btn-ghost">الرحلة</a>
             <a href="#ambience" className="ln-btn-ghost">الأجواء</a>
             <a href="#owner" className="ln-btn-ghost">لصاحب المطعم</a>
+            {/* P40-5c: the drawer twin carries the hours VISIBLY — room for
+                the honest two-line entry exists only here. */}
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ln-btn-ghost ln-drawer-wa"
+              aria-label={`تحدث معنا عبر واتساب — ${WA_HOURS}`}
+            >
+              <span className="ln-drawer-wa-main">
+                <MessageCircle size={16} aria-hidden="true" />
+                تحدث معنا واتساب
+              </span>
+              <span className="ln-drawer-wa-sub">{WA_HOURS}</span>
+            </a>
             <Link href="/pricing" className="ln-btn-ghost">الباقات</Link>
             <Link href="/subscribe" className="ln-btn-ember">
               ابدأ مجاناً
