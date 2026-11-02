@@ -37,11 +37,17 @@ import { Text } from "@/components/ui/Text";
 import { PressableScale } from "@/components/motion/PressableScale";
 import { useEnterFade } from "@/components/motion/useEnterFade";
 import { fieldFocusBorderStyle } from "@/components/ui/Input";
+// P42-5b (GAP-X1): the plan-cap 403 family classifier + the honest lock
+// surface (upgrade door) that replaces the bare toast on cap refusals.
+import { classifyPlanLimit, type PlanLimitDetails } from "@/lib/plan-limit";
+import { PlanLimitLockSheet } from "@/components/shared/PlanLimitLockSheet";
 import { colors, pastelFamilies } from "@/theme/colors";
 import { METRIC_FONT_VARIANT } from "@/theme/typography";
 import { toArabicNumber } from "@/lib/format";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { toast } from "@/app/providers";
+import { useNavigation } from "@react-navigation/native";
+import type { RootNavigation } from "@/navigation/types";
 
 const DOMAIN = process.env.EXPO_PUBLIC_DOMAIN ?? "https://menu.smart-link.ly";
 
@@ -54,6 +60,7 @@ function sanitizeSlug(raw: string): string {
 export function OwnerRestaurantsScreen() {
   const enterFade = useEnterFade();
   const queryClient = useQueryClient();
+  const navigation = useNavigation<RootNavigation>();
 
   const { data: restaurants, isPending, error, refetch, isRefetching } = useQuery({
     queryKey: ["owner-restaurants"],
@@ -65,6 +72,11 @@ export function OwnerRestaurantsScreen() {
   const [draft, setDraft] = useState({ name: "", slug: "", description: "" });
   const [saving, setSaving] = useState(false);
   const [focusedField, setFocusedField] = useState<"name" | "slug" | "description" | null>(null);
+  // P42-5b (GAP-X1): the plan-cap lock surface — non-null while the honest
+  // lock sheet shows (the menus cap is account-level; the CTA passes no
+  // restaurant context — the upgrade flow resolves the primary link, the
+  // exact web /subscribe behavior).
+  const [planLock, setPlanLock] = useState<PlanLimitDetails | null>(null);
 
   const refresh = () => {
     void refetch();
@@ -90,8 +102,19 @@ export function OwnerRestaurantsScreen() {
       setDraft({ name: "", slug: "", description: "" });
       refresh();
     } catch (e: unknown) {
-      // Server carries the Arabic reason (409 slug taken / 403 plan cap).
-      toast.error(getErrorMessage(e, "تعذّر إضافة المنيو"));
+      /* P42-5b (GAP-X1): the menus-cap 403 («لقد وصلت للحد الأقصى للمنيوهات…»)
+         is TERMINAL — no slug tweak or retry can succeed until the plan
+         changes, so the honest lock surface (verbatim server copy + upgrade
+         door) replaces the bare toast. Other refusals (409 slug taken, 422
+         validation, network…) keep the exact toast line this catch always
+         had. */
+      const cap = classifyPlanLimit(e);
+      if (cap) {
+        setPlanLock(cap);
+      } else {
+        // Server carries the Arabic reason (409 slug taken / 422 validation).
+        toast.error(getErrorMessage(e, "تعذّر إضافة المنيو"));
+      }
     } finally {
       setSaving(false);
     }
@@ -305,6 +328,19 @@ export function OwnerRestaurantsScreen() {
           )}
         </ScrollView>
       </Animated.View>
+
+      {/* P42-5b (GAP-X1): the plan-cap lock — the honest explanation + the
+          upgrade door (the web PlanLimitError family surfaced natively). */}
+      {planLock ? (
+        <PlanLimitLockSheet
+          details={planLock}
+          onClose={() => setPlanLock(null)}
+          onUpgrade={() => {
+            setPlanLock(null);
+            navigation.navigate("OwnerSubscribe");
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

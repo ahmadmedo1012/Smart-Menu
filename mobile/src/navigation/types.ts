@@ -46,6 +46,11 @@ export type OwnerStackParamList = {
         OwnerQr: undefined;
         OwnerReviews: undefined;
         OwnerSettings: undefined;
+        /** P42-5b (GAP-X1): the upgrade flow the plan-lock CTA opens. The
+         *  optional restaurant is the CAPPED restaurant when the surface knew
+         *  it — omitted, the screen resolves the auth row's primary link (the
+         *  exact /api/auth/me resolution the web /subscribe upgrade mode uses). */
+        OwnerSubscribe: { restaurantId?: number } | undefined;
 };
 
 /** Admin bottom-tab screens (inside the AdminTabs navigator). */

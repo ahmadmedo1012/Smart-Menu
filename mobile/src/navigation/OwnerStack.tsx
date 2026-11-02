@@ -9,6 +9,9 @@ import { OwnerMenuScreen } from "@/screens/owner/OwnerMenuScreen";
 import { OwnerRestaurantsScreen } from "@/screens/owner/OwnerRestaurantsScreen";
 import { OwnerReviewsScreen } from "@/screens/owner/OwnerReviewsScreen";
 import { OwnerLoyaltyScreen } from "@/screens/owner/OwnerLoyaltyScreen";
+// P42-5b (GAP-X1): the upgrade flow — destination of the plan-lock CTA
+// (PlanLimitLockSheet → «رقِّ خطتك»), the web /subscribe upgrade-mode twin.
+import { OwnerSubscribeScreen } from "@/screens/owner/OwnerSubscribeScreen";
 import { STACK_SCREEN_OPTIONS, useTabScreenOptions } from "./navTheme";
 
 export type OwnerStackParamList = {
@@ -18,6 +21,9 @@ export type OwnerStackParamList = {
   OwnerQr: undefined;
   OwnerReviews: undefined;
   OwnerSettings: undefined;
+  /** The capped restaurant when the opening surface knew it — omitted, the
+   *  screen resolves the auth row's primary link (the web resolution). */
+  OwnerSubscribe: { restaurantId?: number } | undefined;
 };
 
 const Tab = createBottomTabNavigator();
@@ -47,6 +53,7 @@ export function OwnerStack() {
       <Stack.Screen name="OwnerQr" component={OwnerQrScreen} options={{ title: "رمز QR" }} />
       <Stack.Screen name="OwnerReviews" component={OwnerReviewsScreen} options={{ title: "التقييمات" }} />
       <Stack.Screen name="OwnerSettings" component={OwnerSettingsScreen} options={{ title: "إعدادات المطعم" }} />
+      <Stack.Screen name="OwnerSubscribe" component={OwnerSubscribeScreen} options={{ title: "ترقية الخطة" }} />
     </Stack.Navigator>
   );
 }

@@ -51,6 +51,10 @@ import { colors, pastelFamilies } from "@/theme/colors";
 import { METRIC_FONT_VARIANT } from "@/theme/typography";
 import { toArabicNumber, formatPrice } from "@/lib/format";
 import { getErrorMessage } from "@/lib/get-error-message";
+// P42-5b (GAP-X1): the plan-cap 403 family classifier + the honest lock
+// surface (upgrade door) that replaces the bare toast on cap refusals.
+import { classifyPlanLimit, type PlanLimitDetails } from "@/lib/plan-limit";
+import { PlanLimitLockSheet } from "@/components/shared/PlanLimitLockSheet";
 import { toast } from "@/app/providers";
 import { useNavigation } from "@react-navigation/native";
 import type { RootNavigation } from "@/navigation/types";
@@ -117,6 +121,11 @@ export function OwnerMenuScreen() {
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
   // create / edit sheet state (null = closed)
   const [sheet, setSheet] = useState<{ categoryId: number; item: OwnerItem | null } | null>(null);
+  // P42-5b (GAP-X1): the plan-cap lock surface — non-null while the honest
+  // lock sheet shows. BottomSheetModal's default stackBehavior ("switch")
+  // swaps the item form out when the lock presents: a capped save can never
+  // succeed, so the lock REPLACES the dead-end form instead of stacking.
+  const [planLock, setPlanLock] = useState<PlanLimitDetails | null>(null);
 
   const toggleAvailability = async (item: OwnerItem) => {
     const next = item.status === "available" ? "unavailable" : "available";
@@ -374,6 +383,22 @@ export function OwnerMenuScreen() {
           item={sheet.item}
           onClose={() => setSheet(null)}
           onSaved={() => { void refetchItems(); void refetchCategories(); }}
+          onPlanLimit={setPlanLock}
+        />
+      ) : null}
+
+      {/* P42-5b (GAP-X1): the plan-cap lock — the honest explanation + the
+          upgrade door. The CTA carries the capped restaurant (the active
+          menu's own id — the upgrade route accepts any UserRestaurant-linked
+          target); the sheet itself resolves the primary link when omitted. */}
+      {planLock ? (
+        <PlanLimitLockSheet
+          details={planLock}
+          onClose={() => setPlanLock(null)}
+          onUpgrade={() => {
+            setPlanLock(null);
+            navigation.navigate("OwnerSubscribe", activeRestaurant ? { restaurantId: activeRestaurant.id } : undefined);
+          }}
         />
       ) : null}
     </SafeAreaView>
@@ -404,11 +429,14 @@ function MenuSkeleton() {
 }
 
 /** Create/edit item sheet — name, price, description, availability. */
-function ItemSheet({ categoryId, item, onClose, onSaved }: {
+function ItemSheet({ categoryId, item, onClose, onSaved, onPlanLimit }: {
   categoryId: number;
   item: OwnerItem | null;
   onClose: () => void;
   onSaved: () => void;
+  /** P42-5b (GAP-X1): lifts a classified plan-cap 403 to the screen's lock
+   *  sheet — the honest upgrade door replaces the bare server-copy toast. */
+  onPlanLimit: (details: PlanLimitDetails) => void;
 }) {
   const sheetRef = useRef<AppBottomSheetHandle>(null);
   const [name, setName] = useState(item?.name ?? "");
@@ -462,8 +490,18 @@ function ItemSheet({ categoryId, item, onClose, onSaved }: {
       onSaved();
       close();
     } catch (e: unknown) {
-      // 403 plan cap / 422 validation arrive with Arabic reasons.
-      toast.error(getErrorMessage(e, editing ? "تعذّر تحديث الصنف" : "تعذّر إضافة الصنف"));
+      /* P42-5b (GAP-X1): the plan-cap 403 is a TERMINAL refusal for this
+         form — retrying can never succeed until the plan changes, so the
+         honest lock surface (verbatim server copy + upgrade door) replaces
+         the bare toast. Everything else (422 validation, network…) keeps
+         the exact toast line this catch always had. */
+      const cap = classifyPlanLimit(e);
+      if (cap) {
+        onPlanLimit(cap);
+      } else {
+        // 422 validation / network arrive with Arabic reasons.
+        toast.error(getErrorMessage(e, editing ? "تعذّر تحديث الصنف" : "تعذّر إضافة الصنف"));
+      }
     } finally {
       setSaving(false);
     }
