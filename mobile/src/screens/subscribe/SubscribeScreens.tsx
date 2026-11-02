@@ -108,7 +108,12 @@ export function SubscribePlanScreen() {
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <View>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.ink }}>{p.nameAr || p.name}</Text>
-                <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 24, fontWeight: "700", color: colors.terracottaPressed, marginTop: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(p.price)}</Text>
+                {/* P42: the free card tells the web truth — «مجاني» not
+                    «0 د.ل», and «مجانية للأبد» not «لمدة 30 يوم» (free
+                    never expires: planEnd stays null; the web pricing twin
+                    renders «مجاني» with no period, the landing says
+                    «الخطة المجانية للأبد»). */}
+                <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 24, fontWeight: "700", color: colors.terracottaPressed, marginTop: 4, fontVariant: METRIC_FONT_VARIANT }}>{p.price === 0 ? "مجاني" : formatPrice(p.price)}</Text>
               </View>
               {selectedId === p.id ? (
                 <View style={{ width: 24, height: 24, borderRadius: 9999, backgroundColor: colors.terracotta, alignItems: "center", justifyContent: "center" }}>
@@ -116,7 +121,9 @@ export function SubscribePlanScreen() {
                 </View>
               ) : null}
             </View>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 4 }}>لمدة {p.periodDays} يوم</Text>
+            {/* P42: the period line joins the free truth — «مجانية للأبد»
+                instead of a 30-day term the free plan never carries. */}
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 4 }}>{p.price === 0 ? "مجانية للأبد" : `لمدة ${p.periodDays} يوم`}</Text>
           </PressableScale>
         ))}
       </ScrollView>

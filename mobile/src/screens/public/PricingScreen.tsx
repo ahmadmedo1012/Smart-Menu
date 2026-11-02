@@ -100,9 +100,15 @@ export function PricingScreen() {
               {/* r131-F10 (fix 2 — fleet price ruling): plan prices unify at
                   24px gold tnum on BOTH mobile pricing surfaces (was 28px
                   here / 20px on the subscribe wizard; the web pair rides the
-                  same ruling). */}
-              <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 24, fontWeight: "700", color: colors.terracottaPressed, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(plan.price)}</Text>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginBottom: 16 }}>لمدة {plan.periodDays} يوم</Text>
+                  same ruling).
+                  P42: the FREE card tells the web truth — «مجاني» not
+                  «0 د.ل», and «مجانية للأبد» not «لمدة 30 يوم» (free never
+                  expires: planEnd stays null; the web PricingClient renders
+                  «مجاني» with no period, the landing says «الخطة المجانية
+                  للأبد»). A 30-day term on a forever plan is a lie in
+                  card geometry. */}
+              <Text style={{ fontFamily: "Baloo Bhaijaan 2", fontSize: 24, fontWeight: "700", color: colors.terracottaPressed, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{plan.price === 0 ? "مجاني" : formatPrice(plan.price)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginBottom: 16 }}>{plan.price === 0 ? "مجانية للأبد" : `لمدة ${plan.periodDays} يوم`}</Text>
               {plan.features?.map((f, i) => (
                 <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
                   <Check size={14} color={colors.mint} style={{ marginTop: 2 }} />
