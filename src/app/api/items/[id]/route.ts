@@ -8,6 +8,7 @@ import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE } from '@/lib/constants';
+import { PlanLimitError } from '@/lib/plan-limit-error';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { modifierGroupSchema, modifierGroupCreateInput } from '@/lib/modifier-schema';
@@ -181,6 +182,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 // UserRestaurant link; staff already passed MANAGE_RESTAURANTS
                 // above, which is platform-wide by design). Same-category PUTs
                 // (ItemDialog resends the current categoryId) skip the extra read.
+                // P42-6b: سقف الاسترجاع يُقاس على مطعم الوجهة النهائية — الانتقال
+                // المؤرشف→الحي مع تغيير categoryId في نفس الطلب يجعل الصنف يعيش في
+                // مطعم الوجهة، فسقفه هو المعنيّ (نفس دلالة العدّ في POST: مطعم الصنف
+                // بعد الكتابة، لا قبله).
+                let capRestaurantId = existing.category.restaurantId;
                 if (body.categoryId !== undefined && body.categoryId !== existing.categoryId) {
                         const destCategory = await prisma.menuCategory.findUnique({
                                 where: { id: body.categoryId },
@@ -193,6 +199,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                                 });
                                 if (!link) return error('غير مصرح', 403);
                         }
+                        capRestaurantId = destCategory.restaurantId;
                 }
 
                 // Spread only the keys actually present — undefined fields in the payload
@@ -264,11 +271,55 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         if (imgErr) return error(imgErr, 422);
                 }
 
-                const data = await prisma.menuItem.update({
-                        where: { id: itemId },
-                        data: updateData,
-                        include: { category: { select: { id: true, name: true, nameAr: true } } },
-                });
+                /* P42-6b (تدقيق W6 للخادم — ثغرة سقف الاسترجاع): الانتقال مؤرشف→حي
+                 * عبر PUT {archivedAt: null} كان يمر بلا أي فحص سقف، بينما POST يعدّ
+                 * الحيّ حصرًا منذ P42-W3 («المؤرشف لا يستهلك السقف») — فمالك عند
+                 * maxItems=N يؤرشف k صنفًا ثم ينشئ k بدلها (العدّ N-k ثم N) ثم
+                 * يسترجع المؤرشف فيعيش N+k صنفًا حيًّا فوق سقف خطته مجانًا. نفس
+                 * حارس POST حرفيًا (items/route.ts): قفل صف المطعم FOR UPDATE
+                 * يُسلسل كل زيادة على المجموعة الحية (إنشاء أو استرجاع)، وmaxItems
+                 * تُقرأ تحت القفل (D2-#4: لا fail-open بتخفيض متزامن)، والعدّ يشترط
+                 * archivedAt: null — والسقف يخص مطعم الوجهة النهائية
+                 * (capRestaurantId أعلاه). الأرشفة نفسها (نقص المجموعة الحية)
+                 * وتحرير المؤرشف بلا استرجاع يبقيان على المسار المباشر بلا كلفة. */
+                const restoringArchived = body.archivedAt === null && existing.archivedAt !== null;
+
+                const data = restoringArchived
+                        ? await prisma.$transaction(async (tx) => {
+                                await tx.$queryRaw`SELECT id FROM "Restaurant" WHERE id = ${capRestaurantId} FOR UPDATE`;
+                                const locked = await tx.restaurant.findUnique({
+                                        where: { id: capRestaurantId },
+                                        select: { maxItems: true, plan: { select: { nameAr: true } } },
+                                });
+                                if (locked) {
+                                        const liveCount = await tx.menuItem.count({
+                                                where: {
+                                                        category: { is: { restaurantId: capRestaurantId } },
+                                                        archivedAt: null,
+                                                },
+                                        });
+                                        if (liveCount >= locked.maxItems) {
+                                                // نفس 403 العائلة في POST — المصرّح له لكن الخطة تحدّه
+                                                throw new PlanLimitError({
+                                                        kind: 'items',
+                                                        limit: locked.maxItems,
+                                                        planName: locked.plan?.nameAr ?? null,
+                                                });
+                                        }
+                                }
+                                // مطعم اختفى بين القراءتين: الكتابة نفسها ترمي P2025 → 404
+                                // (handleError) — نفس موقف POST مع صف المحمية.
+                                return tx.menuItem.update({
+                                        where: { id: itemId },
+                                        data: updateData,
+                                        include: { category: { select: { id: true, name: true, nameAr: true } } },
+                                });
+                          })
+                        : await prisma.menuItem.update({
+                                where: { id: itemId },
+                                data: updateData,
+                                include: { category: { select: { id: true, name: true, nameAr: true } } },
+                        });
 
                 logAudit({
                         action: 'update',
@@ -288,6 +339,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 await revalidateMenu(existing.category.restaurantId);
                 return success(data);
         } catch (e) {
+                // P42-6b: سقف الاسترجاع — نفس 403 العائلة (POST /api/items)
+                if (e instanceof PlanLimitError) return error(e.message, 403);
                 return handleError(e);
         }
 }

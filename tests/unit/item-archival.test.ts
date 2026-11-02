@@ -242,6 +242,21 @@ describe('P42-W3 — PUT /api/items/[id]: الأرشفة والاسترجاع (�
                         archivedAt: new Date('2026-11-01T00:00:00Z'),
                 });
                 mockMenuItemUpdate.mockResolvedValue({ ...ITEM });
+                /* P42-6b: الاسترجاع يمر الآن عبر معاملة سقف الاسترجاع (قفل صف المطعم
+                 * + عدّ الحيّ + الكتابة) — المحاكاة تنفّذ رد النداء بعميل معاملة
+                 * كامل؛ العقد نفسه (كتابة null حرفيًا) بلا تغيير. */
+                mockPrisma.$transaction.mockImplementationOnce(async (fn: (tx: unknown) => Promise<unknown>) =>
+                        fn({
+                                $queryRaw: vi.fn(async () => []),
+                                restaurant: {
+                                        findUnique: vi.fn(async () => ({ maxItems: 50, plan: { nameAr: 'الأساسية' } })),
+                                },
+                                menuItem: {
+                                        count: vi.fn(async () => 3),
+                                        update: mockMenuItemUpdate,
+                                },
+                        }),
+                );
                 const { PUT } = await import('@/app/api/items/[id]/route');
                 const res = await PUT(
                         makeRequest('http://localhost/api/items/71', 'PUT', { archivedAt: null }),
