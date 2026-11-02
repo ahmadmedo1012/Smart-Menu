@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { AccessibilityInfo, AppState, Easing, type AppStateStatus } from "react-native";
-import { QueryClient, QueryClientProvider, focusManager } from "@tanstack/react-query";
+import NetInfo from "@react-native-community/netinfo";
+import { QueryClient, QueryClientProvider, focusManager, onlineManager } from "@tanstack/react-query";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -39,6 +40,27 @@ focusManager.setEventListener((setFocused) => {
     setFocused(state === "active");
   });
   return () => sub.remove();
+});
+
+// GAP-MENU-2 (P42-W5): onlineManager rides NetInfo — the canonical React
+// Query + React Native recipe. The DEFAULT listener binds window
+// "online"/"offline" (query-core onlineManager.js #setup), which NEVER fire
+// on RN — so #online stayed true forever: `refetchOnReconnect: true` above
+// was a no-op (stale data did NOT refresh when connectivity returned; only
+// the AppState foreground refetch saved it) and `networkMode: "online"
+// never paused anything while offline. The predicate is the
+// ConnectivityBanner's exact reachability rule (isConnected AND
+// isInternetReachable !== false — null/unknown stays ONLINE, so an iOS
+// reachability probe can't false-pause the app): one rule, one truth, so the
+// banner and the query layer can never disagree about "are we offline".
+// On reconnect: paused queries resume, stale active queries refetch, and a
+// mid-flight offline screen refreshes honestly (the banner's own strip
+// disappears with the same NetInfo event).
+onlineManager.setEventListener((setOnline) => {
+  const unsub = NetInfo.addEventListener((state) => {
+    setOnline(Boolean(state.isConnected && state.isInternetReachable !== false));
+  });
+  return unsub;
 });
 
 /**

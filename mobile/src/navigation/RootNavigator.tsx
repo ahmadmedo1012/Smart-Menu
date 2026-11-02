@@ -15,6 +15,7 @@ import { AdminStack } from "./AdminStack";
 import { linking } from "./linking";
 import { ADMIN_ROLES } from "@/lib/auth-types";
 import { PressableScale } from "@/components/motion/PressableScale";
+import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { colors } from "@/theme/colors";
 
 type PublicRoute =
@@ -155,6 +156,21 @@ function AuthenticatedApp({ children }: { children: React.ReactNode }) {
 
   return (
     <View style={{ flex: 1 }}>
+      {/* GAP-MENU-2 (P42-W5): offline coverage extends into the AUTHENTICATED
+          trees — the banner used to mount only on public screens
+          (Landing/Menu/Pricing), while the web twin covers both trees
+          ((protected)/layout.tsx mounts it above every page). Owner + admin
+          (+ the unpaid-owner AuthStack) now get the same strip, above the
+          stack, below the public overlay (zIndex 100 vs 200 — the overlay
+          screens carry their own banner mounts, so exactly one banner is
+          visible at a time).
+          Honest semantics (pinned in tests/design/parity.mjs §P42-W5): the
+          strip reports ONLY NetInfo reachability — a 500 while online never
+          shows it (the server error surfaces through the screen's own error
+          state), and nothing on a stale screen implies a save: mutations are
+          direct service calls that throw the Arabic ApiError on network
+          failure (toast + retry), no optimistic cache writes. */}
+      <ConnectivityBanner />
       {children}
       {publicRoute ? <PublicLinkOverlay route={publicRoute} onClose={closeOverlay} /> : null}
     </View>

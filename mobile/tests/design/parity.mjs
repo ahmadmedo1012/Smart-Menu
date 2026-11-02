@@ -76,6 +76,8 @@
  *   §P6 typed owner API layer 14 · 4 real owner screens 10 · admin
  *   web-only states 4 · Baloo adoption + DotLeader + warm scrim + WhatsApp
  *   ink law + ComingSoon retirement 10
+ *   §P42-W5 GAP-MENU-2 offline coverage 10 (banner in AuthenticatedApp ·
+ *   onlineManager↔NetInfo single predicate · honest-mutation guards)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
@@ -127,6 +129,8 @@ const publicStackSrc = read('src/navigation/PublicStack.tsx');
 const rootNavigatorSrc = read('src/navigation/RootNavigator.tsx');
 const adminStackSrc = read('src/navigation/AdminStack.tsx');
 const ownerStackSrc = read('src/navigation/OwnerStack.tsx');
+// §P42-W5 (GAP-MENU-2) sources — the offline-coverage layer.
+const connectivityBannerSrc = read('src/components/shared/ConnectivityBanner.tsx');
 // §Phase-6 (P6-2-c/cR) sources — the typed owner API layer, the four real
 // owner screens, the admin web-only states, the DotLeader + warm-scrim
 // signature motifs.
@@ -1501,6 +1505,85 @@ check(
   'the checkout money CTA is the ONE sanctioned WhatsApp-green surface («إرسال الطلب عبر واتساب») — reserved-brand discipline holds',
 );
 
+// ── §P42-W5 · GAP-MENU-2 — offline coverage into the authenticated trees ──
+// The banner used to mount ONLY on public screens (Landing:147 · Menu:227 ·
+// Pricing:82) while the web twin covers BOTH trees ((protected)/layout.tsx
+// mounts it above every page). These pins freeze the fix: the banner lives
+// inside AuthenticatedApp (owner + admin + unpaid-owner AuthStack all render
+// through it), React Query's onlineManager actually rides NetInfo (the
+// default window online/offline listener NEVER fires on RN — refetchOnReconnect
+// was a silent no-op), and the honesty guards hold (mutations are direct
+// service calls — no optimistic cache writes that could imply a save).
+
+// 1. The banner mounts INSIDE AuthenticatedApp, ABOVE the stack (children).
+const authedAppBody = rootNavigatorSrc.slice(
+  rootNavigatorSrc.indexOf('function AuthenticatedApp'),
+  rootNavigatorSrc.indexOf('export function RootNavigator'),
+);
+check(
+  authedAppBody.includes('<ConnectivityBanner />')
+    && authedAppBody.indexOf('<ConnectivityBanner />') < authedAppBody.indexOf('{children}'),
+  'GAP-MENU-2: AuthenticatedApp mounts <ConnectivityBanner /> ABOVE the stack — owner/admin trees get the offline strip (web (protected)/layout.tsx:187 parity)',
+);
+// 2. The banner rides BELOW the public overlay (the overlay screens carry
+//    their own mounts — exactly one visible banner at a time).
+check(
+  authedAppBody.indexOf('<ConnectivityBanner />') < authedAppBody.indexOf('PublicLinkOverlay'),
+  'GAP-MENU-2: the authenticated banner sits under the public-link overlay (zIndex 100 < 200 — the overlay’s own screens keep their banners, no double strip)',
+);
+// 3. RootNavigator imports the SHARED banner (not a copy).
+check(
+  rootNavigatorSrc.includes('import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";'),
+  'GAP-MENU-2: RootNavigator imports the ONE shared ConnectivityBanner (no third copy of the strip)',
+);
+// 4. The public mounts stay (Landing/Menu/Pricing — the unauthenticated tree
+//    renders PublicStack directly, never AuthenticatedApp).
+check(
+  landingScreenSrc.includes('<ConnectivityBanner />')
+    && menuScreenSrc.includes('<ConnectivityBanner />')
+    && pricingScreenSrc.includes('<ConnectivityBanner />'),
+  'GAP-MENU-2: the three public screens keep their own ConnectivityBanner mounts (the unauthenticated tree never renders AuthenticatedApp)',
+);
+// 5. The banner's reachability predicate is the one-true rule.
+check(
+  connectivityBannerSrc.includes('state.isConnected && state.isInternetReachable !== false'),
+  'GAP-MENU-2: ConnectivityBanner keeps the honest reachability predicate (isConnected AND isInternetReachable !== false — unknown stays online; a 500 while online NEVER shows the strip)',
+);
+// 6. onlineManager rides NetInfo with the SAME predicate (the canonical RQ+RN
+//    recipe — without this, refetchOnReconnect is a no-op on native).
+check(
+  providersSrc.includes('onlineManager.setEventListener((setOnline) => {')
+    && providersSrc.includes('NetInfo.addEventListener((state) => {')
+    && providersSrc.includes('setOnline(Boolean(state.isConnected && state.isInternetReachable !== false));'),
+  'GAP-MENU-2: providers wires onlineManager to NetInfo with the banner’s exact predicate — one rule, one truth (the default window online/offline listener never fires on RN)',
+);
+// 7. The reconnect contract stays on: queries refetch on reconnect, and the
+//    online networkMode pauses (not errors) while offline.
+check(
+  providersSrc.includes('refetchOnReconnect: true, networkMode: "online"'),
+  'GAP-MENU-2: the QueryClient keeps refetchOnReconnect: true + networkMode: "online" — on reconnect stale react-query data refreshes; offline pauses instead of blaming the server',
+);
+// 8. The onlineManager import is the real react-query seam.
+check(
+  providersSrc.includes('focusManager, onlineManager } from "@tanstack/react-query"'),
+  'GAP-MENU-2: onlineManager is imported from @tanstack/react-query (the wiring uses the library seam, not a hand-rolled clone)',
+);
+// 9. Regression guard: the NATIVE central 401 branch stays untouched
+//    (native session handling was already central — not this wave’s fix).
+check(
+  apiClientSrc.includes('if (res.status === 401 && token) {'),
+  'GAP-MENU-2 guard: the mobile api client keeps its central dead-token 401 branch (res.status === 401 && token → clear + unauthorizedHandler) — native session handling stays central',
+);
+// 10. Honesty guard: no optimistic cache writes on the owner surfaces — a
+//     stale screen never implies a mutation was saved (mutations throw the
+//     Arabic ApiError → toast → user retries).
+check(
+  !ownerScreensSrc.includes('setQueryData')
+    && !ownerMenuSrc.includes('setQueryData')
+    && !ownerRestaurantsSrc.includes('setQueryData'),
+  'GAP-MENU-2 guard: owner surfaces carry no optimistic setQueryData writes — an offline mutation fails honestly (toast + retry), never a silent fake save',
+);
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 if (failures.length > 0) {
@@ -1508,4 +1591,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  • ${f}`);
   process.exit(1);
 }
-console.log(`✓ Mobile culinary parity snapshot: ${passed} assertions passed (colors light/night + pastels + tailwind mirror + plate radius + motion + Baloo/Plex typography + المائدة landing + money-path pins + typed owner API + 4 owner screens + admin web-only states + bans == the Phase-6 Warm Culinary Editorial canonical)`);
+console.log(`✓ Mobile culinary parity snapshot: ${passed} assertions passed (colors light/night + pastels + tailwind mirror + plate radius + motion + Baloo/Plex typography + المائدة landing + money-path pins + typed owner API + 4 owner screens + admin web-only states + P42-W5 offline coverage + bans == the Phase-6 Warm Culinary Editorial canonical)`);
