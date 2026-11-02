@@ -1,0 +1,31 @@
+{
+  // P42-W4 fix (vite:oxc tsconfig discovery): the ROOT vitest suite imports
+  // mobile/src/lib/plan-limit.ts (tests/unit/mobile-plan-limit.test.ts — the
+  // cross-side anti-drift contract between the mobile classifier and the
+  // web's PlanLimitError class). vite:oxc resolves the NEAREST tsconfig for
+  // each transformed file; the parent mobile/tsconfig.json extends
+  // "expo/tsconfig.base", which is only resolvable when mobile/node_modules
+  // is installed — true in the dedicated CI mobile job, NOT in the root
+  // lint-build-test job (where the failure "Tsconfig not found" originally
+  // broke CI at 5e74620f). This standalone tsconfig (no extends, no deps)
+  // wins the nearest-first discovery and carries the same transform-relevant
+  // options the parent declares, so the pure-TS files under src/lib
+  // transform identically in every environment. It does NOT affect
+  // `mobile && tsc --noEmit` (the parent project still compiles these files
+  // with its own config — nested tsconfigs are independent projects, not
+  // boundaries), expo lint, or the Metro export.
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["./**/*.ts"]
+}
