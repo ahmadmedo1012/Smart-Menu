@@ -27,6 +27,14 @@ name: Nightly Flake Detection
 #     deterministically green; this nightly deliberately keeps the REAL budget
 #     (no TEST_RELAX) — it remains the flake hunter for the production-regime
 #     limiter behavior that CI no longer exercises.
+#
+#   * P42 (Wave-1 fix 6): the LIVE demo canary job (`demo-canary` below) rides
+#     the same schedule. It fetches both PUBLIC demo tenants and fails on any
+#     test-artifact vocabulary in the delivered HTML — the guard the static
+#     seed sweep could never be (the P40/P42 contamination lived only in the
+#     production DB, created from the owner dashboard; every repo-side source
+#     was clean). Deliberately NOT in ci.yml: network flakiness must never
+#     block the main push gate — the same split this workflow already embodies.
 on:
   schedule:
     - cron: '30 2 * * *' # 02:30 UTC — quiet hours, no CI pushes expected
@@ -256,3 +264,35 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 14
+
+  # ── P42 (Wave-1 fix 6): the LIVE demo canary ────────────────────────────
+  # Fetches the two PUBLIC demo menu pages and asserts HTTP 200 + zero
+  # test-artifact vocabulary (TestLimitItem / اختبار). The repo-side guard
+  # (tests/unit/demo-content-guard.test.ts) sweeps STATIC seed sources and
+  # was green the whole time both live tenants carried the contaminated items
+  # — nothing fetched the live pages. The suite (tests/unit/
+  # demo-live-canary.test.ts) is env-gated (LIVE_DEMO_CANARY=1): a plain
+  # `pnpm test` skips it, so the unit army stays offline and the push gate
+  # stays network-free. No continue-on-error — a contaminated public page is
+  # not flake, it is a red nightly with a runbook link in the failure message.
+  demo-canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Same SHA-pin discipline as the flake-detection job (supply-chain
+      # hardening, CSO audit F3 — full rationale + upgrade recipe in ci.yml).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      # THIRD-PARTY action (annotated tag v4.4.0 → peeled commit).
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # LIVE_DEMO_CANARY=1 opts the env-gated suite in (skipped otherwise).
+      - name: Live demo canary (الديمو العام نظيف من أصناف الاختبار)
+        run: env -u DATABASE_URL LIVE_DEMO_CANARY=1 pnpm exec vitest run tests/unit/demo-live-canary.test.ts
