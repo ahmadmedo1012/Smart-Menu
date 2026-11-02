@@ -149,12 +149,19 @@ async function main() {
 
   // team4-payments + pricing assertions expect the production plan catalog:
   // names (مجاني/أساسي/بريميوم/احترافي/شركات) + price points '19' and '129'.
-  // ci-seed provides Free only — complete the set here.
+  // P42: the ladder values below mirror src/lib/default-plans.json EXACTLY
+  // (the sold ladder: Basic 19 (1/50/500) · Premium 29 (2/100/1000) ·
+  // Pro 129 (3/9999/99999) · Enterprise 299 (10/9999/99999)). The pre-P42
+  // rows (Basic 2/100/1000 · Premium 49 · Pro 89 · «Business» 129) never
+  // existed in production — a qa-seeded DB was selling numbers nobody sells.
+  // ci-seed upserts the full production set anyway; this loop only matters
+  // when qa-seed runs standalone, and must never diverge from it again
+  // (features stay ci-seed's job — the fallback insert carries one bullet).
   const wantedPlans = [
-    ['Basic', 'أساسي', 19, 2, 100, 1000, 2],
-    ['Premium', 'بريميوم', 49, 3, 200, 2000, 3],
-    ['Pro', 'احترافي', 89, 4, 250, 2500, 4],
-    ['Business', 'شركات', 129, 5, 300, 3000, 5],
+    ['Basic', 'أساسي', 19, 1, 50, 500, 2],
+    ['Premium', 'بريميوم', 29, 2, 100, 1000, 3],
+    ['Pro', 'احترافي', 129, 3, 9999, 99999, 4],
+    ['Enterprise', 'شركات', 299, 10, 9999, 99999, 5],
   ];
   for (const [name, nameAr, price, maxMenus, maxItems, maxOrders, sortOrder] of wantedPlans) {
     const exists = await client.query('SELECT id FROM "SubscriptionPlan" WHERE name = $1', [name]);
@@ -165,9 +172,16 @@ async function main() {
         [name, nameAr, price, maxMenus, maxItems, maxOrders, sortOrder, JSON.stringify(['دعم واتساب'])]
       );
     } else {
-      // align the nameAr (ci-seed's Premium is 'المدفوعة'; the pricing test
-      // expects the production naming)
-      await client.query('UPDATE "SubscriptionPlan" SET "nameAr" = $1 WHERE name = $2', [nameAr, name]);
+      // P42: heal the WHOLE ladder row, not just nameAr — a DB seeded by the
+      // pre-P42 script still carries the obsolete numbers and a nameAr-only
+      // update would leave them looking sold. Same upsert semantics as
+      // ci-seed's plan loop.
+      await client.query(
+        `UPDATE "SubscriptionPlan" SET "nameAr" = $1, price = $2, "periodDays" = 30,
+           "maxMenus" = $3, "maxItems" = $4, "maxOrders" = $5, "sortOrder" = $6, "updatedAt" = now()
+         WHERE name = $7`,
+        [nameAr, price, maxMenus, maxItems, maxOrders, sortOrder, name]
+      );
     }
   }
 
