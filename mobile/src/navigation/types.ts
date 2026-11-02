@@ -51,6 +51,12 @@ export type OwnerStackParamList = {
          *  it — omitted, the screen resolves the auth row's primary link (the
          *  exact /api/auth/me resolution the web /subscribe upgrade mode uses). */
         OwnerSubscribe: { restaurantId?: number } | undefined;
+        /** P42-5d (GAP-MENU-1): the advanced-analytics screen (the web
+         *  AnalyticsTab twin). The optional restaurant is the ACTIVE
+         *  restaurant when the surface knew it — omitted, the screen resolves
+         *  the shared owner-restaurants cache's primary link (the menu
+         *  screen's active-restaurant doctrine). */
+        OwnerAnalytics: { restaurantId?: number } | undefined;
 };
 
 /** Admin bottom-tab screens (inside the AdminTabs navigator). */

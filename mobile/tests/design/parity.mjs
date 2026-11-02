@@ -78,6 +78,9 @@
  *   ink law + ComingSoon retirement 10
  *   §P42-W5 GAP-MENU-2 offline coverage 10 (banner in AuthenticatedApp ·
  *   onlineManager↔NetInfo single predicate · honest-mutation guards)
+ *   §P42-W5 GAP-MENU-1 advanced analytics 20 (OwnerAnalytics screen · dual
+ *   gate probe+403 · verbatim range/error/empty copy · OwnerSubscribe door
+ *   with restaurant context · react-native-svg chart shapes · zero new deps)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
@@ -131,6 +134,20 @@ const adminStackSrc = read('src/navigation/AdminStack.tsx');
 const ownerStackSrc = read('src/navigation/OwnerStack.tsx');
 // §P42-W5 (GAP-MENU-2) sources — the offline-coverage layer.
 const connectivityBannerSrc = read('src/components/shared/ConnectivityBanner.tsx');
+// §P42-W5 (GAP-MENU-1, P42-5d) sources — the advanced-analytics native port.
+const ownerAnalyticsSrc = read('src/screens/owner/OwnerAnalyticsScreen.tsx');
+const analyticsLibSrc = read('src/lib/analytics.ts');
+const planFeatureGateSrc = read('src/lib/plan-feature-gate.ts');
+const planFeatureLockCardSrc = read('src/components/shared/PlanFeatureLockCard.tsx');
+const chartCardSrc = read('src/components/charts/ChartCard.tsx');
+const areaChartSrc = read('src/components/charts/AreaChart.tsx');
+const splineAreaChartSrc = read('src/components/charts/SplineAreaChart.tsx');
+const columnChartSrc = read('src/components/charts/ColumnChart.tsx');
+const doughnutChartSrc = read('src/components/charts/DoughnutChart.tsx');
+const horizontalBarSrc = read('src/components/charts/HorizontalBar.tsx');
+const chartGeometrySrc = read('src/components/charts/chart-geometry.ts');
+const chartTokensSrc = read('src/components/charts/chart-tokens.ts');
+const navTypesSrc = read('src/navigation/types.ts');
 // §Phase-6 (P6-2-c/cR) sources — the typed owner API layer, the four real
 // owner screens, the admin web-only states, the DotLeader + warm-scrim
 // signature motifs.
@@ -1584,6 +1601,149 @@ check(
   'GAP-MENU-2 guard: owner surfaces carry no optimistic setQueryData writes — an offline mutation fails honestly (toast + retry), never a silent fake save',
 );
 
+// ── §P42-W5 · GAP-MENU-1 — advanced analytics reach native (P42-5d) ─────────
+// The web twin (owner/page.tsx «تحليلات» tab + OwnerCharts.tsx AnalyticsTab)
+// was the last big parity gap: the native owner had NO advanced analytics.
+// These pins freeze the port: the SAME server data source + entitlement
+// truth (/api/stats/advanced + /api/owner/entitlements — no new endpoints,
+// no client-side entitlement logic), the dual gate (probe avoids the wasted
+// fetch; the 403 stays the fail-closed primary truth), the verbatim range
+// labels + error copy, the honest empty states (no fake zeros), the working
+// upgrade door (OwnerSubscribe + restaurant context), and the chart SHAPES
+// ported to react-native-svg (the already-present dependency — zero new
+// packages; pinned so a devDependency slip or a hand-rolled copy fails).
+
+// 1. The screen is registered on OwnerStack with the web tab's label.
+check(
+  ownerStackSrc.includes('name="OwnerAnalytics"')
+    && ownerStackSrc.includes('title: "التحليلات"'),
+  'GAP-MENU-1: OwnerStack registers OwnerAnalytics with header «التحليلات» (the web dashboard tab label, page.tsx:337)',
+);
+// 2. The route param contract — the restaurant context doctrine (5e74620f
+//    twin): optional id, omitted → the screen self-resolves.
+check(
+  navTypesSrc.includes('OwnerAnalytics: { restaurantId?: number } | undefined;')
+    && ownerStackSrc.includes('OwnerAnalytics: { restaurantId?: number } | undefined;'),
+  'GAP-MENU-1: OwnerAnalytics param { restaurantId?: number } | undefined on BOTH nav type lists (OwnerStack.tsx + navigation/types.ts)',
+);
+// 3. The mount point: the dashboard's analytics section card pushes the
+//    screen (the web keeps the tab visible — no hiding; the lock lives
+//    inside the screen).
+check(
+  ownerScreensSrc.includes('navigation.navigate("OwnerAnalytics")')
+    && ownerScreensSrc.includes('التحليلات المتقدمة'),
+  'GAP-MENU-1: the owner dashboard carries the analytics section card pushing OwnerAnalytics (the always-visible «تحليلات» tab twin)',
+);
+// 4. Same backend data source — the advanced route with range, verbatim.
+check(
+  ownerAnalyticsSrc.includes('`/api/stats/advanced?restaurantId=${restaurantId}&range=${nextRange}`'),
+  'GAP-MENU-1: the screen fetches the SAME /api/stats/advanced?restaurantId=X&range=Y (no new endpoints, no invented metrics)',
+);
+// 5. The entitlements probe — the wasted-fetch avoidance, preference only.
+check(
+  ownerAnalyticsSrc.includes('`/api/owner/entitlements?restaurantId=${restaurantId}`')
+    && ownerAnalyticsSrc.includes('advancedStats === false ? "denied" : "allowed"'),
+  'GAP-MENU-1: the entitlements probe reads /api/owner/entitlements → features.advancedStats (denied skips the advanced fetch entirely — the web page.tsx:147-150 twin)',
+);
+// 6. The 403 is the primary truth — server-fed lock, not a loading error.
+check(
+  ownerAnalyticsSrc.includes('status === 403')
+    && ownerAnalyticsSrc.includes('setLocked(classifyPlanFeatureGate(e))'),
+  'GAP-MENU-1: a 403 from the advanced route classifies through the plan-feature-gate family and LOCKS (fail-closed primary truth — plan changed mid-session still locks)',
+);
+// 7. The probe never enforces: failure → unknown → optimistic fetch.
+check(
+  ownerAnalyticsSrc.includes('setProbe("unknown")'),
+  'GAP-MENU-1: a failed probe degrades to "unknown" (optimistic fetch — the 403 stays the only enforcement; no client-side entitlement logic)',
+);
+// 8. Range labels verbatim (web OwnerCharts.tsx RANGE_LABELS).
+check(
+  ownerAnalyticsSrc.includes('value: "today", label: "اليوم"')
+    && ownerAnalyticsSrc.includes('value: "week", label: "هذا الأسبوع"')
+    && ownerAnalyticsSrc.includes('value: "month", label: "هذا الشهر"'),
+  'GAP-MENU-1: RANGE_LABELS verbatim — «اليوم»/«هذا الأسبوع»/«هذا الشهر» (web OwnerCharts.tsx:64-68)',
+);
+// 9. The one error copy — verbatim, never blames the network.
+check(
+  ownerAnalyticsSrc.includes('ANALYTICS_ERROR_COPY = "تعذّر تحميل التحليلات"')
+    && ownerAnalyticsSrc.includes('onRetry'),
+  'GAP-MENU-1: non-403 failures show the web error copy «تعذّر تحميل التحليلات» + retry (offline stays the shell banner’s job — no network-blaming)',
+);
+// 10. Honest empty states — the web per-card copy, verbatim (no fake zeros).
+check(
+  ownerAnalyticsSrc.includes('seriesHasData')
+    && ownerAnalyticsSrc.includes('"لا توجد زيارات مسجلة بعد"')
+    && ownerAnalyticsSrc.includes('"لا توجد أصناف مطلوبة بعد"')
+    && ownerAnalyticsSrc.includes('"لا يوجد توزيع تصنيفات بعد"')
+    && ownerAnalyticsSrc.includes('"لا يوجد نشاط يومي بعد"')
+    && ownerAnalyticsSrc.includes('"لا توجد بيانات إيرادات بعد"'),
+  'GAP-MENU-1: every chart guards empties with seriesHasData + the web empty copy verbatim (a zero-filled series is EMPTY, never fake zeros)',
+);
+// 11. The lock surface copy — the web PlanFeatureLock family, verbatim.
+check(
+  planFeatureLockCardSrc.includes('متوفرة في خطة «${PLAN_FEATURE_ADVANCED_STATS.minPlanNameAr}» فأعلى')
+    && planFeatureLockCardSrc.includes('"قم بترقية خطتك لفتح هذه الميزة والاستفادة من كامل قدرات منصتك."')
+    && planFeatureLockCardSrc.includes('`الترقية إلى خطة ${PLAN_FEATURE_ADVANCED_STATS.minPlanNameAr}`'),
+  'GAP-MENU-1: PlanFeatureLockCard carries the web PlanFeatureLock copy verbatim (title pattern + description + CTA pattern — advancedStats values)',
+);
+// 12. The working upgrade door — OwnerSubscribe WITH the restaurant context.
+check(
+  ownerAnalyticsSrc.includes('navigation.navigate("OwnerSubscribe", restaurantId !== null ? { restaurantId } : undefined)'),
+  'GAP-MENU-1: the lock CTA opens OwnerSubscribe carrying the restaurant id (the 5e74620f context-carrying doctrine — no dead button)',
+);
+// 13. The feature-gate classifier family — markers + separation from the
+//     count-cap family (plan-limit.ts behavior untouched).
+check(
+  planFeatureGateSrc.includes('PLAN_FEATURE_PREFIX = "هذه الميزة متوفرة في خطة"')
+    && planFeatureGateSrc.includes('PLAN_FEATURE_REMEDY = "قم بالترقية للمتابعة"')
+    && planFeatureGateSrc.includes('minPlanNameAr: "بريميوم"'),
+  'GAP-MENU-1: classifyPlanFeatureGate matches the feature family markers («هذه الميزة متوفرة في خطة…» + «قم بالترقية للمتابعة») — distinct from the count-cap family (5e74620f untouched)',
+);
+check(
+  !stripComments(planFeatureGateSrc).includes('لقد وصلت للحد الأقصى')
+    && !stripComments(planFeatureGateSrc).includes('قم بترقية خطتك لإضافة المزيد'),
+  'GAP-MENU-1 guard: the feature-gate classifier never carries the count-cap copy in code (the two 403 families stay disjoint — the header docs may name the distinction; negatives pinned in root tests)',
+);
+// 14. The chart SHAPES — the web components ported to react-native-svg.
+check(
+  areaChartSrc.includes('from "react-native-svg"') && splineAreaChartSrc.includes('catmullRomPath')
+    && columnChartSrc.includes('tickIndices') && doughnutChartSrc.includes('donutSlicePath'),
+  'GAP-MENU-1: the four SVG chart shapes ride react-native-svg + the chart-geometry port (AreaChart · SplineAreaChart · ColumnChart · DoughnutChart)',
+);
+check(
+  ownerAnalyticsSrc.includes('<SplineAreaChart') && ownerAnalyticsSrc.includes('<ColumnChart')
+    && ownerAnalyticsSrc.includes('<DoughnutChart') && ownerAnalyticsSrc.includes('<AreaChart')
+    && ownerAnalyticsSrc.includes('<HorizontalBar') && ownerAnalyticsSrc.includes('MiniSparkline'),
+  'GAP-MENU-1: the screen mounts all five panels + sparklines (ساعات الذروة · الأصناف الأكثر طلباً · التصنيفات · التفاعل اليومي · اتجاه الإيرادات)',
+);
+// 15. Zero new dependencies — react-native-svg stays in dependencies (it
+//     was already there for the QR code; the charts must not add packages).
+check(
+  pkg.dependencies['react-native-svg'] === '15.16.0' && !pkg.devDependencies['react-native-svg'],
+  'GAP-MENU-1: react-native-svg@15.16.0 stays in dependencies (NOT devDependencies) — the charts add ZERO new packages',
+);
+// 16. Chart colors ride the token SSOT — no raw hex on chart props.
+check(
+  chartTokensSrc.includes('colors.terracotta') && chartTokensSrc.includes('pastelFamilies.mint.ink')
+    && !/["']#[0-9a-fA-F]{3,8}["']/.test(chartTokensSrc),
+  'GAP-MENU-1: the chart roster resolves through colors.ts tokens (the prop-hex law holds — no raw hex in the chart family)',
+);
+// 17. The analytics lib ports the web chart-stats client half verbatim.
+check(
+  analyticsLibSrc.includes('export function peakOrdersPhrase')
+    && analyticsLibSrc.includes('one: "طلب واحد"') && analyticsLibSrc.includes('two: "طلبان"')
+    && analyticsLibSrc.includes('few: "طلبات"') && analyticsLibSrc.includes('many: "طلبًا"')
+    && analyticsLibSrc.includes('return count < 3 ? noun :'),
+  'GAP-MENU-1: peakOrdersPhrase is the OwnerCharts.tsx:32-40 twin (same forms + the count<3 rule — pinned byte-equal in root tests)',
+);
+// 18. The restaurant context — the SHARED cache resolver (the menu screen
+//     doctrine), primary first.
+check(
+  ownerAnalyticsSrc.includes('queryKey: ["owner-restaurants"]')
+    && ownerAnalyticsSrc.includes('r.isPrimary'),
+  'GAP-MENU-1: the screen resolves the active restaurant from the SHARED ["owner-restaurants"] cache (primary first — the menu screen’s active-restaurant doctrine)',
+);
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 if (failures.length > 0) {
@@ -1591,4 +1751,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  • ${f}`);
   process.exit(1);
 }
-console.log(`✓ Mobile culinary parity snapshot: ${passed} assertions passed (colors light/night + pastels + tailwind mirror + plate radius + motion + Baloo/Plex typography + المائدة landing + money-path pins + typed owner API + 4 owner screens + admin web-only states + P42-W5 offline coverage + bans == the Phase-6 Warm Culinary Editorial canonical)`);
+console.log(`✓ Mobile culinary parity snapshot: ${passed} assertions passed (colors light/night + pastels + tailwind mirror + plate radius + motion + Baloo/Plex typography + المائدة landing + money-path pins + typed owner API + 4 owner screens + admin web-only states + P42-W5 offline coverage + P42-W5 advanced analytics + bans == the Phase-6 Warm Culinary Editorial canonical)`);

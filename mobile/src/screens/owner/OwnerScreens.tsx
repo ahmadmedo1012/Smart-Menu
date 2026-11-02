@@ -4,7 +4,7 @@ import { View, ScrollView, RefreshControl, Share, FlatList, Vibration, Alert, Ac
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
-import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Share2 } from "lucide-react-native";
+import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Share2, BarChart3, ChevronLeft } from "lucide-react-native";
 
 import { api, getOwnerRestaurants, type OwnerRestaurant } from "@/services/api/client";
 import { Spinner, EmptyState, ErrorState } from "@/components/ui";
@@ -112,6 +112,28 @@ export function OwnerDashboardScreen() {
               <QuickAction icon={<Award size={20} color={colors.ink} />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
               <QuickAction icon={<Settings size={20} color={colors.ink} />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
             </View>
+            {/* P42-5d (GAP-MENU-1): the analytics door — the web dashboard
+                keeps the «تحليلات» tab ALWAYS visible (no hiding; the lock
+                lives INSIDE the tab, PlanFeatureLock when the tier is
+                below). The native twin: a section card pushing the
+                analytics screen, which carries the dual gate itself (the
+                entitlements probe + the 403 lock — the primary truth). */}
+            <PressableScale
+              scaleTo={0.99}
+              onPress={() => navigation.navigate("OwnerAnalytics")}
+              accessibilityLabel="التحليلات المتقدمة"
+              accessibilityHint="اتجاهات الإيرادات وساعات الذروة والأصناف الأكثر طلبًا"
+              style={{ flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.surface, borderRadius: 16, padding: 14, borderWidth: 1, borderColor: colors.hairline, marginTop: 16 }}
+            >
+              <View style={{ width: 44, height: 44, borderRadius: 9999, backgroundColor: colors.terracottaSoft, alignItems: "center", justifyContent: "center" }}>
+                <BarChart3 size={20} color={colors.terracottaPressed} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.ink }}>التحليلات المتقدمة</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2, lineHeight: 17 }}>اتجاهات الإيرادات وساعات الذروة والأصناف الأكثر طلبًا</Text>
+              </View>
+              <ChevronLeft size={20} color={colors.muted} />
+            </PressableScale>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.ink, marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
             {stats.recentOrders.length === 0 ? (
               /* r132-F2b (A4 S8): the dashboard's recent-orders empty rides

@@ -12,6 +12,10 @@ import { OwnerLoyaltyScreen } from "@/screens/owner/OwnerLoyaltyScreen";
 // P42-5b (GAP-X1): the upgrade flow — destination of the plan-lock CTA
 // (PlanLimitLockSheet → «رقِّ خطتك»), the web /subscribe upgrade-mode twin.
 import { OwnerSubscribeScreen } from "@/screens/owner/OwnerSubscribeScreen";
+// P42-5d (GAP-MENU-1): the advanced-analytics screen — the web AnalyticsTab
+// twin (same /api/stats/advanced gate + honest lock), pushed from the
+// dashboard's analytics section card.
+import { OwnerAnalyticsScreen } from "@/screens/owner/OwnerAnalyticsScreen";
 import { STACK_SCREEN_OPTIONS, useTabScreenOptions } from "./navTheme";
 
 export type OwnerStackParamList = {
@@ -24,6 +28,10 @@ export type OwnerStackParamList = {
   /** The capped restaurant when the opening surface knew it — omitted, the
    *  screen resolves the auth row's primary link (the web resolution). */
   OwnerSubscribe: { restaurantId?: number } | undefined;
+  /** P42-5d (GAP-MENU-1): the active restaurant when the opening surface
+   *  knew it — omitted, the screen resolves the shared owner-restaurants
+   *  cache's primary link (the menu screen's doctrine). */
+  OwnerAnalytics: { restaurantId?: number } | undefined;
 };
 
 const Tab = createBottomTabNavigator();
@@ -54,6 +62,7 @@ export function OwnerStack() {
       <Stack.Screen name="OwnerReviews" component={OwnerReviewsScreen} options={{ title: "التقييمات" }} />
       <Stack.Screen name="OwnerSettings" component={OwnerSettingsScreen} options={{ title: "إعدادات المطعم" }} />
       <Stack.Screen name="OwnerSubscribe" component={OwnerSubscribeScreen} options={{ title: "ترقية الخطة" }} />
+      <Stack.Screen name="OwnerAnalytics" component={OwnerAnalyticsScreen} options={{ title: "التحليلات" }} />
     </Stack.Navigator>
   );
 }
