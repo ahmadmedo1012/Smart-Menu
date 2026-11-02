@@ -38,7 +38,14 @@ function safeRedirectTarget(value: string | null | undefined): string | null {
         // r118-A4-P3: '/\evil.com' passes the old '/… but not //' guard, yet
         // WHATWG URL parsing treats '\' as '/' in the Location header → the
         // browser lands on '//evil.com' (network-path redirect). Reject it.
-        if (!value || !value.startsWith('/') || value.startsWith('//') || value[1] === '\\') return null;
+        // P42-8b: the SAME WHATWG parser strips ASCII tab/LF/CR from the value
+        // BEFORE the path grammar runs — '/\t/evil.com' (raw %09 in the query)
+        // survives the three checks below (second char is a tab, not '/' or
+        // '\') yet parses as '//evil.com' in both redirect() and
+        // window.location.replace. Reject every control char instead of
+        // enumerating the spellings the parser rewrites (verified live:
+        // new URL('/\t/evil.com', base).origin !== base).
+        if (!value || /[\x00-\x1f\x7f]/.test(value) || !value.startsWith('/') || value.startsWith('//') || value[1] === '\\') return null;
         return value;
 }
 

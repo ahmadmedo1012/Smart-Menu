@@ -48,7 +48,10 @@ const SUPPORT_WHATSAPP = '218910089975';
 function safeRedirect(value: string | null) {
         // r118-A4-P3: mirror of the page-level guard — WHATWG URL parsing
         // treats '\' as '/' ('/\evil.com' → '//evil.com' network-path).
-        if (!value || !value.startsWith('/') || value.startsWith('//') || value[1] === '\\') return null;
+        // P42-8b: mirror again — the parser also STRIPS ASCII tab/LF/CR, so
+        // '/\t/evil.com' passes the three checks yet lands cross-origin in
+        // window.location.replace. Control chars are rejected whole.
+        if (!value || /[\x00-\x1f\x7f]/.test(value) || !value.startsWith('/') || value.startsWith('//') || value[1] === '\\') return null;
         return value;
 }
 
