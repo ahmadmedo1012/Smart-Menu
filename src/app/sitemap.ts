@@ -151,23 +151,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 });
         }
 
+        // P42-7b (تدقيق SEO — صدق lastmod): المسارات الثابتة الأربعة كانت تحمل
+        // new Date() — طابع لحظة إعادة توليد الـISR اليومية، فيبدو «آخر تحديث»
+        // جديداً كل يوم بينما الصفحة لم تتغير. توثيق Google (sitemap): lastmod
+        // يُحترم فقط إذا كان «دقيقاً باستمرار»؛ الطوابع الزائفة تدفع المحرك
+        // إلى تجاهل lastmod في الملف كله — ومن ضحاياه قيم updatedAt الحقيقية
+        // لصفحات المطاعم (وهي الإشارة الوحيدة هنا التي تستحق الزحف المتجدد).
+        // الحذف هو الموقف الصادق: الحقل اختياري، وغيابه خير من كذبة يومية.
+        // (صفحات المنيو تحتفظ بـ r.updatedAt الحقيقي — انظر menuPages أعلاه.)
         return [
-                { url: BASE_URL, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+                { url: BASE_URL, changeFrequency: 'weekly', priority: 1 },
                 {
                         url: `${BASE_URL}/pricing`,
-                        lastModified: new Date(),
                         changeFrequency: 'monthly',
                         priority: 0.8,
                 },
                 {
                         url: `${BASE_URL}/terms`,
-                        lastModified: new Date(),
                         changeFrequency: 'monthly',
                         priority: 0.4,
                 },
                 {
                         url: `${BASE_URL}/privacy`,
-                        lastModified: new Date(),
                         changeFrequency: 'monthly',
                         priority: 0.4,
                 },

@@ -395,11 +395,79 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         // الحقول الاختيارية بحذفها عند الفراغ (سياسة r121-L-3: لا اختلاق قيم).
         const hasPostalAddress = !!(restaurant.address || restaurant.city);
 
+        /* P42-7b (تدقيق SEO — نظافة JSON-LD): القيم الفارغة لا تعبر إلى الآلة.
+         * ثلاث حالات كانت تشحن قيمًا ميتة تعلّمها مدققات غوغل كأخطاء «حقل فارغ»،
+         * وتخالف قانون r138 الثابت («لا مصفوفة فارغة أبدًا» — المثبّت على
+         * openingHoursSpecification):
+         *   1) الوصف: عمود description في القاعدة افتراضه "" — كل مطعم لم يكتب
+         *      وصفًا كان يُصدّر "description": "" (السطر المرئي في MenuHero يحذفه
+         *      بشرط الصدق نفسه — {restaurant.description && …}؛ الآلة الآن توافقه
+         *      على حالة الافتراض "" وتزيد عليها المسافات المجردة "   " —
+         *      trim: الجانب الأصرم دوماً هو الآلة، فلا قيمة ميتة تعبرها أبدًا).
+         *   2) القسم الفارغ: أرشفة كل أصناف فئة (W3) أو وقوفها (sold-out) كانت
+         *      تُبقي القسم بمصفوفة "hasMenuItem": [] — الأرشيف يستبعد الصنف من
+         *      العرض فلا يصح أن يترك خلفه قسمًا هيكليًا فارغًا في قائمة الآلة.
+         *   3) المنيو الفارغ كليًا: لا أصناف عامة إطلاقًا → "hasMenuSection": []
+         *      — كيان القائمة كلّه يُحذف (كيان المطعم يبقى؛ الصفحة تعرض الحالة
+         *      الصادقة «قائمتنا قيد التحضير» ولا يُختلق منيو للآلة فوقها). نفس
+         *      عائلة الحذف الصادق: sitemap لا يعنّون منيو <3 أصناف (round97-X3). */
+        const ownerDescription = restaurant.description?.trim();
+        // P42-7b (2): الأقسام بلا أصناف عامة (متاحة) تُحذف — لا hasMenuItem: [] أبداً.
+        const menuSections = categories
+                .map((c) => ({
+                        '@type': 'MenuSection' as const,
+                        name: c.nameAr || c.name,
+                        hasMenuItem: (itemsByCategory.get(c.id) ?? [])
+                                // r135-SOLD-OUT: only AVAILABLE items are advertised to
+                                // machines — sold-out items stay visible to humans but
+                                // must not be offered as orderable in schema.org.
+                                .filter((i) => i.status === 'available')
+                                .map((i) => ({
+                                        '@type': 'MenuItem',
+                                        name: i.nameAr || i.name,
+                                        /* W7-G (P2, A2 audit — JSON-LD trim): وصف الصنف حُذف من
+                                           الـschema — اختياري في schema.org، وكان يُشحن مرتين
+                                           (نفس النص يعيش في حمولة RAC المُسلسَلة التي ترسم
+                                           البطاقات)؛ منيو العرض التوضيحي وحده كان يضيف
+                                           ~25 وصفاً عربياً كاملاً للصفحة (340KB خام). الأسماء
+                                           والأسعار والعروض وaggregateRating تبقى كما هي. */
+                                        offers: {
+                                                '@type': 'Offer',
+                                                // r133 (A12 N7): schema.org price is a STRING —
+                                                // a number primitive is silently dropped by validators.
+                                                // r136: يطابق السعر المعروض على البطاقة — المخفّض إن
+                                                // وُجد (نفس معادلة priceRange أعلاه)؛ كان يُعلن الأساس
+                                                // فتظهر النتائج الغنية أغلى من الصفحة.
+                                                price: String(i.discountedPrice ?? i.price),
+                                                priceCurrency: 'LYD',
+                                        },
+                                        // r138 (F10): التقييم الحقيقي للصنف يُصدَّر — كان
+                                        // avgRating/ratingCount محمّلين في الصفحة نفسها
+                                        // (يغذّيان نجوم البطاقة) دون أن يريهما الآلة. الخط
+                                        // الأحمر الثابت: لا يُشتق تقييم المطعم من تقييمات
+                                        // الأصناف (self-serving = spam policy) — التصدير
+                                        // داخل MenuItem فقط، وبعدّ تقييمات حقيقي ≥1.
+                                        ...(i.avgRating != null && i.ratingCount != null && i.ratingCount > 0 ? {
+                                                aggregateRating: {
+                                                        '@type': 'AggregateRating',
+                                                        ratingValue: Number(i.avgRating),
+                                                        ratingCount: i.ratingCount,
+                                                        bestRating: 5,
+                                                        worstRating: 1,
+                                                },
+                                        } : {}),
+                                })),
+                }))
+                .filter((section) => section.hasMenuItem.length > 0);
+
         const jsonLd = {
                 '@context': 'https://schema.org',
                 '@type': 'Restaurant',
                 name: restaurant.name,
-                description: restaurant.description,
+                // P42-7b (1): الوصف يعبر فقط إن كتبه المالك فعلاً — لا "description": ""
+                // ولا "   " (شرط MenuHero المرئي نفسه + trim؛ النص المُصدَّر نص
+                // المالك الحرفي، بلا تشذيب).
+                ...(ownerDescription ? { description: restaurant.description } : {}),
                 url: `${origin}/menu/${slug}`,
                 telephone: wa ? `+${wa}` : undefined,
                 // r121-L-3: حقل المطبخ الثابت («ليبي» لكل مطعم — حتى بيتزا روما
@@ -423,60 +491,22 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 // owner actually filled the r137 week editor (no rows = field
                 // omitted entirely, never an empty array).
                 ...(openHoursSpec.length > 0 ? { openingHoursSpecification: openHoursSpec } : {}),
-                hasMenu: {
-                        '@type': 'Menu',
-                        name: `قائمة ${restaurant.name}`,
-                        // r135: language + Arabic-first names — the rendered page is
-                        // Arabic (lang=ar dir=rtl), so the machine-readable menu must
-                        // carry the Arabic name when it exists (nameAr || name), not
-                        // the English fallback. (W7-G: descriptions retired — see the
-                        // MenuItem comment below.)
-                        inLanguage: 'ar',
-                        hasMenuSection: categories.map((c) => ({
-                                '@type': 'MenuSection',
-                                name: c.nameAr || c.name,
-                                hasMenuItem: (itemsByCategory.get(c.id) ?? [])
-                                        // r135-SOLD-OUT: only AVAILABLE items are advertised to
-                                        // machines — sold-out items stay visible to humans but
-                                        // must not be offered as orderable in schema.org.
-                                        .filter((i) => i.status === 'available')
-                                        .map((i) => ({
-                                                '@type': 'MenuItem',
-                                                name: i.nameAr || i.name,
-                                                /* W7-G (P2, A2 audit — JSON-LD trim): وصف الصنف حُذف من
-                                                   الـschema — اختياري في schema.org، وكان يُشحن مرتين
-                                                   (نفس النص يعيش في حمولة RAC المُسلسَلة التي ترسم
-                                                   البطاقات)؛ منيو العرض التوضيحي وحده كان يضيف
-                                                   ~25 وصفاً عربياً كاملاً للصفحة (340KB خام). الأسماء
-                                                   والأسعار والعروض وaggregateRating تبقى كما هي. */
-                                                offers: {
-                                                        '@type': 'Offer',
-                                                        // r133 (A12 N7): schema.org price is a STRING —
-                                                        // a number primitive is silently dropped by validators.
-                                                        // r136: يطابق السعر المعروض على البطاقة — المخفّض إن
-                                                        // وُجد (نفس معادلة priceRange أعلاه)؛ كان يُعلن الأساس
-                                                        // فتظهر النتائج الغنية أغلى من الصفحة.
-                                                        price: String(i.discountedPrice ?? i.price),
-                                                        priceCurrency: 'LYD',
-                                                },
-                                                // r138 (F10): التقييم الحقيقي للصنف يُصدَّر — كان
-                                                // avgRating/ratingCount محمّلين في الصفحة نفسها
-                                                // (يغذّيان نجوم البطاقة) دون أن يريهما الآلة. الخط
-                                                // الأحمر الثابت: لا يُشتق تقييم المطعم من تقييمات
-                                                // الأصناف (self-serving = spam policy) — التصدير
-                                                // داخل MenuItem فقط، وبعدّ تقييمات حقيقي ≥1.
-                                                ...(i.avgRating != null && i.ratingCount != null && i.ratingCount > 0 ? {
-                                                        aggregateRating: {
-                                                                '@type': 'AggregateRating',
-                                                                ratingValue: Number(i.avgRating),
-                                                                ratingCount: i.ratingCount,
-                                                                bestRating: 5,
-                                                                worstRating: 1,
-                                                        },
-                                                } : {}),
-                                        })),
-                        })),
-                },
+                // P42-7b (3): كيان القائمة كله مشروط بوجود قسم واحد على الأقل
+                // بأصناف عامة — المنيو الفارغ لا يُختلق للآلة (لا hasMenuSection:
+                // [] أبداً؛ كيان المطعم نفسه يبقى كاملاً فوقه).
+                ...(menuSections.length > 0 ? {
+                        hasMenu: {
+                                '@type': 'Menu',
+                                name: `قائمة ${restaurant.name}`,
+                                // r135: language + Arabic-first names — the rendered page is
+                                // Arabic (lang=ar dir=rtl), so the machine-readable menu must
+                                // carry the Arabic name when it exists (nameAr || name), not
+                                // the English fallback. (W7-G: descriptions retired — see the
+                                // MenuItem comment above.)
+                                inLanguage: 'ar',
+                                hasMenuSection: menuSections,
+                        },
+                } : {}),
         };
 
         const hasContact = !!(

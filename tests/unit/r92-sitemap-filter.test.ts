@@ -214,3 +214,40 @@ describe('round92-A5 — بوابة الجودة (زمن + محتوى + نشاط
                 expect(menuUrls).toEqual([expect.stringContaining('/menu/fafaef')]);
         });
 });
+
+/* ── P42-7b (تدقيق SEO): صدق lastmod ──────────────────────────────────────
+ *
+ * المسارات الثابتة كانت تحمل lastModified: new Date() — طابع لحظة إعادة
+ * توليد الـISR اليومية، فيبدو «آخر تحديث» جديداً كل يوم بينما الصفحة لم
+ * تتغير. توثيق Google: lastmod يُحترم فقط إذا كان «دقيقاً باستمرار»؛
+ * الطوابع الزائفة تُعلّم المحرك تجاهل lastmod في الملف كله — ومن ضحاياه
+ * قيم updatedAt الحقيقية لصفحات المطاعم (وهي الإشارة الوحيدة التي تستحق
+ * الزحف المتجدد هنا). الحقل اختياري: الحذف هو الموقف الصادق للثوابت،
+ * والإبقاء على القيم الحقيقية لصفحات المنيو. */
+describe('P42-7b — صدق lastmod: الثوابت بلا طابع زائف، والمطاعم بقيمتها الحقيقية', () => {
+        it('المسارات الثابتة (الرئيسية/الأسعار/الشروط/الخصوصية) لا تحمل lastModified إطلاقًا', async () => {
+                const { entries, base } = await run(
+                        [row(1, 'al-waha-cafe', 2)],
+                        [{ restaurantId: 1, items: 16n }],
+                        []
+                );
+                const staticUrls = [base, `${base}/pricing`, `${base}/terms`, `${base}/privacy`];
+                for (const url of staticUrls) {
+                        const entry = entries.find((e) => e.url === url);
+                        expect(entry, url).toBeDefined();
+                        expect(entry!.lastModified, url).toBeUndefined();
+                }
+        });
+
+        it('صفحات المنيو تحتفظ بـlastModified الحقيقي (updatedAt من صف المطعم)', async () => {
+                const updated = daysAgo(2);
+                const { entries, base } = await run(
+                        [{ id: 1, slug: 'al-waha-cafe', updatedAt: updated }],
+                        [{ restaurantId: 1, items: 16n }],
+                        []
+                );
+                const menu = entries.find((e) => e.url === `${base}/menu/al-waha-cafe`);
+                expect(menu).toBeDefined();
+                expect(menu!.lastModified).toEqual(updated);
+        });
+});
