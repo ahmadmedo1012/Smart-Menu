@@ -56,7 +56,11 @@ export interface CapRow {
 
 /**
  * Quantitative cap rows — the headline differentiator between plans
- * (menus / items / monthly orders), one value per plan in sortOrder.
+ * (menus / items / orders), one value per plan in sortOrder.
+ *
+ * P42: «الطلبات» لا «الطلبات الشهرية» — الحارس (api/orders/route.ts)
+ * يعدّ طلبات العمر كاملة بلا نافذة شهرية ولا فلتر حالة، فالتسمية
+ * الشهرية كانت وعدًا لا يُنفّذه أحد (قانون r92: النص يتبع التنفيذ).
  */
 export function capRows(plans: ComparisonPlan[]): CapRow[] {
         return [
@@ -72,7 +76,7 @@ export function capRows(plans: ComparisonPlan[]): CapRow[] {
                         values: plans.map((p) => formatCap(p.maxItems, 'صنف', 'أصناف')),
                 },
                 {
-                        label: 'الطلبات الشهرية',
+                        label: 'الطلبات',
                         values: plans.map((p) =>
                                 p.maxOrders >= UNLIMITED_ORDERS
                                         ? `حتى ${toArabicNumber(p.maxOrders)} ${getArabicPlural(p.maxOrders, 'طلب', undefined, 'طلبات')}`

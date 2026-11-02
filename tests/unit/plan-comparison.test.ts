@@ -71,10 +71,13 @@ describe("capRows", () => {
     // Act
     const rows = capRows(plans);
     // Assert
+    // P42: the orders label dropped its «الشهرية» — enforcement counts
+    // lifetime orders (api/orders/route.ts, no status/monthly window), so
+    // the label follows the enforcement (r92 truth law).
     expect(rows.map((r) => r.label)).toEqual([
       "المنيوهات",
       "الأصناف",
-      "الطلبات الشهرية",
+      "الطلبات",
     ]);
     expect(rows[0].values.length).toBe(2);
     // Free: 1 menu → dual; Premium: the sentinel names its enforced number

@@ -10,7 +10,6 @@ import { m, useReducedMotion } from 'motion/react';
 import { springDefault } from '@/lib/motion';
 import { ChevronDown, UtensilsCrossed, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CountUp } from '@/components/ui/CountUp';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { Header } from '@/components/layout/Header';
@@ -136,12 +135,17 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                         {/* r128-F5 (§4) → Phase 6 (r154): قائد النقاط — حدود الخطة
                                            على طراز المنيو المطبوع (نفس بصمة بطاقة الصنف/ملخص
                                            الطلب) بدل خلايا الغسل المنفصلة؛ الأرقام غربية بخط
-                                           mono جدولي مع CountUp.
+                                           mono جدولي.
                                            r143 (Phase-4 W1 D10): قانون صدق r92 «TEXT follows
                                            ENFORCEMENT» يمتد لصفوف الحدود — كانت 9999/99999
                                            تُعرض «غير محدود» بينما الحارس يرفض الصنف 9999
                                            (PlanLimitError) وخصائص الخطة نفسها تقول
-                                           «أصناف حتى 9999» — كذب داخل بطاقة واحدة. */}
+                                           «أصناف حتى 9999» — كذب داخل بطاقة واحدة.
+                                           P42 (Wave-1): رقم العقد نص ثابت فوري — لا عدّ متحرك.
+                                           أنيميشن 0←القيمة كان يعرض «حتى 0» في منتصف الحركة
+                                           (لقطات الشاشة الحية أثبتته على البطاقات الثلاث)،
+                                           والعدّ المتحرك مكانه التسويقي وحده (هيرو الهبوط)،
+                                           لا أرقام عقود تُقرأ وتُقارن. */}
                                         {[
                                                 ['المنيو', `حتى ${plan.maxMenus}`],
                                                 ['الأصناف', `حتى ${plan.maxItems}`],
@@ -154,7 +158,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                                         <span className="text-muted-foreground shrink-0">{label as string}</span>
                                                         <i className="menu-leader-rule" aria-hidden="true" />
                                                         <span className="font-semibold font-mono tabular-nums shrink-0">
-                                                                <CountUp value={val as string} />
+                                                                {val as string}
                                                         </span>
                                                 </div>
                                         ))}

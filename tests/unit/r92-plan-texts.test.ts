@@ -15,16 +15,42 @@
  *      slugs, never environment ids), cap-guarded (writes the number the row
  *      actually enforces), LIKE-guarded (idempotent), and the typo replace
  *      runs BEFORE the Basic orders replace (order-sensitive chain).
+ *
+ * P42 (Wave-1 fix 1+5) extends the same law to the PRICING CARD RENDER: the
+ * three limit leader rows (المنيو/الأصناف/الطلبات) must be plain, instant
+ * text whose first frame is the final frame — and what they show must equal
+ * the sold ladder in default-plans.json (see the last describe below).
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
 import { DEFAULT_PLANS as SEED_PLANS_RAW } from '../../scripts/ci-seed.mjs';
 // r93-N2 (F3/H-2): تغطية نصف الحقيقة المفقود — نفس الثوابت التي يكتبها
 // مسار /api/seed (المصدر المشترك) حتى يصبح افتراقه عن ci-seed مستحيلًا.
 // scripts/ مستثنى من tsconfig ولا يستنتج TS نوع JSON.parse — نصرّح بالنوع المشترك.
 import { DEFAULT_PLANS as API_DEFAULT_PLANS, type DefaultPlan } from '@/lib/default-plans';
+import type { Plan } from '@/lib/plan-types';
+import { formatPrice } from '@/lib/format';
 const DEFAULT_PLANS: DefaultPlan[] = SEED_PLANS_RAW;
+
+/* P42 render half — the same SSR-runtime stubs the r121-subscribe-ssr tests
+ * use: the page Header needs next/navigation at runtime, and next/image
+ * cannot resolve the Next loader under plain renderToString (the brand mark
+ * is not what these tests pin). vi.mock is hoisted above the import below. */
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/pricing',
+}));
+
+vi.mock('next/image', () => ({
+  default: ({ priority: _p, ...props }: Record<string, unknown> & { priority?: boolean }) =>
+    createElement('img', props),
+}));
+
+import { PricingClient } from '@/components/pricing/PricingClient';
 
 const MIGRATION_SQL = readFileSync(
   fileURLToPath(new URL('../../prisma/migrations/20260907_round92_plan_texts/migration.sql', import.meta.url)),
@@ -219,5 +245,147 @@ describe('round92-A3/A4 — data migration safety contract', () => {
   it('never keys a fix on numeric ids (portable across environments: prod 86-90 ≠ local 1-2)', () => {
     expect(MIGRATION_SQL).not.toMatch(/WHERE id\s*=/);
     expect(MIGRATION_SQL).not.toMatch(/WHERE\s+\"?id\"?\s*=/);
+  });
+});
+
+/* ── P42 (Wave-1 fix 1+5) — the pricing card's limit rows: plain, instant ────
+ *
+ * THE BUG (live evidence, P42-1a/1c): the three limit leader rows rode the
+ * count-up animator — a component whose own contract says «Marketing/hero
+ * use only — never for live in-app data» (src/components/ui/CountUp.tsx).
+ * Its 0→value animation (1100ms) put «حتى 0» on all three rows in
+ * mid-animation screenshots of the LIVE pricing page. The fix renders the
+ * values as plain spans — the SSR string is the final string, first frame
+ * to last.
+ *
+ * This block pins the parity on BOTH levels (the r92 law extended to the
+ * render): the MAPPING the component builds (`حتى ${cap}` from each plan's
+ * own caps), and the ACTUAL component output (PricingClient rendered via
+ * the r121-subscribe-ssr renderToString pattern, seeded with DEFAULT_PLANS
+ * — the same source the seed/api equality above already locks together, so
+ * what the cards SHOW must equal what default-plans.json SELLS):
+ *   1) the Free card's three rows: «حتى 1» / «حتى 10» / «حتى 100»;
+ *   2) «حتى 0» appears NOWHERE (the screenshot lie cannot re-form);
+ *   3) the rendered limit ladder equals the (maxMenus, maxItems, maxOrders)
+ *      tuples of default-plans.json for ALL 5 plans — any drift between
+ *      what the cards show and what is sold fails here.
+ */
+describe('P42 — صفوف حدود التسعير: نص فوري يطابق السلم المباع', () => {
+  /* (1) the mapping — the exact strings PlanCard builds from each plan. */
+  const limitRows = DEFAULT_PLANS.flatMap((p) => [
+    `حتى ${p.maxMenus}`,
+    `حتى ${p.maxItems}`,
+    `حتى ${p.maxOrders}`,
+  ]);
+
+  it('الخريطة: صفوف المجاني الثلاثة — حتى 1 / حتى 10 / حتى 100', () => {
+    const free = DEFAULT_PLANS.find((p) => p.name === 'Free');
+    expect(free).toBeDefined();
+    expect([
+      `حتى ${free!.maxMenus}`,
+      `حتى ${free!.maxItems}`,
+      `حتى ${free!.maxOrders}`,
+    ]).toEqual(['حتى 1', 'حتى 10', 'حتى 100']);
+  });
+
+  it('الخريطة: لا «حتى 0» لأي خطة — سقف صفري كذبة لا تمرّ من هنا', () => {
+    expect(limitRows).not.toContain('حتى 0');
+    for (const p of DEFAULT_PLANS) {
+      for (const cap of [p.maxMenus, p.maxItems, p.maxOrders]) {
+        expect(cap, `${p.name} cap`).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+
+  it('الخريطة: السلم الخمسي كاملًا كما يُباع (Free→Enterprise)', () => {
+    expect(limitRows).toEqual([
+      'حتى 1', 'حتى 10', 'حتى 100', // Free
+      'حتى 1', 'حتى 50', 'حتى 500', // Basic
+      'حتى 2', 'حتى 100', 'حتى 1000', // Premium
+      'حتى 3', 'حتى 9999', 'حتى 99999', // Pro
+      'حتى 10', 'حتى 9999', 'حتى 99999', // Enterprise
+    ]);
+  });
+
+  /* (2) the render — DEFAULT_PLANS in the Plan shape /api/plans (via
+   * plans-server.ts) hands the pricing page (r121: the wrapper bakes exactly
+   * this mapping in via ISR; ci-seed ↔ /api/seed equality is pinned above). */
+  const PLANS: Plan[] = DEFAULT_PLANS.map((p: DefaultPlan, i: number) => ({
+    id: i + 1,
+    name: p.name,
+    nameAr: p.nameAr,
+    price: p.price,
+    periodDays: p.periodDays,
+    features: [...p.features],
+    maxMenus: p.maxMenus,
+    maxItems: p.maxItems,
+    maxOrders: p.maxOrders,
+    sortOrder: p.sortOrder,
+  }));
+
+  const html = renderToString(createElement(PricingClient, { initialPlans: PLANS }));
+
+  /** The limit leader rows render <span …>حتى N</span> — anchored at the span
+   * end so a feature string merely MENTIONING a number can never satisfy the
+   * pin (filterLimitFeatures drops the exact restatements; the anchor keeps
+   * their return from silently re-counting). */
+  const limitSpans = [...html.matchAll(/حتى (\d+)<\/span>/g)].map((m) => Number(m[1]!));
+  const spanCounts = new Map<number, number>();
+  for (const n of limitSpans) spanCounts.set(n, (spanCounts.get(n) ?? 0) + 1);
+
+  it('البطاقة ترسم صفوف المجاني نصًا فوريًا: حتى 1 / حتى 10 / حتى 100', () => {
+    expect(html).toContain('>حتى 1</span>');
+    expect(html).toContain('>حتى 10</span>');
+    expect(html).toContain('>حتى 100</span>');
+  });
+
+  it('«حتى 0» لا يظهر في HTML التسعير إطلاقًا — كذبة منتصف الأنيميشن لا يمكن أن تتشكل مجددًا', () => {
+    expect(html).not.toContain('حتى 0');
+  });
+
+  it('السلم المرسوم = سقوف default-plans للخطط الخمس كلها (انحراف العرض عن المبيع يفشل هنا)', () => {
+    // 3 limit rows per plan, every value from the plan's own caps
+    expect(limitSpans).toHaveLength(DEFAULT_PLANS.length * 3);
+    const expected = new Map<number, number>();
+    for (const p of DEFAULT_PLANS) {
+      for (const v of [p.maxMenus, p.maxItems, p.maxOrders]) {
+        expected.set(v, (expected.get(v) ?? 0) + 1);
+      }
+    }
+    expect(Object.fromEntries(spanCounts), 'المرسوم «حتى N» مقابل سقوف default-plans').toEqual(
+      Object.fromEntries(expected),
+    );
+  });
+
+  it('كل بطاقة تعرض سعرها المباع: المجاني «مجاني» والمدفوع الرقم الخام', () => {
+    for (const p of DEFAULT_PLANS) {
+      expect(html, `${p.name} card title`).toContain(`>${p.nameAr}</h2>`);
+      if (p.price === 0) {
+        // the metric-grade price div (not the nameAr h2) carries the free label
+        expect(html, `${p.name} free price`).toContain('>مجاني</div>');
+      } else {
+        expect(html, `${p.name} paid price`).toContain(
+          `>${formatPrice(p.price, { suffix: '' })}</span>`,
+        );
+      }
+    }
+  });
+
+  it('بصمة CountUp الـSSR (data-numeric) اختفت من HTML التسعير', () => {
+    expect(html).not.toContain('data-numeric');
+  });
+
+  it('عقد المصدر: PricingClient لا يلمس العدّاد — وهيرو الهبوط يحتفظ به (مقرّه التسويقي)', () => {
+    const pricingSrc = readFileSync(
+      fileURLToPath(new URL('../../src/components/pricing/PricingClient.tsx', import.meta.url)),
+      'utf8',
+    );
+    expect(pricingSrc).not.toMatch(/CountUp/);
+    // out of scope by design: marketing counters stay on the landing
+    const landingSrc = readFileSync(
+      fileURLToPath(new URL('../../src/components/landing/HomePage.tsx', import.meta.url)),
+      'utf8',
+    );
+    expect(landingSrc).toContain('CountUp');
   });
 });
