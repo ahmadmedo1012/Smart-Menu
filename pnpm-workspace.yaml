@@ -55,6 +55,34 @@ overrides:
   #   brace-expansion <1.1.18 DoS (GHSA-4g29-xg2q-p4r6 + 14257 bypass)
   #   brace-expansion >=4 <5.0.9 same class via typescript-estree/minimatch 10
   #   js-yaml <4.3.1 quadratic !!omap CPU (GHSA-5p4m-2wfm-xmqj)
-  'brace-expansion@<1.1.18': ^1.1.18
-  'brace-expansion@>=4.0.0 <5.0.9': ^5.0.9
+  # P42 (B7): the selectors extend for the NEW wave — GHSA-qhr7-859c-m2p7
+  # (stack-exhaustion recursion on nested brace groups: <1.1.20 / >=4 <5.0.11
+  # patched at 1.1.20 / 5.0.11, both published 2026-09-14, well past the age
+  # gate) supersedes the round88 floors — the selectors now carry the newer
+  # minimums; same dev-chain-only exposure.
+  'brace-expansion@<1.1.20': ^1.1.20
+  'brace-expansion@>=4.0.0 <5.0.11': ^5.0.11
   'js-yaml@>=4.0.0 <4.3.1': ^4.3.1
+  # P42 (B7): minimatch GHSA-g3hv-75wg-m249 (DoS via globparts amplification,
+  # vulnerable <11.0.1, patched ONLY in 11.x) — the eslint ^9 chain resolves
+  # 3.1.5 and no parent range can ever reach the fixed major (the same wall
+  # Smart-Link root and Smart-Order /mobile hit; Smart-Order's root proved the
+  # 11.0.3 override green on eslint 9.39.5 — minimatch 11 is dual CJS/ESM).
+  # Dev-tooling only; this is also what stops the failing Dependabot security
+  # job (update_not_possible: latest-resolvable 3.1.5 vs 11.0.1 required).
+  minimatch: ^11.0.1
+  # P42 (B7): vite >=8.1.6 (files outside server.fs.allow could be served —
+  # moderate; published 2026-10-06, past the age gate). vite is transitive via
+  # vitest (the direct devDep); the override fixes the whole tree without
+  # waiting for vitest to re-pin its vite range.
+  vite: 8.1.6
+  # P42 (B7, accepted): smol-toml <=1.8.0 quadratic parseKey (moderate) rides
+  # ONLY inside knip@5.46.4's own subtree (pinned devDep — the round90-F6 zod
+  # carve-out's neighbor; parses knip's LOCAL config during `npx knip` runs;
+  # zero production exposure). The patched 1.8.1 DOES NOT EXIST on npm yet
+  # (latest 1.8.0, published 2026-08-11) — no version to override TO. Accepted
+  # as dev-tooling moderate until upstream ships the fix; the failing Dependabot
+  # smol-toml job is the same update_not_possible (no patched release).
+  # P42 (B7): launch-editor rides vite's dev server only (never production) —
+  # the vite ^8.1.6 bump above refreshes the dev-server chain; if the advisory
+  # persists after the bump it stays inside the same dev-only accepted class.
