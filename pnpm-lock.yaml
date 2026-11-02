@@ -24,6 +24,7 @@ overrides:
   js-yaml@>=4.0.0 <4.3.1: ^4.3.1
   minimatch: ^11.0.1
   vite: 8.1.6
+  knip>smol-toml: ^1.9.0
 
 importers:
 
@@ -3199,8 +3200,8 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  smol-toml@1.8.0:
-    resolution: {integrity: sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy+ojN0uHSQ==}
+  smol-toml@1.9.1:
+    resolution: {integrity: sha512-j7WyPdf0CJoutMzMoPLF/bVXHtKZIT9Rb4eGeEbWw8X2t5oirjPgpL+OpaENZrILYaXqYwnVH+qgUwVbl+pUJQ==}
     engines: {node: '>= 18'}
 
   sonner@2.0.8:
@@ -5978,7 +5979,7 @@ snapshots:
       picocolors: 1.1.1
       picomatch: 4.0.5
       pretty-ms: 9.3.1
-      smol-toml: 1.8.0
+      smol-toml: 1.9.1
       strip-json-comments: 5.0.1
       summary: 2.1.0
       typescript: 5.9.3
@@ -6687,7 +6688,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  smol-toml@1.8.0: {}
+  smol-toml@1.9.1: {}
 
   sonner@2.0.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:

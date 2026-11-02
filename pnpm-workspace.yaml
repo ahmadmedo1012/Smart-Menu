@@ -76,13 +76,14 @@ overrides:
   # vitest (the direct devDep); the override fixes the whole tree without
   # waiting for vitest to re-pin its vite range.
   vite: 8.1.6
-  # P42 (B7, accepted): smol-toml <=1.8.0 quadratic parseKey (moderate) rides
-  # ONLY inside knip@5.46.4's own subtree (pinned devDep — the round90-F6 zod
-  # carve-out's neighbor; parses knip's LOCAL config during `npx knip` runs;
-  # zero production exposure). The patched 1.8.1 DOES NOT EXIST on npm yet
-  # (latest 1.8.0, published 2026-08-11) — no version to override TO. Accepted
-  # as dev-tooling moderate until upstream ships the fix; the failing Dependabot
-  # smol-toml job is the same update_not_possible (no patched release).
+  # P42-2 (B7 follow-up): smol-toml <=1.8.0 quadratic parseKey (GHSA-r4xh-
+  # jqrq-34v2, moderate) rides ONLY inside knip@5.46.4's own subtree (pinned
+  # devDep; parses knip's LOCAL config during `npx knip` runs; zero production
+  # exposure). The Wave-1 note accepted it because "the patched 1.8.1 does
+  # not exist on npm yet" — 1.9.0 HAS since shipped (2026-09-22, well past
+  # the age gate), so the exception converts to an active carve-out fix.
+  # Scope stays knip-only, mirroring the 'knip>zod' carve-out above.
+  'knip>smol-toml': ^1.9.0
   # P42 (B7): launch-editor rides vite's dev server only (never production) —
   # the vite ^8.1.6 bump above refreshes the dev-server chain; if the advisory
   # persists after the bump it stays inside the same dev-only accepted class.
