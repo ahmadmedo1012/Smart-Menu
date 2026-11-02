@@ -11,6 +11,24 @@ packages: []
 # (expo-linking) is exactly the attack surface. Patched line: 0.5.0.
 # NOTE (r103): values are EXACT pins — EAS's frozen-install config comparison
 # choked on range syntax (^0.5.0) with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH.
+#
+# P42 (B7): the same minimatch/glob wall the fleet's other mobiles hit —
+# GHSA-g3hv-75wg-m249 (minimatch <11.0.1, fix ONLY in 11.x; the Expo/eslint
+# chains here resolved 3.1.5/8.0.7/10.2.6 and no parent range reaches the
+# fixed major) and GHSA-3g3m-2fjr-6pw4 (glob 9.0.0–14.0.1, fixed 14.0.2+;
+# @expo tooling pins ^13, and this tree also carried a stray glob@9.3.5).
+# Exact pins per the r103 rule; 11.0.3/14.0.3 proved green through the full
+# mobile gate on the Smart-Link and Smart-Order mobiles (same Expo SDK line).
+#
+# P42 (B7, operational): the ACTIVE overrides source for this project is
+# package.json → pnpm.overrides (pnpm 10 gives it precedence and IGNORES the
+# workspace yaml's set when both exist — that's exactly how the uuid ^11.1.1
+# pin below lived only in package.json while this file claimed to be the
+# source). The two sets are now kept IDENTICAL on purpose; if you add an
+# override, add it to package.json and mirror it here.
 overrides:
   decode-uri-component: 0.5.0
   postcss: 8.5.26
+  uuid: ^11.1.1
+  minimatch: 11.0.3
+  glob: 14.0.3
