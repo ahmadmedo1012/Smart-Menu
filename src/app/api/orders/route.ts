@@ -227,6 +227,9 @@ export async function POST(request: NextRequest) {
                         where: {
                                 id: { in: body.items.map((i) => i.itemId) },
                                 status: 'available',
+                                // P42-W3 (الأرشفة الحقيقية): الصنف المؤرشف غير قابل
+                                // للطلب — مثل غير المتوفر تمامًا لكن بلا وجود عام.
+                                archivedAt: null,
                                 // r118-A3-P2: الفئة غير النشطة تُخفى من القائمة (الفئات
                                 // تُجلب بـ isActive:true) لكن أصنافها كانت تظل قابلة
                                 // للطلب مباشرة — نفس الفلتر في الصفحة وواجهة الموبايل.

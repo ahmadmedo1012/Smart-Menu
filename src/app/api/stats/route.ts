@@ -45,7 +45,12 @@ export async function GET(request: NextRequest) {
 		] = await Promise.all([
 			prisma.order.count({ where: { restaurantId } }),
 			prisma.order.count({ where: { restaurantId, createdAt: { gte: today } } }),
-			prisma.menuItem.count({ where: { category: { is: { restaurantId } } } }),
+			// P42-W3 (الأرشفة): عدّاد أصناف لوحة المالك = القائمة الحية
+			// (غير المؤرشف) — الرقم الذي يوازنه المالك ضد سقف خطته هو
+			// نفسه الذي يراه زبونه.
+			prisma.menuItem.count({
+				where: { archivedAt: null, category: { is: { restaurantId } } },
+			}),
 			prisma.orderItem.groupBy(popularItemsQuery({ restaurantId, take: 10, since: ninetyDaysAgo })),
 			prisma.order.findMany({
 				where: { restaurantId },

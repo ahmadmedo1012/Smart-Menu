@@ -38,6 +38,9 @@ export interface Item {
         discountedPrice: number | null;
         image: string;
         status: string;
+        // P42-W3 (الأرشفة الحقيقية): ISO timestamp = مؤرشف (غائب عن كل عرض
+        // عام، سجله سليم) · null/undefined = صنف حي.
+        archivedAt?: string | null;
         sortOrder: number;
         categoryId: number;
         isFeatured?: boolean;

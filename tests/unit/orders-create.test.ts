@@ -200,6 +200,9 @@ describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
                         where: {
                                 id: { in: [1] },
                                 status: 'available',
+                                // P42-W3: archived items are unorderable — the same
+                                // visibility the menu surfaces enforce (strengthens r118-A3-P2).
+                                archivedAt: null,
                                 // r118-A3-P2: inactive-category items are hidden from the menu
                                 // surfaces — the order path now enforces the same visibility.
                                 category: { is: { restaurantId: 5, isActive: true } },

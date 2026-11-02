@@ -188,6 +188,15 @@ model MenuItem {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   status          ItemStatus   @default(available)
+  // P42-W3 (قرار المالك عبر IM، 2026-11-02): الأرشفة الحقيقية — طابع زمني
+  // قابل للإبطال. الصنف المؤرشف يغادر كل واجهة عامة (صفحة المنيو العامة،
+  // حمولة الجوال API، تقديم الطلبات، المعرض المميز، سقف أصناف الباقة) بينما
+  // يبقى سجله المرتبط كاملًا: OrderItem (Restrict) وReview وstats تعرّفه
+  // بالاسم كما كان. اختاره المالك بديلًا عن الحذف لأصناف الاختبار الأربعة
+  // المثبتة (الطلبات المختلطة الـ13 بيانات تُحفظ بحالتها) — والأداة العامة
+  // (أرشفة/استرجاع) في صفحة منيو المالك. NULL = غير مؤرشف = السلوك القديم
+  // حرفيًا؛ NOT NULL = مؤرشف (القيمة = لحظة الأرشفة، للتدقيق).
+  archivedAt      DateTime?
   avgRating       Decimal?     @db.Decimal(3, 2)
   ratingCount     Int          @default(0)
   dietaryTags     String[]     @default([])

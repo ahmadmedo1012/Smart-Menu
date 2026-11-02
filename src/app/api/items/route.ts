@@ -101,6 +101,16 @@ export async function GET(request: NextRequest) {
                 if (status !== undefined && !itemStatusValues.includes(status)) {
                         return error('حالة الصنف غير صالحة', 400);
                 }
+                /* P42-W3 (الأرشفة الحقيقية): معامل لوحة الأرشيف — حصري للمالك/الطاقم.
+                 * ‎?archived=true‎ = الأصناف المؤرشفة فقط (لوحة «المؤرشفة» في صفحة
+                 * المنيو)؛ ‎?archived=all‎ = الكل (تدقيق)؛ الغياب = الافتراضي:
+                 * غير المؤرشف فقط — وهو أيضًا الحالة الوحيدة الممنوحة لغير
+                 * المصرّح لهم أدناه، فالصنف المؤرشف يغادر كل تعداد عام مهما
+                 * كانت باقي المعاملات. */
+                const archivedParam = searchParams.get('archived');
+                if (archivedParam !== null && !['true', 'false', 'all'].includes(archivedParam)) {
+                        return error('قيمة معامل الأرشفة غير صالحة', 400);
+                }
 
                 // r93-W1a (MED-3): حد المعدل قبل أي عمل DB (requireAuth نفسه
                 // يستعلم الجلسة، وfindMany/count بعده) — وبعد فروع تحقق
@@ -152,6 +162,15 @@ export async function GET(request: NextRequest) {
                 // anonymous caller must not flip ?status=hidden to bypass the
                 // available-only filter above)
                 if (status && canSeeAll) where.status = status;
+                /* P42-W3: التطبيق النهائي لمرشّح الأرشفة — غير المصرّح لهم (مجهول/
+                 * USER) لا يرون المؤرشف أبدًا (متطلب العرض العام)، والمالك/الطاقم
+                 * يتحكم المعامل: غيابه = غير المؤرشف (القائمة الحية كما كانت)،
+                 * true = المؤرشف فقط (لوحة الاسترجاع)، all = بلا مرشّح (تدقيق). */
+                if (!canSeeAll || archivedParam === null || archivedParam === 'false') {
+                        where.archivedAt = null;
+                } else if (archivedParam === 'true') {
+                        where.archivedAt = { not: null };
+                }
 
                 // round87-B9: only the multi-restaurant admin console reads
                 // category.restaurant from this list (search + column). The owner
@@ -267,7 +286,13 @@ export async function POST(request: NextRequest) {
                         });
                         const effectiveMaxItems = locked?.maxItems ?? category.restaurant.maxItems;
                         const existingCount = await tx.menuItem.count({
-                                where: { category: { is: { restaurantId: category.restaurant.id } } },
+                                where: {
+                                        category: { is: { restaurantId: category.restaurant.id } },
+                                        // P42-W3 (الأرشفة الحقيقية): المؤرشف لا يحتسب في
+                                        // سقف الأصناف — ليس محتوى قائمة حية (لا يُعرض ولا
+                                        // يُطلب)، فاحتسابه كان يعاقب المالك مرتين.
+                                        archivedAt: null,
+                                },
                         });
                         if (existingCount >= effectiveMaxItems) {
                                 // round89-E1: unified plan-cap error (was local ItemLimitError)

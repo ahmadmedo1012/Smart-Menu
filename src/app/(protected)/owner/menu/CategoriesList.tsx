@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Package, ChevronUp, ChevronDown } from 'lucide-react';
+import { Pencil, Package, ChevronUp, ChevronDown, Archive } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -34,6 +34,9 @@ interface CategoriesListProps {
         onToggleItemStatus: (item: Item) => void;
         onEditItem: (item: Item) => void;
         onDeleteItem: (item: Item) => void;
+        /* P42-W3 (الأرشفة الحقيقية): زر الأرشفة لكل صنف — يفتح حوار التأكيد
+         * في الصفحة (النموذج غير تدميري: يختفي من العرض العام ويبقى السجل). */
+        onArchiveItem: (item: Item) => void;
         onAddCategory: () => void;
         /* W6-B6 (G-2) — الترتيب + الإخفاء/الإظهار الجماعي */
         selectedItemIds: Set<number>;
@@ -62,6 +65,7 @@ export function CategoriesList({
         onToggleItemStatus,
         onEditItem,
         onDeleteItem,
+        onArchiveItem,
         onAddCategory,
         selectedItemIds,
         bulk,
@@ -434,6 +438,19 @@ export function CategoriesList({
                                                                                                                 aria-label="تعديل"
                                                                                                         >
                                                                                                                 <Pencil className="size-3.5" />
+                                                                                                        </Button>
+                                                                                                        {/* P42-W3 (الأرشفة الحقيقية): بديل الحذف الآمن لكل
+                                                                                                            صنف — غياب كامل عن العرض العام (ليس sold-out)
+                                                                                                            مع بقاء الطلبات/التقييمات سليمة. */}
+                                                                                                        <Button
+                                                                                                                variant="ghost"
+                                                                                                                size="icon"
+                                                                                                                className="h-10 w-10 text-muted-foreground hover:text-accent-foreground"
+                                                                                                                onClick={() => onArchiveItem(item)}
+                                                                                                                title="أرشفة — يختفي من القائمة العامة ويبقى السجل"
+                                                                                                                aria-label={`أرشفة ${item.name}`}
+                                                                                                        >
+                                                                                                                <Archive className="size-3.5" />
                                                                                                         </Button>
                                                                                                         <Button
                                                                                                                 variant="ghost"

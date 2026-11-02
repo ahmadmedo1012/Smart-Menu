@@ -94,6 +94,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                                 SELECT c."restaurantId" AS "restaurantId", COUNT(mi."id") AS "items"
                                 FROM "MenuCategory" c
                                 JOIN "MenuItem" mi ON mi."categoryId" = c."id"
+                                -- P42-W3 (الأرشفة): بوابة المحتوى ≥3 تقيس القائمة
+                                -- العامة الحية — المؤرشف غائب عن العرض.
+                                WHERE mi."archivedAt" IS NULL
                                 GROUP BY c."restaurantId"
                         `,
                         // round92-A5: last order per restaurant inside the activity

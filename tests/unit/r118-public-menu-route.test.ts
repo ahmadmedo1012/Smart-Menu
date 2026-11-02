@@ -204,6 +204,9 @@ describe('GET /api/public/menu/[slug] — payload contract (mobile types)', () =
                         expect.objectContaining({
                                 where: {
                                         status: 'available',
+                                        // P42-W3: archived items leave the mobile payload
+                                        // entirely (the web page filter is byte-identical).
+                                        archivedAt: null,
                                         category: { is: { restaurantId: 313, isActive: true } },
                                 },
                         })

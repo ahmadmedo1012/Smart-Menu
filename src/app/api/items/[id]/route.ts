@@ -56,7 +56,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
                 // Owners are additionally tenant-scoped (same ownership rule as
                 // PUT/DELETE in this file) — an owner of restaurant A must not
                 // read restaurant B's draft rows.
-                if (item.status !== 'available') {
+                // P42-W3: المؤرشف يخضع لنفس البوابة — هو أخفى من «غير المتوفر»
+                // أصلًا (غياب كامل عن العرض العام)، فقراءته بالمعرّف حق إداري.
+                if (item.status !== 'available' || item.archivedAt != null) {
                         const auth = await requireAuth();
                         const staff =
                                 auth.authorized &&
@@ -94,6 +96,11 @@ const updateSchema = z.object({
         image: z.string().max(200_000, 'الصورة كبيرة جداً — الحد الأقصى حوالي 150 كيلوبايت بعد الضغط').optional(),
         // round90-F3: enum-backed status (see itemStatusValues above).
         status: z.enum(itemStatusValues, { message: 'حالة الصنف غير صالحة' }).optional(),
+        // P42-W3 (الأرشفة الحقيقية): ISO-8601 → أرشفة، null → استرجاع، الغياب →
+        // لا ملامسة (قاعدة التحديث الجزئي نفسها). الصنف المؤرشف يغادر كل واجهة
+        // عامة ويبقى سجله (طلبات/تقييمات) سليمًا — هذا بديل الحذف الذي اختاره
+        // المالك للأصناف ذات السجل.
+        archivedAt: z.coerce.date().nullable().optional(),
         sortOrder: z.number().int().optional(),
         categoryId: z.number().int().positive().optional(),
         // No .default([]) — omitted fields must not overwrite stored values.
@@ -331,7 +338,7 @@ export async function DELETE(
                                 const fk = err.meta?.field_name ?? '';
                                 if (fk.includes('OrderItem')) {
                                         return error(
-                                                'هذا الصنف له سجل طلبات فعلية لا يمكن حذفه — أخفِه (عطّل التوفر) بدل حذفه للحفاظ على سجل الطلبات',
+                                                'هذا الصنف له سجل طلبات فعلية لا يمكن حذفه — أرشِفه بدل الحذف: يختفي من القائمة العامة ويبقى سجل طلباتك وتقييماته سليمًا',
                                                 409,
                                         );
                                 }

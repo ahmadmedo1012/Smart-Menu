@@ -20,6 +20,7 @@ import { computeMoveWrites, moveItemInList } from '@/lib/menu-reorder';
 import { type Category, type Item, CATEGORY_ICONS } from './types';
 import { CategoriesList } from './CategoriesList';
 import { CategoryDialog } from './CategoryDialog';
+import { ArchivedItems } from './ArchivedItems';
 
 /* W6-B6 (G-2): ثوابت تحميل الأصناف — انظر التعليق أعلى fetchItems. */
 const ITEMS_PAGE_SIZE = 100; // سقف parsePagination لمسار items
@@ -43,6 +44,9 @@ export default function OwnerMenuPage() {
                 id: number;
                 name: string;
         } | null>(null);
+        /* P42-W3 (الأرشفة الحقيقية): هدف حوار تأكيد الأرشفة — نمط ConfirmDialog
+         * نفسه لكن غير تدميري (الاسترجاع متاح دائمًا من لوحة «المؤرشفة»). */
+        const [archiveTarget, setArchiveTarget] = useState<Item | null>(null);
         const [usageKey, setUsageKey] = useState(0);
         const [error, setError] = useState<string | null>(null);
         /* W6-B6 (G-2 — تدقيق W6-A3): حالة الترتيب والتحديد الجماعي. */
@@ -206,6 +210,31 @@ export default function OwnerMenuPage() {
                                 next.delete(deleteTarget.id);
                                 return next;
                         });
+                }
+        };
+
+        /* ── P42-W3 (الأرشفة الحقيقية): أرشفة صنف — غير تدميري ────────────────
+           PUT ‎{archivedAt: now}‎ واحد: الصنف يغادر كل واجهة عامة (القائمة،
+           الجوال، الطلب، سقف الباقة) ويبقى صفه وسجله (طلبات/تقييمات) سليمًا.
+           الاسترجاع لاحقًا من لوحة «الأصناف المؤرشفة» أدناه (PUT null). */
+        const archiveItem = async () => {
+                if (!archiveTarget) return;
+                const target = archiveTarget;
+                setArchiveTarget(null);
+                try {
+                        await csrfJson(`/api/items/${target.id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ archivedAt: new Date().toISOString() }),
+                        });
+                        premiumToast(
+                                'save',
+                                `تمت أرشفة «${target.nameAr || target.name}» — اختفى من القائمة العامة وبقي سجله سليمًا`,
+                        );
+                        if (expandedCat) fetchItems(expandedCat);
+                        setUsageKey((k) => k + 1); // المؤرشف غادر سقف الباقة — العداد يتحدث
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'تعذّرت الأرشفة'));
                 }
         };
 
@@ -438,6 +467,7 @@ export default function OwnerMenuPage() {
                                 onToggleItemStatus={toggleStatus}
                                 onEditItem={handleEditItem}
                                 onDeleteItem={handleDeleteItem}
+                                onArchiveItem={(item) => setArchiveTarget(item)}
                                 onAddCategory={handleAddCategory}
                                 selectedItemIds={selectedItemIds}
                                 bulk={bulk}
@@ -451,6 +481,19 @@ export default function OwnerMenuPage() {
                                 onBulkStatus={applyBulkStatus}
                                 onMoveItem={moveItem}
                         />
+
+                        {/* P42-W3 (الأرشفة الحقيقية): لوحة الأصناف المؤرشفة —
+                            مكان الاسترجاع والاطلاع، خارج تصنيفات القائمة الحية */}
+                        {restaurantId > 0 && (
+                                <ArchivedItems
+                                        restaurantId={restaurantId}
+                                        onUsageChanged={() => setUsageKey((k) => k + 1)}
+                                        onItemRestored={() => {
+                                                if (expandedCat) fetchItems(expandedCat);
+                                                else fetchCats();
+                                        }}
+                                />
+                        )}
 
                         <CategoryDialog
                                 open={catDialog}
@@ -488,6 +531,23 @@ export default function OwnerMenuPage() {
                                 confirmLabel="حذف"
                                 onConfirm={() => delTarget()}
                                 destructive
+                        />
+
+                        {/* P42-W3: حوار الأرشفة — نفي صريح للجملة التدميرية للحذف:
+                            رسالة تقول بالضبط ما يحدث (غياب من العرض العام + بقاء
+                            السجل) وما لا يحدث (لا حذف بيانات). */}
+                        <ConfirmDialog
+                                open={archiveTarget !== null}
+                                onOpenChange={(o) => !o && setArchiveTarget(null)}
+                                title="أرشفة الصنف"
+                                description={
+                                        archiveTarget
+                                                ? `سيختفي «${archiveTarget.nameAr || archiveTarget.name}» من القائمة العامة وتطبيق الجوال ولن يكون قابلًا للطلب — دون حذف أي بيانات: يبقى سجل طلباته وتقييماته سليمًا، ويمكنك استرجاعه في أي وقت من لوحة «الأصناف المؤرشفة».`
+                                                : ''
+                                }
+                                confirmLabel="أرشفة"
+                                onConfirm={() => archiveItem()}
+                                destructive={false}
                         />
                 </div>
         );

@@ -107,7 +107,9 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                         name: true,
                         nameAr: true,
                         items: {
-                                where: { status: 'available' },
+                                // P42-W3 (الأرشفة الحقيقية): الورقة المطبوعة سطح
+                                // عام كامل — الصنف المؤرشف لا يُطبع.
+                                where: { status: 'available', archivedAt: null },
                                 orderBy: { sortOrder: 'asc' },
                                 select: {
                                         id: true, name: true, nameAr: true, description: true, descriptionAr: true,

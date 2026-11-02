@@ -161,6 +161,7 @@ async function fetchShowcaseFlags(restaurantId: number) {
                         SELECT "id", "isFeatured", "featuredRank", "showcaseTags"
                         FROM "MenuItem"
                         WHERE "isFeatured" = true
+                          AND "archivedAt" IS NULL
                           AND "categoryId" IN (
                                 SELECT "id" FROM "MenuCategory" WHERE "restaurantId" = ${restaurantId}
                           )
@@ -200,7 +201,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         // filter) — sold-out items ship with isAvailable:false and the
                         // customer grid greys them out. Only the ORDER API still gates
                         // on availability (server re-validation stays the truth).
-                        where: { category: { is: { restaurantId: restaurant.id, isActive: true } } },
+                        where: {
+                                archivedAt: null,
+                                category: { is: { restaurantId: restaurant.id, isActive: true } },
+                        },
                         select: {
                                 // round86-B7: no per-item category embed (categories are sent
                                 // once and joined by categoryId client-side) — ~15-25% smaller flight
