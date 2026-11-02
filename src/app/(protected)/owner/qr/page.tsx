@@ -23,6 +23,10 @@ import { SelfHostedQR, qrPngDataUrl } from '@/components/shared/SelfHostedQR';
 // (tested in isolation); each code encodes /menu/{slug}?table={N} which the
 // customer side has captured since r135 (lib/table-session.ts).
 import { parseTableRange, tableMenuUrl } from '@/lib/table-qr';
+// W2-MEN-1 (P42-W3): «تحميل الكل» أصبح ملف ZIP واحدًا — بانٍ نقي بلا
+// اعتماديات (طريقة STORE: الرموز PNG مضغوطة أصلًا)، مُتحقق منه بفاكّ
+// مستقل (python zipfile) وبعقود بنيوية حتمية (tests/unit/zip.test.ts).
+import { buildZip, dataUrlToBytes } from '@/lib/zip';
 import { toArabicNumber } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 
@@ -407,18 +411,27 @@ function TableQrsSection({
                 if (downloading || tableBatch.length === 0) return;
                 setDownloading(true);
                 try {
+                        // W2-MEN-1 (P42-W2، التدقيق): كان «تحميل الكل» يطلق N
+                        // تنزيلات PNG متتالية — المتصفح يسأل/يحظر التعدد، وكل
+                        // ضغطة تعني ملفات منفصلة يديرها يدويًا. الآن: أرشيف
+                        // واحد بأسماء الملفات نفسها (qr-<slug>-table-<n>.png)
+                        // يفتحه المالك ويطبع منه مباشرة.
+                        const files = [] as { name: string; data: Uint8Array }[];
                         for (const n of tableBatch) {
-                                // r106-N2: same local data-URL generation as the single QR
-                                // download — 1000px so each PNG is crisp at 65mm/300dpi.
+                                // r106-N2: نفس التوليد المحلي — 1000px لحدّة 300dpi عند 65mm.
                                 const dataUrl = await qrPngDataUrl(tableMenuUrl(origin, slug, n), 1000);
-                                const link = document.createElement('a');
-                                link.href = dataUrl;
-                                link.download = `qr-${slug || 'menu'}-table-${n}.png`;
-                                document.body.appendChild(link);
-                                link.click();
-                                link.remove();
+                                files.push({ name: `qr-${slug || 'menu'}-table-${n}.png`, data: dataUrlToBytes(dataUrl) });
                         }
-                        premiumToast('save', `تم تحميل ${qrCountLabel(tableBatch.length)} — ملف لكل طاولة`);
+                        const zip = buildZip(files);
+                        const url = URL.createObjectURL(new Blob([zip], { type: 'application/zip' }));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `qr-${slug || 'menu'}-tables-${first}-${last}.zip`;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        URL.revokeObjectURL(url);
+                        premiumToast('save', `تم تحميل ${qrCountLabel(tableBatch.length)} في ملف واحد (ZIP)`);
                 } catch {
                         premiumToast('error', 'تعذّر تحميل رموز الطاولات');
                 } finally {
@@ -557,11 +570,11 @@ function TableQrsSection({
                                                                 variant="outline"
                                                                 onClick={downloadAll}
                                                                 loading={downloading}
-                                                                aria-label="تحميل كل رموز الطاولات"
+                                                                aria-label="تحميل كل رموز الطاولات في ملف مضغوط واحد"
                                                                 className="gap-2"
                                                         >
                                                                 <AnimatedDownload className="size-4" />
-                                                                تحميل الكل
+                                                                تحميل الكل (ZIP)
                                                         </Button>
                                                 </div>
 
