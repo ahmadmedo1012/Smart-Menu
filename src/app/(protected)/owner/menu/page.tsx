@@ -192,8 +192,12 @@ export default function OwnerMenuPage() {
                         if (deleteTarget.type === 'category') fetchCats();
                         else if (expandedCat) fetchItems(expandedCat);
                         setUsageKey((k) => k + 1);
-                } catch {
-                        premiumToast('error', 'تعذّر الحذف');
+                } catch (e) {
+                        /* P42-2 (F-1/F-3): the server's honest 409 copy (review-vs-order
+                           blocker + remedy) must reach the owner — the bare «تعذّر الحذف»
+                           hid even the category message. Same pattern as the save path
+                           above. */
+                        premiumToast('error', getErrorMessage(e, 'تعذّر الحذف'));
                 } finally {
                         // W6-B6: صنف محذوف لا يبقى في التحديد الجماعي
                         setSelectedItemIds((prev) => {
@@ -217,8 +221,11 @@ export default function OwnerMenuPage() {
                         });
                         premiumToast('save', ns === 'available' ? 'متوفر' : 'غير متوفر');
                         if (expandedCat) fetchItems(expandedCat);
-                } catch {
-                        premiumToast('error', 'تعذّر التحديث');
+                } catch (e) {
+                        /* P42-2 (F-2): the expired-subscription 403 (and any other
+                           server copy) surfaces as-is — the bare «تعذّر التحديث» made
+                           owners retry forever on a plan gate. */
+                        premiumToast('error', getErrorMessage(e, 'تعذّر التحديث'));
                 } finally {
                         setPendingToggleId(null);
                 }

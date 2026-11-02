@@ -316,7 +316,32 @@ export async function DELETE(
                         if (!perm.authorized) return error(perm.error, perm.status);
                 }
 
-                await prisma.menuItem.delete({ where: { id: delId } });
+                // P42-2 (F-1): the r119-S7 RESTRICT FKs (Review_menuItemId_fkey /
+                // OrderItem_itemId_fkey — financial-history stance) make an ever-ordered
+                // or reviewed item undeletable. The generic 400 «بيانات مرتبطة لا يمكن
+                // حذفها» gave no blocker and no remedy — map P2003 to the same honest-409
+                // family as the category DELETE (r121-D7). Items have TWO distinct
+                // blockers with TWO different remedies, so disambiguate on
+                // meta.field_name; the DB constraint stays the backstop.
+                try {
+                        await prisma.menuItem.delete({ where: { id: delId } });
+                } catch (e) {
+                        const err = e as { code?: string; meta?: { field_name?: string } };
+                        if (err?.code === 'P2003') {
+                                const fk = err.meta?.field_name ?? '';
+                                if (fk.includes('OrderItem')) {
+                                        return error(
+                                                'هذا الصنف له سجل طلبات فعلية لا يمكن حذفه — أخفِه (عطّل التوفر) بدل حذفه للحفاظ على سجل الطلبات',
+                                                409,
+                                        );
+                                }
+                                return error(
+                                        'هذا الصنف يحمل تقييمات — احذف تقييماته من صفحة «التقييمات» أولاً ثم أعد محاولة الحذف',
+                                        409,
+                                );
+                        }
+                        throw e;
+                }
 
                 logAudit({
                         action: 'delete',
