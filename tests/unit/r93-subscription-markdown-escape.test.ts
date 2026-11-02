@@ -215,6 +215,8 @@ describe('r93-W1a — مسار «مستخدم جديد»: ترميز Markdown ف
 describe('r93-W1a — مسار «الترقية»: اسم المطعم واسم الخطة مرمّزان', () => {
   it('اسم مطعم الترقية (يضعه المالك) + اسم الخطة → يصلان مرمّزين إلى قناة الموافقة', async () => {
     mockPayment({ metadata: { upgradeRestaurantId: 88 } });
+    // P42-4a: فرع الترقية يعيد قراءة صف المطعم تحت القفل (findUnique where.id)
+    txMock.restaurant.findUnique.mockResolvedValue({ id: 88, planId: null });
     txMock.restaurant.update.mockResolvedValue({ id: 88, name: EVIL_NAME, slug: 'raed' });
     txMock.subscriptionPlan.findUnique.mockResolvedValue({ id: 2, nameAr: 'خطة_[غريبة](u)', maxItems: 100, maxOrders: 500 });
 
@@ -231,6 +233,8 @@ describe('r93-W1a — مسار «الترقية»: اسم المطعم واسم 
 
   it('اسم ترقية سليم → يمر حرفيًا (الرسالة القائمة لا تنكسر)', async () => {
     mockPayment({ metadata: { upgradeRestaurantId: 88 } });
+    // P42-4a: إعادة قراءة صف المطعم تحت القفل — خطة مجانية (تخطي فحص الرتبة)
+    txMock.restaurant.findUnique.mockResolvedValue({ id: 88, planId: null });
 
     await resolveSubscriptionPayment(50, 'verified');
 

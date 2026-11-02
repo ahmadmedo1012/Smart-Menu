@@ -301,18 +301,24 @@ describe('r93-W3 — POST /api/owner/restaurants: فروع البوابة الم
                 expect(txMock.restaurant.create).not.toHaveBeenCalled();
         });
 
-        it('خطة مدفوعة → الإشعار يقول paid (فرع planId في notifyEvent)', async () => {
-                // يحمي: المشغل يميّن إنشاء مدفوعًا من مجانيًا في قناة الموافقة
+        it('P42-4a: خطة مدفوعة للمستخدم → المنيو الجديد يبدأ مجانيًا (سقوف 10/100) والإشعار يقول free', async () => {
+                // يحمي: عدم تناظر انتشار السقوف (r93) — خطة المستخدم المرتفوعة
+                // (بترقية مطعم آخر) لم تعد تُورَّث للمنيو الجديد: الصف يُكتب
+                // planId null وسقوف الخطة المجانية، والإشعار صادق مع ذلك
                 mockUserFindUnique.mockResolvedValue({
                         id: 10, planId: 3,
                         plan: { maxMenus: 5, maxItems: 30, maxOrders: 300, nameAr: 'احترافية' },
                 });
-                txMock.restaurant.create.mockResolvedValue({ ...CREATED, planId: 3 });
                 const res = await callPost(MENU_BODY);
                 expect(res.status).toBe(201);
+                const createArg = txMock.restaurant.create.mock.calls[0][0];
+                expect(createArg.data.planId).toBeNull();
+                expect(createArg.data.maxItems).toBe(10);
+                expect(createArg.data.maxOrders).toBe(100);
+                // الإشعار يقرأ من الصف المُنشأ نفسه (planId null → free)
                 expect(mockNotifyEvent).toHaveBeenCalledWith(
                         'restaurant_created',
-                        { name: 'مطعم جديد', slug: 'new-menu', plan: 'paid' },
+                        { name: 'مطعم جديد', slug: 'new-menu', plan: 'free' },
                         { adminOnly: true }
                 );
         });

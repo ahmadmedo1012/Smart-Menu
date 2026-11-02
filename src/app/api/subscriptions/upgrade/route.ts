@@ -129,11 +129,12 @@ export async function POST(request: NextRequest) {
                 });
                 if (pending) return error('لديك طلب ترقية معلق بالفعل لهذا المطعم', 400);
 
-                // Check user has no pending payment
-                const userPending = await prisma.subscriptionPayment.findFirst({
-                        where: { userId: auth.userId, status: 'pending' },
-                });
-                if (userPending) return error('لديك طلب دفع معلق بالفعل', 400);
+                // P42-4a (r93): الحجب هنا لكل مطعم حصرًا — فحص «لا دفعة معلقة
+                // للمستخدم» الشامل (كابح ما قبل r93) أُزيل: دفعة معلقة على المطعم أ
+                // (ترقية أو اشتراك جديد) لا تحجب ترقية المطعم ب. الفهرس الفريد
+                // الجزئي SubscriptionPayment_pending_user_restaurant_unique يرفض
+                // حرفيًا نفس ما يرفضه الفحص أعلاه فقط (نفس المستخدم + نفس المطعم)،
+                // فالتقاط P2002 أدناه يظل الحكم النهائي للسباقات المتزامنة.
 
                 let payment;
                 try {
@@ -157,10 +158,12 @@ export async function POST(request: NextRequest) {
                         });
                 } catch (e) {
                         // round90-F1 (T2 — أخطر بند مالي): نفس سباق دفعة معلقة واحدة —
-                        // الفحصان الأوليان (400) findFirst-then-create لا يقاومان التزامن؛
-                        // الفهرس الفريد الجزئي SubscriptionPayment_pending_user_unique
-                        // (هجرة add_round90_pending_payment_unique) يحسم عند الإنشاء:
-                        // الخاسر المتزامن يستلم P2002 → 409 بدل ترقية تُدفع مرتين.
+                        // الفحص الأولي (400) findFirst-then-create لا يقاوم التزامن؛
+                        // الفهرس الفريد الجزئي (r93-N6:
+                        // SubscriptionPayment_pending_user_restaurant_unique) يحسم عند
+                        // الإنشاء: الخاسر المتزامن يستلم P2002 → 409 بدل ترقية تُدفع
+                        // مرتين. لمسار الترقية لا تصادم ممكن إلا على نفس الزوج الذي
+                        // يفحصه الفحص أعلاه (نفس المستخدم + نفس المطعم).
                         if ((e as { code?: string })?.code === 'P2002') {
                                 return error('لديك طلب دفع معلق بالفعل', 409);
                         }

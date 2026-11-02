@@ -32,6 +32,9 @@ const mockUserFindUnique = vi.hoisted(() => vi.fn());
 const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockPlanFindUnique = vi.hoisted(() => vi.fn());
 const mockPaymentFindFirst = vi.hoisted(() => vi.fn());
+// P42-4a: the pending-new-subscription probe (findPendingNewSubscriptionPayment)
+// reads findMany — the per-restaurant r93 scoping.
+const mockPaymentFindMany = vi.hoisted(() => vi.fn());
 const mockPaymentCreate = vi.hoisted(() => vi.fn());
 const mockPaymentUpdate = vi.hoisted(() => vi.fn());
 const mockBroadcastTargets = vi.hoisted(() => vi.fn());
@@ -47,6 +50,7 @@ const mockPrisma = vi.hoisted(() => ({
         subscriptionPlan: { findUnique: mockPlanFindUnique },
         subscriptionPayment: {
                 findFirst: mockPaymentFindFirst,
+                findMany: mockPaymentFindMany,
                 create: mockPaymentCreate,
                 update: mockPaymentUpdate,
         },
@@ -91,11 +95,13 @@ beforeEach(() => {
                         return { ...plan };
                 }
         );
-        // findFirst serves the slug-pending probe (metadata filter) and the
-        // user-pending probe — both free by default
+        // findFirst serves the slug-pending probe (metadata filter);
+        // findMany serves the pending-new-subscription probe (P42-4a) — both
+        // free by default
         mockPaymentFindFirst.mockImplementation(async (args: { where: Record<string, unknown> }) =>
                 args.where.metadata ? null : null
         );
+        mockPaymentFindMany.mockResolvedValue([]);
         mockPaymentCreate.mockResolvedValue({
                 id: 501,
                 metadata: { tempUsername: 'newuser', tempRestaurants: [] },
@@ -331,18 +337,37 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
                 });
         });
 
-        it('user already has a pending payment → 400', async () => {
-                mockPaymentFindFirst.mockImplementation(
-                        async (args: { where: Record<string, unknown> }) =>
-                                args.where.metadata ? null : { id: 400, status: 'pending' }
-                );
+        it('user already has a pending NEW-subscription payment → 400 (the \'\' bucket of the r93 index)', async () => {
+                // P42-4a: the block is scoped per-restaurant now — this POST
+                // creates new menus, so only another pending new-subscription
+                // payment (no upgradeRestaurantId) blocks it.
+                mockPaymentFindMany.mockResolvedValue([
+                        { id: 400, status: 'pending', metadata: { tempRestaurants: [{ name: 'مقهى', slug: 'waha' }] } },
+                ]);
 
                 const res = await callSubscriptionsPost(subscribeBody());
 
                 expect(res.status).toBe(400);
                 const json = await res.json();
                 expect(json.error).toBe('لديك طلب دفع معلق بالفعل');
+                expect(mockPaymentFindMany).toHaveBeenCalledWith({
+                        where: { userId: 7, status: 'pending' },
+                        select: { id: true, metadata: true },
+                });
                 expect(mockPaymentCreate).not.toHaveBeenCalled();
+        });
+
+        it('P42-4a (r93): a pending UPGRADE payment on another restaurant no longer blocks buying menus → 201', async () => {
+                // the user's only pending payment is an upgrade for restaurant 9 —
+                // a different restaurant scope than the new menus being bought
+                mockPaymentFindMany.mockResolvedValue([
+                        { id: 401, status: 'pending', metadata: { upgradeRestaurantId: 9, currentPlanId: null } },
+                ]);
+
+                const res = await callSubscriptionsPost(subscribeBody());
+
+                expect(res.status).toBe(201);
+                expect(mockPaymentCreate).toHaveBeenCalledTimes(1);
         });
 
         it('plan inactive → 400 الباقة غير صالحة', async () => {

@@ -141,19 +141,25 @@ export async function POST(request: NextRequest) {
                                         planName: user.plan?.nameAr ?? null,
                                 });
                         }
-                        // round90-F1 (S-1 × round87-A6): سقوف الخطة المجانية بدل حدود
-                        // schema العمياء — الصف كان يُخلق بـ 50 صنفًا/500 طلب (5× سقوف
-                        // الفئة المجانية المعلنة). خطة المستخدم إن وُجدت فهي المصدر،
-                        // وإلا سقوف الخطة المجانية (10/100 أو المُعرَّفة في الجدول).
+                        // P42-4a (r93 semantics — cap-propagation asymmetry): كل منيو
+                        // جديد يبدأ عند سقوف الخطة المجانية دائمًا. سابقًا كان الصف يرث
+                        // خطة المستخدم (planId + maxItems/maxOrders من user.plan) —
+                        // والترقية على المطعم أ ترفع user.planId (subscription-decisions)
+                        // فيرث كل منيو يُنشأ لاحقًا سقوفها المدفوعة مجانًا بينما إخوته
+                        // القدامى على سقوفهم القديمة. تحت دلالات «اشتراك لكل مطعم»:
+                        // الترقية تخص مطعمها المستهدف وحده؛ السقوف/الميزات تُقرأ من صف
+                        // المطعم نفسه (plan-entitlements) فالمطعم الجديد مجاني (planId
+                        // null). خطة المستخدم تبقى مصدر سقف العدد maxMenus أعلاه فقط
+                        // (وعد المنتج: رقِّ خطتك لإضافة المزيد) — لا مصدر سقوف الأصناف
+                        // والطلبات. مسار التسجيل الذاتي (restaurants POST) يسلك هذا
+                        // نفسه منذ round87-A6.
                         let freeCaps = { maxItems: 10, maxOrders: 100 };
-                        if (!user.plan) {
-                                const freePlan = await tx.subscriptionPlan.findFirst({
-                                        where: { price: 0, isActive: true },
-                                        orderBy: { sortOrder: 'asc' },
-                                        select: { maxItems: true, maxOrders: true },
-                                });
-                                if (freePlan) freeCaps = { maxItems: freePlan.maxItems, maxOrders: freePlan.maxOrders };
-                        }
+                        const freePlan = await tx.subscriptionPlan.findFirst({
+                                where: { price: 0, isActive: true },
+                                orderBy: { sortOrder: 'asc' },
+                                select: { maxItems: true, maxOrders: true },
+                        });
+                        if (freePlan) freeCaps = { maxItems: freePlan.maxItems, maxOrders: freePlan.maxOrders };
                         const restaurant = await tx.restaurant.create({
                                 data: {
                                         name: body.name,
@@ -161,9 +167,9 @@ export async function POST(request: NextRequest) {
                                         description: body.description ?? '',
                                         phone: body.phone ?? '',
                                         whatsapp: body.whatsapp ?? '',
-                                        planId: user.planId ?? null,
-                                        maxItems: user.plan?.maxItems ?? freeCaps.maxItems,
-                                        maxOrders: user.plan?.maxOrders ?? freeCaps.maxOrders,
+                                        planId: null,
+                                        maxItems: freeCaps.maxItems,
+                                        maxOrders: freeCaps.maxOrders,
                                         isActive: true,
                                 },
                         });

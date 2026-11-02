@@ -153,6 +153,42 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
           data: { status: "verified" },
         });
 
+        // P42-4a (M-3 من تقرير تفتيش r93 — المُؤجل صراحة خارج هجرة zz_round93):
+        // قفل صف المطعم FOR UPDATE داخل معاملة الموافقة نفسها قبل أي كتابة سقوف.
+        // فحص «الخطة الأعلى فقط» كان يجري وقت الطلب حصرًا
+        // (subscriptions/upgrade:88-104) — موافقتان متزامنتان/متقادمتان على
+        // مطعم واحد (مالكَان مشاركان عبر UserRestaurant — الفهرس r93-N6 يسمح
+        // بمعلقٍ لكلٍّ منهما) كانتا تُنفَّذان دون حَكَم: الخاسر يطبّق كتابته فوق
+        // الفائز، وموافقة متقادمة قد تنزّل الخطة (نزول مأجور). النمط هو نفسه
+        // فرع المستخدم الجديد (قفل صف User قبل عدّ المنيوهات).
+        await tx.$queryRaw`SELECT id FROM "Restaurant" WHERE id = ${meta.upgradeRestaurantId} FOR UPDATE`;
+        const currentRestaurant = await tx.restaurant.findUnique({
+          where: { id: meta.upgradeRestaurantId },
+          select: { id: true, planId: true },
+        });
+        if (!currentRestaurant) throw new Error("UPGRADE_RESTAURANT_MISSING");
+
+        // إعادة التحقق من الرتبة تحت القفل — مرآة حرفية لشرط وقت الطلب:
+        // الخطة الحالية المجانية (price 0) تتخطى المقارنة، والمدفوعة تتطلب
+        // sortOrder أعلى من الخطة المدفوعة الحالية للمطعم (لا مساواة).
+        if (currentRestaurant.planId !== null) {
+          const currentPlan = await tx.subscriptionPlan.findUnique({
+            where: { id: currentRestaurant.planId },
+            select: { price: true, sortOrder: true },
+          });
+          if (currentPlan && Number(currentPlan.price) > 0) {
+            const newPlanTier = await tx.subscriptionPlan.findUnique({
+              where: { id: existing.planId },
+              select: { sortOrder: true },
+            });
+            if (!newPlanTier || newPlanTier.sortOrder <= currentPlan.sortOrder) {
+              // caught below → 409 — الدفع يبقى pending (rollback) فيستطيع
+              // المشرف رفضه وإبلاغ العميل، وأزرار اللوحة تبقى حية.
+              throw new Error("UPGRADE_TIER_NOT_HIGHER");
+            }
+          }
+        }
+
         const plan = await tx.subscriptionPlan.findUnique({
           where: { id: existing.planId },
           select: { id: true, nameAr: true, maxItems: true, maxOrders: true, periodDays: true },
@@ -224,6 +260,19 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
         if (raced) return raced;
       }
       error("[subscription-decisions] upgrade error:", { error: e });
+      // P42-4a (M-3): فشلا إعادة التحقق تحت القفل — الدفع تدحرج إلى pending
+      // (rollback المعاملة) فيبقى القرار بيد المشرف: الرفض أو إبلاغ العميل.
+      const errMsg = e instanceof Error ? e.message : "";
+      if (errMsg === "UPGRADE_TIER_NOT_HIGHER") {
+        return {
+          ok: false,
+          reason: "الباقة المطلوبة لم تعد أعلى من باقة المطعم الحالية (طلب متقادم أو سبقتها موافقة أخرى) — يُرجى رفض الطلب وإبلاغ العميل",
+          status: 409,
+        };
+      }
+      if (errMsg === "UPGRADE_RESTAURANT_MISSING") {
+        return { ok: false, reason: "المطعم غير موجود", status: 404 };
+      }
       return { ok: false, reason: "حدث خطأ أثناء ترقية الخطة" };
     }
   }

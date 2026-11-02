@@ -13,6 +13,8 @@ import { error as logError } from '@/lib/logger';
 import { createPaymentSchema } from '@/lib/payment-schema';
 import { getClientIp } from '@/lib/client-ip';
 import { isSlugHeldByPendingPayment } from '@/lib/validation';
+// P42-4a: نطاق حجب الدفعات المعلقة صار لكل مطعم (r93) — المجس المشترك
+import { findPendingNewSubscriptionPayment } from '@/lib/pending-payment-scope';
 
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -73,11 +75,13 @@ export async function POST(request: NextRequest) {
                         }
                 }
 
-                // Check no pending payment for this user
-                const pendingPayment = await prisma.subscriptionPayment.findFirst({
-                        where: { userId: auth.userId, status: 'pending' },
-                });
-                if (pendingPayment) return error('لديك طلب دفع معلق بالفعل', 400);
+                // P42-4a (r93): حجب الدفعات المعلقة صار لكل مطعم — هذا المسار
+                // ينشئ منيوهات جديدة، فيحجبه فقط طلب «اشتراك جديد» معلق آخر
+                // (دلو '' من فهرس SubscriptionPayment_pending_user_restaurant_unique
+                // — نفس الزوج الذي يرفضه الفهرس بـ P2002). دفعة ترقية معلقة على
+                // المطعم أ لم تعد تحجب شراء منيوهات: الترقية تخص مطعمها وحده.
+                const pendingNewSubscription = await findPendingNewSubscriptionPayment(auth.userId, prisma);
+                if (pendingNewSubscription) return error('لديك طلب دفع معلق بالفعل', 400);
 
                 // Server-side price validation — never trust client-reported amount
                 const plan = await prisma.subscriptionPlan.findUnique({
@@ -111,12 +115,13 @@ export async function POST(request: NextRequest) {
                                 },
                         });
                 } catch (e) {
-                        // round90-F1 (T2 — أخطر بند مالي): الفحص الأولي أعلاه (findFirst
-                        // pending → 400) لا يقاوم التزامن — طلبان متزامنان يجتازانه قبل
-                        // أي كتابة → دفعتان pending → المستخدم قد يدفع مرتين. الفهرس
-                        // الفريد الجزئي SubscriptionPayment_pending_user_unique (هجرة
-                        // add_round90_pending_payment_unique) يجعل قاعدة البيانات نفسها
-                        // الحكم: الخاسر المتزامن يستلم P2002 → 409 بدل صف ثانٍ.
+                        // round90-F1 (T2 — أخطر بند مالي): الفحص الأولي أعلاه (pending →
+                        // 400) لا يقاوم التزامن — طلبان متزامنان يجتازانه قبل أي كتابة →
+                        // دفعتان pending → المستخدم قد يدفع مرتين. الفهرس الفريد الجزئي
+                        // (r93-N6: SubscriptionPayment_pending_user_restaurant_unique،
+                        // خليفة نطاق r90 الضيق) يجعل قاعدة البيانات نفسها الحكم: الخاسر
+                        // المتزامن يستلم P2002 → 409 بدل صف ثانٍ — ولمسار الاشتراك
+                        // الجديد لا تصادم ممكن إلا على دلو '' (دفعة اشتراك-جديد معلقة).
                         if ((e as { code?: string })?.code === 'P2002') {
                                 return error('لديك طلب دفع معلق بالفعل', 409);
                         }

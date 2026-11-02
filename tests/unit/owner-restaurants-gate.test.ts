@@ -160,7 +160,36 @@ describe('POST /api/owner/restaurants — freeCaps + audit + notify', () => {
                 expect(createArg.data.maxOrders).toBe(120);
         });
 
-        it('owner WITH a linked plan → the plan row is the caps source', async () => {
+        it('P42-4a (r93): owner WITH a linked (upgraded) plan → the NEW menu still starts at the FREE caps', async () => {
+                // the cap-propagation asymmetry: the user-level plan was bumped by a
+                // restaurant-scoped upgrade (subscription-decisions bumps user.planId)
+                // — under per-restaurant semantics the new menu must NOT inherit
+                // those paid caps; it starts at Free like public self-registration
+                mockUserFindUnique.mockResolvedValue({
+                        id: 10,
+                        planId: 3,
+                        plan: { maxMenus: 2, maxItems: 30, maxOrders: 300, nameAr: 'احترافية' },
+                });
+                txMock.subscriptionPlan.findFirst.mockResolvedValue({ maxItems: 10, maxOrders: 100 });
+
+                const res = await postMenu(MENU_BODY);
+
+                expect(res.status).toBe(201);
+                const createArg = txMock.restaurant.create.mock.calls[0][0];
+                // free-tier caps, NOT the user's plan caps (30/300)
+                expect(createArg.data.maxItems).toBe(10);
+                expect(createArg.data.maxOrders).toBe(100);
+                // the row is a FREE menu — no inherited planId
+                expect(createArg.data.planId).toBeNull();
+                // the free-plan lookup runs even with a user plan present
+                expect(txMock.subscriptionPlan.findFirst).toHaveBeenCalledWith({
+                        where: { price: 0, isActive: true },
+                        orderBy: { sortOrder: 'asc' },
+                        select: { maxItems: true, maxOrders: true },
+                });
+        });
+
+        it('P42-4a: no free-plan row + upgraded user → the hard fallback caps (10/100) still win over the user plan', async () => {
                 mockUserFindUnique.mockResolvedValue({
                         id: 10,
                         planId: 3,
@@ -171,10 +200,9 @@ describe('POST /api/owner/restaurants — freeCaps + audit + notify', () => {
 
                 expect(res.status).toBe(201);
                 const createArg = txMock.restaurant.create.mock.calls[0][0];
-                expect(createArg.data.maxItems).toBe(30);
-                expect(createArg.data.maxOrders).toBe(300);
-                // plan row present → the free-plan lookup is never even issued
-                expect(txMock.subscriptionPlan.findFirst).not.toHaveBeenCalled();
+                expect(createArg.data.maxItems).toBe(10);
+                expect(createArg.data.maxOrders).toBe(100);
+                expect(createArg.data.planId).toBeNull();
         });
 
         it('logAudit(create/restaurant) + notifyEvent(restaurant_created) fire on success — the creation is no longer invisible', async () => {

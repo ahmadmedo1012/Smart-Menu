@@ -39,6 +39,9 @@ const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockPlanFindUnique = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockPaymentFindFirst = vi.hoisted(() => vi.fn());
+// P42-4a: the pending-new-subscription probe reads findMany (per-restaurant
+// r93 scoping — src/lib/pending-payment-scope.ts).
+const mockPaymentFindMany = vi.hoisted(() => vi.fn());
 const mockPaymentCreate = vi.hoisted(() => vi.fn());
 const mockPaymentUpdate = vi.hoisted(() => vi.fn());
 const mockBroadcastTargets = vi.hoisted(() => vi.fn());
@@ -55,6 +58,7 @@ const mockPrisma = vi.hoisted(() => ({
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
         subscriptionPayment: {
                 findFirst: mockPaymentFindFirst,
+                findMany: mockPaymentFindMany,
                 create: mockPaymentCreate,
                 update: mockPaymentUpdate,
         },
@@ -144,8 +148,11 @@ beforeEach(() => {
         mockPlanFindUnique.mockImplementation(async (args: { where: { id: number } }) => ({
                 ...(PLANS[args.where.id] ?? null),
         }));
-        // both pending probes free by default (the race starts from a clean slate)
+        // both pending probes free by default (the race starts from a clean slate):
+        // findFirst = the upgrade route's per-restaurant probe,
+        // findMany = the subscribe route's pending-new-subscription probe (P42-4a)
         mockPaymentFindFirst.mockResolvedValue(null);
+        mockPaymentFindMany.mockResolvedValue([]);
         mockPaymentCreate.mockResolvedValue({ id: 501, metadata: {} });
         mockPaymentUpdate.mockResolvedValue({ id: 501 });
         mockUserRestaurantFindUnique.mockResolvedValue(null);
@@ -183,8 +190,12 @@ describe('POST /api/subscriptions — T2 unique pending payment', () => {
                 expect(json.error).toBe('حدث خطأ داخلي. حاول مرة أخرى');
         });
 
-        it('the initial probe stays 400 (fast path UX preserved)', async () => {
-                mockPaymentFindFirst.mockResolvedValue({ id: 402, status: 'pending' });
+        it('the initial probe stays 400 for a pending NEW-subscription payment (fast path UX preserved)', async () => {
+                // P42-4a (r93): the block is scoped — only the '' bucket (a pending
+                // new-subscription payment) blocks this POST
+                mockPaymentFindMany.mockResolvedValue([
+                        { id: 402, status: 'pending', metadata: { tempRestaurants: [{ name: 'مقهى', slug: 'waha' }] } },
+                ]);
 
                 const res = await callSubscriptionsPost(SUBSCRIBE_BODY);
 
@@ -192,6 +203,17 @@ describe('POST /api/subscriptions — T2 unique pending payment', () => {
                 const json = await res.json();
                 expect(json.error).toBe('لديك طلب دفع معلق بالفعل');
                 expect(mockPaymentCreate).not.toHaveBeenCalled();
+        });
+
+        it('P42-4a (r93): a pending UPGRADE payment on another restaurant does not block → 201 (scoped block)', async () => {
+                mockPaymentFindMany.mockResolvedValue([
+                        { id: 405, status: 'pending', metadata: { upgradeRestaurantId: 9, currentPlanId: null } },
+                ]);
+
+                const res = await callSubscriptionsPost(SUBSCRIBE_BODY);
+
+                expect(res.status).toBe(201);
+                expect(mockPaymentCreate).toHaveBeenCalledTimes(1);
         });
 });
 
@@ -224,17 +246,20 @@ describe('POST /api/subscriptions/upgrade — T2 unique pending payment', () => 
                 expect(res.status).toBe(500);
         });
 
-        it('the user-pending probe stays 400 (fast path UX preserved)', async () => {
+        it('P42-4a (r93): a pending payment on ANOTHER scope no longer blocks the upgrade → 201 (user-wide probe removed)', async () => {
+                // the per-restaurant probe (restaurant 9) is free; a pending upgrade
+                // for restaurant 8 belongs to restaurant 8's scope alone
                 mockPaymentFindFirst.mockImplementation(
                         async (args: { where: Record<string, unknown> }) =>
-                                args.where.metadata ? null : { id: 402, status: 'pending' }
+                                args.where.metadata &&
+                                (args.where.metadata as { equals?: number }).equals === 8
+                                        ? { id: 406, status: 'pending', metadata: { upgradeRestaurantId: 8 } }
+                                        : null
                 );
 
                 const res = await callUpgradePost(UPGRADE_BODY);
 
-                expect(res.status).toBe(400);
-                const json = await res.json();
-                expect(json.error).toBe('لديك طلب دفع معلق بالفعل');
-                expect(mockPaymentCreate).not.toHaveBeenCalled();
+                expect(res.status).toBe(201);
+                expect(mockPaymentCreate).toHaveBeenCalledTimes(1);
         });
 });

@@ -79,8 +79,15 @@ beforeEach(() => {
     async (fn: (tx: typeof txMock) => Promise<unknown>) => fn(txMock)
   );
   mockPayment();
-  // shared tx defaults — individual tests override what they need
-  txMock.restaurant.findUnique.mockResolvedValue(null); // slug not taken
+  // shared tx defaults — individual tests override what they need.
+  // P42-4a: restaurant.findUnique now serves BOTH branches — the new-user
+  // branch's slug check (where.slug → null = free) and the upgrade branch's
+  // locked re-read (where.id → the restaurant row, free plan by default so
+  // the tier re-check passes). Dispatch on the where shape.
+  txMock.restaurant.findUnique.mockImplementation(
+    async (args: { where: { id?: number; slug?: string } }) =>
+      args.where.id !== undefined ? { id: args.where.id, planId: null } : null
+  );
   txMock.subscriptionPlan.findUnique.mockResolvedValue({ id: 2, nameAr: 'الاحترافية', maxMenus: 3, maxItems: 100, maxOrders: 500 });
   // round91-F-B (D2-#1): no pre-existing menus by default (cap check passes)
   txMock.userRestaurant.count.mockResolvedValue(0);

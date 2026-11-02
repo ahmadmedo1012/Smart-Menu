@@ -17,7 +17,8 @@
  *   - IDOR ownership: owner of the restaurant OR admin/super_admin OR an
  *     explicit UserRestaurant link
  *   - double-pending guards: pending upgrade for the restaurant (metadata
- *     path probe) + pending payment for the user
+ *     path probe) — P42-4a: the pre-r93 user-wide pending block is gone
+ *     (per-restaurant r93 scoping; other scopes no longer block)
  *   - approver telegram notification: approve/reject keyboard per admin chat,
  *     per-chat failure NEVER fails the request (partial results persisted),
  *     env fallback (TELEGRAM_CHAT_ID/TELEGRAM_GROUP_IDS) when no DB targets
@@ -454,21 +455,54 @@ describe('POST /api/subscriptions/upgrade — pending guards', () => {
                 expect(mockPaymentCreate).toHaveBeenCalledTimes(1);
         });
 
-        it('pending payment for the USER → 400', async () => {
+        it('P42-4a (r93): a pending payment on ANOTHER restaurant no longer blocks this upgrade → 201', async () => {
+                // restaurant 8 HAS a pending upgrade (the restaurant-8-shaped probe
+                // finds it) — the pre-r93 user-wide block (ANY pending payment of the
+                // user → 400) would have rejected this request; the DB index
+                // SubscriptionPayment_pending_user_restaurant_unique allows the pair
+                // (userId,'8') beside (userId,'9') and the app probe now mirrors it
                 mockPaymentFindFirst.mockImplementation(
-                        async (args: { where: Record<string, unknown> }) =>
-                                args.where.metadata ? null : { id: 402, status: 'pending' }
+                        async (args: { where: { metadata?: { equals?: number } } }) => {
+                                if (args.where.metadata) {
+                                        return args.where.metadata.equals === 8
+                                                ? { id: 403, status: 'pending', metadata: { upgradeRestaurantId: 8 } }
+                                                : null;
+                                }
+                                // a user-wide probe shape (pre-r93) — if it ever comes
+                                // back it sees a pending payment and blocks
+                                return { id: 404, status: 'pending' };
+                        }
                 );
 
                 const res = await callPost(upgradeBody());
 
-                expect(res.status).toBe(400);
-                const json = await res.json();
-                expect(json.error).toBe('لديك طلب دفع معلق بالفعل');
+                expect(res.status).toBe(201);
+                expect(mockPaymentCreate).toHaveBeenCalledTimes(1);
+                // exactly ONE probe ran — the per-restaurant one for restaurant 9;
+                // the second user-wide findFirst is gone
+                expect(mockPaymentFindFirst).toHaveBeenCalledTimes(1);
                 expect(mockPaymentFindFirst).toHaveBeenCalledWith({
-                        where: { userId: 7, status: 'pending' },
+                        where: {
+                                status: 'pending',
+                                userId: 7,
+                                metadata: { path: ['upgradeRestaurantId'], equals: 9 },
+                        },
                 });
-                expect(mockPaymentCreate).not.toHaveBeenCalled();
+        });
+
+        it('P42-4a (r93): a pending NEW-subscription payment never reaches this route — only the per-restaurant probe runs', async () => {
+                // the '' bucket (new menus) is a different scope; any user-wide
+                // probe shape would see this pending payment and block — the route
+                // no longer issues any such query
+                mockPaymentFindFirst.mockImplementation(
+                        async (args: { where: { metadata?: unknown } }) =>
+                                args.where.metadata ? null : { id: 404, status: 'pending' }
+                );
+
+                const res = await callPost(upgradeBody());
+
+                expect(res.status).toBe(201);
+                expect(mockPaymentFindFirst).toHaveBeenCalledTimes(1);
         });
 });
 
