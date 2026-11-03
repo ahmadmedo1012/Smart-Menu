@@ -7,6 +7,17 @@ mobile/ios/
 mobile/dist/
 mobile/web-build/
 
+# Ignore tests — they parity-pin against mobile/ (stripped above), so next build's
+# type-check cannot resolve their ../../mobile imports in the Vercel upload
+# (W4-W9 production deploys 5e74620f..7ebf6a9f all ERRORed on TS2307 —
+# family pattern: SmartBot's .vercelignore strips tests too).
+# CI still runs the full tree: npm run typecheck + test:coverage + build.
+tests/
+tests/e2e/
+
+# Ignore e2e specs (Maestro/Playwright artifacts — never needed at runtime)
+maestro/
+
 # Ignore WebToMobile plugin docs/skills (not needed in deployment)
 docs/web-to-mobile/
 docs/mobile-progress.md
