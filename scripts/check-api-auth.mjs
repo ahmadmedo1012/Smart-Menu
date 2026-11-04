@@ -55,6 +55,7 @@ export const PUBLIC_ALLOWLIST = new Set([
   "/api/public/featured", // public whitelisted select, revalidate=60
   "/api/public/stats", // public aggregates, revalidate=60
   "/api/public/menu/[slug]", // r100: public single round-trip menu payload for the RN app — DB rate-limited 60/min/IP BEFORE any query (incl. the 404 path), slug regex guard, isActive-only select
+  "/api/public/menu-events", // P43 SM-2: anonymous first-party engagement events (view/item_open/search/qr_scan) — no PII, Zod-validated, DB rate-limited before any write, restaurant resolved by slug
   "/api/plans", // public plan catalog (cached)
   "/api/health", // liveness probe
   // round92-B3: "/api/restaurants" REMOVED from here — only its POST is public
