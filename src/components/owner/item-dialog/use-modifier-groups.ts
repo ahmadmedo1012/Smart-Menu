@@ -12,6 +12,8 @@ import type { GroupDraft, ItemModifierGroup, ModifierGroupPayload, OptionDraft }
 import { MAX_MODIFIER_GROUPS, MAX_OPTIONS_PER_GROUP } from './types';
 import { buildModifierGroupsPayload, groupsFromItem, nextDraftKey } from './modifier-draft-utils';
 import { premiumToast } from '@/lib/premium-toast';
+// P43 SM-1b: إدراج قالب — نفس مخطط المجموعات (بلا معرفات).
+import type { TemplateGroupSnapshot } from './use-modifier-templates';
 
 export function useModifierGroups(): {
         groups: GroupDraft[];
@@ -25,6 +27,10 @@ export function useModifierGroups(): {
         reset: (source: ItemModifierGroup[] | undefined) => void;
         /** = buildModifierGroupsPayload(groups) — source line 279 of the old dialog. */
         buildPayload: () => ModifierGroupPayload[] | null;
+        /* P43 SM-1b: إدراج قالب — إلحاق نسخة المجموعات (بلا معرفات) بعد
+         * المجموعات الحالية بسقف MAX_MODIFIER_GROUPS الصادق (الموجودة
+         * لا تُمس — لا خسارة عمل). */
+        importGroups: (source: TemplateGroupSnapshot[]) => void;
 } {
         // w3-f1 (F1-3): modifier-group editor state (draft list)
         const [groups, setGroups] = useState<GroupDraft[]>([]);
@@ -126,6 +132,45 @@ export function useModifierGroups(): {
                 setGroups(groupsFromItem(source));
         };
 
+        /* P43 SM-1b: الإدراج يُلحق (append) لا يستبدل — المجموعات الحالية
+         * عمل قائم لا يُدمّر؛ السقف العالمي 6 يُفرض بصراحة مع رسالة عربية
+         * (نفس رسالة addGroup). */
+        const importGroups = (source: TemplateGroupSnapshot[]) => {
+                setGroups((prev) => {
+                        if (source.length === 0) return prev;
+                        const room = MAX_MODIFIER_GROUPS - prev.length;
+                        if (room <= 0) {
+                                premiumToast('error', `الحد الأقصى ${MAX_MODIFIER_GROUPS} مجموعات لكل صنف`);
+                                return prev;
+                        }
+                        if (source.length > room) {
+                                premiumToast(
+                                        'error',
+                                        `القالب يحتوي ${source.length} مجموعات والمتاح إدراجه ${room} فقط — احذف بعض المجموعات الحالية أولاً`
+                                );
+                                return prev;
+                        }
+                        const drafts: GroupDraft[] = source.map((g) => ({
+                                key: nextDraftKey('g'),
+                                nameAr: g.nameAr,
+                                name: g.name,
+                                minSelect: String(g.minSelect ?? 0),
+                                maxSelect: String(g.maxSelect ?? 1),
+                                required: Boolean(g.required),
+                                sortOrder: String(g.sortOrder ?? 0),
+                                options: (g.options ?? []).map((o) => ({
+                                        key: nextDraftKey('o'),
+                                        nameAr: o.nameAr,
+                                        name: o.name,
+                                        priceDelta: String(o.priceDelta ?? 0),
+                                        isAvailable: o.isAvailable !== false,
+                                        sortOrder: o.sortOrder ?? 0,
+                                })),
+                        }));
+                        return [...prev, ...drafts];
+                });
+        };
+
         const buildPayload = () => buildModifierGroupsPayload(groups);
 
         return {
@@ -138,5 +183,6 @@ export function useModifierGroups(): {
                 removeOption,
                 reset,
                 buildPayload,
+                importGroups,
         };
 }

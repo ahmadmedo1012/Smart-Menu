@@ -24,7 +24,7 @@ import { ItemImageField } from './item-dialog/ItemImageField';
 import { ModifierGroupsEditor } from './item-dialog/ModifierGroupsEditor';
 import { FeaturedShowcaseSection } from './item-dialog/FeaturedShowcaseSection';
 import { DietaryAllergensSection } from './item-dialog/DietaryAllergensSection';
-// P43 SM-1: قسم التوافر المجدول.
+// P43 SM-1: قسم التوافر المجدول · P43 SM-1b: قوالب الإضافات (المحرر نفسه).
 import { AvailabilityScheduleSection } from './item-dialog/AvailabilityScheduleSection';
 import type { Item } from './item-dialog/types';
 
@@ -45,12 +45,17 @@ export function ItemDialog({
         editing,
         categoryId,
         onSaved,
+        /* P43 SM-1b: معرّف المطعم النشط — يغذّي قائمة قوالب الإضافات
+         * (fetch عند فتح الحوار) داخل ModifierGroupsEditor. */
+        restaurantId = 0,
 }: {
         open: boolean;
         onOpenChange: (o: boolean) => void;
         editing: Item | null;
         categoryId: number;
         onSaved: () => void;
+        /** P43 SM-1b — مطعم المالك النشط (صفر = مسار بلا قوالب). */
+        restaurantId?: number;
 }) {
         // round86-C9: label-control associations (axe: label-without-control)
         // — ONE useId for the whole dialog so multiple dialog instances can
@@ -77,6 +82,8 @@ export function ItemDialog({
                 removeOption,
                 reset: resetGroups,
                 buildPayload,
+                /* P43 SM-1b: إدراج قالب — إلحاق نسخة المجموعات بالموجودة. */
+                importGroups,
         } = useModifierGroups();
         const { uploading, uploadFile } = useImageUpload((url) => patch({ image: url }));
         const { saving, save } = useItemSave({
@@ -127,6 +134,9 @@ export function ItemDialog({
                                                 onAddOption={addOption}
                                                 onUpdateOption={updateOption}
                                                 onRemoveOption={removeOption}
+                                                restaurantId={restaurantId}
+                                                onImportGroups={importGroups}
+                                                buildPayload={buildPayload}
                                         />
                                         {/* P43 SM-1: التوافر المجدول — بعد المعدّلات قبل العرض المميز
                                             (ترتيب المهمة في الحوار: الهوية ← الصورة ← الخيارات ← التوافر). */}

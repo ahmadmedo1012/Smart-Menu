@@ -21,6 +21,7 @@ import { type Category, type Item, CATEGORY_ICONS } from './types';
 import { CategoriesList } from './CategoriesList';
 import { CategoryDialog } from './CategoryDialog';
 import { ArchivedItems } from './ArchivedItems';
+import { BulkActionBar } from './BulkActionBar';
 
 /* W6-B6 (G-2): ثوابت تحميل الأصناف — انظر التعليق أعلى fetchItems. */
 const ITEMS_PAGE_SIZE = 100; // سقف parsePagination لمسار items
@@ -52,7 +53,12 @@ export default function OwnerMenuPage() {
         /* W6-B6 (G-2 — تدقيق W6-A3): حالة الترتيب والتحديد الجماعي. */
         const [movingCatId, setMovingCatId] = useState<number | null>(null);
         const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(new Set());
-        const [bulk, setBulk] = useState<{ status: 'available' | 'unavailable'; done: number; total: number } | null>(null);
+        /* P43 SM-1c: العملية الجماعية صارت طلبًا واحدًا (‎/api/items/bulk‎) —
+         * مؤشر شغل واحد بدل عدّاد تقدم الصف-بصف (W6-B6 القديم). */
+        const [bulkBusy, setBulkBusy] = useState(false);
+        /* P43 SM-1c: هدف حوار تأكيد الأرشفة الجماعية (نفس النمط غير التدميري
+         * للمفرد — الاسترجاع من لوحة «الأصناف المؤرشفة»). */
+        const [bulkArchiveOpen, setBulkArchiveOpen] = useState(false);
         const fetchCatsRef = useRef<() => Promise<void>>(undefined);
         /* r133 (A3 S2): bounded auto-retry — the old unbounded 3s loop re-fired
            the error toast and flipped skeleton↔ErrorState forever during an
@@ -265,7 +271,7 @@ export default function OwnerMenuPage() {
            عقد menu-reorder). أي فشل يعيد المزامنة من الخادم (مصدر الحقيقة)
            ويعرض رسالته العربية كما هي — لا تراجع يدوي قد يفشل بدوره. */
         const moveItem = async (item: Item, dir: 'up' | 'down') => {
-                if (movingCatId || bulk) return;
+                if (movingCatId || bulkBusy) return;
                 const cat = categories.find((c) => c.items?.some((i) => i.id === item.id));
                 if (!cat || !cat.items) return;
                 const nextItems = moveItemInList(cat.items, item.id, dir);
@@ -290,58 +296,88 @@ export default function OwnerMenuPage() {
                 }
         };
 
-        /* ── W6-B6 (G-2): الإخفاء/الإظهار الجماعي — تسلسل صادق بلا endpoint
-           batch (حد البعثة): PUT واحد لكل صنف، تقدم مرئي، إيقاف عند أول فشل
-           مع عدّاد «تم X من Y» ورسالة الخادم كما هي، ثم مزامنة من الخادم.
-           محدّد items PUT (round91-F-B) يحدّ الدفعة عند 20 كتابة/دقيقة —
-           نقف بصدق عند الحد ونخبر المالك بالباقي. */
+        /* ── P43 SM-1c: العمليات الجماعية — طلب واحد لكل عملية (‎POST
+           /api/items/bulk‎): إخفاء/إظهار، أرشفة، ونقل إلى تصنيف. الخادم
+           يتحقق من ملكية كل صنف + حارس مستأجر الوجهة (r121-E1) ويسجّل
+           AuditLog واحدًا ويطهّر ISR — عقد W6-B6 (التحديد مقيد بالقسم
+           المفتوح) يبقى كما هو في الواجهة. */
+        const callBulk = async (body: Record<string, unknown>): Promise<boolean> => {
+                if (bulkBusy || movingCatId) return false;
+                setBulkBusy(true);
+                try {
+                        await csrfJson('/api/items/bulk', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(body),
+                        });
+                        return true;
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تنفيذ العملية'));
+                        return false;
+                } finally {
+                        setBulkBusy(false);
+                }
+        };
+
         const applyBulkStatus = async (status: 'available' | 'unavailable') => {
-                if (bulk || movingCatId) return;
-                const catId = expandedCat;
-                if (!catId) return;
                 const ids = [...selectedItemIds];
                 if (ids.length === 0) return;
-                setBulk({ status, done: 0, total: ids.length });
-                let done = 0;
-                let failure: string | null = null;
-                for (const id of ids) {
-                        try {
-                                await csrfJson(`/api/items/${id}`, {
-                                        method: 'PUT',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ status }),
-                                });
-                                done++;
-                                setBulk({ status, done, total: ids.length });
-                                // مرئية صفًا صفًا: الشطب يظهر مع كل صنف يكتمل
-                                setCategories((p) =>
-                                        p.map((c) =>
-                                                c.id === catId
-                                                        ? { ...c, items: c.items?.map((i) => (i.id === id ? { ...i, status } : i)) }
-                                                        : c
-                                        )
-                                );
-                        } catch (e) {
-                                failure = getErrorMessage(e, 'تعذّر التحديث');
-                                break;
-                        }
-                }
-                setBulk(null);
-                setSelectedItemIds(new Set());
-                if (failure) {
-                        premiumToast(
-                                'error',
-                                `تم تحديث ${toArabicNumber(done)} من ${toArabicNumber(ids.length)}`,
-                                failure
-                        );
-                        fetchItems(catId); // مزامنة الحقيقة بعد الإيقاف
-                } else {
+                const ok = await callBulk({ action: 'set-status', status, ids });
+                if (ok) {
                         premiumToast(
                                 'save',
                                 status === 'unavailable'
                                         ? `تم إخفاء ${toArabicNumber(ids.length)} ${getArabicPlural(ids.length, 'صنف', 'صنفان', 'أصناف')}`
                                         : `تم إظهار ${toArabicNumber(ids.length)} ${getArabicPlural(ids.length, 'صنف', 'صنفان', 'أصناف')}`
                         );
+                        setSelectedItemIds(new Set());
+                        if (expandedCat) fetchItems(expandedCat);
+                }
+        };
+
+        /* أرشفة المحدد — غير تدميرية (الاسترجاع متاح دائمًا)؛ تأكيد صريح
+           لأنها تُخفي دفعة كاملة من القائمة العامة بضغطة. */
+        const applyBulkArchive = async () => {
+                const ids = [...selectedItemIds];
+                if (ids.length === 0) return;
+                const ok = await callBulk({ action: 'archive', ids });
+                if (ok) {
+                        premiumToast(
+                                'save',
+                                `تمت أرشفة ${toArabicNumber(ids.length)} ${getArabicPlural(ids.length, 'صنف', 'صنفان', 'أصناف')} — اختفت من القائمة العامة وبقي سجلها سليمًا`
+                        );
+                        setSelectedItemIds(new Set());
+                        if (expandedCat) fetchItems(expandedCat);
+                        setUsageKey((k) => k + 1); // المؤرشف غادر سقف الباقة
+                }
+        };
+
+        /* نقل المحدد إلى تصنيف (داخل المطعم نفسه — الخادم يرفض غير ذلك). */
+        const applyBulkMove = async (categoryId: number) => {
+                const ids = [...selectedItemIds];
+                if (ids.length === 0) return;
+                const ok = await callBulk({ action: 'move', ids, categoryId });
+                if (ok) {
+                        premiumToast(
+                                'save',
+                                `تم نقل ${toArabicNumber(ids.length)} ${getArabicPlural(ids.length, 'صنف', 'صنفان', 'أصناف')} إلى نهاية التصنيف الهدف`
+                        );
+                        setSelectedItemIds(new Set());
+                        fetchCats();
+                        if (expandedCat) fetchItems(expandedCat);
+                }
+        };
+
+        /* SM-UX: إتاحة/إخفاء كل أصناف القسم بضغطة — نفس المسار الجماعي
+           (سقف الدفعة 100 يغطي كل قسم واقعي؛ الأكبر يُرفض بصراحة). */
+        const setAllCategoryStatus = async (catId: number, status: 'available' | 'unavailable') => {
+                const cat = categories.find((c) => c.id === catId);
+                const ids = cat?.items?.map((i) => i.id) ?? [];
+                if (ids.length === 0) return;
+                const ok = await callBulk({ action: 'set-status', status, ids });
+                if (ok) {
+                        premiumToast('save', status === 'available' ? 'تمت إتاحة كل أصناف القسم' : 'تم إخفاء كل أصناف القسم');
+                        fetchItems(catId);
                 }
         };
 
@@ -470,7 +506,7 @@ export default function OwnerMenuPage() {
                                 onArchiveItem={(item) => setArchiveTarget(item)}
                                 onAddCategory={handleAddCategory}
                                 selectedItemIds={selectedItemIds}
-                                bulk={bulk}
+                                bulkBusy={bulkBusy}
                                 movingCatId={movingCatId}
                                 onToggleSelectItem={toggleSelectItem}
                                 onSelectAvailable={(catId) =>
@@ -478,9 +514,24 @@ export default function OwnerMenuPage() {
                                 }
                                 onSelectAll={(catId) => selectItemsWhere(catId, () => true)}
                                 onClearSelection={() => setSelectedItemIds(new Set())}
-                                onBulkStatus={applyBulkStatus}
+                                onSetAllStatus={setAllCategoryStatus}
                                 onMoveItem={moveItem}
                         />
+
+                        {/* P43 SM-1c: شريط الإجراءات الجماعية اللاصق — يظهر عند
+                            وجود تحديد؛ النقل مقيد بتصنيفات المطعم نفسه دون
+                            القسم المفتوح (الخادم يفرض نفس العقد). */}
+                        {selectedItemIds.size > 0 && (
+                                <BulkActionBar
+                                        selectedCount={selectedItemIds.size}
+                                        busy={bulkBusy || movingCatId !== null}
+                                        moveTargets={categories.filter((c) => c.id !== expandedCat)}
+                                        onSetStatus={applyBulkStatus}
+                                        onArchive={() => setBulkArchiveOpen(true)}
+                                        onMove={applyBulkMove}
+                                        onClear={() => setSelectedItemIds(new Set())}
+                                />
+                        )}
 
                         {/* P42-W3 (الأرشفة الحقيقية): لوحة الأصناف المؤرشفة —
                             مكان الاسترجاع والاطلاع، خارج تصنيفات القائمة الحية */}
@@ -510,6 +561,9 @@ export default function OwnerMenuPage() {
                                 onOpenChange={setItemDialogOpen}
                                 editing={itemEditing}
                                 categoryId={itemCatId}
+                                /* P43 SM-1b: المطعم النشط يغذي قائمة قوالب
+                                   الإضافات داخل حوار الصنف. */
+                                restaurantId={restaurantId}
                                 onSaved={() => {
                                         if (expandedCat) fetchItems(expandedCat);
                                         setUsageKey((k) => k + 1);
@@ -531,6 +585,18 @@ export default function OwnerMenuPage() {
                                 confirmLabel="حذف"
                                 onConfirm={() => delTarget()}
                                 destructive
+                        />
+
+                        {/* P43 SM-1c: حوار تأكيد الأرشفة الجماعية — نفس نبرة المفرد:
+                            غياب من العرض العام + بقاء السجل + استرجاع دائم. */}
+                        <ConfirmDialog
+                                open={bulkArchiveOpen}
+                                onOpenChange={setBulkArchiveOpen}
+                                title="أرشفة الأصناف المحددة"
+                                description={`سيتم أرشفة ${toArabicNumber(selectedItemIds.size)} ${getArabicPlural(selectedItemIds.size, 'صنف', 'صنفان', 'أصناف')} — تختفي من القائمة العامة وتطبيق الجوال ولن تكون قابلة للطلب، دون حذف أي بيانات: تبقى سجلات طلباتها وتقييماتها سليمة، ويمكنك استرجاعها في أي وقت من لوحة «الأصناف المؤرشفة».`}
+                                confirmLabel="أرشفة المحدد"
+                                onConfirm={() => applyBulkArchive()}
+                                destructive={false}
                         />
 
                         {/* P42-W3: حوار الأرشفة — نفي صريح للجملة التدميرية للحذف:

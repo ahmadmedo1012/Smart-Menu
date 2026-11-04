@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Package, ChevronUp, ChevronDown, Archive } from 'lucide-react';
+import { Pencil, Package, ChevronUp, ChevronDown, Archive, Clock } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -11,15 +11,13 @@ import AnimatedTrash from '@/components/ui/trash-icon';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatPrice } from '@/lib/format';
-import { getArabicPlural } from '@/lib/arabic-plural';
 import { type Category, type Item, CATEGORY_ICON_MAP } from './types';
+// P43 SM-1: شريحة ملخص الجدولة («يومياً 10:00–17:00») — النقي المشترك.
+import { formatScheduleSummaryAr } from '@/lib/item-availability';
 
-/** عائلة التحديد الجماعي — الحالة في الصفحة (المصدر الوحيد)، والأزرار هنا. */
-interface BulkState {
-        status: 'available' | 'unavailable';
-        done: number;
-        total: number;
-}
+/* P43 SM-1c: العملية الجماعية طلب واحد — مؤشر شغل فقط (لا عدّاد صف-بصف؛
+ * الأزرار الفعلية في BulkActionBar اللاصق بالصفحة، هنا أدوات التحديد
+ * والملخص السريع فقط). */
 
 interface CategoriesListProps {
         /** Filtered categories to render (search applied by the page). */
@@ -40,13 +38,15 @@ interface CategoriesListProps {
         onAddCategory: () => void;
         /* W6-B6 (G-2) — الترتيب + الإخفاء/الإظهار الجماعي */
         selectedItemIds: Set<number>;
-        bulk: BulkState | null;
+        /** P43 SM-1c: عملية جماعية جارية (طلب واحد) — يُعطّل أدوات التحديد. */
+        bulkBusy: boolean;
         movingCatId: number | null;
         onToggleSelectItem: (id: number) => void;
         onSelectAvailable: (catId: number) => void;
         onSelectAll: (catId: number) => void;
         onClearSelection: () => void;
-        onBulkStatus: (status: 'available' | 'unavailable') => void;
+        /* P43 SM-UX: إتاحة/إخفاء كل أصناف القسم بضغطة (المسار الجماعي). */
+        onSetAllStatus: (catId: number, status: 'available' | 'unavailable') => void;
         onMoveItem: (item: Item, dir: 'up' | 'down') => void;
 }
 
@@ -68,13 +68,13 @@ export function CategoriesList({
         onArchiveItem,
         onAddCategory,
         selectedItemIds,
-        bulk,
+        bulkBusy,
         movingCatId,
         onToggleSelectItem,
         onSelectAvailable,
         onSelectAll,
         onClearSelection,
-        onBulkStatus,
+        onSetAllStatus,
         onMoveItem,
 }: CategoriesListProps) {
         return (
@@ -110,7 +110,6 @@ export function CategoriesList({
                                                 : 'القسم يتجاوز سقف 500 صنف — الترتيب غير متاح هنا';
                                         const items = cat.items ?? [];
                                         const selectedCount = items.filter((i) => selectedItemIds.has(i.id)).length;
-                                        const bulkBusy = bulk !== null;
                                         return (
                                         <div
                                                 key={cat.id}
@@ -217,31 +216,13 @@ export function CategoriesList({
                                                         <div className="border-t border-border/20">
                                                                 {items.length > 0 ? (
                                                                         <>
-                                                                                {/* W6-B6 (G-2): شريط الإخفاء/الإظهار الجماعي — «إخفاء
-                                                                                    المتاح» لساعة الذروة = تحديد المتاح ثم إخفاء
-                                                                                    المحدد. التنفيذ تسلسلي صادق (لا endpoint batch):
-                                                                                    PUT لكل صنف + تقدم مرئي + إيقاف عند أول فشل
-                                                                                    برسالة الخادم (صفحة المالك تفصّل العقد). */}
+                                                                                {/* P43 SM-1c/SM-UX: شريط أدوات القسم — أدوات
+                                                                                    التحديد (التحديد مقيد بالقسم المفتوح، عقد
+                                                                                    W6-B6) + ملخص التوافر السريع بإتاحة/إخفاء
+                                                                                    كل الأصناف بضغطة. أزرار الأفعال على المحدد
+                                                                                    انتقلت إلى BulkActionBar اللاصق (الصفحة). */}
                                                                                 <div className="flex flex-wrap items-center gap-2 px-5 py-2.5 bg-muted/20 border-b border-border/10">
-                                                                                        <span
-                                                                                                className="text-xs font-semibold text-muted-foreground tabular-nums"
-                                                                                                aria-live="polite"
-                                                                                        >
-                                                                                                {bulk ? (
-                                                                                                        <>
-                                                                                                                {bulk.status === 'unavailable' ? 'جارٍ الإخفاء' : 'جارٍ الإظهار'}…{' '}
-                                                                                                                {toArabicNumber(bulk.done)}/{toArabicNumber(bulk.total)}
-                                                                                                        </>
-                                                                                                ) : selectedCount === 0 ? (
-                                                                                                        'لا أصناف محددة'
-                                                                                                ) : (
-                                                                                                        <>
-                                                                                                                تم تحديد {toArabicNumber(selectedCount)}{' '}
-                                                                                                                {getArabicPlural(selectedCount, 'صنف', 'صنفان', 'أصناف')}
-                                                                                                        </>
-                                                                                                )}
-                                                                                        </span>
-                                                                                        <div className="flex flex-wrap items-center gap-1.5 ms-auto">
+                                                                                        <div className="flex flex-wrap items-center gap-1.5">
                                                                                                 <Button
                                                                                                         variant="ghost"
                                                                                                         size="sm"
@@ -267,23 +248,39 @@ export function CategoriesList({
                                                                                                                 إلغاء التحديد
                                                                                                         </Button>
                                                                                                 )}
+                                                                                        </div>
+                                                                                        {/* SM-UX: ملخص التوافر — عدّادات متاح/غير متوفر/
+                                                                                            مجدول بأرقام غربية (سياسة المنصة) + تبديل الكل. */}
+                                                                                        <div className="flex flex-wrap items-center gap-1.5 ms-auto">
+                                                                                                <span className="text-2xs text-muted-foreground tabular-nums" aria-live="polite">
+                                                                                                        {toArabicNumber(items.filter((i) => i.status === 'available' && !formatScheduleSummaryAr(i)).length)} متاح
+                                                                                                        <span className="mx-1" aria-hidden="true">·</span>
+                                                                                                        {toArabicNumber(items.filter((i) => i.status !== 'available').length)} غير متوفر
+                                                                                                        <span className="mx-1" aria-hidden="true">·</span>
+                                                                                                        {toArabicNumber(items.filter((i) => formatScheduleSummaryAr(i) != null).length)} مجدول
+                                                                                                </span>
+                                                                                                {/* الصادق هنا القصّ فقط: القسم المحمّل جزئيًا
+                                                                                                    (سقف 500) لا يَعِد «الكل» على قائمة ناقصة —
+                                                                                                    البحث لا يؤثر (العملية على cat.items الكاملة). */}
                                                                                                 <Button
-                                                                                                        variant="outline"
+                                                                                                        variant="ghost"
                                                                                                         size="sm"
-                                                                                                        onClick={() => onBulkStatus('unavailable')}
-                                                                                                        disabled={selectedCount === 0 || bulkBusy}
-                                                                                                        className="text-destructive hover:border-destructive/40"
+                                                                                                        onClick={() => onSetAllStatus(cat.id, 'available')}
+                                                                                                        disabled={bulkBusy || Boolean(cat.itemsTruncated)}
+                                                                                                        title={cat.itemsTruncated ? movesBlockedReason : 'إتاحة كل أصناف هذا القسم'}
+                                                                                                        className="text-success-ink"
                                                                                                 >
-                                                                                                        إخفاء المحدد
+                                                                                                        إتاحة الكل
                                                                                                 </Button>
                                                                                                 <Button
-                                                                                                        variant="outline"
+                                                                                                        variant="ghost"
                                                                                                         size="sm"
-                                                                                                        onClick={() => onBulkStatus('available')}
-                                                                                                        disabled={selectedCount === 0 || bulkBusy}
-                                                                                                        className="text-success-ink hover:border-orange/40"
+                                                                                                        onClick={() => onSetAllStatus(cat.id, 'unavailable')}
+                                                                                                        disabled={bulkBusy || Boolean(cat.itemsTruncated)}
+                                                                                                        title={cat.itemsTruncated ? movesBlockedReason : 'إخفاء كل أصناف هذا القسم'}
+                                                                                                        className="text-destructive"
                                                                                                 >
-                                                                                                        إظهار المحدد
+                                                                                                        إخفاء الكل
                                                                                                 </Button>
                                                                                         </div>
                                                                                 </div>
@@ -376,6 +373,31 @@ export function CategoriesList({
                                                                                                                                 className="inline-flex items-center gap-0.5 text-3xs font-bold text-ember dark:text-saffron bg-orange/10 border border-orange/25 rounded-full px-1.5 py-0.5"
                                                                                                                         >
                                                                                                                                 <SparklesIcon className="size-2.5" aria-hidden="true" />
+                                                                                                                        </span>
+                                                                                                                )}
+                                                                                                                {(() => {
+                                                                                                                        /* P43 SM-1: شريحة الجدولة — ملخص غربي الأرقام («يومياً 10:00–17:00»)؛
+                                                                                                                           الصنف غير المجدول بلا شريحة (الحالة الفارغة غير مرئية). */
+                                                                                                                        const summary = formatScheduleSummaryAr(item);
+                                                                                                                        return summary ? (
+                                                                                                                                <span
+                                                                                                                                        title="توافر مجدول — خارج النافذة يُعرض للزبون «غير متوفر الآن»"
+                                                                                                                                        className="inline-flex items-center gap-0.5 text-3xs font-medium text-muted-foreground bg-muted/60 border border-border/40 rounded-full px-1.5 py-0.5 whitespace-nowrap tabular-nums"
+                                                                                                                                >
+                                                                                                                                        <Clock className="size-2.5" aria-hidden="true" />
+                                                                                                                                        {summary}
+                                                                                                                                </span>
+                                                                                                                        ) : null;
+                                                                                                                })()}
+                                                                                                                {/* SM-UX: عدّاد الخيارات — كثافة معلومات بلا فتح الحوار
+                                                                                                                    (badge ذري بنمط شارة «مميز»). */}
+                                                                                                                {(item.modifierGroups?.filter((g) => g.options?.length > 0).length ?? 0) > 0 && (
+                                                                                                                        <span
+                                                                                                                                title="مجموعات خيارات يختار منها العميل"
+                                                                                                                                className="inline-flex items-center gap-0.5 text-3xs font-medium text-accent-foreground bg-orange/10 border border-orange/25 rounded-full px-1.5 py-0.5"
+                                                                                                                        >
+                                                                                                                                <SparklesIcon className="size-2.5" aria-hidden="true" />
+                                                                                                                                {toArabicNumber(item.modifierGroups!.filter((g) => g.options?.length > 0).length)} خيارات
                                                                                                                         </span>
                                                                                                                 )}
                                                                                                         </div>

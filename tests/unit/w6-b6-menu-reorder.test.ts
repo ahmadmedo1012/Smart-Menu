@@ -12,10 +12,10 @@
  *   2. computeMoveWrites: عقد الفروق — قسم مطبّع = كتابتان بالضبط، قسم
  *      تاريخي كله أصفار = n-1 (الأول يظل 0)، القيم غير المتصلة تُصلح
  *      مرة واحدة، والتطبيق النهائي يطابق moveItemInList حرفيًا.
- *   3. عقود مصدر: الصفحة (PUT لكل فرق، التحميل المجمع بترقيم، الحلقة
- *      التسلسلية للجماعي)، القائمة (لا مقبض وهم، أزرار نقل، خانات، شريط
- *      الجماعي)، ومسار الخادم (قبول sortOrder على PUT، والإلحاق بآخر
- *      القسم على POST).
+ *   3. عقود مصدر: الصفحة (PUT لكل فرق، التحميل المجمع بترقيم، العملية
+ *      الجماعية P43 SM-1c — طلب واحد لكل عملية)، القائمة (لا مقبض وهم،
+ *      أزرار نقل، خانات)، شريط الجماعي (BulkActionBar)، ومسار الخادم
+ *      (قبول sortOrder على PUT، والإلحاق بآخر القسم على POST).
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -149,12 +149,16 @@ describe('W6-B6 — عقود مصدر: صفحة المالك (page.tsx)', () => 
                 expect(page).toContain('itemsTruncated: truncated');
         });
 
-        it('الجماعي: حلقة تسلسلية + تقدم مرئي + إيقاف عند أول فشل بعدّاد', () => {
-                expect(page).toContain('onBulkStatus');
-                expect(page).toContain("JSON.stringify({ status })");
-                expect(page).toContain('setBulk({ status, done, total: ids.length })');
-                expect(page).toContain('failure = getErrorMessage(e');
-                expect(page).toContain('تم تحديث ${toArabicNumber(done)} من ${toArabicNumber(ids.length)}');
+        it('P43 SM-1c الجماعي: طلب واحد لكل عملية عبر /api/items/bulk (لا حلقة صف-بصف)', () => {
+                expect(page).toContain("'/api/items/bulk'");
+                expect(page).toContain('action: \'set-status\'');
+                expect(page).toContain('action: \'archive\'');
+                expect(page).toContain('action: \'move\'');
+                // عقد الإخفاق: رسالة الخادم كما هي + مؤشر شغل واحد (bulkBusy)
+                expect(page).toContain("getErrorMessage(e, 'تعذّر تنفيذ العملية')");
+                expect(page).toContain('setBulkBusy');
+                // الحلقة التسلسلية القديمة (W6-B6) مُستبدلة — لا أثر لPUT-per-item
+                expect(page).not.toContain('setBulk({ status, done, total: ids.length })');
         });
 
         it('فشل النقل يعيد المزامنة من الخادم (لا تراجع يدوي)', () => {
@@ -179,14 +183,26 @@ describe('W6-B6 — عقود مصدر: القائمة (CategoriesList.tsx)', () 
                 expect(cl).toContain('index === items.length - 1');
         });
 
-        it('خانات تحديد أصلية + شريط الجماعي بأفعاله الأربعة', () => {
+        it('خانات تحديد أصلية + أدوات التحديد (أفعال المحدد انتقلت إلى BulkActionBar)', () => {
                 expect(cl).toContain("type=\"checkbox\"");
                 expect(cl).toContain('تحديد ${item.name}');
                 expect(cl).toContain('تحديد المتاح');
                 expect(cl).toContain('تحديد الكل');
-                expect(cl).toContain('إخفاء المحدد');
-                expect(cl).toContain('إظهار المحدد');
                 expect(cl).toContain('إلغاء التحديد');
+                // SM-UX: إتاحة/إخفاء كل أصناف القسم بضغطة (المسار الجماعي نفسه)
+                expect(cl).toContain("onSetAllStatus(cat.id, 'available')");
+                expect(cl).toContain("onSetAllStatus(cat.id, 'unavailable')");
+        });
+
+        it('P43 SM-1c: شريط الجماعي اللاصق (BulkActionBar) بأفعاله الأربعة', () => {
+                const bar = src('src/app/(protected)/owner/menu/BulkActionBar.tsx');
+                expect(bar).toContain('إخفاء المحدد');
+                expect(bar).toContain('إظهار المحدد');
+                expect(bar).toContain('أرشفة المحدد');
+                expect(bar).toContain('نقل إلى');
+                expect(bar).toContain('إلغاء التحديد');
+                // شريط أدوات موصول (role=toolbar) بلافتة عربية
+                expect(bar).toContain('role="toolbar"');
         });
 
         it('النقل يعطّل أثناء البحث (قائمة مفلترة = ترتيب غامض)', () => {

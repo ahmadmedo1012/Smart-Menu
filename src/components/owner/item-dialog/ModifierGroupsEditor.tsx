@@ -4,13 +4,18 @@
  * JSX moved VERBATIM from ItemDialog.tsx 616–643 (section header + «إضافة
  * مجموعة» button — aria-label frozen for team11) + 644–654 (empty state +
  * groups loop). Each fieldset renders via <ModifierGroupCard/>.
+ *
+ * P43 SM-1b: لوحة القوالب (ModifierTemplatesPanel) تُركّب أسفل ترويسة
+ * القسم — «إدراج من قوالب» / «حفظ كقالب» / إدارة (إعادة تسمية/حذف).
  */
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Layers, Plus } from 'lucide-react';
-import type { GroupDraft, OptionDraft } from './types';
+import type { GroupDraft, ModifierGroupPayload, OptionDraft } from './types';
 import { ModifierGroupCard } from './ModifierGroupCard';
+import { ModifierTemplatesPanel } from './ModifierTemplatesPanel';
+import type { TemplateGroupSnapshot } from './use-modifier-templates';
 
 export function ModifierGroupsEditor({
         fId,
@@ -21,6 +26,10 @@ export function ModifierGroupsEditor({
         onAddOption,
         onUpdateOption,
         onRemoveOption,
+        /* P43 SM-1b: القوالب — المطعم النشط + إدراج النسخة + بناء الحمولة. */
+        restaurantId,
+        onImportGroups,
+        buildPayload,
 }: {
         fId: string;
         groups: GroupDraft[];
@@ -30,6 +39,12 @@ export function ModifierGroupsEditor({
         onAddOption: (groupKey: string) => void;
         onUpdateOption: (groupKey: string, optionKey: string, patch: Partial<OptionDraft>) => void;
         onRemoveOption: (groupKey: string, optionKey: string) => void;
+        /** P43 SM-1b — مطعم المالك النشط (0 = اللوحة مخفية). */
+        restaurantId?: number;
+        /** P43 SM-1b — useModifierGroups.importGroups. */
+        onImportGroups?: (source: TemplateGroupSnapshot[]) => void;
+        /** P43 SM-1b — useModifierGroups.buildPayload (تحقق قبل حفظ القالب). */
+        buildPayload?: () => ModifierGroupPayload[] | null;
 }) {
         return (
                 // w3-f1 (F1-3) — modifier groups editor. Draft list is sent
@@ -57,6 +72,15 @@ export function ModifierGroupsEditor({
                                         <Plus className="size-3.5" aria-hidden="true" /> إضافة مجموعة
                                 </Button>
                         </div>
+                        {/* P43 SM-1b: القوالب — إدراج نسخة/حفظ/إدارة. تُخفى في مسار
+                            بلا مطعم (صفر) للحفاظ على السلوك القديم لأي مستدعٍ قديم. */}
+                        {restaurantId != null && restaurantId > 0 && onImportGroups && buildPayload && (
+                                <ModifierTemplatesPanel
+                                        restaurantId={restaurantId}
+                                        buildPayload={buildPayload}
+                                        onInsert={onImportGroups}
+                                />
+                        )}
                         {groups.length === 0 && (
                                 /* W7-H (repetition audit): آخر تلميح فراغ يدوي في حوار الصنف
                                    يركب القطعة المضغوطة من بدائية EmptyState — بئر الطبق

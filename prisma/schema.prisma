@@ -113,6 +113,9 @@ model Restaurant {
   loyaltyCards       LoyaltyCard[]
   categories         MenuCategory[]
   orders             Order[]
+  // P43 SM-1b: قوالب الإضافات القابلة لإعادة الاستخدام — لقطة (groupsJson)
+  // لكل مطعم، الإدراج ينسخ ولا يربط (semantics موثقة في ModifierTemplate).
+  modifierTemplates  ModifierTemplate[]
   // r137: ساعات الدوام المهيكلة (شارة «مفتوح الآن» في صفحة المنيو).
   // workingHours النصي الحر يبقى «ملاحظات دوام إضافية» بجانبها.
   hours              OpeningHours[]
@@ -300,6 +303,31 @@ model ModifierOption {
   updatedAt       DateTime       @updatedAt
 
   @@index([groupId])
+}
+
+/* P43 SM-1b — قوالب الإضافات القابلة لإعادة الاستخدام.
+ *
+ * الدافع (من دفتر المنتج P43): أصحاب المطاعم يعيدون كتابة نفس مجموعات
+ * «الحجم/الحليب/الإضافات» صنفًا صنفًا — القالب يحفظ اللقطة مرة ويُدرجها
+ * في أي صنف بنقرة. القرار الموثّق: لقطة (snapshot) لا مرجع — groupsJson
+ * يحمل بنية ModifierGroup+options كاملة (مُتحقّقة بنفس modifierGroupSchema
+ * وسقوفه: ≤6 مجموعات، ≤20 خيارًا، min/max ≤10)، والإدراج ينسخها إلى الصنف
+ * (تعديلات القالب اللاحقة لا تؤثر على الأصناف المُدرج فيها — موثّق في
+ * الواجهة صراحة). لا سقف خطة جديد: المعدِّلات نفسها غير مسقوفة في أي
+ * خطة (تعليم القيود موجود في plan-entitlements-core.ts — لا بوابات جديدة).
+ * حذف المطعم يمسح قوالبه (Cascade — بيانات مشتقة). */
+model ModifierTemplate {
+  id            Int         @id @default(autoincrement())
+  restaurantId  Int
+  nameAr        String
+  name          String      @default("")
+  // JSON string: مصفوفة مجموعات بصيغة modifierGroupSchema (اللقطة الكاملة).
+  groupsJson    String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
 }
 
 model OrderItem {
