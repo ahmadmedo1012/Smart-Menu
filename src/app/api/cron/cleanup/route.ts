@@ -92,5 +92,20 @@ export async function GET(request: NextRequest) {
                 results.rateLimitEntriesError = 'cleanup failed';
         }
 
+        // P43 SM-2: أحداث تفاعل القائمة — الاحتفاظ 90 يومًا (نفس عائلة AuditLog:
+        // بيانات تحليلية مشتقة لا سجل امتثال). createdAt مفهرس
+        // (MenuEvent_createdAt_idx) ونفس أسلوب الكتل أعلاه: فشل الخطوة لا
+        // يمنع البقية أبدًا.
+        try {
+                const ninetyDays = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+                const { count } = await prisma.menuEvent.deleteMany({
+                        where: { createdAt: { lt: ninetyDays } },
+                });
+                results.menuEventsDeleted = count;
+        } catch (e) {
+                logError('cron: menu events cleanup', { error: String(e) });
+                results.menuEventsError = 'cleanup failed';
+        }
+
         return NextResponse.json(results);
 }

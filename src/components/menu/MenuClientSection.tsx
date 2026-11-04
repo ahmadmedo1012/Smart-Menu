@@ -118,6 +118,9 @@ export function MenuClientSection(props: {
                     categories={categories}
                     items={serializedItems}
                     restaurantWhatsapp={restaurant.whatsapp ?? undefined}
+                    /* P43 SM-2: slug المنيو — يغذّي أحداث التفاعل (view/
+                       item_open/search/qr_scan) من use-menu-events. */
+                    restaurantSlug={restaurant.slug}
                     /* r138-exec-2 (J1): قناة الهاتف البديلة لرسالة البوابة. */
                     restaurantPhone={restaurant.phone ?? undefined}
                     restaurantName={restaurant.name}

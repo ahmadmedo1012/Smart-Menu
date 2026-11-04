@@ -28,6 +28,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { OwnerKpiGrid } from './OwnerKpiGrid';
 import { StatusBreakdown, PopularItems, RecentOrders } from './OwnerOrdersList';
 import { AnalyticsTab } from './OwnerCharts';
+/* P43 SM-2/SM-3: قسم «التفاعل» — تحليلات الطرف الأول (الملخص مجاني لكل
+   الخطط؛ التفصيلي خلف بوابة advancedStats القائمة — لا بوابات جديدة). */
+import { OwnerEngagement } from './OwnerEngagement';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { KpiGridSkeleton, ListCardSkeleton } from '@/components/shared/DashboardSkeletons';
@@ -105,10 +108,14 @@ export default function OwnerDashboard() {
            محلّلًا. null = الحقيقة لم تصل بعد (تفاؤلي؛ الخادم يرفض
            عند الحاجة). */
         const [advancedStatsAllowed, setAdvancedStatsAllowed] = useState<boolean | null>(null);
+        /* P43 SM-3: مشاهدات القائمة (7 أيام) — طبقة الملخص المجانية من
+           /api/stats/engagement (تُلبّي أي خطة). undefined = الطلب فشل → بطاقة
+           KPI المشاهدات لا تُعرض (صفر كاذب أسوأ من بطاقة غائبة). */
+        const [views7d, setViews7d] = useState<number | undefined>(undefined);
 
         const load = useCallback(async (rid: number) => {
                 try {
-                        const [restRes, statsRes, loyaltyRes, entRes] = await Promise.all([
+                        const [restRes, statsRes, loyaltyRes, entRes, engagementRes] = await Promise.all([
                                 fetch(`/api/restaurants/${rid}`),
                                 fetch(`/api/stats?restaurantId=${rid}`),
                                 fetch(`/api/loyalty/stats?restaurantId=${rid}`),
@@ -116,6 +123,9 @@ export default function OwnerDashboard() {
                                    مفتاح أساسي واحد. تحت الرتبة لا يُطلب المسار المتقدم
                                    أصلًا (صفر طلبات 403 في التحميل). */
                                 fetch(`/api/owner/entitlements?restaurantId=${rid}`),
+                                /* P43 SM-3: ملخص التفاعل (مشاهدات 7 أيام) — نفس الموجة؛
+                                   الفشل الصامت يترك البطاقة غائبة لا صفرية. */
+                                fetch(`/api/stats/engagement?restaurantId=${rid}`).catch(() => null),
                         ]);
 
                         if (statsRes.status === 401) {
@@ -154,6 +164,14 @@ export default function OwnerDashboard() {
                         if (advancedRes?.ok) {
                                 const advData = await advancedRes.json();
                                 setStats((prev) => (prev ? { ...prev, advancedStats: advData.data } : prev));
+                        }
+                        /* P43 SM-3: ملخص التفاعل — يصل لأي خطة (بوابة الخطة على
+                           المسار تفتح التفصيلي فقط). */
+                        if (engagementRes?.ok) {
+                                const eng = await engagementRes.json().catch(() => null);
+                                if (eng?.success && typeof eng.data?.views7d === 'number') {
+                                        setViews7d(eng.data.views7d);
+                                }
                         }
                 } catch {
                         setError('تعذّر تحميل البيانات');
@@ -399,7 +417,7 @@ export default function OwnerDashboard() {
                                 hidden={tab !== 'overview'}
                                 className="space-y-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 rounded-md"
                         >
-                                <OwnerKpiGrid stats={stats} />
+                                <OwnerKpiGrid stats={stats} views7d={views7d} />
 
                                 <div className="grid gap-6 lg:grid-cols-3">
                                         <StatusBreakdown stats={stats} statusTotal={statusTotal} />
@@ -439,8 +457,15 @@ export default function OwnerDashboard() {
                                 aria-labelledby="owner-tab-analytics"
                                 tabIndex={0}
                                 hidden={tab !== 'analytics'}
-                                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 rounded-md"
+                                className="space-y-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 rounded-md"
                         >
+                                {/* P43 SM-2/SM-3: قسم «التفاعل» — الملخص (مشاهدات/أعلى
+                                    الأصناف/QR) مجاني لكل الخطط؛ التفصيلي (مصطلحات البحث +
+                                    القمع) تفتحه بوابة advancedStats على المسار نفسه. */}
+                                {tab === 'analytics' && restaurant?.id ? (
+                                        <OwnerEngagement restaurantId={restaurant.id} />
+                                ) : null}
+
                                 {advancedStatsAllowed === false ? (
                                         /* W7-B (G-4): قفل صادق — التبويب يبقى في قائمة
                                            التبويبات (لا إخفاء)، ومحتواه يشرح ويحيل

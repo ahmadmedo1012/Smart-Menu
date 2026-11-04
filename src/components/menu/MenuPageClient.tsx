@@ -43,6 +43,9 @@ import { DIETARY_LABELS } from '@/lib/dietary';
 import AnimatedX from '@/components/ui/x-icon';
 // r135-TABLE: التقاط ‎?table=N‎ من رابط QR للطاولة — انظر lib/table-session.ts
 import { captureTableFromUrl } from '@/lib/table-session';
+// P43 SM-2: أحداث التفاعل — قياس الطرف الأول (view/item_open/search/qr_scan).
+import { useMenuEvents } from './use-menu-events';
+import { useDebouncedCallback } from './MenuToolbar';
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string };
 
@@ -129,6 +132,9 @@ export function MenuPageClient({
         categories,
         items,
         restaurantWhatsapp,
+        /* P43 SM-2: slug المنيو لأحداث التفاعل (اختياري للحفاظ على توافق
+           المستدعيين القديمين — الشريحة العامة تمرره دائمًا). */
+        restaurantSlug,
         /* r138-exec-2 (J1): هاتف المطعم للتواصل البديل عند غياب واتساب
            صالح — نفس الرقم الذي يعرض رابط tel: في MenuHero (عرض خام). */
         restaurantPhone,
@@ -140,6 +146,8 @@ export function MenuPageClient({
         categories: CategoryProp[];
         items: Array<MenuItemProp & FeaturedItem>;
         restaurantWhatsapp?: string;
+        /** P43 SM-2 — slug المنيو (أحداث التفاعل). */
+        restaurantSlug?: string;
         /* r138-exec-2 (J1): انظر أعلاه — يُذكر في رسالة البوابة عند وجوده. */
         restaurantPhone?: string;
         restaurantName?: string;
@@ -191,6 +199,12 @@ export function MenuPageClient({
         useEffect(() => {
                 setTableNumber(captureTableFromUrl());
         }, []);
+        /* P43 SM-2: قياس التفاعل — view/qr_scan عند التحميل (بحرّاس جلسة)
+         * وtrackItemOpen عند فتح الحوار وtrackSearch بعد استقرار البحث. */
+        const { trackItemOpen, trackSearch } = useMenuEvents({
+                slug: restaurantSlug ?? null,
+                tableNumber,
+        });
         /* a11y: one shared ReviewSheet instance (was mounted per-card — N dialogs in the DOM).
                 Fed by onReview from each card; keeps ReviewSheet's own focus trap/restore.
                 17-SM: نفس بوابة «التركيب عند الفتح» (orderDialogMounted أعلاه) —
@@ -361,11 +375,15 @@ export function MenuPageClient({
         const handleOpenOrder = useCallback(
                 (item: MenuItemProp) => {
                         if (item.isAvailable === false) return;
+                        /* P43 SM-2: فتح حوار الصنف = حدث تفاعل (مرة/صنف/جلسة
+                         * داخل الحرز). المفتاح اسم العرض كما يراه الزبون. */
+                        trackItemOpen(item.nameAr || item.name || String(item.id));
                         guardCartSwitch(() => setOrderItem(item), item.nameAr || item.name);
                 },
                 /* P20-B1 lint gate: setOrderItem joined the deps (stable setter —
-                   compiler-inference repair, zero behavior change). */
-                [guardCartSwitch, setOrderItem]
+                   compiler-inference repair, zero behavior change). P43 SM-2:
+                   trackItemOpen مستقر بuseCallback على slug فقط. */
+                [guardCartSwitch, setOrderItem, trackItemOpen]
         );
 
         const handleDecrement = useCallback(
@@ -557,6 +575,16 @@ export function MenuPageClient({
            على المنيوهات التي يُخفى فيها صندوق البحث، فكان المنيو مفلتراً بلا
            أداة إلغاء. */
         const hideSearch = effectiveItems.length < 8;
+
+        /* P43 SM-2: حدث البحث — عند استقرار المصطلح (700ms بلا كتابة؛ أطول
+         * من debounce التصفية 275ms كي يُسجَّل المصطلح النهائي فقط). الشروط:
+         * مصطلح ≥2 حروف بعد التطبيع، بلا تكرار متتالٍ (الحرس داخل trackSearch). */
+        const searchEventDebounced = useDebouncedCallback(trackSearch, 700);
+        useEffect(() => {
+                if (search.trim().length > 0) searchEventDebounced.call(search);
+                else searchEventDebounced.cancel();
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [search]);
 
         /* r126 (P4-W3b / audit F2): 0 أصناف في كل الفئات = منيو فارغ فعلاً —
            «اختر فئة أخرى» هنا تضلّل الزبون (لا توجد فئة أخرى أصلًا). نسخة

@@ -116,6 +116,9 @@ model Restaurant {
   // P43 SM-1b: قوالب الإضافات القابلة لإعادة الاستخدام — لقطة (groupsJson)
   // لكل مطعم، الإدراج ينسخ ولا يربط (semantics موثقة في ModifierTemplate).
   modifierTemplates  ModifierTemplate[]
+  // P43 SM-2: أحداث تفاعل القائمة العامة (view/item_open/search/qr_scan)
+  // — بلا PII، احتفاظ 90 يومًا (cron cleanup)، تجميعات لوحة «التفاعل».
+  menuEvents         MenuEvent[]
   // r137: ساعات الدوام المهيكلة (شارة «مفتوح الآن» في صفحة المنيو).
   // workingHours النصي الحر يبقى «ملاحظات دوام إضافية» بجانبها.
   hours              OpeningHours[]
@@ -328,6 +331,33 @@ model ModifierTemplate {
   restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId])
+}
+
+/* P43 SM-2 — أحداث تفاعل القائمة (تحليلات الطرف الأول، صادقة وبلا PII).
+ *
+ * eventType: view (زيارة قائمة، مرة/جلسة) · item_open (فتح حوار صنف،
+ * مرة/صنف/جلسة) · search (مصطلح بحث ≥2 حروف بعد normalizeArabic) ·
+ * qr_scan (تحميل بمعامل ‎?table=N‎). itemKey = nameAr الصنف أو معرّفه
+ * نصًا (لا معرّف FK — الصنف قد يُحذف/يُؤرشف والحدث يبقى قابلًا للعرض).
+ * day = تاريخ طرابلس YYYY-MM-DD (عمود التجميع — مثلث restaurantId+
+ * eventType+day مفهرس). الاحتفاظ 90 يومًا (cron cleanup — نفس عائلة
+ * AuditLog). */
+model MenuEvent {
+  id            Int         @id @default(autoincrement())
+  restaurantId  Int
+  eventType     String
+  itemKey       String?
+  searchTerm    String?
+  tableNumber   Int?
+  day           String
+  createdAt     DateTime    @default(now())
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  // لوحة التفاعل: counts/series حسب (المطعم، النوع، اليوم)
+  @@index([restaurantId, eventType, day])
+  // الاحتفاظ: purge حسب createdAt
+  @@index([createdAt])
 }
 
 model OrderItem {

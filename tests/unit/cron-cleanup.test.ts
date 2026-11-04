@@ -24,6 +24,7 @@ const mockSessionDeleteMany = vi.hoisted(() => vi.fn());
 const mockAuditDeleteMany = vi.hoisted(() => vi.fn());
 const mockSystemEventDeleteMany = vi.hoisted(() => vi.fn());
 const mockRateLimitDeleteMany = vi.hoisted(() => vi.fn()); // r92-D8: التنظيف الرابع
+const mockMenuEventDeleteMany = vi.hoisted(() => vi.fn()); // P43 SM-2: التنظيف الخامس (أحداث التفاعل)
 const mockLogError = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
@@ -31,6 +32,7 @@ const mockPrisma = vi.hoisted(() => ({
         auditLog: { deleteMany: mockAuditDeleteMany },
         systemEvent: { deleteMany: mockSystemEventDeleteMany },
         rateLimitEntry: { deleteMany: mockRateLimitDeleteMany }, // r92-D8: عقد المحددات في r92-cleanup-ratelimit.test.ts
+        menuEvent: { deleteMany: mockMenuEventDeleteMany }, // P43 SM-2
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma, getUserById: vi.fn(), withRetry: vi.fn() }));
@@ -64,6 +66,7 @@ beforeEach(() => {
         mockAuditDeleteMany.mockResolvedValue({ count: 27 });
         mockSystemEventDeleteMany.mockResolvedValue({ count: 0 });
         mockRateLimitDeleteMany.mockResolvedValue({ count: 0 }); // r92-D8
+        mockMenuEventDeleteMany.mockResolvedValue({ count: 0 }); // P43 SM-2
 });
 
 afterEach(() => {
@@ -131,12 +134,13 @@ describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنوافذ 
                 expect(systemEventArg.where.createdAt.lt.getTime()).toBe(T0 - 180 * DAY);
         });
 
-        it('الجسم يعيد العدّادات الأربعة: sessionsDeleted وauditLogsDeleted وsystemEventsDeleted وrateLimitEntriesDeleted', async () => {
+        it('الجسم يعيد العدّادات الخمسة: sessionsDeleted وauditLogsDeleted وsystemEventsDeleted وrateLimitEntriesDeleted وmenuEventsDeleted', async () => {
                 mockSystemEventDeleteMany.mockResolvedValue({ count: 412 });
                 mockRateLimitDeleteMany.mockResolvedValue({ count: 7 });
+                mockMenuEventDeleteMany.mockResolvedValue({ count: 19 });
                 const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
                 const json = await res.json();
-                expect(json).toEqual({ sessionsDeleted: 3, auditLogsDeleted: 27, systemEventsDeleted: 412, rateLimitEntriesDeleted: 7 });
+                expect(json).toEqual({ sessionsDeleted: 3, auditLogsDeleted: 27, systemEventsDeleted: 412, rateLimitEntriesDeleted: 7, menuEventsDeleted: 19 });
         });
 
         it('فشل حذف الجلسات لا يوقف سجلات التدقيق → 200 مع sessionsError والتنظيف الثاني يعمل', async () => {
@@ -202,5 +206,35 @@ describe('GET /api/cron/cleanup — SystemEvent retention (R91 F-C / D3)', () =>
                 const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
                 const json = await res.json();
                 expect(json.systemEventsDeleted).toBe(0);
+        });
+});
+
+// ── P43 SM-2: احتفاظ أحداث تفاعل القائمة 90 يومًا ────────────────────────
+
+describe('GET /api/cron/cleanup — MenuEvent retention (P43 SM-2)', () => {
+        it('نافذة الاحتفاظ 90 يومًا بالضبط — فلتر createdAt فقط (نفس عائلة AuditLog)', async () => {
+                await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
+
+                expect(mockMenuEventDeleteMany).toHaveBeenCalledTimes(1);
+                const arg = mockMenuEventDeleteMany.mock.calls[0][0];
+                // 90 يومًا لا أكثر ولا أقل (أحداث التفاعل بيانات تحليلية مشتقة)
+                expect(arg.where.createdAt.lt.getTime()).toBe(T0 - 90 * DAY);
+                expect(Object.keys(arg.where)).toEqual(['createdAt']);
+                expect(arg.where.createdAt.lt).toBeInstanceOf(Date);
+        });
+
+        it('فشل تنظيف أحداث التفاعل لا يوقف البقية → 200 مع menuEventsError', async () => {
+                mockMenuEventDeleteMany.mockRejectedValue(new Error('pg timeout'));
+                const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
+                expect(res.status).toBe(200);
+                const json = await res.json();
+                expect(json.sessionsDeleted).toBe(3);
+                expect(json.auditLogsDeleted).toBe(27);
+                expect(json.menuEventsDeleted).toBeUndefined();
+                expect(json.menuEventsError).toBe('cleanup failed');
+                expect(mockLogError).toHaveBeenCalledWith(
+                        'cron: menu events cleanup',
+                        expect.objectContaining({ error: expect.stringContaining('pg timeout') }),
+                );
         });
 });
