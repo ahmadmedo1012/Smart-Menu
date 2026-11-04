@@ -47,6 +47,11 @@ export interface Item {
         featuredRank?: number | null;
         // round88-C: legacy single showcaseTag dropped — array only.
         showcaseTags?: string[] | null;
+        /* P43 SM-1 (توافر مجدول): كما تصل من GET /api/items — null = متاح
+         * دائمًا؛ availableDays نص JSON "[0,1,4]" باتفاقية getDay. */
+        availableFrom?: string | null;
+        availableTo?: string | null;
+        availableDays?: string | null;
         // w3-f1 (F1-3): groups ride the /api/items rows now — typed for the
         // ItemDialog editing prop (GET includes them since w3-f1).
         modifierGroups?: ItemModifierGroup[];

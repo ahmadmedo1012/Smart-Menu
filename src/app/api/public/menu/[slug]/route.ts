@@ -104,6 +104,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
                             allergens: true,
                             avgRating: true,
                             ratingCount: true,
+                            /* P43 SM-1: أعمدة الجدولة الخام (إضافة فقط — الحمولة
+                               متوافقة رجعيًا مع الجوال): isAvailable يبقى مرآة
+                               الحالة كما كان؛ الجدولة تُفرض خادميًا في POST
+                               /api/orders، والعميل الجوال يستطيع لاحقًا حسابها
+                               محليًا من هذه الحقول دون تغيير API آخر. */
+                            availableFrom: true,
+                            availableTo: true,
+                            availableDays: true,
                             // r102-M4: modifier groups — the web /menu/[slug] RSC payload ships
                             // them to OrderDialog; without them the RN item-detail sheet cannot
                             // offer the same configuration the web offers. Same visibility

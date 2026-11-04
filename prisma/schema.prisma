@@ -212,6 +212,17 @@ model MenuItem {
   featuredRank    Int?
   // Round83 §2.3 — up to 3 showcase badges (source of truth).
   showcaseTags    String[]    @default([])
+  /* P43 SM-1 (توافر مجدول): نافذة يومية HH:MM بنظام 24 ساعة (أرقام غربية —
+     سياسة r135) + أيام الأسبوع باتفاقية getDay (0=الأحد..6=السبت) مرمّزة
+     JSON ‎"[0,1,4]"‎. كل الأعمدة NULL = متاح دائمًا (السلوك القديم حرفيًا —
+     صفر خطر هجرة على الصفوف القائمة). العبور الليلي availableFrom >
+     availableTo (22:00→02:00) بنفس اتفاقية OpeningHours (r137)، والحدود:
+     from شامل، to حصري. التحقق الخادمي الصارم في src/lib/item-availability.ts
+     (isItemWithinSchedule) ويُفرض في POST /api/orders؛ العرض العام يحسبه
+     عميليًا (ISR-safe — نفس حُكم OpenStatusBadge r137). */
+  availableFrom   String?
+  availableTo     String?
+  availableDays   String?
   modifierGroups  ModifierGroup[]
   category        MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems      OrderItem[]

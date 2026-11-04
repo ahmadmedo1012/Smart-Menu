@@ -24,6 +24,8 @@ import { ItemImageField } from './item-dialog/ItemImageField';
 import { ModifierGroupsEditor } from './item-dialog/ModifierGroupsEditor';
 import { FeaturedShowcaseSection } from './item-dialog/FeaturedShowcaseSection';
 import { DietaryAllergensSection } from './item-dialog/DietaryAllergensSection';
+// P43 SM-1: قسم التوافر المجدول.
+import { AvailabilityScheduleSection } from './item-dialog/AvailabilityScheduleSection';
 import type { Item } from './item-dialog/types';
 
 /* Re-exports keep the two external import sites untouched
@@ -126,6 +128,9 @@ export function ItemDialog({
                                                 onUpdateOption={updateOption}
                                                 onRemoveOption={removeOption}
                                         />
+                                        {/* P43 SM-1: التوافر المجدول — بعد المعدّلات قبل العرض المميز
+                                            (ترتيب المهمة في الحوار: الهوية ← الصورة ← الخيارات ← التوافر). */}
+                                        <AvailabilityScheduleSection fId={fId} form={form} patch={patch} />
                                         <FeaturedShowcaseSection
                                                 fId={fId}
                                                 isFeatured={form.isFeatured}

@@ -212,6 +212,11 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                 price: true, discountedPrice: true, image: true, sortOrder: true,
                                 categoryId: true, createdAt: true, status: true,
                                 dietaryTags: true, allergens: true, avgRating: true, ratingCount: true,
+                                /* P43 SM-1 (توافر مجدول): الأعمدة الخام تعبر السلك كما هي
+                                   (HH:MM نص + أيام JSON) — التوافر الفعلي يُحسب عميليًا
+                                   في MenuPageClient (ISR-safe: نفس حُكم OpenStatusBadge
+                                   r137 — لا حالة زمنية تُخبز في صفحة مخبأة). */
+                                availableFrom: true, availableTo: true, availableDays: true,
                                 // w3-f1 (F1-2): modifier groups — ONE hierarchical select, no
                                 // per-item round-trips (no N+1).
                                 // r135-SOLD-OUT: unavailable OPTIONS also cross the wire now
@@ -293,7 +298,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                 a.id - b.id,
                 )
                 .map(
-                ({ price, discountedPrice, avgRating, ratingCount, createdAt, status, ...rest }) => ({
+                ({ price, discountedPrice, avgRating, ratingCount, createdAt, status, availableFrom, availableTo, availableDays, ...rest }) => ({
                         id: rest.id,
                         name: rest.name,
                         nameAr: rest.nameAr,
@@ -305,6 +310,13 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         createdAt: createdAt.toISOString(),
                         // r135-SOLD-OUT: availability flag instead of server-side vanishing.
                         isAvailable: status === 'available',
+                        /* P43 SM-1: الجدولة الخام — التوافر الفعلي = isAvailable ∧
+                           isItemWithinSchedule يُحسب في MenuPageClient (وقت الزبون)،
+                           والمفتاح المجدول ينعش البطاقة بشارة «غير متوفر الآن»
+                           المميزة عن «غير متوفر حالياً» (النفاد). */
+                        availableFrom: availableFrom ?? null,
+                        availableTo: availableTo ?? null,
+                        availableDays: availableDays ?? null,
                         dietaryTags: rest.dietaryTags,
                         allergens: rest.allergens,
                         price: Number(price),

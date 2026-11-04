@@ -40,6 +40,16 @@ export type MenuItemProp = {
          * شارة «غير متوفر حالياً» بدل أن تختفي (نمط NN/g: تعطيل لا إخفاء).
          * غياب الحقل = متاح (توافق رجعي مع كل مستهلك قديم). */
         isAvailable?: boolean;
+        /* P43 SM-1 (توافر مجدول): true = التعطيل سببه الجدولة (خارج النافذة/
+         * اليوم) لا النفاد — نفس العرض الرمادي لكن الشارة تقول «غير متوفر
+         * الآن» (يعود وقت الجدولة) بدل «غير متوفر حالياً». يُحسب عميليًا في
+         * MenuPageClient (ISR-safe) بجوار isAvailable. */
+        scheduledOff?: boolean;
+        /* P43 SM-1: الأعمدة الخام للجدولة كما تعبر السلك من الصفحة العامة
+           (HH:MM نص + أيام JSON) — يستهلكها isItemWithinSchedule عميليًا. */
+        availableFrom?: string | null;
+        availableTo?: string | null;
+        availableDays?: string | null;
         /* w3-f1: live modifier groups (server pre-filters to available options;
          * undefined = plain item, no choices — zero rendering cost). */
         modifierGroups?: ModifierGroupProp[];
@@ -220,7 +230,9 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 /* r135-B: شارة النفاد — حبة muted محايدة بنمط الشارات
                                                    القائمة نفسه (الصنف خارج الخدمة وليس تحذير خطأ).
                                                    شارات الأكثر طلباً/جديد يحجبها الخادم أصلًا للنافذ —
-                                                   الشروط أدناه حزام وسروال إضافي. */
+                                                   الشروط أدناه حزام وسروال إضافي.
+                                                   P43 SM-1: المجدول خارج نافذته يقول «غير متوفر الآن» —
+                                                   التمييز صادق (يعود وقت الجدولة) وواجهته نفسها. */
                                                 <m.span
                                                         initial={{ scale: 0, opacity: 0 }}
                                                         animate={{ scale: 1, opacity: 1 }}
@@ -228,7 +240,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-2xs font-bold text-muted-foreground shadow-sm"
                                                 >
                                                         <AlertTriangle className="size-2.5" aria-hidden="true" />
-                                                        غير متوفر حالياً
+                                                        {item.scheduledOff ? 'غير متوفر الآن' : 'غير متوفر حالياً'}
                                                 </m.span>
                                         )}
                                         {!soldOut && item.isPopular && (

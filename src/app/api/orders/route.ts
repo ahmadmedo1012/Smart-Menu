@@ -18,6 +18,8 @@ import {
         buildModifierSnapshot,
         MAX_MODIFIER_OPTIONS_PER_ITEM,
 } from '@/lib/order-modifiers';
+// P43 SM-1: فرض التوافر المجدول خادميًا — نفس عائلة رفض غير المتوفر.
+import { isItemWithinSchedule } from '@/lib/item-availability';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 // r119-S4-P3-3: rotation-proof backstop — the per-IP limiter alone is
@@ -235,7 +237,7 @@ export async function POST(request: NextRequest) {
                                 // للطلب مباشرة — نفس الفلتر في الصفحة وواجهة الموبايل.
                                 category: { is: { restaurantId: body.restaurantId, isActive: true } },
                         },
-                        select: { id: true, price: true, discountedPrice: true },
+                        select: { id: true, price: true, discountedPrice: true, availableFrom: true, availableTo: true, availableDays: true },
                 });
                 const priceMap = new Map(dbItems.map((i) => [i.id, i]));
 
@@ -352,6 +354,48 @@ export async function POST(request: NextRequest) {
                         /* r139 (J5): حرز تعاقدي — كل صنف غائب عن priceMap رُفض
                            أعلاه دفعة واحدة، فالبحث هنا يعود دائمًا بصف. */
                         const db = priceMap.get(item.itemId)!;
+                        /* P43 SM-1 (توافر مجدول): الصنف بحالة «متاح» لكن خارج
+                           نافذته/أيامه (طرابلس) يُرفض هنا — نفس عائلة غير المتوفر
+                           (r103-F12/r139 J5: أسماء قابلة للفعل بلا معرّفات خام)
+                           لكن برمز 422 المميز للميزة: «غير متاح الآن» ≠ نفد.
+                           الجمع دفعة واحدة (صفر استعلام إضافي في المسار
+                           السليم — الاستعلام أدناه يُشعل عند وجود رفض فقط). */
+                        if (!isItemWithinSchedule(db)) {
+                                const scheduledOffIds = [
+                                        ...new Set(
+                                                body.items
+                                                        .filter((i) => {
+                                                                const row = priceMap.get(i.itemId);
+                                                                return row != null && !isItemWithinSchedule(row);
+                                                        })
+                                                        .map((i) => i.itemId)
+                                        ),
+                                ];
+                                const namedRows = await prisma.menuItem.findMany({
+                                        where: { id: { in: scheduledOffIds } },
+                                        select: { id: true, nameAr: true, name: true },
+                                });
+                                const nameById = new Map(namedRows.map((n) => [n.id, n.nameAr || n.name]));
+                                const names = scheduledOffIds
+                                        .map((id) => nameById.get(id))
+                                        .filter((n): n is string => typeof n === 'string' && n.trim().length > 0);
+                                const listed =
+                                        names.length > 3
+                                                ? `${names.slice(0, 3).join('، ')} وغيرها`
+                                                : names.join('، ');
+                                return NextResponse.json(
+                                        {
+                                                success: false,
+                                                error: listed
+                                                        ? scheduledOffIds.length === 1
+                                                                ? `هذا الصنف غير متاح حالياً: ${listed} — أزِله من السلة ثم أعد المحاولة`
+                                                                : `هذه الأصناف غير متاحة حالياً: ${listed} — أزلها من السلة ثم أعد المحاولة`
+                                                        : 'هذا الصنف غير متاح حالياً — حدّث السلة وحاول مجدداً',
+                                                unavailableItemIds: scheduledOffIds,
+                                        },
+                                        { status: 422 },
+                                );
+                        }
                         // r118-A3-P2-3: nullish (not truthy) — discountedPrice = 0 is a
                         // stored 100%-free price and used to silently fall back to the
                         // FULL price, charging a free item.

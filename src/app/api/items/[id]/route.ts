@@ -12,6 +12,8 @@ import { PlanLimitError } from '@/lib/plan-limit-error';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { modifierGroupSchema, modifierGroupCreateInput } from '@/lib/modifier-schema';
+// P43 SM-1: حقول التوافر المجدول — التحقق والتطبيع في item-availability.ts.
+import { availableDaysSchema, normalizeAvailableDays, schedulePairError } from '@/lib/item-availability';
 
 // round91-F-B (F9/D1 — unthrottled heavy write): items PUT carries up to a
 // 200KB base64 image per request (the R90-E4 cap) with NO limiter — repeated
@@ -116,12 +118,22 @@ const updateSchema = z.object({
         // Round83 §2.3 — up to 3 showcase badges; omitted → untouched.
         // round88-C: legacy single showcaseTag dropped (migration 20260906055500).
         showcaseTags: z.array(z.string().max(40, 'كل شارة يجب ألا تتجاوز 40 حرفًا')).max(3, 'الحد الأقصى 3 شارات').optional(),
+        // P43 SM-1 (توافر مجدول): غياب → بلا ملامسة (نفس قاعدة التحديث الجزئي)؛
+        // قيمة → كتابة (null صريح = مسح الجدولة = متاح دائمًا).
+        availableFrom: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, 'وقت البداية غير صالح — استخدم صيغة 24 ساعة مثل 16:30').nullable().optional(),
+        availableTo: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, 'وقت النهاية غير صالح — استخدم صيغة 24 ساعة مثل 23:00').nullable().optional(),
+        availableDays: availableDaysSchema,
         // w3-f1 (F1-3): omitted → untouched (same partial-update rule as every
         // other field); sent → full replace (deleteMany + create) below.
         modifierGroups: z.array(modifierGroupSchema).max(6, 'الحد الأقصى 6 مجموعات خيارات لكل صنف').optional(),
 }).superRefine((v, ctx) => {
         if (v.discountedPrice != null && v.price != null && v.discountedPrice > v.price) {
                 ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });
+        }
+        // P43 SM-1: نافذة حاضرة تعني الطرفين معًا (طرف يتيم = خطأ إدخال).
+        const pairErr = schedulePairError(v.availableFrom, v.availableTo);
+        if (pairErr) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['availableFrom'], message: pairErr });
         }
 });
 
@@ -212,6 +224,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         if (v !== undefined) updateData[k] = v;
                 }
                 if (updateData.status !== undefined) updateData.status = updateData.status as ItemStatus;
+                // P43 SM-1: الجدولة — التطبيع قبل الكتابة (تفريد/فرز الأيام،
+                // القيمة الفارغة تُخزَّن null = متاح دائمًا). القاعدة الجزئية
+                // فوق تحفظ «الغياب = بلا ملامسة».
+                if (updateData.availableDays !== undefined) {
+                        updateData.availableDays = normalizeAvailableDays(updateData.availableDays as string | null);
+                }
 
                 // w3-f1 (F1-3): full replace — the payload carries the complete list
                 // (the owner dialog is the only writer). Cascade deletes take care of

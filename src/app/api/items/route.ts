@@ -13,6 +13,8 @@ import { PlanLimitError } from '@/lib/plan-limit-error';
 import { MAX_MENU_PRICE, MAX_MENU_PRICE_MESSAGE } from '@/lib/constants';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { modifierGroupSchema, modifierGroupCreateInput } from '@/lib/modifier-schema';
+// P43 SM-1: حقول التوافر المجدول — التحقق والتطبيع في item-availability.ts.
+import { availableDaysSchema, normalizeAvailableDays, schedulePairError } from '@/lib/item-availability';
 
 /* round90-F3 — enum-backed status whitelist (same derivation pattern as the
  * admin invite route: Object.values(Permission)). A free z.string() let any
@@ -66,6 +68,11 @@ const createSchema = z.object({
         // Round83 §2.3 — up to 3 showcase badges (array). Round88-C: the legacy
         // single showcaseTag mirror is dropped — the array is the only storage.
         showcaseTags: z.array(z.string().max(40, 'كل شارة يجب ألا تتجاوز 40 حرفًا')).max(3, 'الحد الأقصى 3 شارات').optional(),
+        // P43 SM-1 (توافر مجدول): نافذة HH:MM بنظام 24 ساعة + أيام getDay
+        // JSON — كلها null = متاح دائمًا (نفس الأعمدة في zz_p43_item_schedule).
+        availableFrom: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, 'وقت البداية غير صالح — استخدم صيغة 24 ساعة مثل 16:30').nullable().optional(),
+        availableTo: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, 'وقت النهاية غير صالح — استخدم صيغة 24 ساعة مثل 23:00').nullable().optional(),
+        availableDays: availableDaysSchema,
         // w3-f1 (F1-3): modifier groups — full editor state from ItemDialog.
         // Caps mirror the payload-hygiene rule (A-2): bounded arrays, bounded
         // strings, bounded counts. `id` is accepted-but-ignored (replace strategy
@@ -74,6 +81,11 @@ const createSchema = z.object({
 }).superRefine((v, ctx) => {
         if (v.discountedPrice != null && v.discountedPrice > v.price) {
                 ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });
+        }
+        // P43 SM-1: نافذة حاضرة تعني الطرفين معًا (طرف يتيم = خطأ إدخال).
+        const pairErr = schedulePairError(v.availableFrom, v.availableTo);
+        if (pairErr) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['availableFrom'], message: pairErr });
         }
 });
 
@@ -333,6 +345,11 @@ export async function POST(request: NextRequest) {
                                         // round88-C: single-column mirror dropped — the
                                         // array is the source of truth (and only storage).
                                         showcaseTags,
+                                        // P43 SM-1: الجدولة — التطبيع (تفريد/فرز الأيام، «» → null)
+                                        // قبل الكتابة؛ الفارغ يعني متاحًا دائمًا.
+                                        availableFrom: body.availableFrom ?? null,
+                                        availableTo: body.availableTo ?? null,
+                                        availableDays: normalizeAvailableDays(body.availableDays),
                                         // w3-f1 (F1-3): nested write — same Prisma relation
                                         // pattern as the items write above; ids in the payload
                                         // are ignored (fresh create).

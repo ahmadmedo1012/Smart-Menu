@@ -207,7 +207,7 @@ describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
                                 // surfaces — the order path now enforces the same visibility.
                                 category: { is: { restaurantId: 5, isActive: true } },
                         },
-                        select: { id: true, price: true, discountedPrice: true },
+                        select: { id: true, price: true, discountedPrice: true, availableFrom: true, availableTo: true, availableDays: true },
                 });
         });
 
@@ -313,6 +313,58 @@ describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
                 // r103-F12: actionable copy replaces the raw-DB-id message
                 expect(json.error).toContain('أحد الخيارات المختارة لم يعد متاحاً');
                 expect(mockTransaction).not.toHaveBeenCalled();
+        });
+});
+
+describe('POST /api/orders — P43 SM-1 فرض التوافر المجدول خادميًا', () => {
+        /* isItemWithinSchedule يحسب بوقت طرابلس الحي — الاختباران محسومان
+           بنيويًا لا صدفةً: «يوم غير اليوم» (مغلق دائمًا اليوم) و
+           «00:00→00:00» (دوام متواصل 24 ساعة — داخل النافذة دائمًا). */
+        it('صنف «متاح» الحالة لكن خارج أيامه المجدولة → 422 «غير متاح حالياً» بالاسم + ids، صفر كتابات', async () => {
+                const { tripoliWallClock } = await import('@/lib/opening-hours');
+                const today = tripoliWallClock(new Date()).dayOfWeek;
+                const otherDay = (today + 3) % 7;
+
+                mockMenuItemFindMany.mockResolvedValue([
+                        {
+                                id: 1,
+                                price: 10,
+                                discountedPrice: null,
+                                availableFrom: null,
+                                availableTo: null,
+                                availableDays: JSON.stringify([otherDay]),
+                                nameAr: 'شاي بالنعناع',
+                                name: 'mint tea',
+                        },
+                ]);
+
+                const res = await callPost(tamperedBody);
+
+                expect(res.status).toBe(422);
+                const json = await res.json();
+                expect(json.error).toContain('هذا الصنف غير متاح حالياً');
+                expect(json.error).toContain('شاي بالنعناع');
+                expect(json.unavailableItemIds).toEqual([1]);
+                expect(mockTransaction).not.toHaveBeenCalled();
+                expect(txMock.order.create).not.toHaveBeenCalled();
+        });
+
+        it('صنف داخل جدولته (00:00→00:00 دوام متواصل) → يُقبل كالمعتاد (201)', async () => {
+                mockMenuItemFindMany.mockResolvedValue([
+                        {
+                                id: 1,
+                                price: 10,
+                                discountedPrice: null,
+                                availableFrom: '00:00',
+                                availableTo: '00:00',
+                                availableDays: null,
+                        },
+                ]);
+
+                const res = await callPost(tamperedBody);
+
+                expect(res.status).toBe(201);
+                expect(txMock.order.create).toHaveBeenCalledTimes(1);
         });
 });
 

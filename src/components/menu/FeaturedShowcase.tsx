@@ -62,6 +62,9 @@ export type FeaturedItem = {
          * الطلب أصلًا؛ نُخفي نحن أيضًا سطح النقر/شريحة «اضغط للطلب» حتى لا
          * نَعِد بإجراء لا يحدث. غياب الحقل = متاح. */
         isAvailable?: boolean;
+        /* P43 SM-1: true = التعطيل سببه الجدولة (تعود وقت النافذة) — تمييز
+         * نص الشارة فقط، العائلة البصرية كما هي. */
+        scheduledOff?: boolean;
 };
 
 const MAX_SHOWCASE = 5;
@@ -208,6 +211,10 @@ export function FeaturedShowcase<T extends FeaturedItem>({
            Data semantics unchanged: isAvailable is the server's truth. */
         const soldOut = current.isAvailable === false;
         const hasBottomChip = tappable || soldOut;
+        /* P43 SM-1 (توافر مجدول): تمييز صادق لسبب التعطيل — المجدول خارج
+         * نافذته يعود وقت الجدولة فالشارة تقول «غير متوفر الآن» (والنفاد
+         * يبقى «غير متوفر حالياً»)؛ نفس العائلة البصرية بالضبط. */
+        const unavailableChipText = current.scheduledOff === true ? 'غير متوفر الآن' : 'غير متوفر حالياً';
 
         /* §2.2 — the scene's identity pair, resolved per item (position 1-based). */
         const n = accentIndex(current, index);
@@ -461,7 +468,7 @@ export function FeaturedShowcase<T extends FeaturedItem>({
                                                 )}
                                         >
                                                 <AlertTriangle className="size-4" aria-hidden="true" />
-                                                غير متوفر حالياً
+                                                {unavailableChipText}
                                         </span>
                                 )}
 

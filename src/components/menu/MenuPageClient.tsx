@@ -33,6 +33,9 @@ const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default
 // حالة تحميل شرائح الحوارات — نفس وصفة الغطاء والقشرة في ui/dialog
 import { DialogChunkFallback } from './dialog-chunk-fallback';
 import { toArabicNumber, normalizeArabic, contentLang } from '@/lib/format';
+// P43 SM-1: التوافر المجدول — الحساب النقي نفسه الذي يفرضه POST /api/orders
+// (ISR-safe: يُحسب هنا بوقت الزبون، لا يُخبز في الصفحة المخبأة).
+import { isItemWithinSchedule } from '@/lib/item-availability';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { normalizeWaNumber } from '@/lib/whatsapp';
 import { DIETARY_LABELS } from '@/lib/dietary';
@@ -383,33 +386,56 @@ export function MenuPageClient({
                         setRestaurantDetails(restaurantId, restaurantWhatsapp || '', restaurantName || '');
         }, [restaurantId, restaurantWhatsapp, restaurantName, setRestaurantDetails]);
 
+        /* P43 SM-1 (توافر مجدول): التوافر الفعلي يُحسب عميليًا — الصفحة مخبأة
+           ISR 60s فأي حكم زمني خادمي كان سيتقادم بصمت (نفس حُكم OpenStatusBadge
+           r137). صنف «متاح» الحالة لكن خارج نافذته/أيامه (طرابلس) يُعرض معطّلًا
+           رماديًا بشارة «غير متوفر الآن» (مميزة عن «غير متوفر حالياً» للنفاد)
+           ويُعاد تقسيمه بعد المتاح فعليًا — امتداد مباشر لنمط r135-B
+           «تعطيل لا إخفاء» وترتيب 4-b (المتاح يقود القائمة). الحساب مرة
+           واحدة لكل حمولة (useMemo على items) لا لكل ضغطة بحث/فرز. */
+        const effectiveItems = useMemo(() => {
+                const now = new Date();
+                const enriched = items.map((item) => {
+                        if (item.isAvailable === false) return item; // النافد كما هو
+                        return isItemWithinSchedule(item, now)
+                                ? item
+                                : { ...item, isAvailable: false as const, scheduledOff: true as const };
+                });
+                // إعادة التقسيم المستقر: القابل للطلب أولًا (بترتيبه الأصلي)،
+                // ثم المعطّل (نفد/مجدول) بترتيبه — البطاقة الخادمية كانت تقسم
+                // بالحالة فقط والمجدول يظل «متاحًا» فيها.
+                const orderable = enriched.filter((i) => i.isAvailable !== false);
+                const off = enriched.filter((i) => i.isAvailable === false);
+                return [...orderable, ...off];
+        }, [items]);
+
         /* r135-PERF: فهرس عربي مطبّع مُسبق الحساب — كان الفلتر يطبّع اسم ووصف
            كل صنف من جديد عند كل ضغطة حرف (normalizeArabic على C×I في كل
            keystroke). يحسب مرة واحدة لكل تغيير في العناصر ثم بحث O(I) بلا
            تطبيع متكرر. */
         const normalizedIndex = useMemo(() => {
                 const m = new Map<number, { name: string; desc: string }>();
-                for (const item of items) {
+                for (const item of effectiveItems) {
                         m.set(item.id, {
                                 name: normalizeArabic(item.nameAr || item.name),
                                 desc: normalizeArabic(item.descriptionAr || item.description),
                         });
                 }
                 return m;
-        }, [items]);
+        }, [effectiveItems]);
 
         /* r135: خيارات الفلاتر الغذائية — تُشتق من بيانات المنيو الفعلية:
            الرقاقة تظهر فقط إذا وُجد صنف واحد على الأقل يحمل الوسم (لا رقائق
            ميتة على منيو لا يحتويها). التسميات من نفس معجم البطاقات. */
         const dietaryOptions = useMemo(() => {
                 const present = new Set<string>();
-                for (const item of items) {
+                for (const item of effectiveItems) {
                         for (const tag of item.dietaryTags ?? []) present.add(tag);
                 }
                 return DIETARY_FILTER_KEYS
                         .filter((k) => present.has(k))
                         .map((k) => ({ value: k, label: DIETARY_LABELS[k] ?? k }));
-        }, [items]);
+        }, [effectiveItems]);
 
         /* ── Filtered + sorted items ──
            r135: الفلترة الغذائية تُطبّق داخل نطاق البحث (AND) — نباتي + «شاورما»
@@ -417,7 +443,7 @@ export function MenuPageClient({
            للطلب) — هذا هو نمط «تعطيل لا إخفاء». */
         const filteredItems = useMemo(() => {
                 const q = normalizeArabic(search.trim());
-                const result = items.filter((item) => {
+                const result = effectiveItems.filter((item) => {
                         const idx = normalizedIndex.get(item.id)!;
                         const matchesSearch = q === '' || idx.name.includes(q) || idx.desc.includes(q);
                         const matchesCategory = activeCategory === null || item.categoryId === activeCategory;
@@ -451,12 +477,12 @@ export function MenuPageClient({
                                 break;
                 }
                 return result;
-        }, [items, search, activeCategory, sort, activeDietary, normalizedIndex]);
+        }, [effectiveItems, search, activeCategory, sort, activeDietary, normalizedIndex]);
 
         /* ── Popular items ── */
         const popularItems = useMemo(
-                () => (activeCategory === null && search === '' ? items.filter((i) => i.isPopular) : []),
-                [items, activeCategory, search]
+                () => (activeCategory === null && search === '' ? effectiveItems.filter((i) => i.isPopular) : []),
+                [effectiveItems, activeCategory, search]
         );
 
         // round89-coordinator (hidden-item bug): the carousel renders ONLY when
@@ -487,7 +513,7 @@ export function MenuPageClient({
            عمداً — الرقاقة تعرض ما ستحصل عليه عند اختيارها). */
         const dietAndSearchBase = useMemo(
                 () =>
-                        items.filter((item) => {
+                        effectiveItems.filter((item) => {
                                 const q = normalizeArabic(search.trim());
                                 const idx = normalizedIndex.get(item.id)!;
                                 const matchesSearch = q === '' || idx.name.includes(q) || idx.desc.includes(q);
@@ -496,7 +522,7 @@ export function MenuPageClient({
                                         activeDietary.every((tag) => (item.dietaryTags ?? []).includes(tag));
                                 return matchesSearch && matchesDietary;
                         }),
-                [items, search, activeDietary, normalizedIndex]
+                [effectiveItems, search, activeDietary, normalizedIndex]
         );
 
         const itemCounts = useMemo(() => {
@@ -512,10 +538,10 @@ export function MenuPageClient({
 
         const handleSuggestionClick = useCallback(
                 (id: number) => {
-                        const found = items.find((i) => i.id === id);
+                        const found = effectiveItems.find((i) => i.id === id);
                         if (found) handleOpenOrder(found);
                 },
-                [items, handleOpenOrder]
+                [effectiveItems, handleOpenOrder]
         );
 
         const handleReview = useCallback((item: MenuItemProp) => {
@@ -530,12 +556,12 @@ export function MenuPageClient({
            لعرض رقاقة المسح: ?q= من الرابط يُطبَّق دائماً (UrlFilterSync) حتى
            على المنيوهات التي يُخفى فيها صندوق البحث، فكان المنيو مفلتراً بلا
            أداة إلغاء. */
-        const hideSearch = items.length < 8;
+        const hideSearch = effectiveItems.length < 8;
 
         /* r126 (P4-W3b / audit F2): 0 أصناف في كل الفئات = منيو فارغ فعلاً —
            «اختر فئة أخرى» هنا تضلّل الزبون (لا توجد فئة أخرى أصلًا). نسخة
            دافئة + CTA تواصل واتساب بدلها. */
-        const menuGenuinelyEmpty = items.length === 0;
+        const menuGenuinelyEmpty = effectiveItems.length === 0;
         const emptyMenuWhatsapp = normalizeWaNumber(restaurantWhatsapp);
 
         return (
@@ -553,14 +579,14 @@ export function MenuPageClient({
                                 P18-W2-c (fold law): على الجوال (<sm) يقف المشهد قبل
                                 البحث — عمق الصفحة قبل أول «أضف» أثقل من قانون السرعة؛
                                 الطلب لا ينتظر المسرح. المكتب يبقيه كما كان. */}
-                        <FeaturedShowcase items={items} onSelect={handleOpenOrder} />
+                        <FeaturedShowcase items={effectiveItems} onSelect={handleOpenOrder} />
 
                         <MenuToolbar
                                 search={search}
                                 onSearchChange={(v) => updateURL({ q: v })}
                                 sort={sort}
                                 onSortChange={(v) => updateURL({ sort: v })}
-                                items={items}
+                                items={effectiveItems}
                                 onSuggestionClick={handleSuggestionClick}
                                 /* r138-exec-2 (J3): القيمة نفسها كمقام واحد (انظر hideSearch أعلاه). */
                                 hideSearch={hideSearch}

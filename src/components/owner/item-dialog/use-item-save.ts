@@ -70,6 +70,19 @@ export function useItemSave({
                                 return;
                         }
                 }
+                /* P43 SM-1: تحقق الجدولة قبل الطلب — وضع «جدولة» يطلب النافذة
+                 * كاملة (input[type=time] يعيد «» عند المسح) ويومًا واحدًا على
+                 * الأقل. كل السبعة = «يومياً» وتُخزّن null. */
+                if (form.scheduleMode === 'scheduled') {
+                        if (!form.availableFrom || !form.availableTo) {
+                                premiumToast('error', 'حدد وقت البداية والنهاية للجدولة');
+                                return;
+                        }
+                        if (form.availableDays.length === 0) {
+                                premiumToast('error', 'حدد يومًا واحدًا على الأقل لظهور الصنف');
+                                return;
+                        }
+                }
                 // w3-f1 (F1-3): validate + map drafts BEFORE the request — a bad
                 // draft aborts the save with a specific Arabic reason (no partial write).
                 const modifierGroupsPayload = buildPayload();
@@ -105,6 +118,16 @@ export function useItemSave({
                                 // round88-C: the array is the only badge storage (legacy
                                 // single-tag mirror column dropped this round).
                                 showcaseTags: form.isFeatured ? form.showcaseTags : undefined,
+                                /* P43 SM-1 (توافر مجدول): الحقول تُرسل دائمًا من الحوار (هو
+                                 * الكاتب الوحيد) — «دائمًا» يرسل nulls صريحة (مسح موثوق)،
+                                 * «جدولة» يرسل النافذة + الأيام (كل السبعة → null = يومياً).
+                                 * الخادم يطبّع الأيام (تفريد/فرز) قبل التخزين. */
+                                availableFrom: form.scheduleMode === 'scheduled' ? form.availableFrom : null,
+                                availableTo: form.scheduleMode === 'scheduled' ? form.availableTo : null,
+                                availableDays:
+                                        form.scheduleMode === 'scheduled' && form.availableDays.length > 0 && form.availableDays.length < 7
+                                                ? JSON.stringify(form.availableDays)
+                                                : null,
                                 // w3-f1 (F1-3): the complete group list — POST creates them
                                 // nested; PUT replaces (deleteMany + create). Sent ALWAYS when
                                 // the owner configured any (and as [] when they cleared all —

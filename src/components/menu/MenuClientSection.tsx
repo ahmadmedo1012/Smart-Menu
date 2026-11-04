@@ -76,6 +76,11 @@ type SerializedItem = {
     // r135-SOLD-OUT: availability crosses the wire — false renders the card
     // greyed-out with «غير متوفر حالياً» instead of the item vanishing.
     isAvailable: boolean;
+    /* P43 SM-1 (توافر مجدول): الأعمدة الخام للجدولة — التوافر الفعلي
+       يُحسب عميليًا في MenuPageClient (ISR-safe). */
+    availableFrom: string | null;
+    availableTo: string | null;
+    availableDays: string | null;
     // r135: present in the payload since w3-f1 but never TYPED here — now the
     // dietary filter chips + OrderDialog allergen block consume them typed.
     dietaryTags: string[];

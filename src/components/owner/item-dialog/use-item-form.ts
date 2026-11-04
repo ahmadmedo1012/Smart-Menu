@@ -14,6 +14,8 @@
 
 import { useState } from 'react';
 import type { Item, ItemFormState } from './types';
+// P43 SM-1: تفكيك availableDays النصي (JSON) — النقي المشترك مع الخادم.
+import { parseAvailableDays } from '@/lib/item-availability';
 
 const initForm = (catId: number): ItemFormState => ({
         name: '',
@@ -34,6 +36,11 @@ const initForm = (catId: number): ItemFormState => ({
         isFeatured: false,
         featuredRank: '',
         showcaseTags: [] as string[],
+        // P43 SM-1: صنف جديد يبدأ «متاح دائمًا» (الحالة الفارغة غير مرئية).
+        scheduleMode: 'always',
+        availableFrom: '',
+        availableTo: '',
+        availableDays: [0, 1, 2, 3, 4, 5, 6],
 });
 
 export function useItemForm(): {
@@ -111,6 +118,16 @@ export function useItemForm(): {
                                                 isFeatured: editing.isFeatured ?? false,
                                                 featuredRank: editing.featuredRank != null ? String(editing.featuredRank) : '',
                                                 showcaseTags: editing.showcaseTags ?? [],
+                                                /* P43 SM-1: الجدولة المحفوظة تُفكّ من الأعمدة الخام —
+                                                 * أي قيد حاضر (نافذة أو أيام) يدخل وضع «جدولة»؛ الأيام
+                                                 * الفارغة/التالفة تُقرأ «كل الأيام» (سبعة كاملة). */
+                                                scheduleMode:
+                                                        editing.availableFrom || editing.availableTo || editing.availableDays
+                                                                ? 'scheduled'
+                                                                : 'always',
+                                                availableFrom: editing.availableFrom || '',
+                                                availableTo: editing.availableTo || '',
+                                                availableDays: parseAvailableDays(editing.availableDays) ?? [0, 1, 2, 3, 4, 5, 6],
                                         }
                                 : initForm(categoryId)
                 );
