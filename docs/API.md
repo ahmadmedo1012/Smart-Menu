@@ -1,13 +1,17 @@
 # Smart-Menu — API Route Inventory
 
 > **Hand-maintained inventory, not a spec.** One row per `route.ts` under
-> `src/app/api/` (66 routes · 99 exported handlers), grouped by domain.
+> `src/app/api/` (73 routes · 108 exported handlers), grouped by domain.
 > Request/response shapes live in the route files as inline Zod schemas — this
 > table answers "which methods exist, who may call them, are they throttled".
 >
-> **Generated:** r119 (commit `b1a1a1a0`, agent B5-D). **Regenerate/verify:**
+> **Generated:** r119 (commit `b1a1a1a0`, agent B5-D) · **re-counted P45-W1**
+> (the drift 66/99 vs actual 73/108 — W6/W7/P43 routes had never been added —
+> is settled in the same commit that re-verified the tree).
+> **Regenerate/verify:**
 > ```bash
-> find src/app/api -name route.ts | sort          # the route list (66 expected)
+> find src/app/api -name route.ts | sort          # the route list (73 expected)
+> rg -o "export (async )?function (GET|POST|PUT|PATCH|DELETE)" src/app/api -g route.ts | wc -l   # 108 expected
 > node scripts/check-api-auth.mjs                  # CI-enforced auth classification (PASS = every handler gated)
 > rg -n "export (async )?function (GET|POST|PUT|PATCH|DELETE)|requireAuth|requirePermission|createDbRateLimiter" src/app/api/<domain>/...
 > ```
@@ -28,19 +32,20 @@
 | Method(s) | Path | Auth | Rate-limited | Notes |
 |---|---|---|---|---|
 | POST | `/api/auth/login` | public | 10/min/IP (exempt from relax) + account throttle + 20/15min username-only backstop | Sets httpOnly session cookie (web) **and** returns Bearer token (mobile); PBKDF2-SHA512 600k |
-| POST | `/api/auth/logout` | public | — | Destroys the session **cookie** only — mobile Bearer sessions are not server-revoked (known gap, r119-B2-M) |
+| POST | `/api/auth/logout` | public | — | Revokes the session row for the **cookie** AND for a mobile `Authorization: Bearer` header when present (r119-B6 fix of the B2-M gap); clears the cookie |
 | GET | `/api/auth/me` | session | — | Current user + role/permissions/restaurantId |
 | POST | `/api/auth/register` | public | 5/min/IP | Public self-registration (owner accounts) |
 
-## orders (3)
+## orders (4)
 
 | Method(s) | Path | Auth | Rate-limited | Notes |
 |---|---|---|---|---|
 | GET · POST | `/api/orders` | GET session · POST **public** | POST 30/min/IP + 150/min per-restaurant ceiling (r119 order-flood backstop) · GET 60/min | POST = customer order placement: server-side re-pricing, modifier-group contract, `idempotencyKey`, Arabic 422s. GET = owner/staff tenant-scoped list |
 | GET · PUT | `/api/orders/[id]` | session (PUT status change needs `APPROVE_ORDERS`) | 30/min | Order detail + status transitions |
 | GET | `/api/orders/count` | session | 120/min | Single COUNT for the owner 5s polling notifier |
+| GET | `/api/orders/export` | session + plan gate `csvExport` (W7-B G-4) | 10/min | Server-side CSV export (pro-tier+); same tenant ladder + filters as the orders list; 5000-row cap with `X-Export-Truncated` |
 
-## public (9)
+## public (10)
 
 | Method(s) | Path | Auth | Rate-limited | Notes |
 |---|---|---|---|---|
@@ -49,27 +54,33 @@
 | GET | `/api/public/featured` | public | — (revalidate 60) | Featured-restaurants showcase |
 | GET | `/api/public/menu/[slug]` | public | 60/min/IP before any query (incl. 404 path) | Single round-trip menu payload for the RN app; Next 16 Data Cache 60s + tag purge on owner mutations (r118-B3) |
 | GET | `/api/public/stats` | public | — (revalidate 60) | Public aggregates |
+| POST | `/api/public/menu-events` | public | 60/min/IP | P43 SM-2 anonymous first-party menu interaction events (view/item_open/search/qr_scan; no PII; Tripoli day column; 204 empty body) |
 | POST | `/api/referrals/claim` | public | 10/min/IP | Referral-code claim |
 | POST · GET | `/api/loyalty` | public | 20/min keyed + 60/min IP | Loyalty-card lookup/create by phone; PII stripped for anonymous (r85-A2) |
 | GET · POST | `/api/loyalty/referral` | GET public · POST session | GET 20/min · POST 10/min | GET = public referral-code lookup; POST = generate own referral code |
 | GET · POST · DELETE | `/api/items/[id]/reviews` | GET/POST public · DELETE owner/staff | POST 5/min/IP + 30/hr per item | Public reviews with a PII ladder (customerName/phone excluded for anonymous); DELETE = owner/staff moderation (r103-F5) |
 
-## owner & menu (18)
+## owner & menu (23)
 
 | Method(s) | Path | Auth | Rate-limited | Notes |
 |---|---|---|---|---|
 | GET · POST | `/api/categories` | session (unscoped GET is staff-only, r103-F1; POST needs `MANAGE_RESTAURANTS`) | — | Category CRUD (owner tenant-scoped) |
-| PUT · DELETE | `/api/categories/[id]` | session + `MANAGE_RESTAURANTS` | — | Tenant-checked category edit/delete |
+| PUT · DELETE | `/api/categories/[id]` | session + `MANAGE_RESTAURANTS` | — | Tenant-checked category edit/delete (PUT accepts `sortOrder`) |
 | GET · POST | `/api/items` | session (POST needs `MANAGE_RESTAURANTS`) | GET 60/min | Item CRUD; icon/nameAr bounded (r103-F7) |
 | GET · PUT · DELETE | `/api/items/[id]` | GET public-read for **available** items (hidden/draft = staff-only, r87-A8) · PUT/DELETE session + `MANAGE_RESTAURANTS` | PUT 20/min | Modifier groups/options cascade with the item |
+| POST | `/api/items/bulk` | session + `MANAGE_RESTAURANTS` | 10/min | P43 SM-1c one-request bulk ops: set-status / archive / move (batch ≤100, one AuditLog, tenant-guarded move) |
+| GET · POST | `/api/modifier-templates` | session (owner link or `MANAGE_RESTAURANTS`) | GET 60/min · POST 20/min | P43 SM-1b reusable modifier templates — snapshot copy (groupsJson), never linked |
+| PUT · DELETE | `/api/modifier-templates/[id]` | session + `MANAGE_RESTAURANTS` | 20/min | P43 SM-1b template rename/replace + delete |
 | GET · POST | `/api/restaurants` | GET session (staff `VIEW_ANALYTICS`) · POST public self-registration (with username+password) or `MANAGE_RESTAURANTS` | POST 5/min/IP | r92-B3 verb split: only POST is public; reserved-slug 409s |
 | GET · PUT · DELETE | `/api/restaurants/[id]` | session (owner-of-record / staff; sub_admin needs `VIEW_ANALYTICS` for the full-detail branch) | GET 60/min | Full detail vs public projection PII ladder (r87-A5); DELETE has-orders guard 409 (r118-B2) |
 | GET · POST | `/api/owner/restaurants` | session | — | The owner's own multi-menu list/create (`UserRestaurant` links, r118) |
 | PATCH · DELETE | `/api/owner/restaurants/[id]` | session | — | Manage a linked restaurant (multi-menu) |
 | GET | `/api/owner/reviews` | session (`requireRestaurant`) | — | Reviews across the owner's restaurants |
 | GET · PUT | `/api/settings` | session + `MANAGE_RESTAURANTS` branch | — | Restaurant settings (whatsapp, branding) |
+| GET | `/api/owner/entitlements` | session (stats scope ladder) | — | W7-B G-4 server truth for plan feature flags (csvExport/advancedStats/referralProgram) |
 | GET | `/api/stats` | session (tenant-scoped) | 120/min | Owner dashboard KPIs |
-| GET | `/api/stats/advanced` | session | 120/min | 7-day revenue, top items, hourly distribution |
+| GET | `/api/stats/advanced` | session + plan gate `advancedStats` | 120/min | 7-day revenue, top items, hourly distribution |
+| GET | `/api/stats/engagement` | session (stats scope ladder; detail layer gated `advancedStats`) | 60/min | P43 SM-2 engagement analytics: views/search/qr_scan series + top opened items (Tripoli-day aggregation) |
 | POST | `/api/loyalty/redeem` | session | 20/min | Counter-side points redemption |
 | GET | `/api/loyalty/stats` | session | 20/min | Owner loyalty-program stats |
 | GET | `/api/user/events` | session | 120/min | 15s user-banner polling events |
