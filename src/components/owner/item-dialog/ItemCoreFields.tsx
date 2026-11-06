@@ -26,52 +26,70 @@ export function ItemCoreFields({
 }) {
         return (
                 <>
+                        {/* P45-W1 (البند 3 — صدق التسميات، صفر ترحيل): الدلالة
+                            الفعلية للمخطط والبذرة والعرض العام (MenuItemCard
+                            ‏:79، JSON-LD menu/[slug]:439، round83-seed)
+                            هي name=الإنجليزية وnameAr=العربية الأساسية —
+                            التسميات القديمة كانت معكوسة فمُلئ الحقلان
+                            بالمقلوب وحصل المالك على عنوان إنجليزي في منيو
+                            عربي. لا تغيير في البيانات ولا في منطق العرض
+                            (nameAr || name) — الترحيل العكسي للعرض قرار
+                            مالك موثق في ROADMAP. */}
                         <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                        <Label htmlFor={`${fId}-name`}>الاسم</Label>
+                                        <Label htmlFor={`${fId}-name`}>الاسم بالإنجليزية</Label>
                                         <Input
                                                 id={`${fId}-name`}
                                                 value={form.name}
                                                 onChange={(e) => patch({ name: e.target.value })}
-                                                placeholder="كابتشينو"
+                                                placeholder="Cappuccino"
                                                 maxLength={100}
-                                                className="mt-1.5"
+                                                className="mt-1.5 text-start"
+                                                dir="ltr"
                                         />
                                 </div>
                                 <div>
-                                        <Label htmlFor={`${fId}-name-ar`}>الاسم بالإنجليزية</Label>
+                                        <Label htmlFor={`${fId}-name-ar`}>الاسم بالعربية</Label>
                                         <Input
                                                 id={`${fId}-name-ar`}
                                                 value={form.nameAr}
                                                 onChange={(e) => patch({ nameAr: e.target.value })}
-                                                placeholder="اختياري — بالإنجليزية"
+                                                placeholder="كابتشينو — هذا ما يظهر للزبون أولًا"
                                                 maxLength={100}
-                                                className="mt-1.5 text-start"
-                                                dir="ltr"
+                                                className="mt-1.5"
                                         />
                                 </div>
                         </div>
+                        {/* P45-W1: تلميح حي — نفس معادلة العرض العام حرفيًا
+                            (MenuItemCard: item.nameAr || item.name) يتحدث
+                            أثناء الكتابة، فلا مفاجأة للمالك عند النشر. */}
+                        <p className="text-2xs text-muted-foreground" aria-live="polite">
+                                هكذا يظهر للزبون:{' '}
+                                <span className="font-medium text-foreground">
+                                        {form.nameAr.trim() || form.name.trim() || '—'}
+                                </span>
+                        </p>
                         <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                        <Label htmlFor={`${fId}-desc`}>الوصف</Label>
+                                        <Label htmlFor={`${fId}-desc`}>الوصف بالإنجليزية</Label>
                                         <Textarea
                                                 id={`${fId}-desc`}
                                                 value={form.description}
                                                 onChange={(e) => patch({ description: e.target.value })}
-                                                className="mt-1.5"
+                                                className="mt-1.5 text-start"
                                                 rows={2}
                                                 maxLength={1000}
+                                                dir="ltr"
                                         />
                                 </div>
                                 <div>
-                                        <Label htmlFor={`${fId}-desc-ar`}>الوصف بالإنجليزية</Label>
+                                        <Label htmlFor={`${fId}-desc-ar`}>الوصف بالعربية</Label>
                                         <Textarea
                                                 id={`${fId}-desc-ar`}
                                                 value={form.descriptionAr}
                                                 onChange={(e) => patch({ descriptionAr: e.target.value })}
-                                                className="mt-1.5 text-start"
+                                                className="mt-1.5"
                                                 rows={2}
-                                                dir="ltr"
                                         />
                                 </div>
                         </div>

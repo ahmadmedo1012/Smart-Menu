@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Package, ChevronUp, ChevronDown, Archive, Clock } from 'lucide-react';
+import { Pencil, Package, ChevronUp, ChevronDown, Archive, Clock, Copy } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -48,6 +48,19 @@ interface CategoriesListProps {
         /* P43 SM-UX: إتاحة/إخفاء كل أصناف القسم بضغطة (المسار الجماعي). */
         onSetAllStatus: (catId: number, status: 'available' | 'unavailable') => void;
         onMoveItem: (item: Item, dir: 'up' | 'down') => void;
+        /* P45-W1 (البند 3): نقل الفئات + تكرار فئة/صنف — نفس عائلة العقود
+         * أعلاه (الصفحة تنفّذ، القائمة تعرض وتعطّل بصراحة). */
+        onMoveCategory: (cat: Category, dir: 'up' | 'down') => void;
+        onDuplicateCategory: (cat: Category) => void;
+        onDuplicateItem: (item: Item) => void;
+        /** P45-W1: نقل فئة جارٍ — يوقف أزرار النقل كلها (كتابة فروق متسلسلة). */
+        catsMoving: boolean;
+        /** P45-W1: القائمة مقصوصة بسقف التحميل — التطبيع عليها كاذب (عقد menu-reorder). */
+        catsTruncated: boolean;
+        /** P45-W1: تكرار فئة جارٍ (نسخ تسلسلي) — تعطيل التكرار والنقل. */
+        duplicatingCat: boolean;
+        /** P45-W1: صنف قيد التكرار — تعطيل زر تكراره (وأزرار تكرار غيره تظل). */
+        duplicatingItemId: number | null;
 }
 
 /** Category cards with their item rows — verbatim extraction from the owner
@@ -76,6 +89,13 @@ export function CategoriesList({
         onClearSelection,
         onSetAllStatus,
         onMoveItem,
+        onMoveCategory,
+        onDuplicateCategory,
+        onDuplicateItem,
+        catsMoving,
+        catsTruncated,
+        duplicatingCat,
+        duplicatingItemId,
 }: CategoriesListProps) {
         return (
                 /* r131-F5 (A1 P0-3): the hand-rolled 80px gradient-tile empty state
@@ -100,7 +120,7 @@ export function CategoriesList({
                         />
                 ) : (
                         <div className="space-y-3">
-                                {categories.map((cat) => {
+                                {categories.map((cat, catIndex) => {
                                         /* W6-B6 (G-2): حالة أزرار النقل — البحث يفلتر القائمة
                                            (نقل داخل نتيجة مفلترة غامض)، والقص عند سقف
                                            التحميل يجعل التطبيع كاذبًا (عقد menu-reorder). */
@@ -108,6 +128,14 @@ export function CategoriesList({
                                         const movesBlockedReason = searchTerm
                                                 ? 'الترتيب متاح بعد مسح البحث — القائمة المعروضة مفلترة'
                                                 : 'القسم يتجاوز سقف 500 صنف — الترتيب غير متاح هنا';
+                                        /* P45-W1 (البند 3): نفس حكم W6-B6 لكن لقائمة
+                                           الفئات — البحث يقصّ العرض، والقص عند سقف
+                                           التحميل (500) يجعل التطبيع كاذبًا. */
+                                        const catMovesBlocked =
+                                                Boolean(searchTerm) || catsTruncated || catsMoving || duplicatingCat;
+                                        const catMovesBlockedReason = searchTerm
+                                                ? 'الترتيب متاح بعد مسح البحث — القائمة المعروضة مفلترة'
+                                                : 'القائمة تتجاوز سقف 500 قسم — الترتيب غير متاح هنا';
                                         const items = cat.items ?? [];
                                         const selectedCount = items.filter((i) => selectedItemIds.has(i.id)).length;
                                         return (
@@ -163,6 +191,45 @@ export function CategoriesList({
                                                         </div>
                                                         </div>
                                                         <div className="flex items-center gap-1">
+                                                                {/* P45-W1 (البند 3): توأم نقل الفئة — نفس قواعد W6-B6
+                                                                   لأصناف القسم (md+ فقط: ترويسة ≤390px لا تحتمل
+                                                                   عمودين إضافيين — تحرير الجوال عبر تطبيق
+                                                                   المالك، نطاق v1 الموثق نفسه)، 44px لمسًا
+                                                                   (min-h-11 الترويسة)، ومعطّلة عند الحواف/
+                                                                   البحث/القص/الشغل بصراحة. */}
+                                                                <div className="hidden md:flex items-center gap-0.5 me-1">
+                                                                        <button
+                                                                                type="button"
+                                                                                onClick={() => onMoveCategory(cat, 'up')}
+                                                                                disabled={catMovesBlocked || catIndex === 0}
+                                                                                title={
+                                                                                        catMovesBlocked
+                                                                                                ? catMovesBlockedReason
+                                                                                                : 'نقل القسم للأعلى'
+                                                                                }
+                                                                                aria-label={`نقل ${cat.name} للأعلى`}
+                                                                                className="size-11 rounded-md flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-30 disabled:pointer-events-none"
+                                                                        >
+                                                                                <ChevronUp className="size-4" aria-hidden="true" />
+                                                                        </button>
+                                                                        <button
+                                                                                type="button"
+                                                                                onClick={() => onMoveCategory(cat, 'down')}
+                                                                                disabled={
+                                                                                        catMovesBlocked ||
+                                                                                        catIndex === categories.length - 1
+                                                                                }
+                                                                                title={
+                                                                                        catMovesBlocked
+                                                                                                ? catMovesBlockedReason
+                                                                                                : 'نقل القسم للأسفل'
+                                                                                }
+                                                                                aria-label={`نقل ${cat.name} للأسفل`}
+                                                                                className="size-11 rounded-md flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-30 disabled:pointer-events-none"
+                                                                        >
+                                                                                <ChevronDown className="size-4" aria-hidden="true" />
+                                                                        </button>
+                                                                </div>
                                                                 <Button
                                                                         variant="ghost"
                                                                         size="icon"
@@ -177,6 +244,20 @@ export function CategoriesList({
                                                                                                                                                 <MotionPlus className="size-4" />
                                                                                                                                                 <span className="sr-only sm:not-sr-only sm:inline">إضافة صنف</span>
                                                                                                                                         </Button>
+                                                                <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-10 w-10"
+                                                                        onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                onDuplicateCategory(cat);
+                                                                        }}
+                                                                        disabled={duplicatingCat}
+                                                                        title="تكرار القسم مع أصنافه"
+                                                                        aria-label={`تكرار ${cat.name} مع أصنافه`}
+                                                                >
+                                                                        <Copy className="size-4" aria-hidden="true" />
+                                                                </Button>
                                                                 <Button
                                                                         variant="ghost"
                                                                         size="icon"
@@ -451,6 +532,22 @@ export function CategoriesList({
                                                                                                         </span>
                                                                                                 </div>
                                                                                                 <div className="flex gap-0.5">
+                                                                                                        {/* P45-W1 (البند 3): تكرار صنف — مسار
+                                                                                                            الإنشاء القائم مع لاحقة « (نسخة)» ثم
+                                                                                                            فتح المحرر على النسخة (الصفحة تنفّذ)؛
+                                                                                                            زرّه معطّل أثناء تكرار هذا الصنف فقط. */}
+                                                                                                        <Button
+                                                                                                                variant="ghost"
+                                                                                                                size="icon"
+                                                                                                                className="h-10 w-10"
+                                                                                                                onClick={() => onDuplicateItem(item)}
+                                                                                                                disabled={duplicatingItemId === item.id}
+                                                                                                                aria-busy={duplicatingItemId === item.id || undefined}
+                                                                                                                title="تكرار الصنف ثم فتح المحرر على النسخة"
+                                                                                                                aria-label={`تكرار ${item.name}`}
+                                                                                                        >
+                                                                                                                <Copy className="size-3.5" aria-hidden="true" />
+                                                                                                        </Button>
                                                                                                         <Button
                                                                                                                 variant="ghost"
                                                                                                                 size="icon"

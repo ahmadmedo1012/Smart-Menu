@@ -47,27 +47,40 @@ export function CategoryDialog({
                                         <DialogTitle>{editing ? 'تعديل تصنيف' : 'إضافة تصنيف'}</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4">
+                                        {/* P45-W1 (البند 3 — صدق التسميات، صفر ترحيل): نفس
+                                            تصحيح ItemCoreFields — العرض العام للفئات
+                                            (CategoryTabs + JSON-LD) يقدّم nameAr أولًا
+                                            (nameAr || name)، فالتسمية القديمة
+                                            «الاسم بالإنجليزية» على nameAr كانت معكوسة. */}
                                         <div>
-                                                <Label htmlFor={`${fId}-name`}>الاسم</Label>
+                                                <Label htmlFor={`${fId}-name`}>الاسم بالإنجليزية</Label>
                                                 <Input
                                                         id={`${fId}-name`}
                                                         value={form.name}
                                                         onChange={(e) => onFormChange({ ...form, name: e.target.value })}
-                                                        placeholder="مشروبات ساخنة"
-                                                        className="mt-1.5"
-                                                />
-                                        </div>
-                                        <div>
-                                                <Label htmlFor={`${fId}-name-en`}>الاسم بالإنجليزية</Label>
-                                                <Input
-                                                        id={`${fId}-name-en`}
-                                                        value={form.nameAr}
-                                                        onChange={(e) => onFormChange({ ...form, nameAr: e.target.value })}
-                                                        placeholder="اختياري — بالإنجليزية"
+                                                        placeholder="Hot Drinks"
                                                         className="mt-1.5 text-start"
                                                         dir="ltr"
                                                 />
                                         </div>
+                                        <div>
+                                                <Label htmlFor={`${fId}-name-ar`}>الاسم بالعربية</Label>
+                                                <Input
+                                                        id={`${fId}-name-ar`}
+                                                        value={form.nameAr}
+                                                        onChange={(e) => onFormChange({ ...form, nameAr: e.target.value })}
+                                                        placeholder="مشروبات ساخنة — هذا ما يظهر للزبون أولًا"
+                                                        className="mt-1.5"
+                                                />
+                                        </div>
+                                        {/* P45-W1: تلميح حي — معادلة العرض العام نفسها
+                                            (CategoryTabs: cat.nameAr || cat.name). */}
+                                        <p className="text-2xs text-muted-foreground" aria-live="polite">
+                                                هكذا يظهر للزبون:{' '}
+                                                <span className="font-medium text-foreground">
+                                                        {form.nameAr.trim() || form.name.trim() || '—'}
+                                                </span>
+                                        </p>
                                         <div>
                                                 <Label>أيقونة</Label>
                                                 <div className="flex flex-wrap gap-2 mt-1.5">

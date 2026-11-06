@@ -38,6 +38,11 @@ export interface Item {
         discountedPrice: number | null;
         image: string;
         status: string;
+        /* P45-W1 (البند 3): الصفوف من GET /api/items تحمل كل الأعمدة
+         * القياسية — العدسين مطلوبان لتكرار الصنف بأمانة (نفس حقلي
+         * item-dialog/types). */
+        dietaryTags?: string[];
+        allergens?: string[];
         // P42-W3 (الأرشفة الحقيقية): ISO timestamp = مؤرشف (غائب عن كل عرض
         // عام، سجله سليم) · null/undefined = صنف حي.
         archivedAt?: string | null;

@@ -18,6 +18,7 @@ import { toArabicNumber } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { computeMoveWrites, moveItemInList } from '@/lib/menu-reorder';
 import { type Category, type Item, CATEGORY_ICONS } from './types';
+import { copyItemsSequentially, itemDuplicatePayload, withCopySuffix } from './duplicate-utils';
 import { CategoriesList } from './CategoriesList';
 import { CategoryDialog } from './CategoryDialog';
 import { ArchivedItems } from './ArchivedItems';
@@ -26,6 +27,9 @@ import { BulkActionBar } from './BulkActionBar';
 /* W6-B6 (G-2): ثوابت تحميل الأصناف — انظر التعليق أعلى fetchItems. */
 const ITEMS_PAGE_SIZE = 100; // سقف parsePagination لمسار items
 const ITEMS_LOAD_CAP = 500; // 5 طلبات متتالية — حد الترتيب الصادق
+/* P45-W1 (البند 3 — ترتيب الفئات): نفس عائلة ثوابت الأصناف للمسار */
+const CATS_PAGE_SIZE = 100; // سقف parsePagination الأقصى لمسار categories
+const CATS_LOAD_CAP = 500; // سقف صادق فوق كل منيو واقعي (سقف الأقسام 1000)
 
 export default function OwnerMenuPage() {
         const [restaurantId, setRestaurantId] = useState(0);
@@ -59,6 +63,15 @@ export default function OwnerMenuPage() {
         /* P43 SM-1c: هدف حوار تأكيد الأرشفة الجماعية (نفس النمط غير التدميري
          * للمفرد — الاسترجاع من لوحة «الأصناف المؤرشفة»). */
         const [bulkArchiveOpen, setBulkArchiveOpen] = useState(false);
+        /* P45-W1 (البند 3): ترتيب الفئات — حالة شغل النقل + قصّ التحميل
+         * (عقد menu-reorder: التطبيع على قائمة مقصوصة كاذب — نفس حكم
+         * W6-B6 على الأصناف). */
+        const [catsMoving, setCatsMoving] = useState(false);
+        const [catsTruncated, setCatsTruncated] = useState(false);
+        /* P45-W1 (البند 3): هدف حوار تأكيد تكرار فئة + صنف قيد التكرار. */
+        const [duplicateCatTarget, setDuplicateCatTarget] = useState<Category | null>(null);
+        const [duplicatingCat, setDuplicatingCat] = useState(false);
+        const [duplicatingItemId, setDuplicatingItemId] = useState<number | null>(null);
         const fetchCatsRef = useRef<() => Promise<void>>(undefined);
         /* r133 (A3 S2): bounded auto-retry — the old unbounded 3s loop re-fired
            the error toast and flipped skeleton↔ErrorState forever during an
@@ -67,16 +80,31 @@ export default function OwnerMenuPage() {
         const RETRY_MAX = 3;
         const retryCountRef = useRef(0);
 
+        /* P45-W1 (البند 3): تحميل الفئات بكل صفحاتها حتى سقف صادق — نفس عقد
+         * fetchItems للأصناف: أزرار النقل تعطّل بصراحة على القائمة المقصوصة
+         * (سقف 500 فوق كل منيو واقعي — سقف الأقسام التنظيمي 1000). */
         const fetchCats = useCallback(async () => {
                 if (!restaurantId) return;
                 try {
                         setLoading(true);
                         setError(null);
-                        const r = await fetch(`/api/categories?restaurantId=${restaurantId}`);
-                        if (!r.ok) throw Error(`${r.status}`);
-                        const j = await r.json();
-                        const cats = j.events ?? j.data ?? j;
-                        setCategories(Array.isArray(cats) ? cats : []);
+                        const all: Category[] = [];
+                        let total = Number.POSITIVE_INFINITY;
+                        for (let page = 1; all.length < CATS_LOAD_CAP; page++) {
+                                const r = await fetch(
+                                        `/api/categories?restaurantId=${restaurantId}&page=${page}&pageSize=${CATS_PAGE_SIZE}`
+                                );
+                                if (!r.ok) throw Error(`${r.status}`);
+                                const j = await r.json();
+                                const rows: Category[] = Array.isArray(j.events ?? j.data ?? j)
+                                        ? ((j.events ?? j.data ?? j) as Category[])
+                                        : [];
+                                total = j?.meta?.total ?? rows.length;
+                                all.push(...rows);
+                                if (rows.length < CATS_PAGE_SIZE || all.length >= total) break;
+                        }
+                        setCategories(all);
+                        setCatsTruncated(all.length < total);
                         retryCountRef.current = 0; // success ends the cycle
                 } catch {
                         setError('تعذّر تحميل التصنيفات');
@@ -119,8 +147,10 @@ export default function OwnerMenuPage() {
            كل خطة واقعية (أساسية 50 · بريميوم 100) — القسم الأضخم منه يُعلَّم
            itemsTruncated وتُعطّل أزرار النقل بصراحة بدل ترتيب كاذب. الأثر
            الجانبي الصادق: المحرر كان يعرض أول 50 فقط بلا ترقيم — الآن يعرض
-           الكل حتى السقف. */
-        const fetchItems = useCallback(async (catId: number) => {
+           الكل حتى السقف.
+           P45-W1 (البند 3): تعيد القائمة المحمّلة — مسار تكرار الصنف يحتاج
+           الصف الجديد كاملًا (مع مجموعات إضافاته) لفتح المحرر عليه. */
+        const fetchItems = useCallback(async (catId: number): Promise<Item[]> => {
                 try {
                         const all: Item[] = [];
                         let total = Number.POSITIVE_INFINITY;
@@ -139,8 +169,10 @@ export default function OwnerMenuPage() {
                         setCategories((p) =>
                                 p.map((c) => (c.id === catId ? { ...c, items: all, itemsTruncated: truncated } : c))
                         );
+                        return all;
                 } catch {
                         premiumToast('error', 'تعذّر تحميل الأصناف');
+                        return [];
                 }
         }, []);
 
@@ -293,6 +325,141 @@ export default function OwnerMenuPage() {
                         if (expandedCat) fetchItems(expandedCat);
                 } finally {
                         setMovingCatId(null);
+                }
+        };
+
+        /* ── P45-W1 (البند 3): نقل فئة خانة واحدة (فوق/تحت) ──────────────────
+           نفس عقد W6-B6 للأصناف حرفيًا لكن على قائمة الفئات الكاملة:
+           محرّك menu-reorder نفسه (لا تفرّع — Category يحقّق واجهة
+           OrderableItem بـ id+sortOrder)، والكتابة عبر عقد PUT sortOrder
+           القائم للمسار (/api/categories/[id] — يطهّر ISR داخلية) بفروق
+           الفتحات فقط. متفائل: القائمة تتحرك فورًا؛ أي فشل يعيد المزامنة
+           من الخادم ويعرض رسالته العربية كما هي. */
+        const moveCategory = async (cat: Category, dir: 'up' | 'down') => {
+                if (catsMoving || movingCatId || bulkBusy) return;
+                const nextCats = moveItemInList(categories, cat.id, dir);
+                if (!nextCats) return; // الأولى فوق / الأخيرة تحت
+                const writes = computeMoveWrites(categories, cat.id, dir);
+                if (writes.length === 0) return;
+                setCatsMoving(true);
+                setCategories(nextCats);
+                try {
+                        for (const w of writes) {
+                                await csrfJson(`/api/categories/${w.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ sortOrder: w.sortOrder }),
+                                });
+                        }
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تحديث ترتيب التصنيفات'));
+                        fetchCats();
+                } finally {
+                        setCatsMoving(false);
+                }
+        };
+
+        /* ── P45-W1 (البند 3): تكرار صنف ──────────────────────────────────────
+           POST واحد عبر مسار الإنشاء القائم (سقف maxItems يُفحص داخل
+           معاملته FOR UPDATE)، بلاحقة « (نسخة)» على الاسمين، ثم يُفتح
+           المحرر على النسخة الجديدة بصفّها الكامل (تحديث القسم يحملها
+           مع مجموعات إضافاتها — صدى POST لا يشملها، وفتح المحرر على صف
+           ناقص كان سيمسحها عند الحفظ باستراتيجية الاستبدال). */
+        const duplicateItem = async (item: Item) => {
+                if (duplicatingItemId || duplicatingCat || catsMoving || movingCatId || bulkBusy) return;
+                setDuplicatingItemId(item.id);
+                try {
+                        const res = await csrfJson<{ data: { id: number } }>('/api/items', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(itemDuplicatePayload(item, item.categoryId)),
+                        });
+                        const newId = res?.data?.id;
+                        premiumToast('save', 'تم تكرار الصنف — عدّل النسخة ثم احفظ');
+                        setUsageKey((k) => k + 1);
+                        const fresh = await fetchItems(item.categoryId);
+                        const copy = fresh.find((i) => i.id === newId);
+                        if (copy) {
+                                setItemCatId(copy.categoryId);
+                                setItemEditing(copy);
+                                setItemDialogOpen(true);
+                        }
+                } catch (e) {
+                        /* سقف الباقة (403 برسالة الخطة العربية) وغيره يظهر كما
+                           هو — فحص المعاملة هو مصدر الحقيقة الوحيد. */
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تكرار الصنف'));
+                        if (expandedCat) fetchItems(expandedCat);
+                } finally {
+                        setDuplicatingItemId(null);
+                }
+        };
+
+        /* ── P45-W1 (البند 3): تكرار فئة ──────────────────────────────────────
+           بعد التأكيد الصريح (حوار بعدد صادق): إنشاء القسم الجديدة (لاحقة
+           النسخة + إلحاق بذيل الترتيب)، ثم نسخ الأصناف تسلسليًا عبر مسار
+           الإنشاء القائم — كل POST يعيد فحص السقف داخل معاملته وعند الرفض
+           تتوقف الحلقة برسالة الخادم + عدد ما نُسخ فعلًا (الخيار الصادق
+           الموثق في duplicate-utils: لا فحصًا مسبقًا من الواجهة — القسم
+           الجديدة تبقى بما اتسع له، والمالك يرى الحقيقة ويقرر). */
+        const duplicateCategory = async () => {
+                const target = duplicateCatTarget;
+                if (!target || duplicatingCat) return;
+                setDuplicatingCat(true);
+                try {
+                        // آخر ترتيب محمّل + 1 — إلحاق صادق بذيل القائمة (تعادل
+                        // القيم يسقط لترتيب الإدخال فالجديدة تلي نظيراتها)
+                        const appendSort = Math.max(-1, ...categories.map((c) => c.sortOrder)) + 1;
+                        const created = await csrfJson<{ data: { id: number } }>('/api/categories', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                        name: withCopySuffix(target.name),
+                                        nameAr: target.nameAr ? withCopySuffix(target.nameAr) : undefined,
+                                        icon: target.icon,
+                                        restaurantId,
+                                        sortOrder: appendSort,
+                                }),
+                        });
+                        const newCatId = created?.data?.id;
+                        // جلب أصناف الأصل كاملة (نفس سقف التحميل الصادق)
+                        const source: Item[] = [];
+                        let total = Number.POSITIVE_INFINITY;
+                        for (let page = 1; source.length < ITEMS_LOAD_CAP; page++) {
+                                const r = await fetch(
+                                        `/api/items?categoryId=${target.id}&page=${page}&pageSize=${ITEMS_PAGE_SIZE}`
+                                );
+                                if (!r.ok) throw Error(`${r.status}`);
+                                const j = await r.json();
+                                const rows: Item[] = Array.isArray(j.data ?? j) ? (j.data ?? j) : [];
+                                total = j?.meta?.total ?? rows.length;
+                                source.push(...rows);
+                                if (rows.length < ITEMS_PAGE_SIZE || source.length >= total) break;
+                        }
+                        const result = await copyItemsSequentially(source, newCatId, (payload) =>
+                                csrfJson('/api/items', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(payload),
+                                })
+                        );
+                        setDuplicateCatTarget(null);
+                        if (result.stoppedBy) {
+                                premiumToast(
+                                        'error',
+                                        `توقف النسخ بعد ${toArabicNumber(result.copied)} من ${toArabicNumber(result.total)} ${getArabicPlural(result.total, 'صنف', 'صنفان', 'أصناف')} — ${result.stoppedBy}`
+                                );
+                        } else {
+                                premiumToast(
+                                        'save',
+                                        `تم تكرار القسم مع ${toArabicNumber(result.copied)} ${getArabicPlural(result.copied, 'صنف', 'صنفان', 'أصناف')}`
+                                );
+                        }
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'تعذّر تكرار القسم'));
+                } finally {
+                        setDuplicatingCat(false);
+                        fetchCats();
+                        setUsageKey((k) => k + 1);
                 }
         };
 
@@ -516,6 +683,14 @@ export default function OwnerMenuPage() {
                                 onClearSelection={() => setSelectedItemIds(new Set())}
                                 onSetAllStatus={setAllCategoryStatus}
                                 onMoveItem={moveItem}
+                                /* P45-W1 (البند 3): النقل والتكرار للفئات + تكرار الصنف */
+                                onMoveCategory={moveCategory}
+                                onDuplicateCategory={(cat) => setDuplicateCatTarget(cat)}
+                                onDuplicateItem={duplicateItem}
+                                catsMoving={catsMoving}
+                                catsTruncated={catsTruncated}
+                                duplicatingCat={duplicatingCat}
+                                duplicatingItemId={duplicatingItemId}
                         />
 
                         {/* P43 SM-1c: شريط الإجراءات الجماعية اللاصق — يظهر عند
@@ -613,6 +788,25 @@ export default function OwnerMenuPage() {
                                 }
                                 confirmLabel="أرشفة"
                                 onConfirm={() => archiveItem()}
+                                destructive={false}
+                        />
+
+                        {/* P45-W1 (البند 3): حوار تأكيد تكرار فئة — العدد الصادق
+                            من _count (عدّاد الخادوم الكلي لا الأسطر المحمّلة)،
+                            واللاحقة معلنة قبل الإنشاء. غير تدميري بحكم التعريف:
+                            إضافة صرفة لا تمس الأصل. */}
+                        <ConfirmDialog
+                                open={duplicateCatTarget !== null}
+                                onOpenChange={(o) => !o && !duplicatingCat && setDuplicateCatTarget(null)}
+                                title="تكرار القسم"
+                                description={
+                                        duplicateCatTarget
+                                                ? `سيُنشأ قسم جديد باسم «${withCopySuffix(duplicateCatTarget.nameAr || duplicateCatTarget.name)}» وتُنسخ إليه ${toArabicNumber(duplicateCatTarget._count?.items ?? duplicateCatTarget.items?.length ?? 0)} ${getArabicPlural(duplicateCatTarget._count?.items ?? duplicateCatTarget.items?.length ?? 0, 'صنف', 'صنفان', 'أصناف')} من «${duplicateCatTarget.nameAr || duplicateCatTarget.name}» (الأسعار والخيارات والصور والجدولة كما هي). القسم الأصلي لا يُمسّ، ويُحترم سقف أصناف خطتك — إن اتسع الباقي لجزء فقط توقّف النسخ عند السقف وأُخبرت بالعدد.`
+                                                : ''
+                                }
+                                confirmLabel="تكرار القسم"
+                                onConfirm={() => duplicateCategory()}
+                                busy={duplicatingCat}
                                 destructive={false}
                         />
                 </div>
