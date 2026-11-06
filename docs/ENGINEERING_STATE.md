@@ -485,3 +485,16 @@ tsc 0 · eslint 0 errors (10 legacy warnings) · **1991/1991** unit · next buil
 1. **GitHub billing fix** → CI restored (then dispatch Keep Website Alive).
 2. Optional: fresh Vercel token (git-integration suffices for normal operation).
 3. Legacy: delete duplicate `al-waha-cafeewewe`, real-device r114 APK pass, minSdk 25 decision.
+
+---
+
+# P45-W1 (2026-11-06) — صدق المقاييس + اكتمال إدارة المنيو + صلابة مسار الطلب
+
+**الرأس:** `c2b2cf10` → `c6b9422f` (خمسة التزامات على main). السجل الكامل بالأدلة: docs/p45/P45-IMPLEMENTATION-LOG.md.
+
+- **قاعدة r93-N5 أُلزمت على كل سطح:** إحصاءات advanced كانت تنتهك القاعدة الموثقة (الملغى ينفّخ الإيراد/AOV/الساعي/الحصص/النمو) — أُصلحت مع حدود يوم طرابلس الموحدة. اختبار money-truth جديد 261 سطرًا.
+- **إدارة المنيو اكتملت:** ترتيب الفئات (أول مرة — المخطط كان جاهزًا منذ البداية) + تكرار فئة/صنف باحترام السقوف + تسميات حقول اللغتين الصادقة مع تلميح حي.
+- **مسار الطلب:** idempotencyKey للويب في متجر السلة (ثابت عبر التحديث/التنقل) + تغطية destroySessionByToken (تصحيح: r119-B6 كان صحيحًا بلا تغطية — الفجوة كانت اختبارية).
+- **البوابات المحلية:** lint 0 · idioms 4/4 · tsc 0 · **vitest 3201+2** (من 3117) · **ratchet 86.07/80.13/82.99/88.13 فوق 80/74/75/83**.
+- **CI فقط (لا PG محلي):** migration-parity + seeds + e2e النواة/qa-teams — نتيجة كل SHA في سجل التنفيذ.
+- مؤجل W2: حمية الحمولة (وصفة W7-F) · سقف رفع بلا content-length · ترقيم المراجعات · قرار المالك لدلالة العرض الموازية.
