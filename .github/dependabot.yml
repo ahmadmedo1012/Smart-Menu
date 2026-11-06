@@ -1,0 +1,42 @@
+# P44-3c — automated dependency hygiene (family pattern from Smart-Order's
+# dependabot.yml, adapted to THIS repo's shape):
+#
+#   · The ROOT is pnpm-managed (pnpm-lock.yaml is the resolution contract —
+#     CI installs with `pnpm install --frozen-lockfile`). The npm entry at "/"
+#     keeps package.json manifests fresh; the lockfile itself is regenerated
+#     by CI's frozen-install gate on every Dependabot PR.
+#
+#   · Supply-chain cooldown stays enforced WHERE it already lives:
+#     pnpm-workspace.yaml `minimumReleaseAge: 1440` (24h) rejects any
+#     version published less than a day ago at INSTALL time, so a Dependabot
+#     PR naming a fresh release simply fails the pnpm gate until it ages
+#     past the window — the defense is never bypassed by an automated PR.
+#
+#   · mobile/ is deliberately NOT an entry (P44 freeze): the Expo app's
+#     binaries are frozen; no PRs may touch mobile/* manifests.
+#
+#   · github-actions: the workflow actions (checkout/setup-node/
+#     action-setup/cache/artifacts) are dependencies too — same weekly
+#     cadence as the family. NOTE: this repo's convention pins every `uses:`
+#     to a full 40-char SHA with a version comment (CSO audit F3); a
+#     Dependabot actions PR must re-pin the SHA, never downgrade to a tag.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Security fixes immediately; group minor/patch noise into one PR.
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
