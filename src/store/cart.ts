@@ -71,6 +71,22 @@ interface CartStore {
         restaurantId: number;
         restaurantWhatsapp: string;
         restaurantName: string;
+        /* P45-W1 (البند 4 — مبادرة D): مفتاح إرسال السلة (idempotencyKey).
+         * يعيش في المتجر (لا useRef في الصفحة) ويُخزّن مع السلة نفسها:
+         * إعادة المحاولة بعد فشل غامض (انقطاع بعد التزام الخادم) تعاد حتى
+         * بعد تحديث الصفحة/التنقل — المرجع كان يفقد المفتاح فيفقد الحماية.
+         * يُسك عند أول إرسال ويظل ثابتًا لكل إعادة لنفس السلة، ويُمسح بعد
+         * نجاح مؤكد (201 أو already:true صدى الإعادة الخاملة) — الطلب
+         * التالي في الجلسة نفسها يسك مفتاحًا جديدًا. أي تغيير في محتوى
+         * السلة (إضافة/حذف/كمية/استرجاع) يمسحه أيضًا: لم تبقَ «نفس السلة»
+         * فيغدو مفتاح جديد هو الصادق (مفتاح قديم على سلة معدّلة كان سيُعيد
+         * صدى الطلب القديم). بيانات العميل (الاسم/الهاتف/الملاحظات) لا
+         * تمسحه — إصلاح هجاء بعد فشل غامض يحتفظ بالحماية (المال لم يتغير). */
+        checkoutKey: string;
+        /** يُرجع المفتاح القائم أو يسك واحدًا جديدًا (W + UUID) — ثابت عبر إعادات نفس السلة. */
+        mintCheckoutKey: () => string;
+        /** يمسح المفتاح (بعد نجاح مؤكد أو تغيير محتوى السلة). */
+        clearCheckoutKey: () => void;
         setRestaurantDetails: (id: number, whatsapp: string, name: string) => void;
         addItem: (item: AddItemInput) => void;
         removeItem: (id: string) => void;
@@ -99,6 +115,25 @@ export const useCart = create<CartStore>()(
                 (set, get) => ({
                         items: [],
                         lastRemoved: null,
+                        /* P45-W1 (البند 4): فارغ = لم يُسك بعد — يُسك عند أول إرسال. */
+                        checkoutKey: '',
+
+                        /* P45-W1 (البند 4): سكّة المفتاح — W + UUID (بادئة الويب؛
+                         * الموبايل يرسل M… — عقد r106-N1 نفسه)، مع احتياط
+                         * نفس عائلة genId للمتصفحات بلا randomUUID. الطول
+                         * 37 ≤ سقف zod (100) و≤ شريحة orderNo (40). */
+                        mintCheckoutKey: () => {
+                                const current = get().checkoutKey;
+                                if (current) return current;
+                                const fresh = `W${
+                                        typeof crypto !== 'undefined' && crypto.randomUUID
+                                                ? crypto.randomUUID()
+                                                : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
+                                }`;
+                                set({ checkoutKey: fresh });
+                                return fresh;
+                        },
+                        clearCheckoutKey: () => set({ checkoutKey: '' }),
                 
                         customerName: '',
                         customerPhone: '',
@@ -133,6 +168,8 @@ export const useCart = create<CartStore>()(
                                                         restaurantName: s.restaurantName,
                                                         restaurantWhatsapp: s.restaurantWhatsapp,
                                                         items: [first].filter((i) => i.itemId),
+                                                        // P45-W1: تغيّر محتوى السلة — مفتاح الإرسال القديم لم يعد لهذه السلة
+                                                        checkoutKey: '',
                                                 };
                                         }
                                         // Prevent mixing items from different restaurants — clear cart and start fresh
@@ -155,6 +192,8 @@ export const useCart = create<CartStore>()(
                                                         customerName: '',
                                                         customerPhone: '',
                                                         notes: '',
+                                                        // P45-W1: سلة جديدة كليًا — مفتاح نظيف
+                                                        checkoutKey: '',
                                                 };
                                         }
                                         const existing = s.items.find(
@@ -167,8 +206,14 @@ export const useCart = create<CartStore>()(
                                                                                 ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, i.quantity + 1) }
                                                                                 : i
                                                                 ),
+                                                                // P45-W1: الكمية جزء من محتوى السلة — مفتاح قديم لا يليق بسلة معدّلة
+                                                                checkoutKey: '',
                                                         }
-                                                : { items: [...s.items, { ...item, id: genId(), quantity: 1, notes: '' }] };
+                                                : {
+                                                                items: [...s.items, { ...item, id: genId(), quantity: 1, notes: '' }],
+                                                                // P45-W1: سطر جديد = سلة مختلفة المحتوى
+                                                                checkoutKey: '',
+                                                        };
                                 }),
 
                         removeItem: (id) =>
@@ -177,6 +222,8 @@ export const useCart = create<CartStore>()(
                                         return {
                                                 items: s.items.filter((i) => i.id !== id),
                                                 ...(removed ? { lastRemoved: removed } : {}),
+                                                // P45-W1: حذف سطر = سلة مختلفة المحتوى
+                                                ...(removed ? { checkoutKey: '' } : {}),
                                         };
                                 }),
                         undoRemove: () =>
@@ -197,6 +244,8 @@ export const useCart = create<CartStore>()(
                                         return {
                                                 items: [...s.items, s.lastRemoved],
                                                 lastRemoved: null,
+                                                // P45-W1: استرجاع سطر = محتوى تغيّر
+                                                checkoutKey: '',
                                         };
                                 }),
                         updateQuantity: (id, qty) =>
@@ -216,6 +265,8 @@ export const useCart = create<CartStore>()(
                                         // تقبل أي قيمة (زر السلة أو localStorage قديم).
                                         return {
                                                 items: s.items.map((i) => (i.id === id ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, qty) } : i)),
+                                                // P45-W1: الكمية جزء من المحتوى
+                                                checkoutKey: '',
                                         };
                                 }),
                         updateNotes: (id, notes) =>
@@ -241,6 +292,9 @@ export const useCart = create<CartStore>()(
                                         // «تم حذف» banner could reappear sessions later and
                                         // resurrect an item into an unrelated restaurant's cart.
                                         lastRemoved: null,
+                                        // P45-W1 (البند 4): الطلب نجح — المفتاح يُتقاعد مع السلة
+                                        // (clearCheckoutKey الصريح في الصفحة يتقدم عليه احتياطًا).
+                                        checkoutKey: '',
                                 }),
                         totalItems: () => get().items.reduce((a, i) => a + i.quantity, 0),
                         subtotal: () => get().items.reduce((a, i) => a + i.price * i.quantity, 0),
@@ -251,8 +305,17 @@ export const useCart = create<CartStore>()(
                         // to the persisted cart would have loaded stale structures into
                         // new code. v1 = current shape verbatim; future changes bump and
                         // migrate from here.
-                        version: 1,
-                        migrate: (persisted) => persisted as unknown as CartStore,
+                        // P45-W1 (البند 4): v2 يضيف checkoutKey (سلسلة). سلال v1 المحفوظة
+                        // لا تحمله — التطبيع يمنحه القيمة الفارغة الافتراضية
+                        // («لم يُسك بعد»)، وباقي الشكل كما هو حرفيًا.
+                        version: 2,
+                        migrate: (persisted) => {
+                                const old = (persisted ?? {}) as Record<string, unknown>;
+                                return {
+                                        ...old,
+                                        checkoutKey: typeof old.checkoutKey === 'string' ? old.checkoutKey : '',
+                                } as unknown as CartStore;
+                        },
                         storage: createJSONStorage(ssrSafeStorage),
                         skipHydration: true, // rehydrated by CartHydrator in root layout
                         partialize: (state) => ({
@@ -265,6 +328,9 @@ export const useCart = create<CartStore>()(
                                 restaurantId: state.restaurantId,
                                 restaurantWhatsapp: state.restaurantWhatsapp,
                                 restaurantName: state.restaurantName,
+                                /* P45-W1 (البند 4): المفتاح يُخزّن مع السلة — استمرار الحماية
+                                 * عبر إعادة المحاولة بعد تحديث/تنقل هو جوهر نقله من useRef. */
+                                checkoutKey: state.checkoutKey,
                         }),
                 }
         )

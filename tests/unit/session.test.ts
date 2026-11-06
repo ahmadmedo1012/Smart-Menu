@@ -9,6 +9,10 @@
  *  - destroySession: deletes the row by hash, retries once on transient
  *    DB error (never silently leaves the row resurrectable), clears the
  *    cookie even for malformed tokens
+ *  - destroySessionByToken (P45-W1 يوسع العائلة): the r119-B6 Bearer
+ *    revocation path the logout route calls for mobile clients — deletes
+ *    by the RAW token's SHA-256, no-ops on malformed input, same
+ *    retry-once posture, never throws (logout never traps the user)
  *  - validateSession: single joined query, expiry check + row cleanup,
  *    half-TTL renewal threshold (renew when <12h remain, skip when >12h),
  *    crash fail-closed, no-cookie fast path
@@ -56,7 +60,7 @@ vi.mock('@/lib/logger', () => ({
 }));
 vi.mock('@/lib/csrf', () => ({ mintCsrfToken: vi.fn(async () => 'csrf') }));
 
-import { createSession, destroySession, validateSession } from '@/lib/session';
+import { createSession, destroySession, destroySessionByToken, validateSession } from '@/lib/session';
 import { createHash } from 'node:crypto';
 
 const SESSION_COOKIE = 'smart-menu-session';
@@ -169,6 +173,54 @@ describe('destroySession', () => {
         it('no cookie → clears nothing, deletes nothing', async () => {
                 await destroySession();
                 expect(db.session.deleteMany).not.toHaveBeenCalled();
+        });
+});
+
+describe('destroySessionByToken (r119-B6 — إبطال جلسة Bearer عند الخروج)', () => {
+        const RAW = '22222222-3333-4444-8555-666666666666';
+
+        it('يحذف الصف بتجزئة SHA-256 للتوكن الخام (نفس تخزين createSession)', async () => {
+                await destroySessionByToken(RAW);
+                expect(db.session.deleteMany).toHaveBeenCalledWith({
+                        where: { token: hash(RAW) },
+                });
+        });
+
+        it('توكن غير UUID → لا عمل إطلاقًا (لا استعلام ولا كتابة)', async () => {
+                await destroySessionByToken('not-a-uuid');
+                await destroySessionByToken('');
+                expect(db.session.deleteMany).not.toHaveBeenCalled();
+        });
+
+        it('يعيد المحاولة مرة واحدة عند فشل عابر (لا يترك الصف قابلًا للبعث)', async () => {
+                db.session.deleteMany
+                        .mockRejectedValueOnce(new Error('ECONNRESET'))
+                        .mockResolvedValueOnce({ count: 1 });
+                vi.useFakeTimers();
+                try {
+                        const p = destroySessionByToken(RAW);
+                        await vi.advanceTimersByTimeAsync(300);
+                        await p;
+                } finally {
+                        vi.useRealTimers();
+                }
+                const expectedArg = { where: { token: hash(RAW) } };
+                expect(db.session.deleteMany).toHaveBeenCalledTimes(2);
+                expect(db.session.deleteMany).toHaveBeenNthCalledWith(1, expectedArg);
+                expect(db.session.deleteMany).toHaveBeenNthCalledWith(2, expectedArg);
+        });
+
+        it('فشل مزدوج → يُسجّل ولا يرمي (الخروج لا يحبس المستخدم أبدًا)', async () => {
+                db.session.deleteMany.mockRejectedValue(new Error('pool exhausted'));
+                vi.useFakeTimers();
+                try {
+                        const p = destroySessionByToken(RAW);
+                        await vi.advanceTimersByTimeAsync(300);
+                        await expect(p).resolves.toBeUndefined();
+                } finally {
+                        vi.useRealTimers();
+                }
+                expect(db.session.deleteMany).toHaveBeenCalledTimes(2);
         });
 });
 

@@ -154,7 +154,7 @@ describe('P45-W1 — copyItemsSequentially', () => {
         const items = [item({ id: 1 }), item({ id: 2 }), item({ id: 3 })];
 
         it('نجاح كامل: كل الطلبات نُفذت، stoppedBy = null', async () => {
-                const create = vi.fn(async () => ({ success: true }));
+                const create = vi.fn(async (_payload: { categoryId: number }) => ({ success: true }));
                 const result = await copyItemsSequentially(items, 9, create);
                 expect(result).toEqual({ copied: 3, total: 3, stoppedBy: null });
                 expect(create).toHaveBeenCalledTimes(3);

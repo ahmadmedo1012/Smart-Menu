@@ -69,6 +69,11 @@ export default function CartPage() {
                 setPickupType,
                 setCustomerPhone,
                 clearCart,
+                /* P45-W1 (البند 4 — مبادرة D): مفتاح الإرسال صار ملك المتجر
+                 * (يُخزّن مع السلة) — الصفحة تسكّه عند الإرسال وتمسحه عند
+                 * النجاح المؤكد فقط. */
+                mintCheckoutKey,
+                clearCheckoutKey,
                 /* r138-exec-2 (J4): العدّ بالوحدات لا الأسطر — نفس دلالة الشريحة
                    الجانبية (CartSlideOver totalItems)؛ كانت الصفحتان تعرضان
                    رقمين مختلفين لنفس السلة (أسطر مقابل وحدات). */
@@ -104,15 +109,16 @@ export default function CartPage() {
            في السلة، وتُمسح عند نجاح الإرسال. */
         const [unavailableIds, setUnavailableIds] = useState<number[]>([]);
         const submittingRef = useRef(false);
-        // r106-N1 (Next-actions #6, mirroring mobile N4 with a stronger lifecycle):
-        // idempotency key for POST /api/orders. Minted once per checkout attempt
-        // and REUSED on retry — an ambiguous failure (network cut after the server
-        // committed) resubmits the same key and gets the inert {already:true}
-        // confirmation instead of a duplicate order. Cleared ONLY after a confirmed
-        // success (201 or already:true) so the NEXT order in the same session mints
-        // a fresh key — a session-scoped key would alias the second order onto the
-        // first's orderNo. Namespaced "W…" (mobile sends "M…").
-        const checkoutKeyRef = useRef('');
+        /* P45-W1 (البند 4 — مبادرة D، تعميم r106-N1): مفتاح الإرسال
+         * (idempotencyKey) صار في متجر السلة نفسه (checkoutKey — يُخزّن معها
+         * في localStorage) بدل useRef في الصفحة: إعادة المحاولة بعد فشل
+         * غامض (انقطاع الشبكة بعد التزام الخادم) تحتفظ بنفس المفتاح حتى
+         * عبر تحديث الصفحة أو التنقل خارجها والعودة — المرجع كان يفقد
+         * المفتاح فيتحول الاحتمال الغامض إلى طلب مكرر حقيقي. يُسك عند
+         * أول إرسال (W + UUID — بادئة الويب؛ الموبايل يرسل M… عقد r106-N1)،
+         * ويمسح بعد نجاح مؤكد فقط (201 أو already:true) فيسك الطلب التالي
+         * مفتاحًا جديدًا؛ وأي تغيير في محتوى السلة يمسحه من داخل المتجر
+         * (لم تبقَ «نفس السلة») بينما إصلاح بيانات العميل يحتفظ به. */
 
         // Warn on accidental navigation if cart has items
         useEffect(() => {
@@ -308,16 +314,15 @@ export default function CartPage() {
                         } catch {
                                 /* private mode — referral is a progressive enhancement */
                         }
-                        if (!checkoutKeyRef.current) {
-                                checkoutKeyRef.current = `W${Date.now().toString(36)}${Math.random()
-                                        .toString(36)
-                                        .slice(2, 8)}`.toUpperCase();
-                        }
+                        // P45-W1 (البند 4): السكّ من المتجر — ثابت عبر إعادات نفس السلة
+                        // حتى بعد تحديث/تنقل (كان useRef يفقده)، وممسوح تلقائيًا عند
+                        // تغيّر محتوى السلة (عقد المتجر).
+                        const idempotencyKey = mintCheckoutKey();
                         const res = await csrfFetch('/api/orders', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
-                                        idempotencyKey: checkoutKeyRef.current,
+                                        idempotencyKey,
                                         items: items.map((i) => ({
                                                 itemId: i.itemId,
                                                 quantity: i.quantity,
@@ -374,7 +379,8 @@ export default function CartPage() {
                         serverEcho = json.data;
                         // r106-N1: confirmed success (fresh 201 OR the inert already:true
                         // replay) — retire the key so the next checkout mints a new one.
-                        checkoutKeyRef.current = '';
+                        // P45-W1: المسح عبر المتجر (clearCart يعيده أيضًا احتياطًا).
+                        clearCheckoutKey();
                         /* r135: مفتاح الإحالة كان يعيش للأبد — الزبون الذي دخل برابط
                            صديقه مرة واحدة كان يحمل الكود في كل طلب لاحق فيُحتسب لصديقه
                            إلى ما لا نهاية. التحويل اكتمل الآن: الطلب حُفظ بالكود — المفتاح
