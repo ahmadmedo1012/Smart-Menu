@@ -94,20 +94,29 @@ describe('categoryShares', () => {
 });
 
 describe('rangeBounds', () => {
-	it('today starts at midnight, week is last 7 calendar days, month is month start', () => {
-		const now = new Date(2026, 8, 15, 18, 30, 0);
+	/* P45-W1: كان هذا الاختبار يثبّت السلوك القديم الخاطئ (بداية اليوم بساعة
+	 * الخادم المحلية setHours(0,0,0,0)) — حُدّث ليثبّت القاعدة: الحدود
+	 * طرابلسية (منتصف ليل Africa/Tripoli، UTC+2) مهما كانت ساعة الخادم. */
+	it('today/week/month start at Tripoli midnights (P45-W1: server-clock bounds were the bug)', () => {
+		const now = new Date(Date.UTC(2026, 8, 15, 16, 30, 0)); // 2026-09-15T16:30Z = 18:30 Tripoli
 		const today = rangeBounds('today', now);
-		expect(today.start.getHours()).toBe(0);
-		expect(today.start.getDate()).toBe(15);
+		expect(today.start.toISOString()).toBe('2026-09-14T22:00:00.000Z');
 
 		const week = rangeBounds('week', now);
-		expect(toDateKey(week.start)).toBe('2026-09-09');
+		expect(week.start.toISOString()).toBe('2026-09-08T22:00:00.000Z');
 
 		const month = rangeBounds('month', now);
-		expect(toDateKey(month.start)).toBe('2026-09-01');
+		expect(month.start.toISOString()).toBe('2026-08-31T22:00:00.000Z');
 
 		const prev = previousBounds('month', month);
-		expect(toDateKey(prev.start)).toBe('2026-08-01');
+		expect(prev.start.toISOString()).toBe('2026-07-31T22:00:00.000Z');
+	});
+
+	it('before Tripoli midnight the day is still the previous Tripoli day', () => {
+		// 2026-09-15T20:30Z = 22:30 Tripoli — لا يزال يوم طرابلس 15 سبتمبر
+		const now = new Date(Date.UTC(2026, 8, 15, 20, 30, 0));
+		const today = rangeBounds('today', now);
+		expect(today.start.toISOString()).toBe('2026-09-14T22:00:00.000Z');
 	});
 });
 

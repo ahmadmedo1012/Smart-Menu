@@ -3,22 +3,82 @@ export type AnalyticsRange = 'today' | 'week' | 'month';
 // r121-F-2: ANALYTICS_RANGES (the array constant) was deleted — zero references;
 // the AnalyticsRange TYPE stays (parseAnalyticsRange's contract).
 
+/* P45-W1 — إطار يوم طرابلس للإحصاءات (نفس عائلة MenuEvents P43:
+ * tripoliDateString في lib/menu-events.ts — Intl بمنطقة صريحة، لا حساب
+ * يدوي بالإزاحة). سابقًا كانت حدود «اليوم/الأسبوع/الشهر» تُحسب بساعة
+ * الخادم المحلية (setHours(0,0,0,0)) — على Vercel (TZ=UTC) يبدأ «يوم
+ * المالك» عند منتصف الليل UTC أي 01:00/02:00 طرابلس، فتُقص أول ساعة
+ * أو ساعتان من دوام المطعم من «إيراد اليوم». المنطقة: Africa/Tripoli
+ * عبر Intl (الدقيقة عند أي إزاحة/انتقال)، واللحظة الناتجة UTC
+ * حقيقية تصلح مقارنةً مع createdAt مباشرة. */
+
+/** إزاحة Africa/Tripoli بالميلي ثانية عند لحظة معيّنة (موجبة شرق UTC). */
+function tripoliOffsetMs(at: Date): number {
+        const parts = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Africa/Tripoli',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hourCycle: 'h23',
+        }).formatToParts(at);
+        const p = (type: Intl.DateTimeFormatPartTypes) =>
+                Number(parts.find((x) => x.type === type)?.value ?? 0);
+        const asUtc = Date.UTC(p('year'), p('month') - 1, p('day'), p('hour'), p('minute'), p('second'));
+        return asUtc - at.getTime();
+}
+
+/** التاريخ الطرابلسي (y/m/d) لأي لحظة — نمط en-CA نفسه في menu-events. */
+function tripoliLocalYMD(now: Date): { y: number; m: number; d: number } {
+        const s = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Africa/Tripoli',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+        }).format(now);
+        const [y, m, d] = s.split('-').map(Number);
+        return { y, m, d };
+}
+
+/** اللحظة (UTC) لمنتصف ليل تاريخ طرابلسي معيّن — تصحّح مرة واحدة
+ *  لإزاحة منتصف الليل لو انتقل التوقيت عند الحافة (تعميم بلا فرض). */
+function tripoliMidnightOf(y: number, m: number, d: number): Date {
+        const naive = Date.UTC(y, m - 1, d);
+        let offset = tripoliOffsetMs(new Date(naive));
+        let ms = naive - offset;
+        const offsetAtMidnight = tripoliOffsetMs(new Date(ms));
+        if (offsetAtMidnight !== offset) {
+                offset = offsetAtMidnight;
+                ms = naive - offset;
+        }
+        return new Date(ms);
+}
+
+/**
+ * حدود يوم طرابلس الجاري (P45-W1): `start` = لحظة منتصف ليل طرابلس
+ * (UTC حقيقي)، `end` = اللحظة الممرّرة. تستهلكها مسارا الإحصاءات
+ * (/api/stats لـ «اليوم» و/api/stats/advanced عبر rangeBounds).
+ */
+export function tripoliDayBounds(now: Date = new Date()): { start: Date; end: Date } {
+        const { y, m, d } = tripoliLocalYMD(now);
+        return { start: tripoliMidnightOf(y, m, d), end: new Date(now.getTime()) };
+}
+
 export function parseAnalyticsRange(raw: string | null | undefined): AnalyticsRange {
         if (raw === 'today' || raw === 'week' || raw === 'month') return raw;
         return 'week';
 }
 
-/* (r138): الدوال الثلاث داخلية — تستهلكها rangeBounds وeachDateKey
-   وfillDailySeries/fillRevenueSeries في نفس الملف. */
+/* (r138): startOfDay داخلية — تستهلكها eachDateKey وfillDailySeries/
+   fillRevenueSeries في نفس الملف (مفاتيح محور السلاسل بطابع DATE()
+   في SQL — UTC في الإنتاج). حدود النوافذ صارت طرابلسية (P45-W1):
+   انظر tripoliDayBounds أعلاه. addDays حُذفت (كان مستهلكها الوحيد
+   rangeBounds القديم). */
 function startOfDay(d: Date): Date {
         const x = new Date(d);
         x.setHours(0, 0, 0, 0);
-        return x;
-}
-
-function addDays(d: Date, n: number): Date {
-        const x = new Date(d);
-        x.setDate(x.getDate() + n);
         return x;
 }
 
@@ -37,18 +97,23 @@ export function toDateKey(value: string | Date | null | undefined): string {
         return toDateKey(parsed);
 }
 
+const TRIPOLI_DAY_MS = 24 * 60 * 60 * 1000;
+
+/** P45-W1: الحدود طرابلسية — اليوم يبدأ عند منتصف ليل طرابلس، الأسبوع
+ *  آخر 7 أيام طرابلسية تقويمية (نوافذ نظيفة 7 دلاء لا 168 ساعة
+ *  متدحرجة كانت تعطي 8 دلاء لنفس البطاقة)، والشهر يبدأ عند الأول
+ *  الطرابلسي من الشهر الطرابلسي الجاري. */
 export function rangeBounds(range: AnalyticsRange, now = new Date()): { start: Date; end: Date } {
-        const end = new Date(now);
+        const end = new Date(now.getTime());
         if (range === 'today') {
-                return { start: startOfDay(now), end };
+                return tripoliDayBounds(now);
         }
         if (range === 'week') {
-                const start = addDays(startOfDay(now), -6);
-                return { start, end };
+                const { start } = tripoliDayBounds(now);
+                return { start: new Date(start.getTime() - 6 * TRIPOLI_DAY_MS), end };
         }
-        const start = startOfDay(now);
-        start.setDate(1);
-        return { start, end };
+        const { y, m } = tripoliLocalYMD(now);
+        return { start: tripoliMidnightOf(y, m, 1), end };
 }
 
 export function previousBounds(
@@ -56,10 +121,13 @@ export function previousBounds(
         current: { start: Date; end: Date }
 ): { start: Date; end: Date } {
         if (range === 'month') {
-                const start = new Date(current.start);
-                start.setMonth(start.getMonth() - 1);
-                const end = new Date(current.start);
-                end.setMilliseconds(-1);
+                /* P45-W1: current.start صار منتصف ليل طرابلسي — قراءة يده/شهره
+                 * المحليين بالإزاحة الطرابلسية (كان getMonth بساعة الخادم
+                 * يقرأ اليوم السابق عند الإزاحة الموجبة). الشهر السابق
+                 * يبدأ عند أول الشهر الطرابلسي السابق. */
+                const { y, m } = tripoliLocalYMD(current.start);
+                const start = m === 1 ? tripoliMidnightOf(y - 1, 12, 1) : tripoliMidnightOf(y, m - 1, 1);
+                const end = new Date(current.start.getTime() - 1);
                 return { start, end };
         }
         const ms = Math.max(current.end.getTime() - current.start.getTime(), 24 * 60 * 60 * 1000);

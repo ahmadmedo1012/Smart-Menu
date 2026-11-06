@@ -4,6 +4,10 @@ import { success, handleError, error } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { resolveRestaurantScope, popularItemsQuery, hydratePopularItems, revenueAggregate } from '@/lib/stats-queries';
+// P45-W1: حدود يوم طرابلس الموحدة (نفس عائلة MenuEvents P43) — كان
+// «يوم المالك» يبدأ عند منتصف ليل ساعة الخادم (UTC على Vercel) فتُقص
+// أول ساعة/ساعتان من دوام طرابلس من «إيراد اليوم».
+import { tripoliDayBounds } from '@/lib/chart-stats';
 
 // round89-B4 (dx-4 #7): light per-user cap for the dashboard stats read —
 // the aggregated Promise.all wave is the heaviest authenticated query in the
@@ -26,8 +30,10 @@ export async function GET(request: NextRequest) {
 		if (!scope.ok) return scope.response;
 		const { restaurantId } = scope;
 
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
+		// P45-W1: «اليوم» = يوم طرابلس — منتصف الليل بتوقيت
+		// Africa/Tripoli كلحظة UTC حقيقية (كان setHours(0,0,0,0) بساعة
+		// الخادم المحلية).
+		const today = tripoliDayBounds().start;
 		// round87-B2: bound the popular-items groupBy to 90 days — the owner route's
 		// twin fix (admin/stats) landed in round86-B9 but this one was missed, so a
 		// mature restaurant aggregated its FULL order history on every dashboard load.

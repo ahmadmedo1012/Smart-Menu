@@ -21,6 +21,18 @@ import { requirePlanFeature } from '@/lib/plan-entitlements';
 // 120/min/user; keyed on userId (session-gated), same pattern as stats route.
 const statsAdvancedLimiter = createDbRateLimiter({ windowMs: 60_000, max: 120 });
 
+/* P45-W1 (الشريحة 2 — صدق الإحصاءات المتقدمة): قاعدة r93-N5 المثبّتة
+ * لـ /api/stats (tests/unit/r93-revenue-cancelled-excluded.test.ts +
+ * revenueAggregate في stats-queries.ts:186-213) كانت منتهَكة هنا — ستة
+ * تجميعات SQL خام + عدّادات النمو بلا أي فلتر حالة، فالملغى كان ينفّخ
+ * مخطط الإيراد وAOV والتوزيع الساعي وحصص الأقسام مقابل بطاقة KPI
+ * (todayRevenue) على الشاشة نفسها. كل تجميع هنا يطابق الآن حرفيًا
+ * استثناء نظيره: status != 'cancelled' (الإيراد/الأصناف الرائجة عبر
+ * popularItemsQuery كانا مفلترين أصلًا — البقية لحقت بهما). عدّادات
+ * الحالة المستقلة (statusBreakdown في /api/stats) تبقى بلا فلتر —
+ * القاعدة الموثقة نفسها. */
+const CANCELLED = 'cancelled';
+
 export async function GET(request: NextRequest) {
         try {
                 const auth = await requireAuth();
@@ -47,11 +59,15 @@ export async function GET(request: NextRequest) {
                 const gate = await requirePlanFeature(auth, restaurantId, 'advancedStats');
                 if (!gate.ok) return gate.response;
 
+                /* P45-W1: حدود طرابلسية — rangeBounds/previousBounds صارتا
+                   تحسبان اليوم/الأسبوع/الشهر بمنتصف ليل طرابلس (نفس منطق
+                   MenuEvents P43) لا بساعة الخادم (UTC على Vercel). نافذة
+                   «7 أيام» صارت 7 أيام طرابلسية تقويمية (كانت 168 ساعة
+                   متدحرجة تعطي 8 دلاء لنفس البطاقة). */
                 const now = new Date();
                 const current = rangeBounds(range, now);
                 const previous = previousBounds(range, current);
-                const sevenDaysAgo = new Date(now);
-                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                const weekStart = rangeBounds('week', now).start;
 
                 const monthStart = rangeBounds('month', now).start;
                 const prevMonth = previousBounds('month', { start: monthStart, end: now });
@@ -71,28 +87,34 @@ export async function GET(request: NextRequest) {
                         dailyCurrentRaw,
                         dailyPrevRaw,
                 ] = await Promise.all([
+                        // r93-N5 (P45-W1): الإيراد يستثني الملغى — مطابقة حرفية
+                        // لـ revenueAggregate في stats-queries.ts (تعريف الإيراد الموثق).
                         prisma.$queryRaw<{ date: string; revenue: number }[]>`
                                 SELECT DATE("createdAt") as date, COALESCE(SUM(total), 0) as revenue
                                 FROM "Order"
-                                WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
+                                WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${weekStart}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY DATE("createdAt") ORDER BY date ASC
                         `,
                         prisma.$queryRaw<{ date: string; count: bigint }[]>`
                                 SELECT DATE("createdAt") as date, COUNT(*) as count
                                 FROM "Order"
-                                WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
+                                WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${weekStart}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY DATE("createdAt") ORDER BY date ASC
                         `,
                         prisma.$queryRaw<{ date: string; revenue: number }[]>`
                                 SELECT DATE("createdAt") as date, COALESCE(SUM(total), 0) as revenue
                                 FROM "Order"
                                 WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY DATE("createdAt") ORDER BY date ASC
                         `,
                         prisma.$queryRaw<{ date: string; count: bigint }[]>`
                                 SELECT DATE("createdAt") as date, COUNT(*) as count
                                 FROM "Order"
                                 WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY DATE("createdAt") ORDER BY date ASC
                         `,
                         prisma.orderItem.groupBy(
@@ -105,17 +127,28 @@ export async function GET(request: NextRequest) {
                                 SELECT EXTRACT(HOUR FROM "createdAt")::int as hour, COUNT(*)::int as count
                                 FROM "Order"
                                 WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY hour ORDER BY hour ASC
                         `,
                         prisma.$queryRaw<{ date: string; aov: number }[]>`
                                 SELECT DATE("createdAt") as date, AVG(total)::decimal(10,2) as aov
                                 FROM "Order"
                                 WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY DATE("createdAt") ORDER BY date ASC
                         `,
-                        prisma.order.count({ where: { restaurantId, createdAt: { gte: current.start } } }),
+                        // r93-N5 (P45-W1): عدّادات النمو تستثني الملغى — الطلب الملغى
+                        // ليس نشاطًا (نفس عائلة revenueAggregate: العدّ المزدوج مع
+                        // الإيراد داخل التجميع مفلتر).
                         prisma.order.count({
-                                where: { restaurantId, createdAt: { gte: previous.start, lt: current.start } },
+                                where: { restaurantId, status: { not: 'cancelled' }, createdAt: { gte: current.start } },
+                        }),
+                        prisma.order.count({
+                                where: {
+                                        restaurantId,
+                                        status: { not: 'cancelled' },
+                                        createdAt: { gte: previous.start, lt: current.start },
+                                },
                         }),
                         prisma.$queryRaw<{ categoryId: number; name: string; count: bigint }[]>`
                                 SELECT c.id as "categoryId", COALESCE(NULLIF(c."nameAr", ''), c.name) as name, COALESCE(SUM(oi.quantity), 0)::int as count
@@ -124,6 +157,7 @@ export async function GET(request: NextRequest) {
                                 INNER JOIN "MenuItem" mi ON mi.id = oi."itemId"
                                 INNER JOIN "MenuCategory" c ON c.id = mi."categoryId"
                                 WHERE o."restaurantId" = ${restaurantId} AND o."createdAt" >= ${current.start}
+                                        AND o."status" != ${CANCELLED}
                                 GROUP BY c.id, c."nameAr", c.name
                                 ORDER BY count DESC
                         `,
@@ -131,6 +165,7 @@ export async function GET(request: NextRequest) {
                                 SELECT DATE("createdAt") as date, COUNT(*) as count
                                 FROM "Order"
                                 WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${monthStart}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY DATE("createdAt") ORDER BY date ASC
                         `,
                         prisma.$queryRaw<{ date: string; count: bigint }[]>`
@@ -139,6 +174,7 @@ export async function GET(request: NextRequest) {
                                 WHERE "restaurantId" = ${restaurantId}
                                         AND "createdAt" >= ${prevMonth.start}
                                         AND "createdAt" < ${monthStart}
+                                        AND "status" != ${CANCELLED}
                                 GROUP BY DATE("createdAt") ORDER BY date ASC
                         `,
                 ]);
@@ -189,12 +225,12 @@ export async function GET(request: NextRequest) {
                         range,
                         revenue7d: fillRevenueSeries(
                                 revenue7dRaw.map((r) => ({ date: r.date, revenue: Number(r.revenue) })),
-                                sevenDaysAgo,
+                                weekStart,
                                 now
                         ),
                         orders7d: fillDailySeries(
                                 orders7dRaw.map((r) => ({ date: r.date, count: Number(r.count) })),
-                                sevenDaysAgo,
+                                weekStart,
                                 now
                         ),
                         revenueRange: fillRevenueSeries(
