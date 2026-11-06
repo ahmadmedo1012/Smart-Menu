@@ -64,7 +64,7 @@
     "dotenv": "17.4.2",
     "eslint": "^9",
     "eslint-config-next": "^16.4.5",
-    "knip": "5.46.4",
+    "knip": "6.44.1",
     "tailwindcss": "^4.3.4",
     "typescript": "^5",
     "vitest": "^4.1.12"
